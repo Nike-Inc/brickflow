@@ -1,0 +1,27 @@
+# Databricks notebook source
+
+import {{ pkg }}
+
+from brickflow import Project, PypiTaskLibrary, MavenTaskLibrary
+
+ARTIFACTORY = ""
+
+
+def main() -> None:
+    """Project entrypoint"""
+    with Project(
+        "{{ project_name }}",
+        git_repo="{{ git_https_url }}",
+        provider="{{ git_provider }}",
+        libraries=[
+            PypiTaskLibrary(package="brickflow=={{brickflow_version}} --extra-index-url " + ARTIFACTORY),
+            MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
+            # PypiTaskLibrary(package="spark-expectations=={{spark_expectations_version}} --extra-index-url " + ARTIFACTORY), # Uncomment if spark-expectations is needed
+        ],
+    ) as f:
+        f.add_pkg({{pkg}})
+
+
+if __name__ == "__main__":
+    main()
+

@@ -1,0 +1,149 @@
+site_name: BrickFlow
+site_description: Brickflow is a tool for managing and deploying scalable workflows on Databricks.
+site_url: https://brickflow.readthedocs.io/en/latest/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    # - announce.dismiss
+    - content.code.annotate
+    # - content.tabs.link
+    - content.tooltips
+    # - header.autohide
+    # - navigation.expand
+    - navigation.indexes
+    - navigation.instant
+    # - navigation.prune
+    # - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+  font:
+    text: Roboto
+    code: Roboto Mono
+  logo: img/logo.png
+  favicon: img/logo.png
+  language: en
+
+repo_name: nike/brickflow
+repo_url: https://github.com/Nike-Inc/brickflow
+
+plugins:
+  - search:
+      lang: en
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [ "brickflow" ]  # search packages in the src folder
+          options:
+            show_source: true
+            show_root_heading: false
+            heading_level: 1
+            merge_init_into_class: true
+            show_if_no_docstring: true
+            show_root_full_path: true
+            show_root_members_full_path: true
+            show_root_toc_entry: false
+            show_category_heading: true
+            show_signature_annotations: true
+            separate_signature: false
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - mkdocs-click
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+watch:
+  - brickflow
+  - brickflow_plugins
+
+extra_css:
+  - css/custom.css
+
+nav:
+  - Home: index.md
+  - Quickstart:
+      - Bundles (Recommended): bundles-quickstart.md
+      - CDKTF (Deprecated): quickstart.md
+  - Concepts:
+      - HighLevel: highlevel.md
+      - Workflows: workflows.md
+      - Tasks: tasks.md
+      - Projects: projects.md
+      - ENV Variables: environment-variables.md
+  - CLI:
+      - Commands: cli/reference.md
+  - Limitations: limitations.md
+  - Python API:
+      - Engine:
+          - Project: api/project.md
+          - Workflow: api/workflow.md
+          - Compute: api/compute.md
+          - Task: api/task.md
+      - Context: api/context.md
+      - CLI: api/cli.md
+      - Brickflow Plugins:
+          - AirflowTaskDependencySensor: api/airflow_external_task_dependency.md
+          - AirflowNativeOperators: api/airflow_native_operators.md
+          - WorkflowDependencySensor: api/workflow_dependency_sensor.md
+          - Secrets: api/secrets.md
+
+
+extra:
+  generator: false
+  version:
+    provider: mike
+    default: latest

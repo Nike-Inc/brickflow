@@ -1,0 +1,4 @@
+- [ ] Docs (WIP)
+- [ ] Python wheel tasks
+- [ ] Support for DBSQL tasks using SQL Warehouses
+- [ ] CLI for visualizing workflow locally using a graphing tool

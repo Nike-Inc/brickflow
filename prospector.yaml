@@ -1,0 +1,67 @@
+strictness: high
+test-warnings: True
+doc-warnings: false
+
+ignore-paths:
+  - build
+  - venv
+  - venv3
+  - venv2
+  - site
+  - docs
+  - tests/engine/sample_workflow.py
+  - brickflow/tf
+  - tools
+  - .databricks
+  - .mypy_cache
+  - brickflow-dockers
+  - brickflow/bundles
+  - brickflow/sample_dags
+  - cdktf.out
+  - main.py
+  - main2.py
+  - .eggs
+  - htmlcov
+  - sample_workflows
+  - integration_workflows
+  - scripts
+  - tests/test_brickflow.py
+  - examples
+  - brickflow_plugins # will eventually need to remove once there are tests and linting logic is applied
+
+max-line-length: 120
+
+pylint:
+  disable:
+    - too-many-branches
+    - too-many-statements
+    - too-many-instance-attributes
+    - cyclic-import
+    - len-as-condition
+    - invalid-name
+    - no-else-return
+    - no-self-use
+    - protected-access
+    - too-many-arguments
+    - too-many-locals # TBD: this rule is actually a good one, we need to enable it and refactor code
+    - inconsistent-return-statements
+    - import-outside-toplevel
+    - consider-using-set-comprehension
+    - useless-object-inheritance
+    - unnecessary-pass
+    - raise-missing-from # pretty strange requirement with acquaint logic
+    - broad-except
+    - arguments-differ
+
+pycodestyle:
+  # W293: disabled because we have newlines in docstrings
+  # E203: disabled because pep8 and black disagree on whitespace before colon in some cases
+  disable: W293,E203,E203 # conflicts with black formatting
+
+pyflakes:
+  disable:
+    - F821 # ignore undefined name errors
+
+mccabe:
+  disable:
+    - MC0001

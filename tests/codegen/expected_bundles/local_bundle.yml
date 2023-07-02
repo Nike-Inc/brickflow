@@ -1,0 +1,261 @@
+bundle:
+  name: test-project
+environments:
+  local:
+    resources:
+      jobs:
+        test:
+          git_source: null
+          job_clusters: []
+          max_concurrent_runs: 1.0
+          name: test_user_test
+          run_as:
+            user_name: abc@abc.com
+          permissions:
+          - level: IS_OWNER
+            user_name: abc@abc.com
+          - level: CAN_MANAGE
+            user_name: abc@abc.com
+          - level: CAN_MANAGE_RUN
+            user_name: abc@abc.com
+          - level: CAN_VIEW
+            user_name: abc@abc.com
+          schedule:
+            quartz_cron_expression: '* * * * *'
+            timezone_id: UTC
+          tags:
+            brickflow_project_name: test-project
+            databricks_deploy_mode: Databricks Asset Bundles
+            deployed_by: test_user
+            environment: local
+            test: test2
+          tasks:
+          - depends_on: []
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              base_parameters:
+                all_tasks1: test
+                all_tasks3: '123'
+                brickflow_env: local
+                brickflow_internal_only_run_tasks: ''
+                brickflow_internal_task_name: '{{task_key}}'
+                brickflow_internal_workflow_name: test
+                brickflow_internal_workflow_prefix: ''
+                brickflow_internal_workflow_suffix: ''
+                brickflow_job_id: '{{job_id}}'
+                brickflow_parent_run_id: '{{parent_run_id}}'
+                brickflow_run_id: '{{run_id}}'
+                brickflow_start_date: '{{start_date}}'
+                brickflow_start_time: '{{start_time}}'
+                brickflow_task_key: '{{task_key}}'
+                brickflow_task_retry_count: '{{task_retry_count}}'
+              notebook_path: test_databricks_bundle.py
+              source: WORKSPACE
+            retry_on_timeout: null
+            task_key: custom_python_task_push
+            timeout_seconds: null
+          - depends_on: []
+            pipeline_task:
+              pipeline_id: ${resources.pipelines.test_hello_world.id}
+            task_key: dlt_pipeline
+          - depends_on: []
+            pipeline_task:
+              pipeline_id: ${resources.pipelines.test_hello_world.id}
+            task_key: dlt_pipeline_2
+          - depends_on: []
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              base_parameters:
+                all_tasks1: test
+                all_tasks3: '123'
+                brickflow_env: local
+                brickflow_internal_only_run_tasks: ''
+                brickflow_internal_task_name: '{{task_key}}'
+                brickflow_internal_workflow_name: test
+                brickflow_internal_workflow_prefix: ''
+                brickflow_internal_workflow_suffix: ''
+                brickflow_job_id: '{{job_id}}'
+                brickflow_parent_run_id: '{{parent_run_id}}'
+                brickflow_run_id: '{{run_id}}'
+                brickflow_start_date: '{{start_date}}'
+                brickflow_start_time: '{{start_time}}'
+                brickflow_task_key: '{{task_key}}'
+                brickflow_task_retry_count: '{{task_retry_count}}'
+                test: var
+              notebook_path: test_databricks_bundle.py
+              source: WORKSPACE
+            retry_on_timeout: null
+            task_key: task_function
+            timeout_seconds: null
+          - depends_on:
+            - task_key: task_function
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              base_parameters:
+                all_tasks1: test
+                all_tasks3: '123'
+                brickflow_env: local
+                brickflow_internal_only_run_tasks: ''
+                brickflow_internal_task_name: '{{task_key}}'
+                brickflow_internal_workflow_name: test
+                brickflow_internal_workflow_prefix: ''
+                brickflow_internal_workflow_suffix: ''
+                brickflow_job_id: '{{job_id}}'
+                brickflow_parent_run_id: '{{parent_run_id}}'
+                brickflow_run_id: '{{run_id}}'
+                brickflow_start_date: '{{start_date}}'
+                brickflow_start_time: '{{start_time}}'
+                brickflow_task_key: '{{task_key}}'
+                brickflow_task_retry_count: '{{task_retry_count}}'
+              notebook_path: test_databricks_bundle.py
+              source: WORKSPACE
+            retry_on_timeout: null
+            task_key: task_function_2
+            timeout_seconds: null
+          - depends_on:
+            - task_key: task_function_2
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              base_parameters:
+                all_tasks1: test
+                all_tasks3: '123'
+                brickflow_env: local
+                brickflow_internal_only_run_tasks: ''
+                brickflow_internal_task_name: '{{task_key}}'
+                brickflow_internal_workflow_name: test
+                brickflow_internal_workflow_prefix: ''
+                brickflow_internal_workflow_suffix: ''
+                brickflow_job_id: '{{job_id}}'
+                brickflow_parent_run_id: '{{parent_run_id}}'
+                brickflow_run_id: '{{run_id}}'
+                brickflow_start_date: '{{start_date}}'
+                brickflow_start_time: '{{start_time}}'
+                brickflow_task_key: '{{task_key}}'
+                brickflow_task_retry_count: '{{task_retry_count}}'
+              notebook_path: test_databricks_bundle.py
+              source: WORKSPACE
+            retry_on_timeout: null
+            task_key: task_function_3
+            timeout_seconds: null
+          - depends_on:
+            - task_key: task_function_3
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              base_parameters:
+                all_tasks1: test
+                all_tasks3: '123'
+                brickflow_env: local
+                brickflow_internal_only_run_tasks: ''
+                brickflow_internal_task_name: '{{task_key}}'
+                brickflow_internal_workflow_name: test
+                brickflow_internal_workflow_prefix: ''
+                brickflow_internal_workflow_suffix: ''
+                brickflow_job_id: '{{job_id}}'
+                brickflow_parent_run_id: '{{parent_run_id}}'
+                brickflow_run_id: '{{run_id}}'
+                brickflow_start_date: '{{start_date}}'
+                brickflow_start_time: '{{start_time}}'
+                brickflow_task_key: '{{task_key}}'
+                brickflow_task_retry_count: '{{task_retry_count}}'
+              notebook_path: test_databricks_bundle.py
+              source: WORKSPACE
+            retry_on_timeout: null
+            task_key: task_function_4
+            timeout_seconds: null
+          - depends_on: []
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              base_parameters:
+                all_tasks1: test
+                all_tasks3: '123'
+                brickflow_env: local
+                brickflow_internal_only_run_tasks: ''
+                brickflow_internal_task_name: '{{task_key}}'
+                brickflow_internal_workflow_name: test
+                brickflow_internal_workflow_prefix: ''
+                brickflow_internal_workflow_suffix: ''
+                brickflow_job_id: '{{job_id}}'
+                brickflow_parent_run_id: '{{parent_run_id}}'
+                brickflow_run_id: '{{run_id}}'
+                brickflow_start_date: '{{start_date}}'
+                brickflow_start_time: '{{start_time}}'
+                brickflow_task_key: '{{task_key}}'
+                brickflow_task_retry_count: '{{task_retry_count}}'
+                test: var
+              notebook_path: test_databricks_bundle.py
+              source: WORKSPACE
+            retry_on_timeout: null
+            task_key: task_function_no_deco_args
+            timeout_seconds: null
+          - depends_on: []
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              base_parameters:
+                all_tasks1: test
+                all_tasks3: '123'
+                brickflow_env: local
+                brickflow_internal_only_run_tasks: ''
+                brickflow_internal_task_name: '{{task_key}}'
+                brickflow_internal_workflow_name: test
+                brickflow_internal_workflow_prefix: ''
+                brickflow_internal_workflow_suffix: ''
+                brickflow_job_id: '{{job_id}}'
+                brickflow_parent_run_id: '{{parent_run_id}}'
+                brickflow_run_id: '{{run_id}}'
+                brickflow_start_date: '{{start_date}}'
+                brickflow_start_time: '{{start_time}}'
+                brickflow_task_key: '{{task_key}}'
+                brickflow_task_retry_count: '{{task_retry_count}}'
+              notebook_path: test_databricks_bundle.py
+              source: WORKSPACE
+            retry_on_timeout: null
+            task_key: task_function_nokwargs
+            timeout_seconds: null
+      pipelines:
+        test_hello_world:
+          catalog: null
+          channel: current
+          configuration: {}
+          continuous: false
+          development: true
+          edition: advanced
+          libraries:
+          - notebook:
+              path: scripts/spark_script_2.py
+          name: test_user_hello world
+          photon: false
+          storage: '123'
+          target: null
+    workspace:
+      file_path: /Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files
+      root_path: /Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local
+      state_path: /Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/state
+workspace: {}

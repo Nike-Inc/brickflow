@@ -1,0 +1,3 @@
+from typing import Callable
+
+def propagate_hint(decorator: Callable) -> Callable: ...
