@@ -1,0 +1,48 @@
+name: build
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test-pipeline:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 2
+      matrix:
+        python-version: [ '3.8' ]
+        os: [ ubuntu-latest ]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip' # caching pip dependencies
+          cache-dependency-path: poetry.lock
+
+      - name: Install pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install pip
+        run: python -m pip install poetry
+
+      - name: Install poetry dynamic version
+        run: poetry self add "poetry-dynamic-versioning[plugin]"
+
+      - name: Install, lint and test
+        run: |
+          poetry install --all-extras
+          make check
+          make cov
+
+      - name: Publish test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          fail_ci_if_error: true

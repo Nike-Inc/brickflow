@@ -1,0 +1,586 @@
+from __future__ import annotations
+
+import base64
+import dataclasses
+import functools
+import inspect
+from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import (
+    Callable,
+    List,
+    Dict,
+    Union,
+    Optional,
+    Any,
+    Tuple,
+    TYPE_CHECKING,
+    Iterator,
+    Literal,
+)
+
+import pluggy
+from decouple import config
+
+from brickflow import _ilog, BrickflowDefaultEnvs
+from brickflow.context import (
+    BrickflowBuiltInTaskVariables,
+    BrickflowInternalVariables,
+    ctx,
+    BRANCH_SKIP_EXCEPT,
+    SKIP_EXCEPT_HACK,
+    RETURN_VALUE_KEY,
+)
+from brickflow.engine import ROOT_NODE, with_brickflow_logger
+from brickflow.engine.compute import Cluster
+from brickflow.engine.hooks import BRICKFLOW_TASK_PLUGINS, BrickflowTaskPluginSpec
+
+if TYPE_CHECKING:
+    from brickflow.engine.workflow import Workflow  # pragma: no cover
+
+brickflow_task_plugin_impl = pluggy.HookimplMarker(BRICKFLOW_TASK_PLUGINS)
+
+
+class TaskNotFoundError(Exception):
+    pass
+
+
+class AnotherActiveTaskError(Exception):
+    pass
+
+
+class TaskAlreadyExistsError(Exception):
+    pass
+
+
+class UnsupportedBrickflowTriggerRuleError(Exception):
+    pass
+
+
+class InvalidTaskSignatureDefinition(Exception):
+    pass
+
+
+class NoCallableTaskError(Exception):
+    pass
+
+
+class InvalidTaskLibraryError(Exception):
+    pass
+
+
+class BrickflowTaskEnvVars(Enum):
+    BRICKFLOW_SELECT_TASKS = "BRICKFLOW_SELECT_TASKS"
+
+
+class BrickflowTriggerRule(Enum):
+    ALL_SUCCESS = "all_success"
+    NONE_FAILED = "none_failed"
+
+
+class TaskType(Enum):
+    NOTEBOOK = "notebook_task"
+    SQL = "sql_task"
+    DLT = "pipeline_task"
+    CUSTOM_PYTHON_TASK = "custom_python_task"
+
+
+@dataclass(frozen=True)
+class TaskLibrary:
+    @staticmethod
+    def unique_libraries(
+        library_list: Optional[List["TaskLibrary"]],
+    ) -> List["TaskLibrary"]:
+        if library_list is None:
+            return []
+        return list(set(library_list))
+
+    @property
+    def dict(self) -> Dict[str, Union[str | Dict[str, str]]]:
+        return dataclasses.asdict(self)
+
+    @staticmethod
+    def starts_with_values(value: str, prefix_list: List[str]) -> bool:
+        return any(value.startswith(prefix) for prefix in prefix_list)
+
+    def validate_starts_with_values(self, value: str, prefix_list: List[str]) -> None:
+        if not TaskLibrary.starts_with_values(value, prefix_list):
+            raise InvalidTaskLibraryError(
+                f"Invalid library configured for: {self.__class__.__name__}; "
+                f"with value {value}; the valid prefix lists are: {prefix_list}"
+            )
+
+
+@dataclass(frozen=True)
+class StorageBasedTaskLibrary(TaskLibrary):
+    def __post_init__(self) -> None:
+        storage_lib = dataclasses.asdict(self)
+        for _, v in storage_lib.items():
+            self.validate_starts_with_values(v, ["dbfs:/", "s3://"])
+
+
+@dataclass(frozen=True)
+class JarTaskLibrary(StorageBasedTaskLibrary):
+    """
+    Args:
+        jar: String to s3/dbfs path for jar
+    """
+
+    jar: str
+
+
+@dataclass(frozen=True)
+class EggTaskLibrary(StorageBasedTaskLibrary):
+    """
+    Args:
+        egg: String to s3/dbfs path for egg
+    """
+
+    egg: str
+
+
+@dataclass(frozen=True)
+class WheelTaskLibrary(StorageBasedTaskLibrary):
+    """
+    Args:
+        whl: String to s3/dbfs path for whl
+    """
+
+    whl: str
+
+
+@dataclass(frozen=True)
+class PypiTaskLibrary(TaskLibrary):
+    """
+    Args:
+        package: The package in pypi i.e. requests, requests==x.y.z, git+https://github.com/Nike-Inc/brickflow.git
+        repo: The repository where the package can be found. By default pypi is used
+    """
+
+    package: str
+    repo: Optional[str] = None
+
+    @property
+    def dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        return {"pypi": dataclasses.asdict(self)}
+
+
+@dataclass(frozen=True)
+class MavenTaskLibrary(TaskLibrary):
+    """
+    Args:
+        coordinates: Gradle-style Maven coordinates. For example: org.jsoup:jsoup:1.7.2.
+        repo: Maven repo to install the Maven package from.
+            If omitted, both Maven Central Repository and Spark Packages are searched.
+        exclusions: List of dependences to exclude. For example: ["slf4j:slf4j", "*:hadoop-client"].
+            Maven dependency exclusions:
+            https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.
+    """
+
+    coordinates: str
+    repo: Optional[str] = None
+    exclusions: Optional[List[str]] = None
+
+    @property
+    def dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        return {"maven": dataclasses.asdict(self)}
+
+
+@dataclass(frozen=True)
+class CranTaskLibrary(TaskLibrary):
+    """
+    Args:
+        package: The name of the CRAN package to install.
+        repo: The repository where the package can be found. If not specified, the default CRAN repo is used.
+    """
+
+    package: str
+    repo: Optional[str] = None
+
+    @property
+    def dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        return {"cran": dataclasses.asdict(self)}
+
+
+@dataclass(frozen=True)
+class EmailNotifications:
+    on_failure: Optional[List[str]] = None
+    on_success: Optional[List[str]] = None
+    on_start: Optional[List[str]] = None
+
+    def to_tf_dict(self) -> Dict[str, Optional[List[str]]]:
+        return {
+            "on_start": self.on_start,
+            "on_failure": self.on_failure,
+            "on_success": self.on_success,
+        }
+
+
+@dataclass(frozen=True)
+class TaskSettings:
+    email_notifications: Optional[EmailNotifications] = None
+    timeout_seconds: Optional[int] = None
+    max_retries: Optional[int] = None
+    min_retry_interval_millis: Optional[int] = None
+    retry_on_timeout: Optional[bool] = None
+
+    def merge(self, other: Optional["TaskSettings"]) -> "TaskSettings":
+        # overrides top level values
+        if other is None:
+            return self
+        return TaskSettings(
+            other.email_notifications or self.email_notifications,
+            other.timeout_seconds or self.timeout_seconds or 0,
+            other.max_retries or self.max_retries,
+            other.min_retry_interval_millis or self.min_retry_interval_millis,
+            other.retry_on_timeout or self.retry_on_timeout,
+        )
+
+    def to_tf_dict(
+        self,
+    ) -> Dict[
+        str,
+        Optional[str]
+        | Optional[int]
+        | Optional[bool]
+        | Optional[Dict[str, Optional[List[str]]]],
+    ]:
+        email_not = (
+            self.email_notifications.to_tf_dict()
+            if self.email_notifications is not None
+            else {}
+        )
+        return {
+            "email_notifications": email_not,
+            "timeout_seconds": self.timeout_seconds,
+            "max_retries": self.max_retries,
+            "min_retry_interval_millis": self.min_retry_interval_millis,
+            "retry_on_timeout": self.retry_on_timeout,
+        }
+
+
+@dataclass
+class TaskResponse:
+    response: Any
+    push_return_value: bool = True
+
+
+@dataclass(frozen=True)
+class DLTChannels:
+    CURRENT: str = "current"
+    PREVIEW: str = "preview"
+
+
+@dataclass(frozen=True)
+class DLTEdition:
+    CORE: str = "core"
+    PRO: str = "pro"
+    ADVANCED: str = "advanced"
+
+
+@dataclass(frozen=True)
+class DLTPipeline:
+    name: str
+    language: Literal["SQL", "PYTHON"]
+    notebook_path: str
+    configuration: Optional[Dict[str, str]] = None
+    allow_duplicate_names: Optional[bool] = None
+
+    # node type is required and everything is stubbed for future support
+    cluster: Cluster = Cluster("dlt-cluster", "dlt-spark-version", "dlt-vm")
+    channel: str = DLTChannels.CURRENT
+
+    # continuous: bool = False  # forced to be false
+    development: bool = True
+    edition: str = DLTEdition.ADVANCED
+    photon: bool = False
+
+    # Catalog for unity catalog.
+    catalog: Optional[str] = None
+    storage: Optional[str] = None
+    target: Optional[str] = None
+
+    def to_b64(self, working_dir: str) -> str:
+        with (Path(working_dir) / Path(self.notebook_path)).open(
+            "r", encoding="utf-8"
+        ) as f:
+            return base64.b64encode(f.read().encode("utf-8")).decode("utf-8")
+
+    @staticmethod
+    def cleanup(d: Dict[str, Any]) -> None:
+        d.pop("language", None)
+        d.pop("notebook_path", None)
+        d.pop("cluster", None)
+        d.pop("allow_duplicate_names", None)
+
+    def to_dict(self) -> Dict[str, Any]:
+        d = dataclasses.asdict(self)
+        d["continuous"] = False
+        if self.allow_duplicate_names is not None:
+            if self.configuration is None:
+                d["configuration"] = {}
+            d["configuration"]["allow_duplicate_names"] = self.allow_duplicate_names
+        self.cleanup(d)
+        return d
+
+
+class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
+    @staticmethod
+    @brickflow_task_plugin_impl
+    def handle_results(resp: "TaskResponse", task: "Task", workflow: "Workflow") -> Any:
+        _ilog.info("using default for handling results")
+        # by default don't do anything just return the response as is
+        return resp
+
+    @staticmethod
+    @brickflow_task_plugin_impl
+    def task_execute(task: "Task", workflow: "Workflow") -> TaskResponse:
+        """default execute implementation method."""
+        _ilog.info("using default plugin for handling task execute")
+        if (
+            task.task_type == TaskType.CUSTOM_PYTHON_TASK
+            and task.custom_execute_callback is not None
+        ):
+            _ilog.info("handling custom execute")
+            return task.custom_execute_callback(task)
+        else:
+            return TaskResponse(
+                task.task_func(**task.get_runtime_parameter_values()),
+                push_return_value=True,
+            )
+
+
+@functools.lru_cache
+def get_brickflow_tasks_hook() -> BrickflowTaskPluginSpec:
+    pm = pluggy.PluginManager(BRICKFLOW_TASK_PLUGINS)
+    pm.add_hookspecs(BrickflowTaskPluginSpec)
+    pm.load_setuptools_entrypoints(BRICKFLOW_TASK_PLUGINS)
+    pm.register(DefaultBrickflowTaskPluginImpl())
+    for name, plugin_instance in pm.list_name_plugin():
+        _ilog.info(
+            "Loaded plugin with name: %s and class: %s",
+            name,
+            plugin_instance.__class__.__name__,
+        )
+    return pm.hook
+
+
+@dataclass(frozen=True)
+class Task:
+    task_id: str
+    task_func: Callable
+    workflow: Workflow  # noqa
+    cluster: Cluster
+    description: Optional[str] = None
+    libraries: List[TaskLibrary] = field(default_factory=lambda: [])
+    depends_on: List[Union[Callable, str]] = field(default_factory=lambda: [])
+    task_type: TaskType = TaskType.NOTEBOOK
+    trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS
+    task_settings: Optional[TaskSettings] = None
+    custom_execute_callback: Optional[Callable] = None
+
+    def __post_init__(self) -> None:
+        self.is_valid_task_signature()
+
+    @property
+    def task_func_name(self) -> str:
+        return self.task_func.__name__
+
+    @property
+    def parents(self) -> List[str]:
+        return list(self.workflow.parents(self.task_id))
+
+    @property
+    def depends_on_names(self) -> Iterator[str]:
+        for i in self.depends_on:
+            if callable(i) and hasattr(i, "__name__"):
+                yield i.__name__
+            else:
+                yield str(i)
+
+    @property
+    def task_type_str(self) -> str:
+        return self.task_type.value
+
+    @property
+    def builtin_notebook_params(self) -> Dict[str, str]:
+        # 2 braces to escape for 1
+        return {i.value: f"{{{{{i.name}}}}}" for i in BrickflowBuiltInTaskVariables}
+
+    @property
+    def name(self) -> str:
+        return self.task_id
+
+    @property
+    def brickflow_default_params(self) -> Dict[str, str]:
+        return {
+            BrickflowInternalVariables.workflow_id.value: self.workflow.name,
+            # 2 braces to escape 1
+            BrickflowInternalVariables.task_id.value: f"{{{{{BrickflowBuiltInTaskVariables.task_key.name}}}}}",
+            BrickflowInternalVariables.only_run_tasks.value: "",
+            BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix,
+            BrickflowInternalVariables.workflow_suffix.value: self.workflow.suffix,
+            BrickflowInternalVariables.env.value: ctx.env,
+        }
+
+    @staticmethod
+    def handle_notebook_path(entrypoint: str) -> str:
+        # local will get created as workspace notebook job and not a git source job
+        if ctx.env == BrickflowDefaultEnvs.LOCAL.value:
+            # check and ensure suffix has .py extension
+            return entrypoint if entrypoint.endswith(".py") else f"{entrypoint}.py"
+        return entrypoint
+
+    def get_obj_dict(self, entrypoint: str) -> Dict[str, Any]:
+        return {
+            "notebook_path": self.handle_notebook_path(entrypoint),
+            "base_parameters": {
+                **self.builtin_notebook_params,
+                **self.brickflow_default_params,
+                **self.custom_task_parameters,  # type: ignore
+                # **(self.custom_unique_task_parameters or {}),
+                # TODO: implement only after validating limit on parameters
+            },
+        }
+
+    # TODO: error if star isn't there
+    def is_valid_task_signature(self) -> None:
+        # only supports kwonlyargs with defaults
+        spec: inspect.FullArgSpec = inspect.getfullargspec(self.task_func)
+        sig: inspect.Signature = inspect.signature(self.task_func)
+        signature_error_msg = (
+            "Task signatures only supports kwargs with defaults. or catch all varkw **kwargs"
+            "For example def execute(*, variable_a=None, variable_b=None, **kwargs). "
+            f"Please fix function def {self.task_func_name}{sig}: ..."
+        )
+        kwargs_default_error_msg = (
+            f"Keyword arguments must be Strings. "
+            f"Please handle booleans and numbers via strings. "
+            f"Please fix function def {self.task_func_name}{sig}: ..."
+        )
+
+        valid_case = spec.args == [] and spec.varargs is None and spec.defaults is None
+        for _, v in (spec.kwonlydefaults or {}).items():
+            # in python boolean is a type of int must be captured here via short circuit
+            if not (isinstance(v, str) or v is None):
+                raise InvalidTaskSignatureDefinition(kwargs_default_error_msg)
+        if valid_case:
+            return
+
+        raise InvalidTaskSignatureDefinition(signature_error_msg)
+
+    @property
+    def custom_task_parameters(self) -> Dict[str, str]:
+        final_task_parameters: Dict[str, str] = {}
+        if self.workflow.common_task_parameters is not None:
+            final_task_parameters = self.workflow.common_task_parameters.copy() or {}
+        spec: inspect.FullArgSpec = inspect.getfullargspec(self.task_func)
+        if spec.kwonlydefaults is None:
+            return final_task_parameters
+        # convert numbers into strings for base parameters
+        final_task_parameters.update(
+            {k: str(v) for k, v in spec.kwonlydefaults.items()}
+        )
+        return final_task_parameters
+
+    # @property
+    # def custom_unique_task_parameters(self) -> Dict[str, str]:
+    #     return {f"uniq_{self.name}_k": v for k, v in self.custom_task_parameters.items()}
+
+    def get_runtime_parameter_values(self) -> Dict[str, Any]:
+        # if dbutils returns None then return v instead
+        return {
+            k: (ctx.dbutils_widget_get_or_else(k, str(v)) or v)
+            for k, v in (
+                inspect.getfullargspec(self.task_func).kwonlydefaults or {}
+            ).items()
+        }
+
+    @staticmethod
+    def _get_skip_with_reason(cond: bool, reason: str) -> Tuple[bool, Optional[str]]:
+        if cond is True:
+            return cond, reason
+        return cond, None
+
+    def should_skip(self) -> Tuple[bool, Optional[str]]:
+        # return true or false and reason
+        node_skip_checks = []
+        for parent in self.parents:
+            if parent != ROOT_NODE:
+                try:
+                    task_to_not_skip = ctx.task_coms.get(parent, BRANCH_SKIP_EXCEPT)
+                    if self.name != task_to_not_skip:
+                        # set this task to skip hack to keep to empty to trigger failure
+                        # key look up will fail
+                        node_skip_checks.append(True)
+                    else:
+                        node_skip_checks.append(False)
+                except Exception:
+                    # ignore errors as it probably doesnt exist
+                    # TODO: log errors
+                    node_skip_checks.append(False)
+        if not node_skip_checks:
+            return False, None
+        if self.trigger_rule == BrickflowTriggerRule.NONE_FAILED:
+            # by default a task failure automatically skips
+            return self._get_skip_with_reason(
+                all(node_skip_checks),
+                "At least one task before this were not successful",
+            )
+        # default is BrickflowTriggerRule.ALL_SUCCESS
+        return self._get_skip_with_reason(
+            any(node_skip_checks), "All tasks before this were not successful"
+        )
+
+    def _skip_because_not_selected(self) -> Tuple[bool, Optional[str]]:
+        selected_tasks = ctx.dbutils_widget_get_or_else(
+            BrickflowInternalVariables.only_run_tasks.value,
+            config(BrickflowTaskEnvVars.BRICKFLOW_SELECT_TASKS.value, ""),
+        )
+        if selected_tasks is None or selected_tasks == "":
+            return False, None
+        selected_task_list = selected_tasks.split(",")
+        if self.name not in selected_task_list:
+            return (
+                True,
+                f"This task: {self.name} is not a selected task: {selected_task_list}",
+            )
+        return False, None
+
+    @with_brickflow_logger
+    def execute(self) -> Any:
+        # Workflow is:
+        #   1. Check to see if there selected tasks and if there are is this task in the list
+        #   2. Check to see if the previous task is skipped and trigger rule.
+        #   3. Check to see if this a custom python task and execute it
+        #   4. Execute the task function
+        ctx._set_current_task(self.name)
+        _select_task_skip, _select_task_skip_reason = self._skip_because_not_selected()
+        if _select_task_skip is True:
+            # check if this task is skipped due to task selection
+            _ilog.info(
+                "Skipping task... %s for reason: %s",
+                self.name,
+                _select_task_skip_reason,
+            )
+            ctx._reset_current_task()
+            return
+        _skip, reason = self.should_skip()
+        if _skip is True:
+            _ilog.info("Skipping task... %s for reason: %s", self.name, reason)
+            ctx.task_coms.put(self.name, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK)
+            ctx._reset_current_task()
+            return
+
+        initial_resp: TaskResponse = get_brickflow_tasks_hook().task_execute(
+            task=self, workflow=self.workflow
+        )
+        resp: TaskResponse = get_brickflow_tasks_hook().handle_results(
+            resp=initial_resp, task=self, workflow=self.workflow
+        )
+
+        if resp.push_return_value is True:
+            ctx.task_coms.put(self.name, RETURN_VALUE_KEY, resp.response)
+        ctx._reset_current_task()
+        return resp.response

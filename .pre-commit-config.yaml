@@ -1,0 +1,19 @@
+repos:
+  - repo: local
+    hooks:
+      - id: make-check
+        name: Running Lint Checks
+        entry: make check
+        language: system
+        files: '\.py$'
+        pass_filenames: false
+        always_run: false
+        stages: [commit]
+      - id: make-cov
+        name: Running Lint Checks & Test Suite
+        entry: make cov
+        language: system
+        files: '\.py$'
+        pass_filenames: false
+        always_run: false
+        stages: [push]
