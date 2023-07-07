@@ -12,9 +12,11 @@ from click.testing import CliRunner
 
 from brickflow.cli import (
     cli,
+    exec_command,
+)
+from brickflow.cli.bundles import (
     bundle_download_path,
     download_and_unzip_databricks_cli,
-    exec_command,
 )
 
 
@@ -107,7 +109,7 @@ class TestCli:
         path_mock.isdir.return_value = True
         result = runner.invoke(cli, ["cdktf", "help"])  # noqa
         assert result.exit_code == 0, traceback.print_exception(*result.exc_info)
-        assert result.output.strip() == "hello world"
+        assert result.output.strip().endswith("hello world")
         run_mock.assert_called_once_with(
             ["cdktf", "help"], check=True, env=os.environ.copy()
         )
@@ -123,7 +125,7 @@ class TestCli:
         path_mock.isdir.return_value = True
         result = runner.invoke(cli, ["cdktf", "diff"])  # noqa
         assert result.exit_code == 0, traceback.print_exception(*result.exc_info)
-        assert result.output.strip() == "hello world"
+        assert result.output.strip().endswith("hello world")
         run_mock.assert_called_once_with(
             ["cdktf", "diff"], check=True, env=os.environ.copy()
         )
@@ -139,9 +141,8 @@ class TestCli:
         path_mock.isdir.return_value = True
         result = runner.invoke(cli, ["cdktf", "help"])  # noqa
         assert result.exit_code == 1, traceback.print_exception(*result.exc_info)
-        assert (
-            result.output.strip()
-            == "Error: Command 'cdktf help' returned non-zero exit status 127."
+        assert result.output.strip().endswith(
+            "Error: Command 'cdktf help' returned non-zero exit status 127."
         )
         run_mock.assert_called_once_with(
             ["cdktf", "help"], check=True, env=os.environ.copy()

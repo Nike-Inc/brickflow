@@ -62,6 +62,7 @@ airflow = ["apache-airflow"]
 all = ["apache-airflow", "cdktf"]
 
 [tool.poetry.group.dev.dependencies]
+types-PyYAML = "^6.0.0"
 pytest = "7.3.1"
 pytest-mock = "3.10.0"
 coverage = "7.2.5"

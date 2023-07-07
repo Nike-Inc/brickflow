@@ -1,9 +1,13 @@
 import abc
+import itertools
+import os
 import re
+from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Union, Dict, Any
+from typing import List, Optional, Union, Dict, Any, Iterator
 
 import yaml
+from pydantic import BaseModel
 
 from brickflow import (
     Workflow,
@@ -11,6 +15,7 @@ from brickflow import (
     TaskType,
     BrickflowDefaultEnvs,
     ctx,
+    _ilog,
 )
 from brickflow.bundles.model import (
     Jobs,
@@ -102,8 +107,112 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
         return resource
 
 
+class SupportedResolverTypes(Enum):
+    PIPELINE = "pipeline"
+    JOB = "job"
+
+
+class ResourceReference(BaseModel):
+    type_: SupportedResolverTypes
+    name: str
+    reference: str
+
+
+class ImportBlock(BaseModel):
+    to: str
+    id_: str
+
+
+class ResourceResolver(abc.ABC):
+    @abc.abstractmethod
+    def supported_types(self) -> List[SupportedResolverTypes]:
+        pass
+
+    @abc.abstractmethod
+    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+        pass
+
+
+class JobResolver(ResourceResolver):
+    def supported_types(self) -> List[SupportedResolverTypes]:
+        return [SupportedResolverTypes.JOB]
+
+    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+        from databricks.sdk import WorkspaceClient
+
+        for job in WorkspaceClient().jobs.list(name=ref.name):
+            return ImportBlock(to=ref.reference, id_=job.job_id)
+        return None
+
+
+class PipelineResolver(ResourceResolver):
+    def supported_types(self) -> List[SupportedResolverTypes]:
+        return [SupportedResolverTypes.PIPELINE]
+
+    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+        from databricks.sdk import WorkspaceClient
+
+        for pipeline in WorkspaceClient().pipelines.list_pipelines(
+            filter=f"name LIKE '{ref.name}'"
+        ):
+            return ImportBlock(to=ref.reference, id_=pipeline.pipeline_id)
+        return None
+
+
+class ImportResolverChain:
+    def __init__(self) -> None:
+        self.chain = [JobResolver(), PipelineResolver()]
+
+    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+        for resolver in self.chain:
+            if ref.type_ in resolver.supported_types():
+                return resolver.resolve(ref)
+        return None
+
+
+class DatabricksBundleImportMutator(DatabricksBundleResourceMutator):
+    def __init__(self) -> None:
+        self.import_resolver_chain = ImportResolverChain()
+
+    def _job_ref_iter(self, resource: Resources) -> List[ResourceReference]:
+        if resource.jobs is None:
+            return None
+        for job_ref, job in resource.jobs.items():
+            yield ResourceReference(
+                type_=SupportedResolverTypes.JOB,
+                name=job.name,
+                reference=f"databricks_job.{job_ref}",
+            )
+
+    def _pipeline_ref_iter(self, resource: Resources) -> List[ResourceReference]:
+        if resource.pipelines is None:
+            return None
+        for pipeline_ref, pipeline in resource.pipelines.items():
+            yield ResourceReference(
+                type_=SupportedResolverTypes.PIPELINE,
+                name=pipeline.name,
+                reference=f"databricks_pipeline.{pipeline_ref}",
+            )
+
+    def _imports_iter(self, resource: Resources) -> Iterator[ImportBlock]:
+        for unresolved_ref in itertools.chain(
+            self._job_ref_iter(resource), self._pipeline_ref_iter(resource)
+        ):
+            resolved_ref = self.import_resolver_chain.resolve(unresolved_ref)
+            if resolved_ref is not None:
+                yield resolved_ref
+
+    def mutate_resource(
+        self, resource: Resources, ci: "DatabricksBundleCodegen"
+    ) -> Resources:
+        for import_ in self._imports_iter(resource):
+            ci.add_import(import_)
+
+        return resource
+
+
 class DatabricksBundleResourceTransformer:
-    def __init__(self, resource: Resources, ci: CodegenInterface):
+    def __init__(self, resource: Resources, ci: CodegenInterface) -> None:
         self.ci = ci
         self.resource = resource
 
@@ -113,7 +222,48 @@ class DatabricksBundleResourceTransformer:
         return self.resource
 
 
+class ImportManager:
+    @staticmethod
+    def create_import_tf(env: str, import_blocks: List[ImportBlock]) -> None:
+        file_path = f".databricks/bundle/{env}/terraform/extra_imports.tf"
+        # Ensure directory structure exists
+        directory = os.path.dirname(file_path)
+        os.makedirs(directory, exist_ok=True)
+        # Create file
+        import_statements = []
+        for import_block in import_blocks:
+            _ilog.info("Reusing import for %s - %s", import_block.to, import_block.id_)
+            import_statements.append(
+                f"import {{ \n"
+                f"  to = {import_block.to} \n"
+                f'  id = "{import_block.id_}" \n'
+                f"}}"
+            )
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.truncate()
+            f.flush()
+            f.write("\n\n".join(import_statements))
+
+
 class DatabricksBundleCodegen(CodegenInterface):
+    def __init__(
+        self,
+        project: "_Project",
+        id_: str,
+        env: str,
+        mutators: Optional[List[DatabricksBundleResourceMutator]] = None,
+        **kwargs,
+    ):
+        super().__init__(project, id_, env, **kwargs)
+        self.imports: List[ImportBlock] = []
+        self.mutators = mutators or [
+            DatabricksBundleTagsAndNameMutator(),
+            DatabricksBundleImportMutator(),
+        ]
+
+    def add_import(self, import_: ImportBlock):
+        self.imports.append(import_)
+
     @staticmethod
     def workflow_obj_to_schedule(workflow: Workflow) -> Optional[JobsSchedule]:
         if workflow.schedule_quartz_expression is not None:
@@ -280,9 +430,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             jobs=jobs,
             pipelines=pipelines,
         )
-        DatabricksBundleResourceTransformer(resources, self).transform(
-            [DatabricksBundleTagsAndNameMutator()]
-        )
+        DatabricksBundleResourceTransformer(resources, self).transform(self.mutators)
         bundle_root_path = (
             Path(self.project.bundle_base_path)
             / self.project.bundle_obj_name
@@ -309,5 +457,7 @@ class DatabricksBundleCodegen(CodegenInterface):
     def synth(self):
         bundle = self.proj_to_bundle()
 
+        if self.env == BrickflowDefaultEnvs.LOCAL.value:
+            ImportManager.create_import_tf(self.env, self.imports)
         with open("bundle.yml", "w", encoding="utf-8") as f:
             f.write(yaml.dump(bundle.dict(exclude_unset=True)))

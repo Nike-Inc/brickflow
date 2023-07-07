@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import logging
-import os
 import sys
 from enum import Enum
-from pathlib import Path
-from typing import List, Dict, Any, Union
+from typing import List
 
 
 def _insert_before_path_startswith(
@@ -20,46 +18,9 @@ def _insert_before_path_startswith(
     arr.append(new_element)
 
 
-class RelativePathPackageResolver:
-    @staticmethod
-    def _get_current_file_path(global_vars):
-        if "dbutils" in global_vars:
-            return (
-                global_vars["dbutils"]
-                .notebook.entry_point.getDbutils()
-                .notebook()
-                .getContext()
-                .notebookPath()
-                .get()
-            )
-        else:
-            return global_vars["__file__"]
-
-    @staticmethod
-    def _add_to_sys_path(directory: Union[str, Path]):
-        dir_str = str(directory)
-        if dir_str not in sys.path and os.path.isdir(dir_str):
-            sys.path.append(dir_str)
-
-    @staticmethod
-    def add_relative_path(
-        global_vars: Dict[str, Any],
-        current_file_to_root: str,
-        root_to_module: str = ".",
-    ):
-        # root to module must always be relative to the root of the project (i.e. must not start with "/")
-        if root_to_module.startswith("/"):
-            raise ValueError(
-                f"root_to_module must be relative to the root of the project. "
-                f"It must not start with '/'. root_to_module: {root_to_module}"
-            )
-        p = (
-            Path(RelativePathPackageResolver._get_current_file_path(global_vars)).parent
-            / Path(current_file_to_root)
-            / root_to_module
-        )
-        path = p.resolve()
-        RelativePathPackageResolver._add_to_sys_path(path)
+class BrickflowProjectConstants(Enum):
+    DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME = ".brickflow-project-root.yml"
+    DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME = "brickflow-multi-project.yml"
 
 
 class BrickflowEnvVars(Enum):
@@ -166,6 +127,10 @@ from brickflow.engine.task import (
 )
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
+from brickflow.resolver import (
+    RelativePathPackageResolver,
+    get_relative_path_to_brickflow_root,
+)
 
 __version__ = get_brickflow_version()
 
@@ -203,4 +168,9 @@ __all__: List[str] = [
     "get_default_log_handler",
     "get_brickflow_version",
     "RelativePathPackageResolver",
+    "BrickflowProjectConstants",
 ]
+
+# auto path resolver
+
+get_relative_path_to_brickflow_root()
