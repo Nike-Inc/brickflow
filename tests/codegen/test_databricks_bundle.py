@@ -8,6 +8,7 @@ from deepdiff import DeepDiff
 
 from brickflow import BrickflowEnvVars
 from brickflow.cli import BrickflowDeployMode
+from brickflow.codegen.databricks_bundle import DatabricksBundleTagsAndNameMutator
 from brickflow.engine.project import Stage, Project
 from tests.codegen.sample_workflow import wf
 
@@ -55,7 +56,13 @@ class TestBundleCodegen:
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         # get caller part breaks here
-        with Project("test-project", entry_point_path="test_databricks_bundle.py") as f:
+        with Project(
+            "test-project",
+            entry_point_path="test_databricks_bundle.py",
+            codegen_kwargs={
+                "mutators": [DatabricksBundleTagsAndNameMutator()]
+            },  # dont test import mutator
+        ) as f:
             f.add_workflow(wf)
 
         with open(BUNDLE_FILE_NAME, "r", encoding="utf-8") as bundle:
@@ -100,6 +107,9 @@ class TestBundleCodegen:
             entry_point_path="test_databricks_bundle.py",
             git_repo=git_repo,
             provider=git_provider,
+            codegen_kwargs={
+                "mutators": [DatabricksBundleTagsAndNameMutator()]
+            },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
 
@@ -149,6 +159,9 @@ class TestBundleCodegen:
             entry_point_path="test_databricks_bundle.py",
             git_repo=git_repo,
             provider=git_provider,
+            codegen_kwargs={
+                "mutators": [DatabricksBundleTagsAndNameMutator()]
+            },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
 

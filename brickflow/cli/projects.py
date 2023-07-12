@@ -1,0 +1,459 @@
+import contextlib
+import os
+from enum import Enum
+from pathlib import Path
+from typing import Dict, Optional, List, Generator, Any
+
+import click
+import yaml
+from click import ClickException
+from pydantic import BaseModel, Field
+
+from brickflow import (
+    get_brickflow_version,
+    BrickflowProjectConstants,
+    BrickflowDefaultEnvs,
+    BrickflowEnvVars,
+    _ilog,
+)
+from brickflow.cli.bundles import bundle_deploy
+from brickflow.cli.constants import INTERACTIVE_MODE, BrickflowDeployMode
+from brickflow.cli.configure import (
+    _create_gitignore_if_not_exists,
+    _update_gitignore,
+    create_entry_point,
+    render_template,
+    _validate_package,
+    create_brickflow_project_root_marker,
+    bind_env_var,
+)
+
+DEFAULT_BRICKFLOW_VERSION_MODE = "auto"
+
+
+class BrickflowProject(BaseModel):
+    name: str
+    path_from_repo_root: str = "."  # used for mono repo
+    path_project_root_to_workflows_dir: str  # used for repos with multiple batches of workflows
+    deployment_mode: str = BrickflowDeployMode.BUNDLE.value
+    brickflow_version: str = DEFAULT_BRICKFLOW_VERSION_MODE
+
+    class Config:
+        extra = "forbid"
+
+    def is_brickflow_version_auto(self) -> bool:
+        return self.brickflow_version == DEFAULT_BRICKFLOW_VERSION_MODE
+
+
+class BrickflowRootProjectConfig(BaseModel):
+    version: str = "v1"
+    projects: Dict[str, BrickflowProject]
+
+    class Config:
+        extra = "forbid"
+
+
+class ProjectRef(BaseModel):
+    root_yaml_rel_path: str
+
+    class Config:
+        extra = "forbid"
+
+
+class BrickflowMultiRootProjectConfig(BaseModel):
+    version: str = "v1"
+    project_roots: Dict[str, ProjectRef] = Field(default_factory=dict)
+
+    class Config:
+        extra = "forbid"
+
+    def has_projects(self) -> bool:
+        return self.project_roots is not None and len(self.project_roots) > 0
+
+
+class ConfigFileType(Enum):
+    YAML = "yaml"
+    JSON = "json"  # unsupported
+
+
+class MultiProjectManager:
+    def __init__(
+        self,
+        config_file_name: str = BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value,
+        file_type: ConfigFileType = ConfigFileType.YAML,
+    ) -> None:
+        self.file_type = file_type
+        self._config_file: Path = Path(config_file_name)
+        self._brickflow_multi_project_config: BrickflowMultiRootProjectConfig
+        self._brickflow_multi_project_config = (
+            self._load_config()
+            if self._config_exists()
+            else BrickflowMultiRootProjectConfig(project_roots={})
+        )
+        self._project_config_dict: Dict[str, BrickflowRootProjectConfig] = (
+            self._load_roots()
+            if self._brickflow_multi_project_config.has_projects()
+            else {}
+        )
+
+    def __new__(cls) -> "MultiProjectManager":
+        # singleton
+        if not hasattr(cls, "instance"):
+            cls.instance = super(MultiProjectManager, cls).__new__(cls)
+        return cls.instance  # noqa
+
+    def _config_exists(self) -> bool:
+        return self._config_file.exists()
+
+    def _load_config(self) -> BrickflowMultiRootProjectConfig:
+        with self._config_file.open("r", encoding="utf-8") as f:
+            config = BrickflowMultiRootProjectConfig.parse_obj(yaml.safe_load(f.read()))
+            if config.project_roots is not None:
+                return config
+            return BrickflowMultiRootProjectConfig(project_roots={})
+
+    def _root_config_path(self, root: str) -> Path:
+        root_file = BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value
+        return self._config_file.parent / root / root_file
+
+    def _load_roots(self) -> Dict[str, BrickflowRootProjectConfig]:
+        if self._brickflow_multi_project_config.project_roots is None:
+            return {}
+        roots = list(
+            set(
+                root.root_yaml_rel_path
+                for root in self._brickflow_multi_project_config.project_roots.values()
+            )
+        )
+        root_dict = {}
+        for root in roots:
+            with self._root_config_path(root).open("r", encoding="utf-8") as f:
+                root_dict[root] = BrickflowRootProjectConfig.parse_obj(
+                    yaml.safe_load(f.read())
+                )
+        return root_dict
+
+    def add_project(self, project: BrickflowProject) -> None:
+        if self.project_exists(project) is True:
+            raise ValueError(f"Project with name {project.name} already exists")
+        self._brickflow_multi_project_config.project_roots[project.name] = ProjectRef(
+            root_yaml_rel_path=project.path_from_repo_root
+        )
+        project_root_config = self._project_config_dict.get(
+            project.path_from_repo_root, BrickflowRootProjectConfig(projects={})
+        )
+        project_root_config.projects[project.name] = project
+        self._project_config_dict[project.path_from_repo_root] = project_root_config
+
+    def project_exists(self, project: BrickflowProject) -> bool:
+        return project.name in self._brickflow_multi_project_config.project_roots
+
+    def get_project(self, project_name: str) -> BrickflowProject:
+        project_path = self._brickflow_multi_project_config.project_roots[
+            project_name
+        ].root_yaml_rel_path
+        project_root_config = self._project_config_dict[project_path]
+        return project_root_config.projects[project_name]
+
+    def get_project_ref(self, project_name: str) -> ProjectRef:
+        return self._brickflow_multi_project_config.project_roots[project_name]
+
+    def update_project(self, project: BrickflowProject) -> None:
+        self._project_config_dict[project.path_from_repo_root].projects[
+            project.name
+        ] = project
+
+    def list_project_names(self) -> List[str]:
+        return list(self._brickflow_multi_project_config.project_roots.keys())
+
+    def list_projects(self) -> List[BrickflowProject]:
+        return [
+            project
+            for project_root in self._project_config_dict.values()
+            for project in project_root.projects.values()
+        ]
+
+    def remove_project(self, project_name: str) -> None:
+        project_path = self._brickflow_multi_project_config.project_roots[
+            project_name
+        ].root_yaml_rel_path
+        self._project_config_dict[project_path].projects.pop(project_name, None)
+
+    def save_project(self, project: BrickflowProject) -> None:
+        project_root_path = project.path_from_repo_root
+        with self._root_config_path(project_root_path).open("w", encoding="utf-8") as f:
+            f.write(
+                "# DO NOT MODIFY THIS FILE - IT IS AUTO GENERATED BY BRICKFLOW AND RESERVED FOR FUTURE USAGE\n"
+            )
+            yaml.dump(self._project_config_dict[project_root_path].dict(), f)
+        self.save()
+
+    def save(self) -> None:
+        with self._config_file.open("w", encoding="utf-8") as f:
+            yaml.dump(self._brickflow_multi_project_config.dict(), f)
+
+
+multi_project_manager = MultiProjectManager()
+
+
+def initialize_project_entrypoint(
+    project_name: str,
+    git_https_url: str,
+    workflows_dir: str,
+    brickflow_version: str,
+    spark_expectations_version: str,
+) -> None:
+    workflows_dir_p = Path(workflows_dir)
+    workflows_dir_p.mkdir(
+        parents=True, exist_ok=True
+    )  # create dir if it does not exist
+    # make __init__.py at where the template will be rendered
+    Path(workflows_dir_p / "__init__.py").touch(mode=0o755)
+
+    create_entry_point(
+        workflows_dir,
+        render_template(
+            project_name=project_name,
+            git_provider="github",
+            git_https_url=git_https_url,
+            pkg=_validate_package(workflows_dir),
+            brickflow_version=brickflow_version,
+            spark_expectations_version=spark_expectations_version,
+        ),
+    )
+
+
+# TODO: init is deprecated, remove in next major release
+@click.command(deprecated=True)
+@click.option("-n", "--project-name", type=str, prompt=INTERACTIVE_MODE)
+@click.option(
+    "-g",
+    "--git-https-url",
+    type=str,
+    prompt=INTERACTIVE_MODE,
+    help="Provide the github URL for your project, example: https://github.com/nike-eda-apla/brickflow",
+)
+@click.option(
+    "-wd",
+    "--workflows-dir",
+    default="src/workflows",
+    type=click.Path(exists=False, file_okay=False),
+    prompt=INTERACTIVE_MODE,
+)
+@click.option(
+    "-bfv",
+    "--brickflow-version",
+    default=get_brickflow_version(),
+    type=str,
+    prompt=INTERACTIVE_MODE,
+)
+@click.option(
+    "-sev",
+    "--spark-expectations-version",
+    default="0.5.0",
+    type=str,
+    prompt=INTERACTIVE_MODE,
+)
+def init(
+    project_name: str,
+    git_https_url: str,
+    workflows_dir: str,
+    brickflow_version: str,
+    spark_expectations_version: str,
+) -> None:
+    """Initialize your project with Brickflow..."""
+    try:
+        _create_gitignore_if_not_exists()  # assumes you are at root
+        _update_gitignore()  # assumes you are at root
+    except Exception as e:
+        raise ClickException(
+            "An Exception occurred. Please make sure you create a .gitignore file in the root directory."
+        ) from e
+    initialize_project_entrypoint(
+        project_name,
+        git_https_url,
+        workflows_dir,
+        brickflow_version,
+        spark_expectations_version,
+    )
+    create_brickflow_project_root_marker()
+
+
+@click.group()
+def projects() -> None:
+    """Manage one to many brickflow projects"""
+    pass
+
+
+@contextlib.contextmanager
+def project_root(project_root_dir: Optional[str] = None) -> Generator[None, None, None]:
+    # if no directory is provided do nothing
+    if project_root_dir is not None:
+        current_directory = os.getcwd()
+        _ilog.info("Changed to directory: %s", project_root_dir)
+        os.chdir(project_root_dir)
+        try:
+            yield
+        finally:
+            os.chdir(current_directory)
+    else:
+        yield
+
+
+@projects.command()
+@click.option("--name", prompt="Project name", help="Name of the project")
+@click.option(
+    "--path-from-repo-root",
+    prompt="Path from repo root (optional)",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    help="Path from repo root to project root",
+    default=".",
+)
+@click.option(
+    "--path-project-root-to-workflows-dir",
+    prompt="Path from project root to workflows dir",
+    type=str,
+    help="Path from project root to workflows dir",
+)
+@click.option(
+    "--deployment-mode",
+    prompt="Deployment mode",
+    type=click.Choice([BrickflowDeployMode.BUNDLE.value]),
+    default=BrickflowDeployMode.BUNDLE.value,
+    help="Deployment mode",
+)
+@click.option(
+    "-g",
+    "--git-https-url",
+    type=str,
+    prompt=INTERACTIVE_MODE,
+    help="Provide the github URL for your project, example: https://github.com/nike-eda-apla/brickflow",
+)
+@click.option(
+    "-bfv",
+    "--brickflow-version",
+    default=get_brickflow_version(),
+    type=str,
+    prompt=INTERACTIVE_MODE,
+)
+@click.option(
+    "-sev",
+    "--spark-expectations-version",
+    default="0.5.0",
+    type=str,
+    prompt=INTERACTIVE_MODE,
+)
+@click.option(
+    "--skip-entrypoint",
+    is_flag=True,
+    default=False,
+    type=bool,
+    prompt=INTERACTIVE_MODE,
+)
+def add(
+    name: str,
+    path_from_repo_root: str,
+    path_project_root_to_workflows_dir: str,
+    deployment_mode: str,
+    git_https_url: str,
+    brickflow_version: str,
+    spark_expectations_version: str,
+    skip_entrypoint: bool,
+) -> None:
+    """Adds a project to the brickflow-multi-project.yml file and a entrypoint.py file in workflows dir"""
+    project = BrickflowProject(
+        name=name,
+        path_from_repo_root=path_from_repo_root,
+        path_project_root_to_workflows_dir=path_project_root_to_workflows_dir,
+        deployment_mode=deployment_mode,
+    )
+    multi_project_manager.add_project(project)
+
+    _create_gitignore_if_not_exists()
+    _update_gitignore()
+
+    with project_root(project.path_from_repo_root):
+        if skip_entrypoint is False:
+            initialize_project_entrypoint(
+                project.name,
+                git_https_url,
+                project.path_project_root_to_workflows_dir,
+                brickflow_version,
+                spark_expectations_version,
+            )
+        create_brickflow_project_root_marker()
+
+    # commit project after entrypoint
+    multi_project_manager.save_project(project)
+
+
+@projects.command()
+@click.option(
+    "--name",
+    prompt="Project name",
+    help="Name of the project",
+    type=click.Choice(multi_project_manager.list_project_names()),
+)
+def remove(name: str) -> None:
+    """Removes a project from the brickflow-multi-project.yml file"""
+    multi_project_manager.remove_project(name)
+    multi_project_manager.save()
+
+
+@projects.command(name="list")
+def list_proj_names() -> None:
+    """Lists all projects in the brickflow-multi-project.yml file"""
+    click.echo("Projects List: \n")
+    for prj in multi_project_manager.list_projects():
+        click.echo(
+            f"Project Name: {prj.name}; Project Path: {prj.path_project_root_to_workflows_dir}"
+        )
+
+
+@projects.command(name="deploy")
+@click.option(
+    "--env",
+    "-e",
+    default=BrickflowDefaultEnvs.LOCAL.value,
+    type=str,
+    callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_ENV.value),
+    help="Set the environment value, certain tags [TBD] get added to the workflows based on this value.",
+)
+@click.option(
+    "--project",
+    type=click.Choice(multi_project_manager.list_project_names()),
+    prompt=INTERACTIVE_MODE,
+    help="Select the project of workflows you would like to deploy.",
+)
+@click.option(
+    "--profile",
+    "-p",
+    default=None,
+    type=str,
+    callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_DATABRICKS_CONFIG_PROFILE.value),
+    help="The databricks profile to use for authenticating to databricks during deployment.",
+)
+@click.option(
+    "--auto-approve",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Auto approve brickflow pipeline without being prompted to approve.",
+)
+@click.option(
+    "--force-acquire-lock",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Force acquire lock for databricks bundles destroy.",
+)
+def deploy_project(project: str, **kwargs: Any) -> None:
+    """Lists all projects in the brickflow-multi-project.yml file"""
+    bf_project = multi_project_manager.get_project(project)
+    dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
+    with project_root(dir_to_change):
+        bundle_deploy(
+            workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
+        )

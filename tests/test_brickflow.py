@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from brickflow import RelativePathPackageResolver
+from brickflow.resolver import RelativePathPackageResolver
 
 
 def test_imports():
@@ -47,9 +47,7 @@ def test_imports():
 
 
 def test_path_resolver():
-    with patch(
-        "brickflow.RelativePathPackageResolver._add_to_sys_path"
-    ) as mock_add_to_sys_path, patch(
+    with patch("brickflow.resolver.add_to_sys_path") as mock_add_to_sys_path, patch(
         "brickflow.RelativePathPackageResolver._get_current_file_path"
     ) as mock_get_current_file_path:
         mock_add_to_sys_path.return_value = None
@@ -66,9 +64,7 @@ def test_path_resolver():
 
 
 def test_path_resolver_complex():
-    with patch(
-        "brickflow.RelativePathPackageResolver._add_to_sys_path"
-    ) as mock_add_to_sys_path, patch(
+    with patch("brickflow.resolver.add_to_sys_path") as mock_add_to_sys_path, patch(
         "brickflow.RelativePathPackageResolver._get_current_file_path"
     ) as mock_get_current_file_path:
         mock_add_to_sys_path.return_value = None
@@ -85,9 +81,7 @@ def test_path_resolver_complex():
 
 
 def test_path_resolver_root_to_module_abs():
-    with patch(
-        "brickflow.RelativePathPackageResolver._add_to_sys_path"
-    ) as mock_add_to_sys_path, patch(
+    with patch("brickflow.resolver.add_to_sys_path") as mock_add_to_sys_path, patch(
         "brickflow.RelativePathPackageResolver._get_current_file_path"
     ) as mock_get_current_file_path:
         mock_add_to_sys_path.return_value = None
