@@ -15,7 +15,9 @@ def main() -> None:
         git_repo="https://github.com/Nike-Inc/brickflow",
         provider="github",
         libraries=[
-            PypiTaskLibrary(package="brickflow==1.0.0 --extra-index-url " + ARTIFACTORY),
+            PypiTaskLibrary(
+                package="brickflow==1.0.0 --extra-index-url " + ARTIFACTORY
+            ),
             MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
         ],
     ) as f:
