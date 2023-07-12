@@ -1,8 +1,8 @@
 # Databricks notebook source
 
-import {{ pkg }}
+from brickflow import Project, PypiTaskLibrary, MavenTaskLibrary  # make sure brickflow imports are at the top
 
-from brickflow import Project, PypiTaskLibrary, MavenTaskLibrary
+import {{ pkg }}
 
 ARTIFACTORY = ""
 

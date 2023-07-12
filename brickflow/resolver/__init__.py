@@ -4,10 +4,10 @@ import inspect
 import os
 import sys
 from pathlib import Path
-from typing import Union, Dict, Any, List
+from typing import Union, Dict, Any, List, Optional
 import pathlib
 
-from brickflow import BrickflowProjectConstants, _ilog
+from brickflow import BrickflowProjectConstants, _ilog, ctx
 
 
 def add_to_sys_path(directory: Union[str, pathlib.Path]):
@@ -58,6 +58,11 @@ def go_up_till_brickflow_root(path: str) -> str:
 def get_relative_path_to_brickflow_root() -> None:
     paths = get_caller_file_paths()
     _ilog.info("Brickflow setting up python path resolution...")
+    # if inside notebook also get that path
+    notebook_path = get_notebook_path(ctx.dbutils)
+    if notebook_path is not None:
+        paths.append(notebook_path)
+
     for path in paths:
         try:
             resolved_path = go_up_till_brickflow_root(path)
@@ -70,18 +75,23 @@ def get_relative_path_to_brickflow_root() -> None:
         # print(path)
 
 
+def get_notebook_path(dbutils: Optional[Any]) -> Optional[str]:
+    if dbutils is not None:
+        return (
+            dbutils.notebook.entry_point.getDbutils()
+            .notebook()
+            .getContext()
+            .notebookPath()
+            .get()
+        )
+    return None
+
+
 class RelativePathPackageResolver:
     @staticmethod
     def _get_current_file_path(global_vars: Dict[str, Any]):
         if "dbutils" in global_vars:
-            return (
-                global_vars["dbutils"]
-                .notebook.entry_point.getDbutils()
-                .notebook()
-                .getContext()
-                .notebookPath()
-                .get()
-            )
+            get_notebook_path(global_vars["dbutils"])
         else:
             return global_vars["__file__"]
 

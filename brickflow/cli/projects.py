@@ -304,7 +304,7 @@ def project_root(project_root_dir: Optional[str] = None) -> Generator[None, None
 @click.option("--name", prompt="Project name", help="Name of the project")
 @click.option(
     "--path-from-repo-root",
-    prompt="Path from repo root (optional)",
+    prompt="Path from repo root to project root (optional)",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
     help="Path from repo root to project root",
     default=".",
