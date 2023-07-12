@@ -76,6 +76,17 @@ environments:
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
+              notebook_path: notebooks/notebook_a
+            retry_on_timeout: null
+            task_key: notebook_task_a
+            timeout_seconds: null
+          - depends_on: []
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries: []
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
               base_parameters:
                 all_tasks1: test
                 all_tasks3: '123'

@@ -1,4 +1,5 @@
 import abc
+import functools
 import itertools
 import os
 import re
@@ -7,6 +8,7 @@ from pathlib import Path
 from typing import List, Optional, Union, Dict, Any, Iterator
 
 import yaml
+from databricks.sdk import WorkspaceClient
 from pydantic import BaseModel
 
 from brickflow import (
@@ -40,7 +42,7 @@ from brickflow.bundles.model import (
     PipelinesLibrariesNotebook,
 )
 from brickflow.codegen import CodegenInterface, handle_mono_repo_path
-from brickflow.engine.task import TaskLibrary, DLTPipeline
+from brickflow.engine.task import TaskLibrary, DLTPipeline, TaskSettings
 
 
 class DatabricksBundleResourceMutator(abc.ABC):
@@ -57,10 +59,12 @@ def normalize_resource_name(text):
 
 
 class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
-    def _get_current_user_alphanumeric(self):
-        from databricks.sdk import WorkspaceClient
+    def __init__(self, databricks_client: Optional[WorkspaceClient] = None):
+        self.databricks_client = databricks_client or WorkspaceClient()
 
-        user_email = WorkspaceClient().current_user.me().user_name
+    @functools.lru_cache(maxsize=1)
+    def _get_current_user_alphanumeric(self):
+        user_email = self.databricks_client.current_user.me().user_name
         return re.sub(r"\W", "_", user_email.split("@", maxsplit=1)[0])
 
     def _get_default_tags(self, ci: CodegenInterface):
@@ -124,6 +128,9 @@ class ImportBlock(BaseModel):
 
 
 class ResourceResolver(abc.ABC):
+    def __init__(self, databricks_client: WorkspaceClient = None):
+        self.databricks_client = databricks_client or WorkspaceClient()
+
     @abc.abstractmethod
     def supported_types(self) -> List[SupportedResolverTypes]:
         pass
@@ -138,9 +145,7 @@ class JobResolver(ResourceResolver):
         return [SupportedResolverTypes.JOB]
 
     def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
-        from databricks.sdk import WorkspaceClient
-
-        for job in WorkspaceClient().jobs.list(name=ref.name):
+        for job in self.databricks_client.jobs.list(name=ref.name):
             return ImportBlock(to=ref.reference, id_=job.job_id)
         return None
 
@@ -150,9 +155,7 @@ class PipelineResolver(ResourceResolver):
         return [SupportedResolverTypes.PIPELINE]
 
     def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
-        from databricks.sdk import WorkspaceClient
-
-        for pipeline in WorkspaceClient().pipelines.list_pipelines(
+        for pipeline in self.databricks_client.pipelines.list_pipelines(
             filter=f"name LIKE '{ref.name}'"
         ):
             return ImportBlock(to=ref.reference, id_=pipeline.pipeline_id)
@@ -160,8 +163,11 @@ class PipelineResolver(ResourceResolver):
 
 
 class ImportResolverChain:
-    def __init__(self) -> None:
-        self.chain = [JobResolver(), PipelineResolver()]
+    def __init__(self, databricks_client: Optional[WorkspaceClient] = None) -> None:
+        self.chain = [
+            JobResolver(databricks_client),
+            PipelineResolver(databricks_client),
+        ]
 
     def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
         for resolver in self.chain:
@@ -171,8 +177,8 @@ class ImportResolverChain:
 
 
 class DatabricksBundleImportMutator(DatabricksBundleResourceMutator):
-    def __init__(self) -> None:
-        self.import_resolver_chain = ImportResolverChain()
+    def __init__(self, databricks_client: Optional[WorkspaceClient] = None) -> None:
+        self.import_resolver_chain = ImportResolverChain(databricks_client)
 
     def _job_ref_iter(self, resource: Resources) -> List[ResourceReference]:
         if resource.jobs is None:
@@ -277,7 +283,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         return "WORKSPACE" if self.env == BrickflowDefaultEnvs.LOCAL.value else "GIT"
 
     def task_to_task_obj(self, task: Task) -> Union[JobsTasksNotebookTask]:
-        if task.task_type in [TaskType.NOTEBOOK, TaskType.CUSTOM_PYTHON_TASK]:
+        if task.task_type in [TaskType.BRICKFLOW_TASK, TaskType.CUSTOM_PYTHON_TASK]:
             generated_path = handle_mono_repo_path(self.project, self.env)
             return JobsTasksNotebookTask(
                 **task.get_obj_dict(generated_path),
@@ -303,6 +309,52 @@ class DatabricksBundleCodegen(CodegenInterface):
     def get_pipeline_reference(workflow: Workflow, pipeline: DLTPipeline):
         return normalize_resource_name(f"{workflow.name}-{pipeline.name}")
 
+    def _build_native_notebook_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_libraries: List[JobsTasksLibraries],
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+    ):
+        try:
+            notebook_task: JobsTasksNotebookTask = task.task_func()
+        except Exception as e:
+            raise ValueError(
+                f"Error while building notebook task {task_name}. "
+                f"Make sure {task_name} returns a NotebookTask object."
+            ) from e
+
+        return JobsTasks(
+            **task_settings.to_tf_dict(),
+            notebook_task=notebook_task,
+            libraries=task_libraries,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id
+            **task.cluster.job_task_field_dict,
+        )
+
+    def _build_dlt_task(
+        self,
+        task_name: str,
+        task: Task,
+        workflow: Workflow,
+        depends_on: List[JobsTasksDependsOn],
+    ) -> JobsTasks:
+        dlt_task: DLTPipeline = task.task_func()
+        # tasks.append(Pipelines(**dlt_task.to_dict())) # TODO: fix this so pipeline also gets created
+        pipeline_ref = self.get_pipeline_reference(workflow, dlt_task)
+        return JobsTasks(
+            pipeline_task=JobsTasksPipelineTask(
+                pipeline_id=f"${{resources.pipelines.{pipeline_ref}.id}}",
+                # full_refresh=..., TODO: add full refresh
+            ),
+            depends_on=depends_on,
+            task_key=task_name,
+        )
+
     def workflow_obj_to_tasks(
         self, workflow: Workflow
     ) -> List[Union[JobsTasks, Pipelines]]:
@@ -311,11 +363,6 @@ class DatabricksBundleCodegen(CodegenInterface):
             # TODO: DLT
             # pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
             depends_on = [JobsTasksDependsOn(task_key=f) for f in task.depends_on_names]
-            task_type = (
-                task.task_type_str
-                if task.task_type_str != TaskType.CUSTOM_PYTHON_TASK.value
-                else TaskType.NOTEBOOK.value
-            )
             libraries = TaskLibrary.unique_libraries(
                 task.libraries + (self.project.libraries or [])
             )
@@ -324,23 +371,22 @@ class DatabricksBundleCodegen(CodegenInterface):
             ]
             task_settings = workflow.default_task_settings.merge(task.task_settings)
             if task.task_type == TaskType.DLT:
-                dlt_task: DLTPipeline = task.task_func()
-                # tasks.append(Pipelines(**dlt_task.to_dict())) # TODO: fix this so pipeline also gets created
-                pipeline_ref = self.get_pipeline_reference(workflow, dlt_task)
+                # native dlt task
                 tasks.append(
-                    JobsTasks(
-                        pipeline_task=JobsTasksPipelineTask(
-                            pipeline_id=f"${{resources.pipelines.{pipeline_ref}.id}}",
-                            # full_refresh=..., TODO: add full refresh
-                        ),
-                        depends_on=depends_on,
-                        task_key=task_name,
+                    self._build_dlt_task(task_name, task, workflow, depends_on)
+                )
+            elif task.task_type == TaskType.NOTEBOOK_TASK:
+                # native notebook task
+                tasks.append(
+                    self._build_native_notebook_task(
+                        task_name, task, task_libraries, task_settings, depends_on
                     )
                 )
             else:
+                # brickflow entrypoint task
                 task_obj = JobsTasks(
                     **{
-                        task_type: self.task_to_task_obj(task),
+                        task.databricks_task_type_str: self.task_to_task_obj(task),
                         **task_settings.to_tf_dict(),
                     },
                     libraries=task_libraries,

@@ -24,6 +24,7 @@ import pluggy
 from decouple import config
 
 from brickflow import _ilog, BrickflowDefaultEnvs
+from brickflow.bundles.model import JobsTasksNotebookTask
 from brickflow.context import (
     BrickflowBuiltInTaskVariables,
     BrickflowInternalVariables,
@@ -80,10 +81,11 @@ class BrickflowTriggerRule(Enum):
 
 
 class TaskType(Enum):
-    NOTEBOOK = "notebook_task"
+    BRICKFLOW_TASK = "brickflow_task"
     SQL = "sql_task"
     DLT = "pipeline_task"
     CUSTOM_PYTHON_TASK = "custom_python_task"
+    NOTEBOOK_TASK = "notebook_task"
 
 
 @dataclass(frozen=True)
@@ -325,6 +327,10 @@ class DLTPipeline:
         return d
 
 
+class NotebookTask(JobsTasksNotebookTask):
+    pass
+
+
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     @staticmethod
     @brickflow_task_plugin_impl
@@ -375,7 +381,7 @@ class Task:
     description: Optional[str] = None
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     depends_on: List[Union[Callable, str]] = field(default_factory=lambda: [])
-    task_type: TaskType = TaskType.NOTEBOOK
+    task_type: TaskType = TaskType.BRICKFLOW_TASK
     trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS
     task_settings: Optional[TaskSettings] = None
     custom_execute_callback: Optional[Callable] = None
@@ -400,7 +406,11 @@ class Task:
                 yield str(i)
 
     @property
-    def task_type_str(self) -> str:
+    def databricks_task_type_str(self) -> str:
+        if self.task_type == TaskType.BRICKFLOW_TASK:
+            return TaskType.NOTEBOOK_TASK.value
+        if self.task_type == TaskType.CUSTOM_PYTHON_TASK:
+            return TaskType.NOTEBOOK_TASK.value
         return self.task_type.value
 
     @property
@@ -491,7 +501,7 @@ class Task:
     def get_runtime_parameter_values(self) -> Dict[str, Any]:
         # if dbutils returns None then return v instead
         return {
-            k: (ctx.dbutils_widget_get_or_else(k, str(v)) or v)
+            k: (ctx.get_parameter(k, str(v)) or v)
             for k, v in (
                 inspect.getfullargspec(self.task_func).kwonlydefaults or {}
             ).items()
@@ -534,7 +544,7 @@ class Task:
         )
 
     def _skip_because_not_selected(self) -> Tuple[bool, Optional[str]]:
-        selected_tasks = ctx.dbutils_widget_get_or_else(
+        selected_tasks = ctx.get_parameter(
             BrickflowInternalVariables.only_run_tasks.value,
             config(BrickflowTaskEnvVars.BRICKFLOW_SELECT_TASKS.value, ""),
         )

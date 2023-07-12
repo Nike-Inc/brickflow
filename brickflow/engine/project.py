@@ -251,11 +251,11 @@ class Project:
             codegen.synth()
 
         if self._mode.value == Stage.execute.value:
-            wf_id = ctx.dbutils_widget_get_or_else(
+            wf_id = ctx.get_parameter(
                 BrickflowInternalVariables.workflow_id.value,
                 self.debug_execute_workflow,
             )
-            t_id = ctx.dbutils_widget_get_or_else(
+            t_id = ctx.get_parameter(
                 BrickflowInternalVariables.task_id.value, self.debug_execute_task
             )
 

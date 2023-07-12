@@ -1,15 +1,30 @@
 import os
 from pathlib import Path
 from typing import Dict, Any
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
 
 import yaml
 from deepdiff import DeepDiff
 
 from brickflow import BrickflowEnvVars
+from brickflow.bundles.model import (
+    Resources,
+    Jobs,
+    JobsTasks,
+    Pipelines,
+    PipelinesLibraries,
+    PipelinesLibrariesNotebook,
+    PipelinesClusters,
+)
 from brickflow.cli import BrickflowDeployMode
-from brickflow.codegen.databricks_bundle import DatabricksBundleTagsAndNameMutator
+from brickflow.codegen.databricks_bundle import (
+    DatabricksBundleTagsAndNameMutator,
+    DatabricksBundleImportMutator,
+    DatabricksBundleCodegen,
+    ImportBlock,
+)
 from brickflow.engine.project import Stage, Project
+from brickflow.engine.task import NotebookTask
 from tests.codegen.sample_workflow import wf
 
 BUNDLE_FILE_NAME = "bundle.yml"
@@ -42,7 +57,7 @@ class TestBundleCodegen:
         },
     )
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     @patch(
         "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator._get_current_user_alphanumeric"
     )
@@ -85,7 +100,7 @@ class TestBundleCodegen:
         },
     )
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     @patch(
         "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator._get_current_user_alphanumeric"
     )
@@ -137,7 +152,7 @@ class TestBundleCodegen:
         },
     )
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     @patch(
         "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator._get_current_user_alphanumeric"
     )
@@ -178,3 +193,75 @@ class TestBundleCodegen:
         assert_equal_dicts(actual, expected)
         if os.path.exists(BUNDLE_FILE_NAME):
             os.remove(BUNDLE_FILE_NAME)
+
+    def test_mutators(self):
+        job_name = "test-job"
+        pipeline_name = "test-pipeline"
+        fake_job_id = "some-id"
+        fake_pipeline_id = "fake-pipeline-id"
+        fake_user_name = "test_user"
+        fake_user_email = f"{fake_user_name}@fakedomain.com"
+        databricks_fake_client = MagicMock()
+        fake_job = MagicMock()
+        fake_pipeline = MagicMock()
+        project = MagicMock()
+        fake_user = MagicMock()
+
+        databricks_fake_client.jobs.list.return_value = [fake_job]
+        databricks_fake_client.pipelines.list_pipelines.return_value = [fake_pipeline]
+        databricks_fake_client.current_user.me.return_value = fake_user
+        fake_user.user_name = fake_user_email
+        fake_job.job_id = fake_job_id
+        fake_pipeline.pipeline_id = fake_pipeline_id
+        project.name.return_value = "test-project"
+        import_mutator = DatabricksBundleImportMutator(databricks_fake_client)
+        tag_and_name_mutator = DatabricksBundleTagsAndNameMutator(
+            databricks_fake_client
+        )
+
+        code_gen = DatabricksBundleCodegen(project, "some-id", "local")
+        resource = Resources(
+            jobs={
+                job_name: Jobs(
+                    name=job_name,
+                    tasks=[
+                        JobsTasks(
+                            notebook_task=NotebookTask(notebook_path="test-notebook"),
+                            task_key="somekey",
+                        ),
+                    ],
+                )
+            },
+            pipelines={
+                pipeline_name: Pipelines(
+                    name=pipeline_name,
+                    clusters=[PipelinesClusters(custom_tags={"test": "test"})],
+                    libraries=[
+                        PipelinesLibraries(
+                            notebook=PipelinesLibrariesNotebook(path="test-notebook")
+                        )
+                    ],
+                )
+            },
+        )
+        import_mutator.mutate_resource(
+            resource=resource,
+            ci=code_gen,
+        )
+        tag_and_name_mutator.mutate_resource(
+            resource=resource,
+            ci=code_gen,
+        )
+
+        assert code_gen.imports == [
+            ImportBlock(to=f"databricks_job.{job_name}", id_=fake_job_id),
+            ImportBlock(
+                to=f"databricks_pipeline.{pipeline_name}", id_=fake_pipeline_id
+            ),
+        ]
+        databricks_fake_client.jobs.list.assert_called_once_with(name=job_name)
+        databricks_fake_client.current_user.me.assert_called_once()
+        assert (
+            resource.jobs is not None
+            and resource.jobs[job_name].name == f"{fake_user_name}_{job_name}"  # noqa
+        )

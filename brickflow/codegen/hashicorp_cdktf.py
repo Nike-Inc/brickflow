@@ -103,7 +103,7 @@ class HashicorpCDKTFGen(CodegenInterface):
         from brickflow.tf.databricks.job import JobTaskNotebookTask
 
         new_entrypoint = handle_mono_repo_path(self.project, self.env)
-        if task.task_type in [TaskType.NOTEBOOK, TaskType.CUSTOM_PYTHON_TASK]:
+        if task.task_type in [TaskType.BRICKFLOW_TASK, TaskType.CUSTOM_PYTHON_TASK]:
             return JobTaskNotebookTask(
                 **task.get_obj_dict(new_entrypoint),
                 source="GIT",
@@ -126,12 +126,6 @@ class HashicorpCDKTFGen(CodegenInterface):
             pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
             depends_on = [JobTaskDependsOn(task_key=f) for f in task.depends_on_names]
 
-            tf_task_type = (
-                task.task_type_str
-                if task.task_type_str != TaskType.CUSTOM_PYTHON_TASK.value
-                else TaskType.NOTEBOOK.value
-            )
-
             libraries = TaskLibrary.unique_libraries(
                 task.libraries + (self.project.libraries or [])
             )
@@ -149,7 +143,7 @@ class HashicorpCDKTFGen(CodegenInterface):
             else:
                 tf_task = JobTask(
                     **{
-                        tf_task_type: self._get_notebook_tf_obj(task),
+                        task.databricks_task_type_str: self._get_notebook_tf_obj(task),
                         **task_settings.to_tf_dict(),
                     },
                     library=task_libraries,

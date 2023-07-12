@@ -103,7 +103,10 @@ class TestTask:
         assert wf.get_task(task_function_2.__name__).parents == ["task_function"]
 
     def test_task_type(self):
-        assert wf.get_task(task_function_2.__name__).task_type_str == "notebook_task"
+        assert (
+            wf.get_task(task_function_2.__name__).databricks_task_type_str
+            == "notebook_task"
+        )
 
     def test_depends_on(self):
         assert wf.get_task(task_function_3.__name__).depends_on == ["task_function_2"]
@@ -163,7 +166,7 @@ class TestTask:
         assert reason is None
         ctx._configure()
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_skip_not_selected_task(self, dbutils):
         dbutils.value = "sometihngelse"
         skip, reason = wf.get_task(
@@ -178,7 +181,7 @@ class TestTask:
         )
         assert wf.get_task(task_function_4.__name__).execute() is None
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_no_skip_selected_task(self, dbutils: Mock):
         dbutils.return_value = task_function_4.__name__
         skip, reason = wf.get_task(
@@ -207,7 +210,7 @@ class TestTask:
             task_function_3.__name__, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK
         )
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     @patch("brickflow.context.ctx._task_coms")
     def test_execute(self, task_coms_mock: Mock, dbutils: Mock):
         dbutils.return_value = ""
@@ -218,7 +221,7 @@ class TestTask:
 
         assert resp is task_function()
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     @patch("brickflow.context.ctx._task_coms")
     def test_execute_custom(self, task_coms_mock: Mock, dbutils: Mock):
         dbutils.return_value = ""

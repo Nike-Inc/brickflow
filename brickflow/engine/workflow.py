@@ -231,7 +231,7 @@ class Workflow:
         description: Optional[str] = None,
         cluster: Optional[Cluster] = None,
         libraries: Optional[List[TaskLibrary]] = None,
-        task_type: TaskType = TaskType.NOTEBOOK,
+        task_type: TaskType = TaskType.BRICKFLOW_TASK,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,
@@ -279,13 +279,30 @@ class Workflow:
     ) -> Callable:
         return self.task(task_func, name, task_type=TaskType.DLT, depends_on=depends_on)
 
+    def notebook_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        cluster: Optional[Cluster] = None,
+        libraries: Optional[List[TaskLibrary]] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            cluster=cluster,
+            libraries=libraries,
+            task_type=TaskType.NOTEBOOK_TASK,
+            depends_on=depends_on,
+        )
+
     def task(
         self,
         task_func: Optional[Callable] = None,
         name: Optional[str] = None,
         cluster: Optional[Cluster] = None,
         libraries: Optional[List[TaskLibrary]] = None,
-        task_type: TaskType = TaskType.NOTEBOOK,
+        task_type: TaskType = TaskType.BRICKFLOW_TASK,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,

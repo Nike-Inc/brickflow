@@ -10,7 +10,7 @@ from typing import Optional, Any, Union, Callable, Hashable, Dict, List, TypeVar
 
 from decouple import config
 
-from brickflow import log, _ilog, BrickflowEnvVars, BrickflowDefaultEnvs
+from brickflow import log, _ilog, BrickflowEnvVars, BrickflowDefaultEnvs, deprecated
 
 BRANCH_SKIP_EXCEPT = "branch_skip_except"
 SKIP_EXCEPT_HACK = "brickflow_hack_skip_all"
@@ -53,7 +53,7 @@ def bind_variable(builtin: BrickflowBuiltInTaskVariables) -> Callable:
             debug = kwargs["debug"]
             f(*args, **kwargs)  # no-op
             if _self.dbutils is not None:
-                return _self.dbutils_widget_get_or_else(builtin.value, debug)
+                return _self.get_parameter(builtin.value, debug)
             return debug
 
         return func
@@ -280,7 +280,7 @@ class Context:
         # dbutils widgets during runtime time in jobs
         return config(
             BrickflowEnvVars.BRICKFLOW_ENV.value,
-            self.dbutils_widget_get_or_else(
+            self.get_parameter(
                 BrickflowInternalVariables.env.value,
                 BrickflowDefaultEnvs.LOCAL.value,
             ),
@@ -332,6 +332,7 @@ class Context:
         res = _dict.get(_env, default)
         return res
 
+    @deprecated
     def dbutils_widget_get_or_else(
         self, key: str, debug: Optional[str]
     ) -> Optional[str]:
@@ -339,6 +340,14 @@ class Context:
             return self.dbutils.widgets.get(key)
         except Exception:
             # todo: log error
+            return debug
+
+    def get_parameter(self, key: str, debug: Optional[str] = None) -> Optional[str]:
+        try:
+            return self.dbutils.widgets.get(key)
+        except Exception:
+            # todo: log error
+            _ilog.debug("Unable to get parameter: %s from dbutils", key)
             return debug
 
     def _try_import_chaining(self, callables: List[Callable]) -> Optional[Any]:

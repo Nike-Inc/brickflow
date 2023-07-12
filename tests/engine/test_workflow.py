@@ -29,7 +29,7 @@ class TestWorkflow:
         # task compute is workflow default compute
         assert t.cluster == wf.default_cluster
         assert t.depends_on == []
-        assert t.task_type == TaskType.NOTEBOOK
+        assert t.task_type == TaskType.BRICKFLOW_TASK
         assert t.trigger_rule == BrickflowTriggerRule.ALL_SUCCESS
         assert t.custom_execute_callback is None
 

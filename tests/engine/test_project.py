@@ -41,14 +41,14 @@ def dynamic_side_effect_return(custom_var, custom_return):
 
 
 class TestProject:
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_execute(self, dbutils):
         dbutils.side_effect = side_effect
         with Project("test-project") as f:
             f.add_workflow(wf)
         assert ctx.get_return_value(task_key=task_function) == task_function()
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_execute_custom_param(self, dbutils):
         # this assumes that in the databricks job ui you provide a custom value
         dbutils.side_effect = dynamic_side_effect_return("test", "helloworld")
@@ -67,7 +67,7 @@ class TestProject:
     )
     @patch("pathlib.Path.open", new_callable=mock_open, read_data="data")
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_deploy(self, dbutils: Mock, subproc: Mock, mock_open_file: Mock):
         dbutils.side_effect = side_effect
         git_ref_b = b"a"
@@ -99,7 +99,7 @@ class TestProject:
         },
     )
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_deploy_is_git_dirty_error(self, dbutils: Mock, subproc: Mock):
         dbutils.side_effect = side_effect
         resp = b"some really long path must return git dirty error"
@@ -113,7 +113,7 @@ class TestProject:
             ) as f:
                 f.add_workflow(wf)
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_workflow_already_exists_error(self, dbutils):
         dbutils.side_effect = side_effect
         with pytest.raises(ExecuteError) as err:
@@ -128,7 +128,7 @@ class TestProject:
         with Project("test-project"):
             pass
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_workflow_no_workflow_task_id_skip(self, dbutils):
         dbutils.return_value = None
 
@@ -141,7 +141,7 @@ class TestProject:
         os.environ, {BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value}
     )
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_deploy_workflow_no_schedule(self, dbutils: Mock, subproc: Mock):
         dbutils.return_value = (
             "local"  # needs to let the workflow know it a local deployment
@@ -166,7 +166,7 @@ class TestProject:
         },
     )
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_deploy_local_mode(self, dbutils: Mock, subproc: Mock):
         dbutils.return_value = None
 
@@ -190,7 +190,7 @@ class TestProject:
     )
     @patch("pathlib.Path.open", new_callable=mock_open, read_data="data")
     @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_project_workflow_deploy_batch_false(
         self, dbutils: Mock, sub_proc_mock: Mock, mock_open_file: Mock
     ):
@@ -201,7 +201,7 @@ class TestProject:
 
         mock_open_file.assert_called()
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_adding_pkg(self, dbutils):
         from tests import sample_workflows
 

@@ -5,7 +5,29 @@ from __future__ import annotations
 import logging
 import sys
 from enum import Enum
-from typing import List
+from typing import List, Callable, Any
+
+import warnings
+import functools
+
+
+def deprecated(func: Callable):
+    """This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emitted
+    when the function is used."""
+
+    @functools.wraps(func)
+    def new_func(*args: Any, **kwargs: Any):
+        warnings.simplefilter("always", DeprecationWarning)  # turn off filter
+        warnings.warn(
+            f"Call to deprecated function {func.__name__}.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        warnings.simplefilter("default", DeprecationWarning)  # reset filter
+        return func(*args, **kwargs)
+
+    return new_func
 
 
 def _insert_before_path_startswith(
@@ -124,6 +146,7 @@ from brickflow.engine.task import (
     DLTPipeline,
     DLTEdition,
     DLTChannels,
+    NotebookTask,
 )
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
@@ -156,6 +179,7 @@ __all__: List[str] = [
     "CranTaskLibrary",
     "EmailNotifications",
     "DLTPipeline",
+    "NotebookTask",
     "DLTEdition",
     "DLTChannels",
     "Cluster",
