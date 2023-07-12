@@ -85,6 +85,7 @@ def get_notebook_ws_path(dbutils: Optional[Any]) -> Optional[str]:
                 .getContext()
                 .notebookPath()
                 .get()
+                .lstrip("/")
             )
         )
     return None
