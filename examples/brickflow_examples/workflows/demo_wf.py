@@ -55,6 +55,9 @@ def start():
 def example_notebook():
     return NotebookTask(
         notebook_path="notebooks/example_notebook.py",
+        base_parameters={
+            "some_parameter": "some_value",  # in the notebook access these via dbutils.widgets.get("some_parameter")
+        }
     )
 
 
