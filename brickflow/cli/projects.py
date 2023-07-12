@@ -67,6 +67,9 @@ class BrickflowMultiRootProjectConfig(BaseModel):
     class Config:
         extra = "forbid"
 
+    def remove(self, project_name: str) -> None:
+        self.project_roots.pop(project_name)
+
     def has_projects(self) -> bool:
         return self.project_roots is not None and len(self.project_roots) > 0
 
@@ -78,9 +81,9 @@ class ConfigFileType(Enum):
 
 class MultiProjectManager:
     def __init__(
-            self,
-            config_file_name: str = BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value,
-            file_type: ConfigFileType = ConfigFileType.YAML,
+        self,
+        config_file_name: str = BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value,
+        file_type: ConfigFileType = ConfigFileType.YAML,
     ) -> None:
         self.file_type = file_type
         self._config_file: Path = Path(config_file_name)
@@ -140,10 +143,13 @@ class MultiProjectManager:
             root_yaml_rel_path=project.path_from_repo_root_to_project_root
         )
         project_root_config = self._project_config_dict.get(
-            project.path_from_repo_root_to_project_root, BrickflowRootProjectConfig(projects={})
+            project.path_from_repo_root_to_project_root,
+            BrickflowRootProjectConfig(projects={}),
         )
         project_root_config.projects[project.name] = project
-        self._project_config_dict[project.path_from_repo_root_to_project_root] = project_root_config
+        self._project_config_dict[
+            project.path_from_repo_root_to_project_root
+        ] = project_root_config
 
     def project_exists(self, project: BrickflowProject) -> bool:
         return project.name in self._brickflow_multi_project_config.project_roots
@@ -178,6 +184,7 @@ class MultiProjectManager:
             project_name
         ].root_yaml_rel_path
         self._project_config_dict[project_path].projects.pop(project_name, None)
+        self._brickflow_multi_project_config.remove(project_name)
 
     def persist_project_path(self, project_root_path: str) -> None:
         with self._root_config_path(project_root_path).open("w", encoding="utf-8") as f:
@@ -200,11 +207,11 @@ multi_project_manager = MultiProjectManager()
 
 
 def initialize_project_entrypoint(
-        project_name: str,
-        git_https_url: str,
-        workflows_dir: str,
-        brickflow_version: str,
-        spark_expectations_version: str,
+    project_name: str,
+    git_https_url: str,
+    workflows_dir: str,
+    brickflow_version: str,
+    spark_expectations_version: str,
 ) -> None:
     workflows_dir_p = Path(workflows_dir)
     workflows_dir_p.mkdir(
@@ -258,11 +265,11 @@ def initialize_project_entrypoint(
     prompt=INTERACTIVE_MODE,
 )
 def init(
-        project_name: str,
-        git_https_url: str,
-        workflows_dir: str,
-        brickflow_version: str,
-        spark_expectations_version: str,
+    project_name: str,
+    git_https_url: str,
+    workflows_dir: str,
+    brickflow_version: str,
+    spark_expectations_version: str,
 ) -> None:
     """Initialize your project with Brickflow..."""
     try:
@@ -355,14 +362,14 @@ def project_root(project_root_dir: Optional[str] = None) -> Generator[None, None
     prompt=INTERACTIVE_MODE,
 )
 def add(
-        name: str,
-        path_from_repo_root_to_project_root: str,
-        path_project_root_to_workflows_dir: str,
-        deployment_mode: str,
-        git_https_url: str,
-        brickflow_version: str,
-        spark_expectations_version: str,
-        skip_entrypoint: bool,
+    name: str,
+    path_from_repo_root_to_project_root: str,
+    path_project_root_to_workflows_dir: str,
+    deployment_mode: str,
+    git_https_url: str,
+    brickflow_version: str,
+    spark_expectations_version: str,
+    skip_entrypoint: bool,
 ) -> None:
     """Adds a project to the brickflow-multi-project.yml file and a entrypoint.py file in workflows dir"""
     project = BrickflowProject(
@@ -403,8 +410,11 @@ def remove(name: str) -> None:
     # get project, remove it from the in memory state and persist the project and the main yaml file
     project = multi_project_manager.get_project(name)
     multi_project_manager.remove_project(name)
-    multi_project_manager.persist_project_path(project.path_from_repo_root_to_project_root)
+    multi_project_manager.persist_project_path(
+        project.path_from_repo_root_to_project_root
+    )
     multi_project_manager.save()
+    click.echo(f"Project {name} removed.")
 
 
 @projects.command(name="list")
