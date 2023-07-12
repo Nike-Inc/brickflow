@@ -59,7 +59,7 @@ def get_relative_path_to_brickflow_root() -> None:
     paths = get_caller_file_paths()
     _ilog.info("Brickflow setting up python path resolution...")
     # if inside notebook also get that path
-    notebook_path = get_notebook_path(ctx.dbutils)
+    notebook_path = get_notebook_ws_path(ctx.dbutils)
     if notebook_path is not None:
         paths.append(notebook_path)
 
@@ -75,14 +75,17 @@ def get_relative_path_to_brickflow_root() -> None:
         # print(path)
 
 
-def get_notebook_path(dbutils: Optional[Any]) -> Optional[str]:
+def get_notebook_ws_path(dbutils: Optional[Any]) -> Optional[str]:
     if dbutils is not None:
-        return (
-            dbutils.notebook.entry_point.getDbutils()
-            .notebook()
-            .getContext()
-            .notebookPath()
-            .get()
+        return str(
+            "/Workspace"
+            / Path(
+                dbutils.notebook.entry_point.getDbutils()
+                .notebook()
+                .getContext()
+                .notebookPath()
+                .get()
+            )
         )
     return None
 
@@ -91,7 +94,7 @@ class RelativePathPackageResolver:
     @staticmethod
     def _get_current_file_path(global_vars: Dict[str, Any]):
         if "dbutils" in global_vars:
-            get_notebook_path(global_vars["dbutils"])
+            get_notebook_ws_path(global_vars["dbutils"])
         else:
             return global_vars["__file__"]
 
