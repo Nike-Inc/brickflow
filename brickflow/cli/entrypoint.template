@@ -11,7 +11,7 @@ def main() -> None:
         git_repo="{{ git_https_url }}",
         provider="{{ git_provider }}",
         libraries=[
-            PypiTaskLibrary(package="brickflow=={{brickflow_version}}""),
+            PypiTaskLibrary(package="brickflow=={{brickflow_version}}"),
             MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
             # PypiTaskLibrary(package="spark-expectations=={{spark_expectations_version}}"), # Uncomment if spark-expectations is needed
         ],
