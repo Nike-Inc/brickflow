@@ -11,6 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     container:
       image: python:${{ matrix.python-version }}
+      options: --user 1001 # run as the runner user instead of root
     strategy:
       max-parallel: 2
       matrix:
