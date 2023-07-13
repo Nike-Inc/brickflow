@@ -28,6 +28,14 @@ jobs:
       - name: Install pip
         run: python -m pip install --upgrade pip
 
+      - name: Setup Node 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16"
+
+      - name: Install cdktf
+        run: npm install -g cdktf-cli
+
       - name: Install pip
         run: python -m pip install poetry
 
