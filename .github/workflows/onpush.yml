@@ -45,10 +45,14 @@ jobs:
         run: make poetry-install
 
       - name: Install dependencies
-        run: make poetry
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          make poetry
 
       - name: Install, lint and test
-        run: make cov
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          make cov
 
 #      - name: Publish test coverage
 #        uses: codecov/codecov-action@v3
