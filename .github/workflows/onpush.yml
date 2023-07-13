@@ -44,7 +44,11 @@ jobs:
       - name: Install poetry and build tools
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          make poetry-install
+          pip install --user --upgrade setuptools
+          pip install --user poetry
+          poetry config virtualenv.create false
+          poetry config install.user true
+          poetry self add "poetry-dynamic-versioning[plugin]"
 
       - name: Install dependencies
         run: |
