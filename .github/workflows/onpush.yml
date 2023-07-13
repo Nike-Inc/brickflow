@@ -42,7 +42,9 @@ jobs:
           cdktf --help
 
       - name: Install poetry and build tools
-        run: make poetry-install
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          make poetry-install
 
       - name: Install dependencies
         run: |
