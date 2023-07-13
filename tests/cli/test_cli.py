@@ -62,7 +62,7 @@ class TestCli:
                 "-sev",
                 "0.5.0",
             ],
-            ""
+            "",
         )  # noqa
         assert result.exit_code == 0, traceback.print_exception(*result.exc_info)
         # result.output
