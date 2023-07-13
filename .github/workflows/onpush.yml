@@ -34,13 +34,12 @@ jobs:
           node-version: "16"
 
       - name: Install cdktf
-        run: npm install -g cdktf-cli
+        run: |
+          npm install -g cdktf-cli
+          cdktf --help
 
-      - name: Install pip
-        run: python -m pip install poetry
-
-      - name: Install poetry dynamic version
-        run: poetry self add "poetry-dynamic-versioning[plugin]"
+      - name: Install poetry and build tools
+        run: make poetry-install
 
       - name: Install, lint and test
         run: |
