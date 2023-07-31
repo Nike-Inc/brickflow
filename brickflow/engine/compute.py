@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import json
 from dataclasses import dataclass
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Literal
 
 
 class DuplicateClustersDefinitionError(Exception):
@@ -84,6 +84,7 @@ class Cluster:
     enable_elastic_disk: Optional[bool] = None
     driver_instance_pool_id: Optional[str] = None
     instance_pool_id: Optional[str] = None
+    runtime_engine: Optional[Literal["STANDARD", "PHOTON"]] = None
     policy_id: Optional[str] = None
 
     def __hash__(self) -> int:

@@ -81,6 +81,10 @@ class BrickflowDefaultEnvs(Enum):
     PROD = "prod"
 
 
+def get_entrypoint_python() -> str:
+    return str(sys.executable)
+
+
 def get_brickflow_version(package_name: str = "brickflow") -> str:
     try:
         from importlib import metadata  # type: ignore
@@ -137,6 +141,10 @@ from brickflow.engine.workflow import (
     User,
     Group,
     ServicePrincipal,
+    JobEmailNotifications,
+    WebhookNotifications,
+    NotificationSettings,
+    Trigger,
 )
 from brickflow.engine.task import (
     Task,
@@ -153,6 +161,7 @@ from brickflow.engine.task import (
     MavenTaskLibrary,
     CranTaskLibrary,
     EmailNotifications,
+    TaskNotificationSettings,
     DLTPipeline,
     DLTEdition,
     DLTChannels,
@@ -170,8 +179,14 @@ __version__ = get_brickflow_version()
 __all__: List[str] = [
     "ctx",
     "get_bundles_project_env",
+    "get_entrypoint_python",
     "Workflow",
     "WorkflowPermissions",
+    "JobEmailNotifications",
+    "WebhookNotifications",
+    "NotificationSettings",
+    "TaskNotificationSettings",
+    "Trigger",
     "User",
     "Group",
     "ServicePrincipal",

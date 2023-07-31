@@ -24,7 +24,7 @@ import pluggy
 from decouple import config
 
 from brickflow import _ilog, BrickflowDefaultEnvs
-from brickflow.bundles.model import JobsTasksNotebookTask
+from brickflow.bundles.model import JobsTasksNotebookTask, JobsTasksNotificationSettings
 from brickflow.context import (
     BrickflowBuiltInTaskVariables,
     BrickflowInternalVariables,
@@ -219,9 +219,14 @@ class EmailNotifications:
         }
 
 
+class TaskNotificationSettings(JobsTasksNotificationSettings):
+    pass
+
+
 @dataclass(frozen=True)
 class TaskSettings:
     email_notifications: Optional[EmailNotifications] = None
+    notification_settings: Optional[TaskNotificationSettings] = None
     timeout_seconds: Optional[int] = None
     max_retries: Optional[int] = None
     min_retry_interval_millis: Optional[int] = None
@@ -233,6 +238,7 @@ class TaskSettings:
             return self
         return TaskSettings(
             other.email_notifications or self.email_notifications,
+            other.notification_settings or self.notification_settings,
             other.timeout_seconds or self.timeout_seconds or 0,
             other.max_retries or self.max_retries,
             other.min_retry_interval_millis or self.min_retry_interval_millis,
@@ -253,7 +259,13 @@ class TaskSettings:
             if self.email_notifications is not None
             else {}
         )
+        notification_settings = (
+            {}
+            if self.notification_settings is None
+            else {"notification_settings": self.notification_settings.dict()}
+        )
         return {
+            **notification_settings,
             "email_notifications": email_not,
             "timeout_seconds": self.timeout_seconds,
             "max_retries": self.max_retries,

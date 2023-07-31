@@ -6,6 +6,12 @@ from typing import Callable, List, Optional, Dict, Union, Iterator, Any
 import networkx as nx
 from decouple import config
 
+from brickflow.bundles.model import (
+    JobsEmailNotifications,
+    JobsWebhookNotifications,
+    JobsNotificationSettings,
+    JobsTrigger,
+)
 from brickflow.engine import ROOT_NODE
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
@@ -79,6 +85,22 @@ class WorkflowPermissions:
         return access_controls
 
 
+class JobEmailNotifications(JobsEmailNotifications):
+    pass
+
+
+class WebhookNotifications(JobsWebhookNotifications):
+    pass
+
+
+class NotificationSettings(JobsNotificationSettings):
+    pass
+
+
+class Trigger(JobsTrigger):
+    pass
+
+
 # TODO: Re-architect to make this frozen and immutable after being defined.
 @dataclass(eq=True)
 class Workflow:
@@ -89,6 +111,10 @@ class Workflow:
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
     default_task_settings: TaskSettings = TaskSettings()
+    email_notifications: Optional[JobEmailNotifications] = None
+    webhook_notifications: Optional[WebhookNotifications] = None
+    notification_settings: Optional[NotificationSettings] = None
+    trigger: Optional[Trigger] = None
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     tags: Optional[Dict[str, str]] = None
     max_concurrent_runs: int = 1

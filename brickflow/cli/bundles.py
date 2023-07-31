@@ -16,6 +16,7 @@ from brickflow import (
     ctx as brickflow_ctx,
     _ilog,
     get_bundles_project_env,
+    get_entrypoint_python,
 )
 from brickflow.cli.constants import BrickflowDeployMode
 from brickflow.cli.commands import exec_command
@@ -205,7 +206,7 @@ def bundle_synth(**kwargs: Any) -> None:
     ] = BrickflowDeployMode.BUNDLE.value
     os.environ[BrickflowEnvVars.BRICKFLOW_MODE.value] = "deploy"
     _ilog.info("Synthesizing bundle...")
-    exec_command("python", entrypoint_file, [])
+    exec_command(get_entrypoint_python(), entrypoint_file, [])
 
 
 def bundle_cli_setup() -> None:

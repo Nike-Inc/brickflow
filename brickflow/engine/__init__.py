@@ -4,7 +4,7 @@ import functools
 import logging
 import subprocess
 import sys
-from typing import Callable, Optional
+from typing import Callable
 
 from brickflow import log, get_default_log_handler
 
@@ -18,34 +18,11 @@ def _call(cmd: str, **kwargs: bool) -> bytes:
     )
 
 
-def get_git_remote_url_https() -> Optional[str]:
-    git_url = get_git_remote_url()
-    if git_url.startswith("https://"):
-        return git_url.replace(".git", "")
-    if git_url.startswith("git@github.com"):
-        return (
-            git_url.replace("git@", "https://")
-            .replace(".com:", ".com/")
-            .replace(".git", "")
-        )
-    return None
-
-
-def get_git_remote_url() -> str:
-    p = _call("git config --get remote.origin.url", shell=True).decode("utf-8")
-    return p.strip()
-
-
 def is_git_dirty() -> bool:
     p = _call("git diff --stat", shell=True).decode("utf-8")
     if len(p) > 10:
         return True
     return False
-
-
-def get_current_branch() -> str:
-    p = _call("git rev-parse --abbrev-ref HEAD", shell=True)
-    return p.strip().decode("utf-8")
 
 
 def get_current_commit() -> str:

@@ -485,11 +485,12 @@ class DatabricksBundleCodegen(CodegenInterface):
             / self.project.name
             / self.env
         )
+
         env_content = Environments(
             workspace=Workspace(
-                root_path=str(bundle_root_path),
-                file_path=str(bundle_root_path / "files"),
-                state_path=str(bundle_root_path / "state"),
+                root_path=str(bundle_root_path.as_posix()),
+                file_path=str((bundle_root_path / "files").as_posix()),
+                state_path=str((bundle_root_path / "state").as_posix()),
             ),
             resources=resources,
         )

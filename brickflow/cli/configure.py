@@ -11,7 +11,7 @@ from typing import Dict, Callable, Any, Optional
 import click
 from jinja2 import Environment, BaseLoader
 
-from brickflow import _ilog, BrickflowProjectConstants
+from brickflow import _ilog, BrickflowProjectConstants, get_entrypoint_python
 from brickflow.cli.commands import exec_command
 
 PWD = Path(__file__).parent.absolute()
@@ -166,5 +166,7 @@ def log_important_versions(bundle_cli: str) -> None:
 
 
 def log_python_version() -> None:
-    version = exec_command("python", "--version", [], capture_output=True)
+    version = exec_command(
+        get_entrypoint_python(), "--version", [], capture_output=True
+    )
     _ilog.info("Using python version: %s", version)
