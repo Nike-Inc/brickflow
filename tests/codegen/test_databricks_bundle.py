@@ -47,6 +47,12 @@ def get_expected_bundle_yaml(file_name):
     return read_yaml_file(str(Path(__file__).parent / f"expected_bundles/{file_name}"))
 
 
+def get_workspace_client_mock() -> MagicMock:
+    workspace_client = MagicMock()
+    workspace_client.current_user.me.return_value.user_name = "test_user"
+    return workspace_client
+
+
 class TestBundleCodegen:
     @patch.dict(
         os.environ,
@@ -58,24 +64,26 @@ class TestBundleCodegen:
     )
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
-    @patch(
-        "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator._get_current_user_alphanumeric"
-    )
     def test_generate_bundle_local(
         self,
-        get_user_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
     ):
-        get_user_mock.return_value = "test_user"
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
+
+        workspace_client = get_workspace_client_mock()
+
         # get caller part breaks here
         with Project(
             "test-project",
             entry_point_path="test_databricks_bundle.py",
             codegen_kwargs={
-                "mutators": [DatabricksBundleTagsAndNameMutator()]
+                "mutators": [
+                    DatabricksBundleTagsAndNameMutator(
+                        databricks_client=workspace_client
+                    )
+                ]
             },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
@@ -101,21 +109,19 @@ class TestBundleCodegen:
     )
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
-    @patch(
-        "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator._get_current_user_alphanumeric"
-    )
     def test_generate_bundle_dev(
         self,
-        get_user_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
     ):
-        get_user_mock.return_value = "test_user"
         dbutils.return_value = None
         git_ref_b = b"a"
         git_repo = "https://github.com/"
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
+
+        workspace_client = get_workspace_client_mock()
+
         # get caller part breaks here
         with Project(
             "test-project",
@@ -123,7 +129,7 @@ class TestBundleCodegen:
             git_repo=git_repo,
             provider=git_provider,
             codegen_kwargs={
-                "mutators": [DatabricksBundleTagsAndNameMutator()]
+                "mutators": [DatabricksBundleTagsAndNameMutator(workspace_client)]
             },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
@@ -153,21 +159,19 @@ class TestBundleCodegen:
     )
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
-    @patch(
-        "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator._get_current_user_alphanumeric"
-    )
     def test_generate_bundle_dev_monorepo(
         self,
-        get_user_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
     ):
-        get_user_mock.return_value = "test_user"
         dbutils.return_value = None
         git_ref_b = b"a"
         git_repo = "https://github.com/"
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
+
+        workspace_client = get_workspace_client_mock()
+
         # get caller part breaks here
         with Project(
             "test-project",
@@ -175,7 +179,7 @@ class TestBundleCodegen:
             git_repo=git_repo,
             provider=git_provider,
             codegen_kwargs={
-                "mutators": [DatabricksBundleTagsAndNameMutator()]
+                "mutators": [DatabricksBundleTagsAndNameMutator(workspace_client)]
             },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
@@ -205,21 +209,22 @@ class TestBundleCodegen:
         fake_job = MagicMock()
         fake_pipeline = MagicMock()
         project = MagicMock()
-        fake_user = MagicMock()
 
         databricks_fake_client.jobs.list.return_value = [fake_job]
         databricks_fake_client.pipelines.list_pipelines.return_value = [fake_pipeline]
-        databricks_fake_client.current_user.me.return_value = fake_user
-        fake_user.user_name = fake_user_email
+        databricks_fake_client.current_user.me.return_value.user_name = fake_user_email
+
         fake_job.job_id = fake_job_id
         fake_pipeline.pipeline_id = fake_pipeline_id
-        project.name.return_value = "test-project"
+        project.name = "test-project"
         import_mutator = DatabricksBundleImportMutator(databricks_fake_client)
         tag_and_name_mutator = DatabricksBundleTagsAndNameMutator(
             databricks_fake_client
         )
 
-        code_gen = DatabricksBundleCodegen(project, "some-id", "local")
+        code_gen = DatabricksBundleCodegen(
+            project, "some-id", "local", mutators=[tag_and_name_mutator, import_mutator]
+        )
         resource = Resources(
             jobs={
                 job_name: Jobs(
@@ -244,6 +249,8 @@ class TestBundleCodegen:
                 )
             },
         )
+
+        code_gen.proj_to_bundle()
         import_mutator.mutate_resource(
             resource=resource,
             ci=code_gen,
@@ -253,6 +260,7 @@ class TestBundleCodegen:
             ci=code_gen,
         )
 
+        # print(code_gen.imports)
         assert code_gen.imports == [
             ImportBlock(to=f"databricks_job.{job_name}", id_=fake_job_id),
             ImportBlock(

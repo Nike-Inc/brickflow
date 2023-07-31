@@ -1,7 +1,7 @@
 bundle:
   name: test-project
 environments:
-  dev:
+  test-project-dev:
     resources:
       jobs:
         test:

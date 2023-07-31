@@ -72,7 +72,6 @@ def get_relative_path_to_brickflow_root() -> None:
             _ilog.info("Sys path set to: %s", str(sys.path))
         except BrickflowRootNotFound:
             _ilog.info("Unable to find for path: %s", path)
-        # print(path)
 
 
 def get_notebook_ws_path(dbutils: Optional[Any]) -> Optional[str]:

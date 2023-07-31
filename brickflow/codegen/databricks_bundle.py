@@ -18,6 +18,7 @@ from brickflow import (
     BrickflowDefaultEnvs,
     ctx,
     _ilog,
+    get_bundles_project_env,
 )
 from brickflow.bundles.model import (
     Jobs,
@@ -477,6 +478,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             pipelines=pipelines,
         )
         DatabricksBundleResourceTransformer(resources, self).transform(self.mutators)
+
         bundle_root_path = (
             Path(self.project.bundle_base_path)
             / self.project.bundle_obj_name
@@ -494,7 +496,7 @@ class DatabricksBundleCodegen(CodegenInterface):
 
         return DatabricksAssetBundles(
             environments={
-                self.env: env_content,
+                get_bundles_project_env(): env_content,
             },
             bundle=Bundle(name=self.project.name),
             workspace=Workspace(),  # empty required not optional

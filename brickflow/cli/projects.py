@@ -296,15 +296,19 @@ def projects() -> None:
 
 
 @contextlib.contextmanager
-def project_root(project_root_dir: Optional[str] = None) -> Generator[None, None, None]:
+def use_project(
+    name: str, project_root_dir: Optional[str] = None
+) -> Generator[None, None, None]:
     # if no directory is provided do nothing
     if project_root_dir is not None:
         current_directory = os.getcwd()
         _ilog.info("Changed to directory: %s", project_root_dir)
         os.chdir(project_root_dir)
+        os.environ[BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value] = name
         try:
             yield
         finally:
+            os.environ.pop(BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None)
             os.chdir(current_directory)
     else:
         yield
@@ -383,7 +387,7 @@ def add(
     _create_gitignore_if_not_exists()
     _update_gitignore()
 
-    with project_root(project.path_from_repo_root_to_project_root):
+    with use_project(name, project.path_from_repo_root_to_project_root):
         if skip_entrypoint is False:
             initialize_project_entrypoint(
                 project.name,
@@ -470,7 +474,7 @@ def deploy_project(project: str, **kwargs: Any) -> None:
     """Lists all projects in the brickflow-multi-project.yml file"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
-    with project_root(dir_to_change):
+    with use_project(project, dir_to_change):
         bundle_deploy(
             workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
         )

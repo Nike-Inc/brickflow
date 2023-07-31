@@ -1,7 +1,7 @@
 bundle:
   name: test-project
 environments:
-  local:
+  test-project-local:
     resources:
       jobs:
         test:

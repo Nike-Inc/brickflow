@@ -11,7 +11,12 @@ import requests
 from click import ClickException
 from decouple import config
 
-from brickflow import BrickflowEnvVars, ctx as brickflow_ctx, _ilog
+from brickflow import (
+    BrickflowEnvVars,
+    ctx as brickflow_ctx,
+    _ilog,
+    get_bundles_project_env,
+)
 from brickflow.cli.constants import BrickflowDeployMode
 from brickflow.cli.commands import exec_command
 from brickflow.cli.configure import get_entrypoint, log_important_versions
@@ -81,7 +86,7 @@ def bundle_deploy(
     bundle_cli: Optional[str] = None, force_acquire_lock: bool = False, **_: Any
 ) -> None:
     """CLI deploy the bundle."""
-    deploy_args = ["deploy", "-e", brickflow_ctx.env]
+    deploy_args = ["deploy", "-e", get_bundles_project_env()]
     if force_acquire_lock is True:
         deploy_args.append("--force")
     exec_command(get_valid_bundle_cli(bundle_cli), "bundle", deploy_args)

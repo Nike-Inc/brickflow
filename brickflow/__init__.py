@@ -68,6 +68,7 @@ class BrickflowEnvVars(Enum):
     BRICKFLOW_BUNDLE_NO_DOWNLOAD = "BRICKFLOW_BUNDLE_NO_DOWNLOAD"
     BRICKFLOW_BUNDLE_CLI_VERSION = "BRICKFLOW_BUNDLE_CLI_VERSION"
     BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT = "BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT"
+    BRICKFLOW_PROJECT_NAME = "BRICKFLOW_PROJECT_NAME"
 
 
 class BrickflowDefaultEnvs(Enum):
@@ -121,6 +122,15 @@ _ilog = setup_logger("brickflow-internal")
 log = setup_logger()
 
 from brickflow.context import ctx
+
+
+# get project env for bundles
+def get_bundles_project_env() -> str:
+    if ctx.current_project is None:
+        return ctx.env
+    return f"{ctx.current_project}-{ctx.env}"
+
+
 from brickflow.engine.workflow import (
     Workflow,
     WorkflowPermissions,
@@ -159,6 +169,7 @@ __version__ = get_brickflow_version()
 
 __all__: List[str] = [
     "ctx",
+    "get_bundles_project_env",
     "Workflow",
     "WorkflowPermissions",
     "User",

@@ -3,6 +3,8 @@ import importlib.util
 import inspect
 import os
 import sys
+import types
+
 from dataclasses import field, dataclass
 from enum import Enum
 from pathlib import Path
@@ -95,9 +97,20 @@ class _Project:
             spec.loader.exec_module(mod)  # type: ignore
             for obj in dir(mod):
                 module_item = getattr(mod, obj)
-                if isinstance(module_item, Workflow):
-                    # checked to see if this is a workflow object
-                    self.add_workflow(module_item)
+                # handling adding any module item if it is a workflow, list of workflows, or dict of workflows
+                self._add_if_workflow(module_item)
+
+    def _add_if_workflow(self, maybe_workflow: Any) -> None:
+        if isinstance(maybe_workflow, Workflow):
+            self.add_workflow(maybe_workflow)
+        elif isinstance(maybe_workflow, (list, types.GeneratorType)):
+            for item in maybe_workflow:
+                # Add check for list of workflows
+                self._add_if_workflow(item)
+        elif isinstance(maybe_workflow, dict):
+            for item in maybe_workflow.values():
+                # Add check for dict of workflows
+                self._add_if_workflow(item)
 
     def add_workflow(self, workflow: Workflow) -> None:
         if self.workflow_exists(workflow) is True:
@@ -158,6 +171,22 @@ class Project:
             config(BrickflowEnvVars.BRICKFLOW_MODE.value, default=Stage.execute.value)
         ]
         self.entry_point_path = self.entry_point_path or get_caller_info()
+
+        # setup current_project
+        env_project_name = config(
+            BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, default=None
+        )
+
+        if (
+            env_project_name is not None
+            and self.name is not None
+            and env_project_name != self.name
+        ):
+            raise ValueError(
+                "Project name in config files and entrypoint must be the same"
+            )
+
+        ctx.set_current_project(self.name or env_project_name)  # always setup first
 
         # populate bundle info via env vars
         self.bundle_obj_name = config(

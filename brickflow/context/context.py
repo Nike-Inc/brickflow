@@ -158,6 +158,7 @@ class Context:
         self._task_coms: BrickflowTaskComs
         self._current_task: Optional[str] = None
         self._configure()
+        self._current_project: Optional[str] = None
 
     def __new__(cls) -> "Context":
         if not hasattr(cls, "instance"):
@@ -202,6 +203,13 @@ class Context:
     @property
     def task_coms(self) -> BrickflowTaskComs:
         return self._task_coms
+
+    @property
+    def current_project(self) -> Optional[str]:
+        return self._current_project
+
+    def set_current_project(self, project: str) -> None:
+        self._current_project = project
 
     @bind_variable(BrickflowBuiltInTaskVariables.task_key)
     def task_key(self, *, debug: Optional[str] = None) -> Any:
