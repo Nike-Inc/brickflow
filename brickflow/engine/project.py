@@ -198,19 +198,19 @@ class Project:
             default="/Users/${workspace.current_user.userName}",
         )
 
-        if self._mode == Stage.deploy:
-            git_ref_default = (
-                self.git_reference
-                if self.git_reference is not None
-                else f"commit/{get_current_commit()}"
-            )
-        else:
-            git_ref_default = (
-                self.git_reference if self.git_reference is not None else ""
-            )
         self.git_reference = config(
-            BrickflowEnvVars.BRICKFLOW_GIT_REF.value, default=git_ref_default
+            BrickflowEnvVars.BRICKFLOW_GIT_REF.value, default=self.get_git_ref()
         )
+
+        if (
+            self._mode == Stage.deploy
+            and ctx.is_local() is False
+            and self.git_reference is None
+        ):
+            raise ValueError(
+                "git_reference must be set when deploying to non-local envs"
+            )
+
         self.provider = config(
             BrickflowEnvVars.BRICKFLOW_GIT_PROVIDER.value, default=self.provider
         )
@@ -238,6 +238,21 @@ class Project:
             self.codegen_mechanism = DatabricksBundleCodegen
         if self.codegen_kwargs is None:
             self.codegen_kwargs = {}
+
+    def get_git_ref(self) -> Optional[str]:
+        if self._mode == Stage.deploy:
+            if self.git_reference is not None:
+                return self.git_reference
+            else:
+                try:
+                    return f"commit/{get_current_commit()}"
+                except Exception:
+                    _ilog.warning(
+                        "Unable to get current commit; defaulting to empty string"
+                    )
+                    return "commit/fake-local-stub" if ctx.is_local() else None
+        else:
+            return self.git_reference if self.git_reference is not None else ""
 
     def __enter__(self) -> "_Project":
         self._project = _Project(
