@@ -320,12 +320,3 @@ def create_timetable(interval: str, timezone: Timezone) -> CronDataIntervalTimet
     """Create a Timetable instance from a ``schedule_interval`` argument."""
     return CronDataIntervalTimetable(interval, timezone)
 
-
-if __name__ == "__main__":
-    from brickflow_plugins.airflow.vendor.timezone import TIMEZONE
-    from brickflow_plugins.airflow.cronhelper import CronHelper
-
-    cron = CronHelper().quartz_to_unix("0 0 10 * * ?")
-    tt = create_timetable(cron, TIMEZONE)
-    dt = DateTime(2022, 10, 16, 9, 0, 0, tzinfo=TIMEZONE)
-    print(tt.align_to_prev(dt))
