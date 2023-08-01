@@ -85,15 +85,15 @@ class WorkflowPermissions:
         return access_controls
 
 
-class JobEmailNotifications(JobsEmailNotifications):
+class WorkflowEmailNotifications(JobsEmailNotifications):
     pass
 
 
-class WebhookNotifications(JobsWebhookNotifications):
+class WorkflowWebhookNotifications(JobsWebhookNotifications):
     pass
 
 
-class NotificationSettings(JobsNotificationSettings):
+class WorkflowNotificationSettings(JobsNotificationSettings):
     pass
 
 
@@ -111,9 +111,9 @@ class Workflow:
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
     default_task_settings: TaskSettings = TaskSettings()
-    email_notifications: Optional[JobEmailNotifications] = None
-    webhook_notifications: Optional[WebhookNotifications] = None
-    notification_settings: Optional[NotificationSettings] = None
+    email_notifications: Optional[WorkflowEmailNotifications] = None
+    webhook_notifications: Optional[WorkflowWebhookNotifications] = None
+    notification_settings: Optional[WorkflowNotificationSettings] = None
     trigger: Optional[Trigger] = None
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     tags: Optional[Dict[str, str]] = None
