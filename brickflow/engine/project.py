@@ -290,7 +290,7 @@ class Project:
                 project=self._project,
                 id_=f"{ctx.env}_{self.name}",
                 env=ctx.env,
-                **self.codegen_kwargs,
+                **(self.codegen_kwargs or {}),
             )
             codegen.synth()
 

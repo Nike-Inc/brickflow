@@ -3,6 +3,7 @@ import functools
 import itertools
 import os
 import re
+import typing
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Union, Dict, Any, Iterator
@@ -36,7 +37,6 @@ from brickflow.bundles.model import (
     Workspace,
     Bundle,
     Pipelines,
-    PipelinesClusters,
     JobsRunAs,
     Environments,
     PipelinesLibraries,
@@ -45,6 +45,9 @@ from brickflow.bundles.model import (
 from brickflow.codegen import CodegenInterface, handle_mono_repo_path
 from brickflow.engine.task import TaskLibrary, DLTPipeline, TaskSettings
 
+if typing.TYPE_CHECKING:
+    from brickflow.engine.project import _Project  # noqa
+
 
 class DatabricksBundleResourceMutator(abc.ABC):
     @abc.abstractmethod
@@ -52,7 +55,7 @@ class DatabricksBundleResourceMutator(abc.ABC):
         pass
 
 
-def normalize_resource_name(text):
+def normalize_resource_name(text: str) -> str:
     # TODO: support hyphens (-) and underscores (_) in resource names when databricks bundles have interpolation fixed
     pattern = r"[^a-zA-Z0-9]+"
     converted_text = re.sub(pattern, "_", text)
@@ -64,11 +67,11 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
         self.databricks_client = databricks_client or WorkspaceClient()
 
     @functools.lru_cache(maxsize=1)
-    def _get_current_user_alphanumeric(self):
+    def _get_current_user_alphanumeric(self) -> str:
         user_email = self.databricks_client.current_user.me().user_name
         return re.sub(r"\W", "_", user_email.split("@", maxsplit=1)[0])
 
-    def _get_default_tags(self, ci: CodegenInterface):
+    def _get_default_tags(self, ci: CodegenInterface) -> Dict[str, str]:
         return {
             "environment": ctx.env,
             "deployed_by": self._get_current_user_alphanumeric(),
@@ -76,13 +79,13 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
             "databricks_deploy_mode": "Databricks Asset Bundles",
         }
 
-    def _rewrite_name(self, name: str):
+    def _rewrite_name(self, name: str) -> str:
         if ctx.is_local() is True:
             return f"{self._get_current_user_alphanumeric()}_{name}"
         else:
             return f"{ctx.env}_{name}"
 
-    def _mutate_jobs(self, resource: Resources, ci: CodegenInterface):
+    def _mutate_jobs(self, resource: Resources, ci: CodegenInterface) -> Resources:
         if resource.jobs is not None:
             for job in resource.jobs.values():
                 # set correct names
@@ -91,14 +94,13 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
                 job.tags = {**self._get_default_tags(ci), **(job.tags or {})}
         return resource
 
-    def _mutate_pipelines(self, resource: Resources, ci: CodegenInterface):
+    def _mutate_pipelines(self, resource: Resources, ci: CodegenInterface) -> Resources:
         if resource.pipelines is not None:
             for pipeline in resource.pipelines.values():
                 pipeline.name = self._rewrite_name(pipeline.name)
                 if pipeline.clusters is None:
                     continue
                 for cluster in pipeline.clusters:
-                    cluster: PipelinesClusters
                     # set correct tags
                     cluster.custom_tags = {
                         **self._get_default_tags(ci),
@@ -181,7 +183,7 @@ class DatabricksBundleImportMutator(DatabricksBundleResourceMutator):
     def __init__(self, databricks_client: Optional[WorkspaceClient] = None) -> None:
         self.import_resolver_chain = ImportResolverChain(databricks_client)
 
-    def _job_ref_iter(self, resource: Resources) -> List[ResourceReference]:
+    def _job_ref_iter(self, resource: Resources) -> Iterator[ResourceReference]:
         if resource.jobs is None:
             return None
         for job_ref, job in resource.jobs.items():
@@ -191,7 +193,7 @@ class DatabricksBundleImportMutator(DatabricksBundleResourceMutator):
                 reference=f"databricks_job.{job_ref}",
             )
 
-    def _pipeline_ref_iter(self, resource: Resources) -> List[ResourceReference]:
+    def _pipeline_ref_iter(self, resource: Resources) -> Iterator[ResourceReference]:
         if resource.pipelines is None:
             return None
         for pipeline_ref, pipeline in resource.pipelines.items():
@@ -209,11 +211,17 @@ class DatabricksBundleImportMutator(DatabricksBundleResourceMutator):
             if resolved_ref is not None:
                 yield resolved_ref
 
-    def mutate_resource(
-        self, resource: Resources, ci: "DatabricksBundleCodegen"
-    ) -> Resources:
+    def mutate_resource(self, resource: Resources, ci: "CodegenInterface") -> Resources:
+        if isinstance(ci, DatabricksBundleCodegen) is False:
+            _ilog.info(
+                "Skipping mutating resource due to not being DatabricksBundleCodegen for mutator: %s",
+                self.__class__.__name__,
+            )
+            return resource
+
         for import_ in self._imports_iter(resource):
-            ci.add_import(import_)
+            if isinstance(ci, DatabricksBundleCodegen):
+                ci.add_import(import_)
 
         return resource
 
@@ -259,8 +267,8 @@ class DatabricksBundleCodegen(CodegenInterface):
         id_: str,
         env: str,
         mutators: Optional[List[DatabricksBundleResourceMutator]] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(project, id_, env, **kwargs)
         self.imports: List[ImportBlock] = []
         self.mutators = mutators or [
@@ -268,7 +276,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             DatabricksBundleImportMutator(),
         ]
 
-    def add_import(self, import_: ImportBlock):
+    def add_import(self, import_: ImportBlock) -> None:
         self.imports.append(import_)
 
     @staticmethod
@@ -307,7 +315,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         return pipelines_dict
 
     @staticmethod
-    def get_pipeline_reference(workflow: Workflow, pipeline: DLTPipeline):
+    def get_pipeline_reference(workflow: Workflow, pipeline: DLTPipeline) -> str:
         return normalize_resource_name(f"{workflow.name}-{pipeline.name}")
 
     def _build_native_notebook_task(
@@ -317,7 +325,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         task_libraries: List[JobsTasksLibraries],
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
-    ):
+    ) -> JobsTasks:
         try:
             notebook_task: JobsTasksNotebookTask = task.task_func()
         except Exception as e:
@@ -479,6 +487,15 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
         DatabricksBundleResourceTransformer(resources, self).transform(self.mutators)
 
+        if self.project.bundle_base_path is None:
+            raise ValueError("project.bundle_base_path is None")
+
+        if self.project.bundle_obj_name is None:
+            raise ValueError("project.bundle_obj_name is None")
+
+        if self.project.name is None:
+            raise ValueError("project.name is None")
+
         bundle_root_path = (
             Path(self.project.bundle_base_path)
             / self.project.bundle_obj_name
@@ -503,7 +520,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             workspace=Workspace(),  # empty required not optional
         )
 
-    def synth(self):
+    def synth(self) -> None:
         bundle = self.proj_to_bundle()
 
         if self.env == BrickflowDefaultEnvs.LOCAL.value:

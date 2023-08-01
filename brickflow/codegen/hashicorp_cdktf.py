@@ -23,7 +23,7 @@ from brickflow.engine.workflow import Workflow
 
 
 class HashicorpCDKTFGen(CodegenInterface):
-    def _generate_app(self):
+    def _generate_app(self) -> "App":  # type: ignore
         # local import to avoid node req
         from cdktf import App
 
@@ -246,6 +246,6 @@ class HashicorpCDKTFGen(CodegenInterface):
 
                 S3Backend(stack, **self.project.s3_backend)
 
-    def synth(self):
+    def synth(self) -> None:
         app = self._generate_app()
         app.synth()

@@ -1,10 +1,10 @@
 black-check:
 	@poetry run black --check .
 
-fmt:
+fmt: gen-bundle-sdk
 	@poetry run black .
 
-check: black-check mypy
+check: gen-bundle-sdk black-check mypy
 	@poetry run prospector --profile prospector.yaml
 
 mypy:
@@ -17,9 +17,6 @@ cov: check
 
 gen-bundle-sdk:
 	@./tools/gen-bundle.sh
-#
-#gen-bundle-sdk-v2:
-#	@datamodel-codegen  --input brickflow/bundle/output_schema.json --use-title-as-name --input-file-type jsonschema --output brickflow/bundle/model_v2.py
 
 dev:
 	@poetry install --all-extras --with dev
@@ -37,7 +34,7 @@ test:
 clean:
 	@rm -rf dist
 
-build: clean
+build: clean gen-bundle-sdk
 	@poetry build
 
 poetry:

@@ -10,7 +10,7 @@ import pathlib
 from brickflow import BrickflowProjectConstants, _ilog, ctx
 
 
-def add_to_sys_path(directory: Union[str, pathlib.Path]):
+def add_to_sys_path(directory: Union[str, pathlib.Path]) -> None:
     dir_str = str(directory)
     if dir_str not in sys.path and os.path.isdir(dir_str):
         sys.path.append(dir_str)
@@ -30,11 +30,11 @@ class BrickflowRootNotFound(Exception):
     pass
 
 
-def go_up_till_brickflow_root(path: str) -> str:
-    if path.startswith("<"):
+def go_up_till_brickflow_root(cur_path: str) -> str:
+    if cur_path.startswith("<"):
         raise BrickflowRootNotFound("Invalid brickflow root.")
 
-    path = pathlib.Path(path).resolve()
+    path = pathlib.Path(cur_path).resolve()
 
     valid_roots = [
         BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value,
@@ -92,9 +92,12 @@ def get_notebook_ws_path(dbutils: Optional[Any]) -> Optional[str]:
 
 class RelativePathPackageResolver:
     @staticmethod
-    def _get_current_file_path(global_vars: Dict[str, Any]):
+    def _get_current_file_path(global_vars: Dict[str, Any]) -> str:
         if "dbutils" in global_vars:
-            get_notebook_ws_path(global_vars["dbutils"])
+            ws_path = get_notebook_ws_path(global_vars["dbutils"])
+            if ws_path is None:
+                raise ValueError("Unable to resolve notebook path.")
+            return ws_path
         else:
             return global_vars["__file__"]
 

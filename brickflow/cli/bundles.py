@@ -209,14 +209,16 @@ def bundle_synth(**kwargs: Any) -> None:
     exec_command(get_entrypoint_python(), entrypoint_file, [])
 
 
+def get_bundle_cli_version() -> str:
+    return config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.202.0")
+
+
 def bundle_cli_setup() -> None:
     # handle download bundle cli
     if config(BrickflowEnvVars.BRICKFLOW_BUNDLE_NO_DOWNLOAD.value, False, cast=bool):
         _ilog.info("Skipping bundle download...")
         return
-    brickflow_bundle_version = config(
-        BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.200.0"
-    )
+    brickflow_bundle_version = get_bundle_cli_version()
     cli_download_url = bundle_download_path(brickflow_bundle_version)
     path = download_and_unzip_databricks_cli(cli_download_url, brickflow_bundle_version)
     os.environ[BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value] = path

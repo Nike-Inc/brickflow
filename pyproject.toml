@@ -115,5 +115,7 @@ files = [
     "brickflow/cli/*.py",
     "brickflow/hints/*.py",
     "brickflow/engine/*.py",
+    "brickflow/resolver/*.py",
+    "brickflow/codegen/*.py",
 ]
 follow_imports = "skip"
