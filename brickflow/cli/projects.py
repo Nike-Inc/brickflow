@@ -2,7 +2,7 @@ import contextlib
 import os
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Optional, List, Generator, Any
+from typing import Dict, Optional, List, Generator, Any, Callable
 
 import click
 import yaml
@@ -16,8 +16,11 @@ from brickflow import (
     BrickflowEnvVars,
     _ilog,
 )
-from brickflow.cli.bundles import bundle_deploy
-from brickflow.cli.constants import INTERACTIVE_MODE, BrickflowDeployMode
+from brickflow.cli.bundles import (
+    bundle_deploy,
+    bundle_destroy,
+    pre_bundle_hook,
+)
 from brickflow.cli.configure import (
     _create_gitignore_if_not_exists,
     _update_gitignore,
@@ -27,6 +30,7 @@ from brickflow.cli.configure import (
     create_brickflow_project_root_marker,
     bind_env_var,
 )
+from brickflow.cli.constants import INTERACTIVE_MODE, BrickflowDeployMode
 
 DEFAULT_BRICKFLOW_VERSION_MODE = "auto"
 
@@ -431,47 +435,106 @@ def list_proj_names() -> None:
         )
 
 
+def apply_bundles_deployment_options(
+    cmd: Optional[Callable] = None, exclude_options: Optional[List[str]] = None
+) -> Callable[..., Any]:
+    options = {
+        "env": click.option(
+            "--env",
+            "-e",
+            default=BrickflowDefaultEnvs.LOCAL.value,
+            type=str,
+            callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_ENV.value),
+            help="Set the environment value, certain tags [TBD] get added to the workflows based on this value.",
+        ),
+        "project": click.option(
+            "--project",
+            type=click.Choice(multi_project_manager.list_project_names()),
+            prompt=INTERACTIVE_MODE,
+            help="Select the project of workflows you would like to deploy.",
+        ),
+        "profile": click.option(
+            "--profile",
+            "-p",
+            default=None,
+            type=str,
+            callback=bind_env_var(
+                BrickflowEnvVars.BRICKFLOW_DATABRICKS_CONFIG_PROFILE.value
+            ),
+            help="The databricks profile to use for authenticating to databricks during deployment.",
+        ),
+        "auto-approve": click.option(
+            "--auto-approve",
+            type=bool,
+            is_flag=True,
+            show_default=True,
+            default=False,
+            help="Auto approve brickflow pipeline without being prompted to approve.",
+        ),
+        "force-acquire-lock": click.option(
+            "--force-acquire-lock",
+            type=bool,
+            is_flag=True,
+            show_default=True,
+            default=False,
+            help="Force acquire lock for databricks bundles destroy.",
+        ),
+    }
+
+    def _apply_bundles_deployment_options(func: Callable) -> Callable[..., Any]:
+        _func = func
+        for key, option in options.items():
+            if key is not None and key not in (exclude_options or []):
+                _func = option(_func)
+        return _func
+
+    if cmd is not None:
+        if callable(cmd):
+            return _apply_bundles_deployment_options(cmd)
+
+    return _apply_bundles_deployment_options
+
+
+@projects.command(name="destroy")
+@apply_bundles_deployment_options
+def destroy_project(project: str, **kwargs: Any) -> None:
+    """Destroy projects in the brickflow-multi-project.yml file"""
+    bf_project = multi_project_manager.get_project(project)
+    dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
+    with use_project(project, dir_to_change):
+        bundle_destroy(
+            workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
+        )
+
+
+@pre_bundle_hook
+def project_synth(**_: Any) -> None:
+    # empty stub to invoke the pre_bundle_hook
+    pass
+
+
+@projects.command(name="synth")
+@apply_bundles_deployment_options(
+    exclude_options=[
+        "auto-approve",
+        "force-acquire-lock",
+    ]
+)
+def synth_bundles_for_project(project: str, **kwargs: Any) -> None:
+    """Synth the bundle.yml for project"""
+    bf_project = multi_project_manager.get_project(project)
+    dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
+    with use_project(project, dir_to_change):
+        # wf dir is required for generating the bundle.yml in the workflows dir
+        project_synth(
+            workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
+        )
+
+
 @projects.command(name="deploy")
-@click.option(
-    "--env",
-    "-e",
-    default=BrickflowDefaultEnvs.LOCAL.value,
-    type=str,
-    callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_ENV.value),
-    help="Set the environment value, certain tags [TBD] get added to the workflows based on this value.",
-)
-@click.option(
-    "--project",
-    type=click.Choice(multi_project_manager.list_project_names()),
-    prompt=INTERACTIVE_MODE,
-    help="Select the project of workflows you would like to deploy.",
-)
-@click.option(
-    "--profile",
-    "-p",
-    default=None,
-    type=str,
-    callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_DATABRICKS_CONFIG_PROFILE.value),
-    help="The databricks profile to use for authenticating to databricks during deployment.",
-)
-@click.option(
-    "--auto-approve",
-    type=bool,
-    is_flag=True,
-    show_default=True,
-    default=False,
-    help="Auto approve brickflow pipeline without being prompted to approve.",
-)
-@click.option(
-    "--force-acquire-lock",
-    type=bool,
-    is_flag=True,
-    show_default=True,
-    default=False,
-    help="Force acquire lock for databricks bundles destroy.",
-)
+@apply_bundles_deployment_options
 def deploy_project(project: str, **kwargs: Any) -> None:
-    """Lists all projects in the brickflow-multi-project.yml file"""
+    """Deploy projects in the brickflow-multi-project.yml file"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
     with use_project(project, dir_to_change):

@@ -101,7 +101,7 @@ def bundle_destroy(
     **_: Any,
 ) -> None:
     """CLI destroy the bundle."""
-    destroy_args = ["destroy", "-e", brickflow_ctx.env]
+    destroy_args = ["destroy", "-e", get_bundles_project_env()]
     if auto_approve is True:
         destroy_args.append("--auto-approve")
     if force_acquire_lock is True:
