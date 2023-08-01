@@ -243,6 +243,13 @@ def get_deployment_mode(**kwargs: Dict[str, Any]) -> BrickflowDeployMode:
         return BrickflowDeployMode.BUNDLE
 
 
+def disable_project_name_in_env() -> None:
+    # TODO: delete this when deploy commands are gone
+    # used for legacy bundles deploy and destroy commands
+    # disable multiple projects in same directory
+    os.environ[BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value] = "False"
+
+
 @cli.command
 @click.option(
     "--auto-approve",
@@ -277,6 +284,7 @@ def deploy(**kwargs: Any) -> None:
         make_cdktf_json(**kwargs)
         exec_cdktf_command("deploy", get_cdktf_specific_args(**kwargs))
     else:
+        disable_project_name_in_env()
         bundle_deploy(**kwargs)
     # pass  # pragma: no cover
 
@@ -326,6 +334,7 @@ def destroy(**kwargs: Any) -> None:
         make_cdktf_json(**kwargs)
         exec_cdktf_command("destroy", get_cdktf_specific_args(**kwargs))
     else:
+        disable_project_name_in_env()
         bundle_destroy(**kwargs)
 
 

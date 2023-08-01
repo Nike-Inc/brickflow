@@ -319,4 +319,3 @@ class CronDataIntervalTimetable(CronMixin, _DataIntervalTimetable):
 def create_timetable(interval: str, timezone: Timezone) -> CronDataIntervalTimetable:
     """Create a Timetable instance from a ``schedule_interval`` argument."""
     return CronDataIntervalTimetable(interval, timezone)
-

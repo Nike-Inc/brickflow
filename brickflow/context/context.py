@@ -206,7 +206,9 @@ class Context:
 
     @property
     def current_project(self) -> Optional[str]:
-        return self._current_project
+        return self._current_project or config(
+            BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None
+        )
 
     def set_current_project(self, project: str) -> None:
         self._current_project = project

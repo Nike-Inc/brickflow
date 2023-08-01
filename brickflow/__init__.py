@@ -10,6 +10,8 @@ from typing import List, Callable, Any
 import warnings
 import functools
 
+from decouple import config
+
 
 def deprecated(func: Callable):
     """This is a decorator which can be used to mark functions
@@ -69,6 +71,7 @@ class BrickflowEnvVars(Enum):
     BRICKFLOW_BUNDLE_CLI_VERSION = "BRICKFLOW_BUNDLE_CLI_VERSION"
     BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT = "BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT"
     BRICKFLOW_PROJECT_NAME = "BRICKFLOW_PROJECT_NAME"
+    BRICKFLOW_USE_PROJECT_NAME = "BRICKFLOW_USE_PROJECT_NAME"
 
 
 class BrickflowDefaultEnvs(Enum):
@@ -130,7 +133,13 @@ from brickflow.context import ctx
 
 # get project env for bundles
 def get_bundles_project_env() -> str:
-    if ctx.current_project is None:
+    if (
+        ctx.current_project is None
+        or config(
+            BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value, default=True, cast=bool
+        )
+        is False
+    ):
         return ctx.env
     return f"{ctx.current_project}-{ctx.env}"
 
