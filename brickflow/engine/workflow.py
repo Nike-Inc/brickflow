@@ -261,6 +261,7 @@ class Workflow:
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,
+        task_settings: Optional[TaskSettings] = None,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -288,6 +289,7 @@ class Workflow:
             depends_on=_depends_on or [],
             task_type=task_type,
             trigger_rule=trigger_rule,
+            task_settings=task_settings,
             custom_execute_callback=custom_execute_callback,
         )
 
@@ -311,6 +313,7 @@ class Workflow:
         name: Optional[str] = None,
         cluster: Optional[Cluster] = None,
         libraries: Optional[List[TaskLibrary]] = None,
+        task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
     ) -> Callable:
         return self.task(
@@ -319,6 +322,7 @@ class Workflow:
             cluster=cluster,
             libraries=libraries,
             task_type=TaskType.NOTEBOOK_TASK,
+            task_settings=task_settings,
             depends_on=depends_on,
         )
 
@@ -332,6 +336,7 @@ class Workflow:
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,
+        task_settings: Optional[TaskSettings] = None,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -352,6 +357,7 @@ class Workflow:
                 depends_on=depends_on,
                 trigger_rule=trigger_rule,
                 custom_execute_callback=custom_execute_callback,
+                task_settings=task_settings,
             )
 
             @functools.wraps(f)
