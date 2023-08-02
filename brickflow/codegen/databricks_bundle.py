@@ -527,6 +527,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         bundle = self.proj_to_bundle()
 
         if self.env == BrickflowDefaultEnvs.LOCAL.value:
-            ImportManager.create_import_tf(self.env, self.imports)
+            # it should use the bundles project env field as that is the folder bundles makes
+            ImportManager.create_import_tf(get_bundles_project_env(), self.imports)
         with open("bundle.yml", "w", encoding="utf-8") as f:
             f.write(yaml.dump(bundle.dict(exclude_unset=True)))
