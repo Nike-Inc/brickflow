@@ -167,6 +167,19 @@ def belongs_to_current_project(
 
 
 class ProjectResourceResolver(abc.ABC):
+    """
+    Helps resolve import blocks for jobs and pipelines
+
+    Logic:
+        1. Check if resource belongs to current project
+        2. If yes, return import block
+        3. If no, check if resource belongs to other project
+        4. Collect all possible import blocks, workflows can have duplicate names
+        5. If there are no import blocks, return None
+        6. If there is one import block, return it
+        7. If there are multiple import blocks, raise error
+    """
+
     def __init__(self, databricks_client: WorkspaceClient = None):
         self.databricks_client = databricks_client or WorkspaceClient()
 
@@ -175,7 +188,7 @@ class ProjectResourceResolver(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+    def _resolve(self, ref: ResourceReference) -> List[ImportBlock]:
         pass
 
     def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
@@ -187,47 +200,63 @@ class ProjectResourceResolver(abc.ABC):
                 ref.name,
             )
             return None
-        return self._resolve(ref)
+        import_blocks = self._resolve(ref)
+        if len(import_blocks) == 0:
+            return None
+        if len(import_blocks) > 1:
+            raise ResourceAlreadyUsedByOtherProjectError(
+                f"Job {ref.name} is used by multiple projects"
+            )
+        return import_blocks[0]
 
 
 class JobResolver(ProjectResourceResolver):
     def supported_types(self) -> List[SupportedResolverTypes]:
         return [SupportedResolverTypes.JOB]
 
-    def _resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
-        jobs = self.databricks_client.jobs.list(name=ref.name)
+    def _resolve(self, ref: ResourceReference) -> List[ImportBlock]:
+        blocks = []
+        jobs = [job for job in self.databricks_client.jobs.list(name=ref.name)]
         if len(jobs) == 0:
             return None
 
         for job in jobs:
+            if job.settings is None or job.settings.tags is None:
+                continue  # skip this job for import
             job_project_tag = job.settings.tags.get(
                 DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value, None
             )
             if belongs_to_current_project(ref, job_project_tag) is True:
                 # only add import blocks for jobs that belong to the current project
-                return ImportBlock(to=ref.reference, id_=job.job_id)
-        return None
+                blocks.append(ImportBlock(to=ref.reference, id_=job.job_id))
+
+        return blocks
 
 
 class PipelineResolver(ProjectResourceResolver):
     def supported_types(self) -> List[SupportedResolverTypes]:
         return [SupportedResolverTypes.PIPELINE]
 
-    def _resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+    def _resolve(self, ref: ResourceReference) -> List[ImportBlock]:
+        blocks = []
         for pipeline in self.databricks_client.pipelines.list_pipelines(
             filter=f"name LIKE '{ref.name}'"
         ):
             pipeline_details = self.databricks_client.pipelines.get(
                 pipeline_id=pipeline.pipeline_id
             )
+            if pipeline_details.clusters is None:
+                continue  # no clusters no way to identify if pipeline belongs to project
             project_tag = DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value
             pipeline_belongs_to_current_project = any(
-                cluster.custom_tags.get(project_tag, None) == ctx.current_project
+                cluster.custom_tags is not None
+                and cluster.custom_tags.get(project_tag, None) == ctx.current_project
                 for cluster in pipeline_details.clusters
             )
             if pipeline_belongs_to_current_project is True:
-                return ImportBlock(to=ref.reference, id_=pipeline.pipeline_id)
-        return None
+                blocks.append(ImportBlock(to=ref.reference, id_=pipeline.pipeline_id))
+
+        return blocks
 
 
 class ImportResolverChain:
