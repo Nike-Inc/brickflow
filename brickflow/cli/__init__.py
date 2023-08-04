@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import os.path
 import webbrowser
@@ -72,6 +73,8 @@ def bundles_proxy_command() -> click.Command:
 
 class CdktfCmd(click.Group):
     def get_command(self, ctx: click.Context, cmd_name: str) -> Optional[click.Command]:
+        # during entry of command enable logging
+        _ilog.setLevel(logging.INFO)
         if cmd_name == BrickflowDeployMode.CDKTF.value:
             return cdktf_command()
         elif cmd_name == BrickflowDeployMode.BUNDLE.value:

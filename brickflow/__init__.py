@@ -125,6 +125,7 @@ def setup_logger(name=None):
 
 
 _ilog = setup_logger("brickflow-internal")
+_ilog.setLevel(logging.ERROR)
 """logger for internal logging please do not use outside of brickflow internal"""
 log = setup_logger()
 

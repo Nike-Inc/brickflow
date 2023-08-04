@@ -1,6 +1,7 @@
 import importlib
 import importlib.util
 import inspect
+import logging
 import os
 import sys
 import types
@@ -167,6 +168,9 @@ class Project:
     _project: _Project = field(init=False)
 
     def __post_init__(self) -> None:
+        # during entry of project enable logging
+        _ilog.setLevel(logging.INFO)
+
         self._mode = Stage[
             config(BrickflowEnvVars.BRICKFLOW_MODE.value, default=Stage.execute.value)
         ]
