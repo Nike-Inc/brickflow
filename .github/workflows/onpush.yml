@@ -46,7 +46,7 @@ jobs:
           export PATH=$PATH:$HOME/.local/bin
           pip install --user --upgrade setuptools
           pip install --user poetry
-          poetry config virtualenvs.in-project true
+          poetry config virtualenvs.in-project false
           poetry self add "poetry-dynamic-versioning[plugin]"
 
       - name: Install dependencies
