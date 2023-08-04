@@ -45,9 +45,10 @@ jobs:
         run: |
           export PATH=$PATH:$HOME/.local/bin
           pip install --user --upgrade setuptools
-          pip install --user poetry
-          poetry config virtualenvs.in-project false
-          poetry self add "poetry-dynamic-versioning[plugin]"
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | $(which python3) -
+          "$HOME/.local/bin/poetry" config --local virtualenvs.in-project true
+          "$HOME/.local/bin/poetry" install --no-dev
+          "$HOME/.local/bin/poetry" self add "poetry-dynamic-versioning[plugin]"
 
       - name: Install dependencies
         run: |
