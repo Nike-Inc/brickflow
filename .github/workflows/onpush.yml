@@ -57,6 +57,7 @@ jobs:
       - name: Install, lint and test
         run: |
           export PATH=$PATH:$HOME/.local/bin
+          export GITHUB_ACTIONS=true
           make cov
 
 #      - name: Publish test coverage
