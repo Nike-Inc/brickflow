@@ -43,7 +43,11 @@ jobs:
 
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
-        run: poetry self add "poetry-dynamic-versioning[plugin]"
+
+      - name: Install poetry and build tools
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          poetry self add "poetry-dynamic-versioning[plugin]"
 
       - name: Install dependencies
         run: |
