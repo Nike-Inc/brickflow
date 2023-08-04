@@ -47,7 +47,7 @@ jobs:
           pip install --user --upgrade setuptools
           pip install --user poetry
           poetry config virtualenvs.in-project false
-          poetry config install.user true
+#          poetry config install.user true
           poetry self add "poetry-dynamic-versioning[plugin]"
 
       - name: Install dependencies
