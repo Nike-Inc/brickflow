@@ -4,9 +4,6 @@ import {{ pkg }}
 
 from brickflow import Project, PypiTaskLibrary, MavenTaskLibrary
 
-ARTIFACTORY = ""
-
-
 def main() -> None:
     """Project entrypoint"""
     with Project(
@@ -14,9 +11,9 @@ def main() -> None:
         git_repo="{{ git_https_url }}",
         provider="{{ git_provider }}",
         libraries=[
-            PypiTaskLibrary(package="brickflow=={{brickflow_version}} --extra-index-url " + ARTIFACTORY),
+            PypiTaskLibrary(package="brickflow=={{brickflow_version}}"),
             MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
-            # PypiTaskLibrary(package="spark-expectations=={{spark_expectations_version}} --extra-index-url " + ARTIFACTORY), # Uncomment if spark-expectations is needed
+            # PypiTaskLibrary(package="spark-expectations=={{spark_expectations_version}}"), # Uncomment if spark-expectations is needed
         ],
     ) as f:
         f.add_pkg({{pkg}})
