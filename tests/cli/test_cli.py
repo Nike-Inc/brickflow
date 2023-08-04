@@ -34,7 +34,7 @@ def fake_run_with_error(*_, **__):
 
 class TestCli:
     @pytest.mark.skipif(
-        os.environ.get("GITHUB_ACTIONS", False) is True,
+        bool(os.environ.get("GITHUB_ACTIONS", False)) is True,
         reason="Flaky test will remove cdktf support in future releases",
     )
     @patch("subprocess.check_output")
@@ -73,7 +73,7 @@ class TestCli:
         # result.output
 
     @pytest.mark.skipif(
-        os.environ.get("GITHUB_ACTIONS", False) is True,
+        bool(os.environ.get("GITHUB_ACTIONS", False)) is True,
         reason="Flaky test will remove cdktf support in future releases",
     )
     @patch("os.path")
@@ -108,7 +108,7 @@ class TestCli:
         ) is True
 
     @pytest.mark.skipif(
-        os.environ.get("GITHUB_ACTIONS", False) is True,
+        bool(os.environ.get("GITHUB_ACTIONS", False)) is True,
         reason="Flaky test will remove cdktf support in future releases",
     )
     @patch("os.path")
@@ -128,7 +128,7 @@ class TestCli:
         os_environ_mock.assert_called()
 
     @pytest.mark.skipif(
-        os.environ.get("GITHUB_ACTIONS", False) is True,
+        bool(os.environ.get("GITHUB_ACTIONS", False)) is True,
         reason="Flaky test will remove cdktf support in future releases",
     )
     @patch("os.path")
@@ -148,7 +148,7 @@ class TestCli:
         os_environ_mock.assert_called()
 
     @pytest.mark.skipif(
-        os.environ.get("GITHUB_ACTIONS", False) is True,
+        bool(os.environ.get("GITHUB_ACTIONS", False)) is True,
         reason="Flaky test will remove cdktf support in future releases",
     )
     @patch("os.path")
@@ -191,7 +191,7 @@ class TestCli:
         )
 
     @pytest.mark.skipif(
-        os.environ.get("GITHUB_ACTIONS", False) is True,
+        bool(os.environ.get("GITHUB_ACTIONS", False)) is True,
         reason="Flaky test will remove cdktf support in future releases",
     )
     @patch("os.path")
@@ -213,7 +213,7 @@ class TestCli:
         exec_cdktf_mock.assert_called_once_with("deploy", [])
 
     @pytest.mark.skipif(
-        os.environ.get("GITHUB_ACTIONS", False) is True,
+        bool(os.environ.get("GITHUB_ACTIONS", False)) is True,
         reason="Flaky test will remove cdktf support in future releases",
     )
     @patch("os.path")
