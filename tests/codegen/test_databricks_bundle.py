@@ -17,6 +17,7 @@ from brickflow.bundles.model import (
     PipelinesClusters,
 )
 from brickflow.cli import BrickflowDeployMode
+from brickflow.codegen import DatabricksDefaultClusterTagKeys
 from brickflow.codegen.databricks_bundle import (
     DatabricksBundleTagsAndNameMutator,
     DatabricksBundleImportMutator,
@@ -205,18 +206,26 @@ class TestBundleCodegen:
         fake_pipeline_id = "fake-pipeline-id"
         fake_user_name = "test_user"
         fake_user_email = f"{fake_user_name}@fakedomain.com"
+        project_name = "test-project"
         databricks_fake_client = MagicMock()
         fake_job = MagicMock()
         fake_pipeline = MagicMock()
+        fake_pipeline_cluster = MagicMock()
         project = MagicMock()
 
         databricks_fake_client.jobs.list.return_value = [fake_job]
-        databricks_fake_client.pipelines.list_pipelines.return_value = [fake_pipeline]
         databricks_fake_client.current_user.me.return_value.user_name = fake_user_email
 
         fake_job.job_id = fake_job_id
+        fake_job.settings.tags = {
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: project_name
+        }
         fake_pipeline.pipeline_id = fake_pipeline_id
-        project.name = "test-project"
+        fake_pipeline.clusters = [fake_pipeline_cluster]
+        fake_pipeline_cluster.custom_tags = {
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: project_name
+        }
+        project.name = project_name
         import_mutator = DatabricksBundleImportMutator(databricks_fake_client)
         tag_and_name_mutator = DatabricksBundleTagsAndNameMutator(
             databricks_fake_client
@@ -260,12 +269,8 @@ class TestBundleCodegen:
             ci=code_gen,
         )
 
-        # print(code_gen.imports)
         assert code_gen.imports == [
-            ImportBlock(to=f"databricks_job.{job_name}", id_=fake_job_id),
-            ImportBlock(
-                to=f"databricks_pipeline.{pipeline_name}", id_=fake_pipeline_id
-            ),
+            ImportBlock(to=f"databricks_job.{job_name}", id_=fake_job_id)
         ]
         databricks_fake_client.jobs.list.assert_called_once_with(name=job_name)
         databricks_fake_client.current_user.me.assert_called_once()

@@ -10,6 +10,7 @@ from typing import List, Optional, Union, Dict, Any, Iterator
 
 import yaml
 from databricks.sdk import WorkspaceClient
+from decouple import config
 from pydantic import BaseModel
 
 from brickflow import (
@@ -20,6 +21,7 @@ from brickflow import (
     ctx,
     _ilog,
     get_bundles_project_env,
+    BrickflowEnvVars,
 )
 from brickflow.bundles.model import (
     Jobs,
@@ -42,7 +44,11 @@ from brickflow.bundles.model import (
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
 )
-from brickflow.codegen import CodegenInterface, handle_mono_repo_path
+from brickflow.codegen import (
+    CodegenInterface,
+    handle_mono_repo_path,
+    DatabricksDefaultClusterTagKeys,
+)
 from brickflow.engine.task import TaskLibrary, DLTPipeline, TaskSettings
 
 if typing.TYPE_CHECKING:
@@ -73,10 +79,10 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
 
     def _get_default_tags(self, ci: CodegenInterface) -> Dict[str, str]:
         return {
-            "environment": ctx.env,
-            "deployed_by": self._get_current_user_alphanumeric(),
-            "brickflow_project_name": ci.project.name,
-            "databricks_deploy_mode": "Databricks Asset Bundles",
+            DatabricksDefaultClusterTagKeys.ENVIRONMENT.value: ctx.env,
+            DatabricksDefaultClusterTagKeys.DEPLOYED_BY.value: self._get_current_user_alphanumeric(),
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: ci.project.name,
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_DEPLOYMENT_MODE.value: "Databricks Asset Bundles",
         }
 
     def _rewrite_name(self, name: str) -> str:
@@ -130,7 +136,37 @@ class ImportBlock(BaseModel):
     id_: str
 
 
-class ResourceResolver(abc.ABC):
+class ResourceAlreadyUsedByOtherProjectError(Exception):
+    pass
+
+
+class ResourceAlreadyExistsWithNoProjectError(Exception):
+    pass
+
+
+class CurrentProjectDoesNotExistError(Exception):
+    pass
+
+
+def belongs_to_current_project(
+    ref: ResourceReference, resource_project: Optional[str]
+) -> bool:
+    handle_project_validation = config(
+        BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value, default=True, cast=bool
+    )
+    belongs_to_project = (
+        ctx.current_project is not None and resource_project == ctx.current_project
+    )
+    _ilog.info(
+        "Handling if resource %s: %s belongs to current project: %s",
+        ref.type_,
+        ref.name,
+        resource_project,
+    )
+    return handle_project_validation is True and belongs_to_project is True
+
+
+class ProjectResourceResolver(abc.ABC):
     def __init__(self, databricks_client: WorkspaceClient = None):
         self.databricks_client = databricks_client or WorkspaceClient()
 
@@ -139,29 +175,58 @@ class ResourceResolver(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+    def _resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
         pass
 
+    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+        if ref.type_ not in self.supported_types():
+            return None
+        if ctx.current_project is None:
+            _ilog.info(
+                "Skipping pipeline import for %s due to current project being None",
+                ref.name,
+            )
+            return None
+        return self._resolve(ref)
 
-class JobResolver(ResourceResolver):
+
+class JobResolver(ProjectResourceResolver):
     def supported_types(self) -> List[SupportedResolverTypes]:
         return [SupportedResolverTypes.JOB]
 
-    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
-        for job in self.databricks_client.jobs.list(name=ref.name):
-            return ImportBlock(to=ref.reference, id_=job.job_id)
+    def _resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+        jobs = self.databricks_client.jobs.list(name=ref.name)
+        if len(jobs) == 0:
+            return None
+
+        for job in jobs:
+            job_project_tag = job.settings.tags.get(
+                DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value, None
+            )
+            if belongs_to_current_project(ref, job_project_tag) is True:
+                # only add import blocks for jobs that belong to the current project
+                return ImportBlock(to=ref.reference, id_=job.job_id)
         return None
 
 
-class PipelineResolver(ResourceResolver):
+class PipelineResolver(ProjectResourceResolver):
     def supported_types(self) -> List[SupportedResolverTypes]:
         return [SupportedResolverTypes.PIPELINE]
 
-    def resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
+    def _resolve(self, ref: ResourceReference) -> Optional[ImportBlock]:
         for pipeline in self.databricks_client.pipelines.list_pipelines(
             filter=f"name LIKE '{ref.name}'"
         ):
-            return ImportBlock(to=ref.reference, id_=pipeline.pipeline_id)
+            pipeline_details = self.databricks_client.pipelines.get(
+                pipeline_id=pipeline.pipeline_id
+            )
+            project_tag = DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value
+            pipeline_belongs_to_current_project = any(
+                cluster.custom_tags.get(project_tag, None) == ctx.current_project
+                for cluster in pipeline_details.clusters
+            )
+            if pipeline_belongs_to_current_project is True:
+                return ImportBlock(to=ref.reference, id_=pipeline.pipeline_id)
         return None
 
 
@@ -524,6 +589,8 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
 
     def synth(self) -> None:
+        # set the context's current project needed for imports
+        ctx.set_current_project(self.project.name)
         bundle = self.proj_to_bundle()
 
         if self.env == BrickflowDefaultEnvs.LOCAL.value:

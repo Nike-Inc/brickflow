@@ -1,10 +1,10 @@
 black-check:
 	@poetry run black --check .
 
-fmt: gen-bundle-sdk
+fmt:
 	@poetry run black .
 
-check: gen-bundle-sdk black-check mypy
+check: black-check mypy
 	@poetry run prospector --profile prospector.yaml
 
 mypy:
@@ -34,7 +34,7 @@ test:
 clean:
 	@rm -rf dist
 
-build: clean gen-bundle-sdk
+build: clean
 	@poetry build
 
 poetry:

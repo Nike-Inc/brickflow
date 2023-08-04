@@ -1,4 +1,5 @@
 import abc
+from enum import Enum
 from pathlib import Path
 
 from typing import TYPE_CHECKING, Optional, Dict, Any
@@ -26,6 +27,14 @@ class CodegenInterface(abc.ABC):
 
 class GitRepoIsDirtyError(Exception):
     pass
+
+
+class DatabricksDefaultClusterTagKeys(Enum):
+    ENVIRONMENT = "environment"
+    DEPLOYED_BY = "deployed_by"
+    BRICKFLOW_PROJECT_NAME = "brickflow_project_name"
+    BRICKFLOW_DEPLOYMENT_MODE = "brickflow_deployment_mode"
+    DATABRICKS_TF_PROVIDER_VERSION = "databricks_tf_provider_version"
 
 
 BRICKFLOW_BUILTIN_DEPLOY_TAGS = {

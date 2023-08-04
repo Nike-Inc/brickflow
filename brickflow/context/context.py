@@ -206,11 +206,25 @@ class Context:
 
     @property
     def current_project(self) -> Optional[str]:
+        # TODO: not a public api move to internal context or deployment context
         return self._current_project or config(
             BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None
         )
 
+    @staticmethod
+    def _ensure_valid_project(project: str) -> None:
+        env_project = config(BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None)
+        if env_project is None:
+            return
+        if env_project != project:
+            raise RuntimeError(
+                f"Project: {project} does not match with env var: {BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value} "
+                f"value: {env_project}"
+            )
+
     def set_current_project(self, project: str) -> None:
+        # TODO: not a public api move to internal context or deployment context
+        self._ensure_valid_project(project)
         self._current_project = project
 
     @bind_variable(BrickflowBuiltInTaskVariables.task_key)

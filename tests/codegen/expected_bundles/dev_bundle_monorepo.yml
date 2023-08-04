@@ -31,7 +31,7 @@ environments:
             timezone_id: UTC
           tags:
             brickflow_project_name: test-project
-            databricks_deploy_mode: Databricks Asset Bundles
+            brickflow_deployment_mode: Databricks Asset Bundles
             deployed_by: test_user
             environment: dev
             test: test2

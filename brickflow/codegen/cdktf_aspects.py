@@ -6,7 +6,7 @@ import jsii
 
 from cdktf import IAspect, TerraformStack
 
-from brickflow.codegen import get_brickflow_tags
+from brickflow.codegen import get_brickflow_tags, DatabricksDefaultClusterTagKeys
 from brickflow.context import ctx
 from brickflow.tf import DATABRICKS_TERRAFORM_PROVIDER_VERSION
 from brickflow.tf.databricks.data_databricks_current_user import (
@@ -55,11 +55,11 @@ class BrickflowTerraformNodeVisitor:
         self._modify_names(node)
 
         default_tags = {
-            "environment": ctx.env,
-            "deployed_by": self._current_user.user_name,
-            "brickflow_project_name": self._project.name,
-            "databricks_tf_provider_version": DATABRICKS_TERRAFORM_PROVIDER_VERSION,
-            "brickflow_deployment_mode": "CDKTF",
+            DatabricksDefaultClusterTagKeys.ENVIRONMENT.value: ctx.env,
+            DatabricksDefaultClusterTagKeys.DEPLOYED_BY.value: self._current_user.user_name,
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: self._project.name,
+            DatabricksDefaultClusterTagKeys.DATABRICKS_TF_PROVIDER_VERSION.value: DATABRICKS_TERRAFORM_PROVIDER_VERSION,
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_DEPLOYMENT_MODE.value: "CDKTF",
         }
 
         # pass
