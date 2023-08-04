@@ -216,9 +216,7 @@ class JobResolver(ProjectResourceResolver):
 
     def _resolve(self, ref: ResourceReference) -> List[ImportBlock]:
         blocks = []
-        jobs = [job for job in self.databricks_client.jobs.list(name=ref.name)]
-        if len(jobs) == 0:
-            return None
+        jobs = list(self.databricks_client.jobs.list(name=ref.name))
 
         for job in jobs:
             if job.settings is None or job.settings.tags is None:
