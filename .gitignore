@@ -119,9 +119,6 @@ fabric.properties
 
 .idea/*
 
-!.idea/codeStyles
-!.idea/runConfigurations
-
 ### Terraform ###
 # Local .terraform directories
 **/.terraform/*
