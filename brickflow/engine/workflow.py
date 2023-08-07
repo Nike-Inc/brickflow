@@ -130,6 +130,7 @@ class Workflow:
     run_as_service_principal: Optional[str] = None
     # this a databricks limit set on workflows, you can override it if you have exception
     max_tasks_in_workflow: int = 100
+    ensure_brickflow_plugins: Optional[bool] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
@@ -262,6 +263,7 @@ class Workflow:
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,
         task_settings: Optional[TaskSettings] = None,
+        ensure_brickflow_plugins: bool = False,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -279,6 +281,12 @@ class Workflow:
             if isinstance(depends_on, str) or callable(depends_on)
             else depends_on
         )
+
+        if self.ensure_brickflow_plugins is not None:
+            ensure_plugins = self.ensure_brickflow_plugins
+        else:
+            ensure_plugins = ensure_brickflow_plugins
+
         self.tasks[task_id] = Task(
             task_id=task_id,
             task_func=f,
@@ -291,6 +299,7 @@ class Workflow:
             trigger_rule=trigger_rule,
             task_settings=task_settings,
             custom_execute_callback=custom_execute_callback,
+            ensure_brickflow_plugins=ensure_plugins,
         )
 
         # attempt to create task object before adding to graph
@@ -337,6 +346,7 @@ class Workflow:
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,
         task_settings: Optional[TaskSettings] = None,
+        ensure_brickflow_plugins: bool = False,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -358,6 +368,7 @@ class Workflow:
                 trigger_rule=trigger_rule,
                 custom_execute_callback=custom_execute_callback,
                 task_settings=task_settings,
+                ensure_brickflow_plugins=ensure_brickflow_plugins,
             )
 
             @functools.wraps(f)

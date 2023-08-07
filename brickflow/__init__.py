@@ -182,7 +182,6 @@ from brickflow.engine.task import (
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
 from brickflow.resolver import (
-    RelativePathPackageResolver,
     get_relative_path_to_brickflow_root,
 )
 
@@ -229,7 +228,6 @@ __all__: List[str] = [
     "BrickflowDefaultEnvs",
     "get_default_log_handler",
     "get_brickflow_version",
-    "RelativePathPackageResolver",
     "BrickflowProjectConstants",
 ]
 

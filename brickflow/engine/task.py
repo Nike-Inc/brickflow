@@ -4,6 +4,7 @@ import base64
 import dataclasses
 import functools
 import inspect
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -370,7 +371,7 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
 
 
 @functools.lru_cache
-def get_brickflow_tasks_hook() -> BrickflowTaskPluginSpec:
+def get_plugin_manager() -> pluggy.PluginManager:
     pm = pluggy.PluginManager(BRICKFLOW_TASK_PLUGINS)
     pm.add_hookspecs(BrickflowTaskPluginSpec)
     pm.load_setuptools_entrypoints(BRICKFLOW_TASK_PLUGINS)
@@ -381,7 +382,22 @@ def get_brickflow_tasks_hook() -> BrickflowTaskPluginSpec:
             name,
             plugin_instance.__class__.__name__,
         )
-    return pm.hook
+    return pm
+
+
+@functools.lru_cache
+def get_brickflow_tasks_hook() -> BrickflowTaskPluginSpec:
+    try:
+        from brickflow_plugins import load_plugins
+
+        load_plugins()
+    except ImportError as e:
+        _ilog.info(
+            "If you need airflow support: brickflow extras not installed "
+            "please pip install brickflow[airflow] and py4j! Error: %s",
+            str(e.msg),
+        )
+    return get_plugin_manager().hook
 
 
 @dataclass(frozen=True)
@@ -397,6 +413,7 @@ class Task:
     trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS
     task_settings: Optional[TaskSettings] = None
     custom_execute_callback: Optional[Callable] = None
+    ensure_brickflow_plugins: bool = False
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
@@ -465,6 +482,19 @@ class Task:
                 # TODO: implement only after validating limit on parameters
             },
         }
+
+    def _ensure_brickflow_plugins(self) -> None:
+        if self.ensure_brickflow_plugins is False:
+            return
+        try:
+            import brickflow_plugins  # noqa
+        except ImportError as e:
+            raise ImportError(
+                f"Brickflow Plugins not available for task: {self.name}. "
+                "If you need airflow support: brickflow extras not installed "
+                "please pip install brickflow[airflow] and py4j! Error: %s",
+                str(e.msg),
+            )
 
     # TODO: error if star isn't there
     def is_valid_task_signature(self) -> None:
@@ -571,15 +601,21 @@ class Task:
         return False, None
 
     @with_brickflow_logger
-    def execute(self) -> Any:
+    def execute(self, ignore_all_deps: bool = False) -> Any:
         # Workflow is:
         #   1. Check to see if there selected tasks and if there are is this task in the list
         #   2. Check to see if the previous task is skipped and trigger rule.
         #   3. Check to see if this a custom python task and execute it
         #   4. Execute the task function
+        _ilog.setLevel(logging.INFO)  # enable logging for task execution
         ctx._set_current_task(self.name)
+        self._ensure_brickflow_plugins()  # if you are expecting brickflow plugins to be installed
+        if ignore_all_deps is True:
+            _ilog.info(
+                "Ignoring all dependencies for task: %s due to debugging", self.name
+            )
         _select_task_skip, _select_task_skip_reason = self._skip_because_not_selected()
-        if _select_task_skip is True:
+        if _select_task_skip is True and ignore_all_deps is False:
             # check if this task is skipped due to task selection
             _ilog.info(
                 "Skipping task... %s for reason: %s",
@@ -589,7 +625,7 @@ class Task:
             ctx._reset_current_task()
             return
         _skip, reason = self.should_skip()
-        if _skip is True:
+        if _skip is True and ignore_all_deps is False:
             _ilog.info("Skipping task... %s for reason: %s", self.name, reason)
             ctx.task_coms.put(self.name, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK)
             ctx._reset_current_task()

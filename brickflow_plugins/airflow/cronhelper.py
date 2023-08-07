@@ -1,7 +1,15 @@
 import os
 from pathlib import Path
 
-from py4j.protocol import Py4JError
+try:
+    from py4j.protocol import Py4JError
+except ImportError:
+    raise ImportError(
+        "You must install py4j to use cronhelper, "
+        "please try pip install py4j. "
+        "This library is not installed as "
+        "it is provided by databricks OOTB."
+    )
 
 
 class CronHelper:

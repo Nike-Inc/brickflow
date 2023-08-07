@@ -4,7 +4,7 @@ import inspect
 import os
 import sys
 from pathlib import Path
-from typing import Union, Dict, Any, List, Optional
+from typing import Union, Any, List, Optional
 import pathlib
 
 from brickflow import BrickflowProjectConstants, _ilog, ctx
@@ -88,35 +88,3 @@ def get_notebook_ws_path(dbutils: Optional[Any]) -> Optional[str]:
             )
         )
     return None
-
-
-class RelativePathPackageResolver:
-    @staticmethod
-    def _get_current_file_path(global_vars: Dict[str, Any]) -> str:
-        if "dbutils" in global_vars:
-            ws_path = get_notebook_ws_path(global_vars["dbutils"])
-            if ws_path is None:
-                raise ValueError("Unable to resolve notebook path.")
-            return ws_path
-        else:
-            return global_vars["__file__"]
-
-    @staticmethod
-    def add_relative_path(
-        global_vars: Dict[str, Any],
-        current_file_to_root: str,
-        root_to_module: str = ".",
-    ) -> None:
-        # root to module must always be relative to the root of the project (i.e. must not start with "/")
-        if root_to_module.startswith("/"):
-            raise ValueError(
-                f"root_to_module must be relative to the root of the project. "
-                f"It must not start with '/'. root_to_module: {root_to_module}"
-            )
-        p = (
-            Path(RelativePathPackageResolver._get_current_file_path(global_vars)).parent
-            / Path(current_file_to_root)
-            / root_to_module
-        )
-        path = p.resolve()
-        add_to_sys_path(path)

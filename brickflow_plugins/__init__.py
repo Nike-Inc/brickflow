@@ -25,10 +25,23 @@ from brickflow_plugins.databricks.workflow_dependency_sensor import (
     WorkflowDependencySensor,
 )
 
+from brickflow_plugins.airflow.cronhelper import cron_helper
+
+
+def load_plugins():
+    from brickflow.engine.task import get_plugin_manager
+    from brickflow_plugins.airflow.brickflow_task_plugin import (
+        AirflowOperatorBrickflowTaskPluginImpl,
+    )
+
+    get_plugin_manager().register(AirflowOperatorBrickflowTaskPluginImpl())
+
+
 __all__: List[str] = [
     "TaskDependencySensor",
     "BashOperator",
     "BranchPythonOperator",
     "ShortCircuitOperator",
     "WorkflowDependencySensor",
+    "load_plugins",
 ]
