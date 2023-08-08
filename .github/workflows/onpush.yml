@@ -21,12 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3 # use latest version of the checkout action
 
-#      - name: Set up Python ${{ matrix.python-version }}
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: ${{ matrix.python-version }}
-#          cache: 'pip' # caching pip dependencies
-#          cache-dependency-path: poetry.lock
+      - name: Set up JDK # used for py4j for cronutils
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'adopt'
 
       - name: Install pip
         run: python -m pip install --upgrade pip
