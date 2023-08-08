@@ -15,7 +15,6 @@ from brickflow import (
     BrickflowDefaultEnvs,
     _ilog,
 )
-
 from brickflow.cli.bundles import (
     bundle_sync,
     bundle_deploy,
@@ -144,6 +143,13 @@ def cdktf_env_set_options(f: Callable) -> Callable:
                 if file[-3:] != ".py":
                     raise ClickException("Should pass only python files as workflows")
             _ilog.info("Brickflow will only deploy workflows: %s", ", ".join(value))
+            if (
+                click.confirm(
+                    "This can delete all of your other workflows that are already deployed? Are you sure?"
+                )
+                is False
+            ):
+                ctx.exit(0)
             os.environ[
                 BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
             ] = ",".join(value)

@@ -5,8 +5,10 @@ import dataclasses
 import functools
 import inspect
 import logging
+import textwrap
 from dataclasses import dataclass, field
 from enum import Enum
+from io import StringIO
 from pathlib import Path
 from typing import (
     Callable,
@@ -375,7 +377,7 @@ def get_plugin_manager() -> pluggy.PluginManager:
     pm = pluggy.PluginManager(BRICKFLOW_TASK_PLUGINS)
     pm.add_hookspecs(BrickflowTaskPluginSpec)
     pm.load_setuptools_entrypoints(BRICKFLOW_TASK_PLUGINS)
-    pm.register(DefaultBrickflowTaskPluginImpl())
+    pm.register(DefaultBrickflowTaskPluginImpl(), name="default")
     for name, plugin_instance in pm.list_name_plugin():
         _ilog.info(
             "Loaded plugin with name: %s and class: %s",
@@ -386,11 +388,15 @@ def get_plugin_manager() -> pluggy.PluginManager:
 
 
 @functools.lru_cache
-def get_brickflow_tasks_hook() -> BrickflowTaskPluginSpec:
+def get_brickflow_tasks_hook(
+    cache_bust: Optional[pluggy.PluginManager] = None,
+) -> BrickflowTaskPluginSpec:
+    """cache_bust is only used for unit testing"""
     try:
-        from brickflow_plugins import load_plugins
+        from brickflow_plugins import load_plugins, ensure_installation  # noqa
 
-        load_plugins()
+        ensure_installation()
+        load_plugins(cache_bust)
     except ImportError as e:
         _ilog.info(
             "If you need airflow support: brickflow extras not installed "
@@ -398,6 +404,48 @@ def get_brickflow_tasks_hook() -> BrickflowTaskPluginSpec:
             str(e.msg),
         )
     return get_plugin_manager().hook
+
+
+def pretty_print_function_source(
+    task_name: str,
+    func: Callable,
+    start_line: Optional[int] = None,
+    end_line: Optional[int] = None,
+) -> str:
+    source_lines, start_line_num = inspect.getsourcelines(func)
+    source_code = "".join(source_lines)
+    formatted_code = textwrap.dedent(source_code)
+
+    if start_line is None:
+        start_line = start_line_num
+    if end_line is None:
+        end_line = start_line_num + len(source_lines) - 1
+
+    buffer = StringIO()
+    file_name = inspect.getfile(func)
+    # pylint: disable=anomalous-backslash-in-string
+    buffer.write(
+        """
+      | # ======================================================== 
+      | #     ____                        _____        __   
+      | #    / __/__  __ _____________   / ___/__  ___/ /__ 
+      | #   _\ \/ _ \/ // / __/ __/ -_) / /__/ _ \/ _  / -_)
+      | #  /___/\___/\_,_/_/  \__/\__/  \___/\___/\_,_/\__/ 
+      | # ========================================================"""  # noqa
+        + f"\n"
+        f"      | # Task Name: {task_name}\n"
+        f"      | # Function Name: '{func.__name__}'\n"
+        f"      | # File: {file_name}\n"
+        f"      | # Lines: {start_line}-{end_line}\n"
+    )
+    # pylint: enable=anomalous-backslash-in-string
+
+    for line_num, line in enumerate(formatted_code.split("\n"), start=start_line_num):
+        if start_line <= line_num <= end_line:
+            buffer.write(f"{line_num:5d} | {line}\n")
+    buffer.write("      | # ========================================================\n")
+    buffer.seek(0)
+    return buffer.read()
 
 
 @dataclass(frozen=True)
@@ -630,6 +678,9 @@ class Task:
             ctx.task_coms.put(self.name, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK)
             ctx._reset_current_task()
             return
+
+        _ilog.info("Executing task... %s", self.name)
+        _ilog.info("%s", pretty_print_function_source(self.name, self.task_func))
 
         initial_resp: TaskResponse = get_brickflow_tasks_hook().task_execute(
             task=self, workflow=self.workflow
