@@ -188,6 +188,9 @@ class MultiProjectManager:
         settings.brickflow_project_runtime_version = project.brickflow_version
         settings.brickflow_enable_plugins = project.enable_plugins
         settings.brickflow_project_name = project.name
+        settings.brickflow_monorepo_path_to_bundle_root = (
+            project.path_from_repo_root_to_project_root
+        )
 
     def list_project_names(self) -> List[str]:
         return list(self._brickflow_multi_project_config.project_roots.keys())
