@@ -10,6 +10,7 @@ from typing import List, Optional, Union, Dict, Any, Iterator
 
 import yaml
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.pipelines import GetPipelineResponse
 from decouple import config
 from pydantic import BaseModel
 
@@ -49,10 +50,18 @@ from brickflow.codegen import (
     handle_mono_repo_path,
     DatabricksDefaultClusterTagKeys,
 )
-from brickflow.engine.task import TaskLibrary, DLTPipeline, TaskSettings
+from brickflow.engine.task import (
+    TaskLibrary,
+    DLTPipeline,
+    TaskSettings,
+    filter_bf_related_libraries,
+    get_brickflow_libraries,
+)
 
 if typing.TYPE_CHECKING:
-    from brickflow.engine.project import _Project  # noqa
+    from brickflow.engine.project import (
+        _Project,
+    )  # noqa
 
 
 class DatabricksBundleResourceMutator(abc.ABC):
@@ -158,10 +167,13 @@ def belongs_to_current_project(
         ctx.current_project is not None and resource_project == ctx.current_project
     )
     _ilog.info(
-        "Handling if resource %s: %s belongs to current project: %s",
+        "Checking if resource %s: %s belongs to current project: %s; "
+        "handle project validation mode is %s, and the resource belongs to project: %s",
         ref.type_,
         ref.name,
         resource_project,
+        handle_project_validation,
+        belongs_to_project,
     )
     return handle_project_validation is True and belongs_to_project is True
 
@@ -240,16 +252,17 @@ class PipelineResolver(ProjectResourceResolver):
         for pipeline in self.databricks_client.pipelines.list_pipelines(
             filter=f"name LIKE '{ref.name}'"
         ):
-            pipeline_details = self.databricks_client.pipelines.get(
-                pipeline_id=pipeline.pipeline_id
+            pipeline_details: GetPipelineResponse = (
+                self.databricks_client.pipelines.get(pipeline_id=pipeline.pipeline_id)
             )
-            if pipeline_details.clusters is None:
+
+            if pipeline_details.spec.clusters is None:
                 continue  # no clusters no way to identify if pipeline belongs to project
             project_tag = DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value
             pipeline_belongs_to_current_project = any(
                 cluster.custom_tags is not None
                 and cluster.custom_tags.get(project_tag, None) == ctx.current_project
-                for cluster in pipeline_details.clusters
+                for cluster in pipeline_details.spec.clusters
             )
             if pipeline_belongs_to_current_project is True:
                 blocks.append(ImportBlock(to=ref.reference, id_=pipeline.pipeline_id))
@@ -467,6 +480,10 @@ class DatabricksBundleCodegen(CodegenInterface):
             libraries = TaskLibrary.unique_libraries(
                 task.libraries + (self.project.libraries or [])
             )
+            if workflow.enable_plugins is True:
+                libraries = filter_bf_related_libraries(libraries)
+                libraries += get_brickflow_libraries(workflow.enable_plugins)
+
             task_libraries = [
                 JobsTasksLibraries(**library.dict) for library in libraries
             ]

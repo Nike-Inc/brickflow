@@ -1,7 +1,10 @@
+from collections import namedtuple
 from unittest.mock import Mock, patch
 
 import pytest
+from deepdiff import DeepDiff
 
+from brickflow import BrickflowProjectDeploymentSettings
 from brickflow.context import (
     ctx,
     BRANCH_SKIP_EXCEPT,
@@ -21,6 +24,8 @@ from brickflow.engine.task import (
     CranTaskLibrary,
     InvalidTaskLibraryError,
     TaskLibrary,
+    get_brickflow_lib_version,
+    get_brickflow_libraries,
 )
 from tests.engine.sample_workflow import (
     wf,
@@ -355,3 +360,42 @@ class TestTask:
         ) == [JarTaskLibrary(s3_path)]
 
         assert not TaskLibrary.unique_libraries(None)
+
+    def test_get_brickflow_lib_version(self):
+        settings = BrickflowProjectDeploymentSettings()
+        InputOutput = namedtuple(
+            "MyNamedTuple", ["bf_version", "cli_version", "expected_version"]
+        )
+
+        input_outputs = [
+            InputOutput("1.0.0", "1.0.0", "v1.0.0"),
+            InputOutput("main", "1.0.0", "main"),
+            InputOutput("auto", "0.1.0rcabc12e312", "main"),
+            InputOutput("auto", "0.1.0", "v0.1.0"),
+            InputOutput("auto", "something", "main"),
+            InputOutput("v1.0.0", "something", "v1.0.0"),
+        ]
+        for input_output in input_outputs:
+            settings.brickflow_project_runtime_version = input_output.bf_version
+            assert (
+                get_brickflow_lib_version(
+                    input_output.bf_version, input_output.cli_version
+                )
+                == input_output.expected_version
+            )
+            settings.brickflow_project_runtime_version = None
+
+    def test_get_brickflow_libraries(self):
+        settings = BrickflowProjectDeploymentSettings()
+        settings.brickflow_project_runtime_version = "1.0.0"
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 2
+        assert len(get_brickflow_libraries(enable_plugins=False)) == 1
+        lib = get_brickflow_libraries(enable_plugins=False)[0].dict
+        expected = {
+            "pypi": {
+                "package": "brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v1.0.0",
+                "repo": None,
+            }
+        }
+        diff = DeepDiff(lib, expected)
+        assert not diff, diff

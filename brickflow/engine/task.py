@@ -26,8 +26,14 @@ from typing import (
 import pluggy
 from decouple import config
 
-from brickflow import _ilog, BrickflowDefaultEnvs
+from brickflow import (
+    _ilog,
+    BrickflowDefaultEnvs,
+    BrickflowProjectDeploymentSettings,
+    get_brickflow_version,
+)
 from brickflow.bundles.model import JobsTasksNotebookTask, JobsTasksNotificationSettings
+from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
     BrickflowBuiltInTaskVariables,
     BrickflowInternalVariables,
@@ -693,3 +699,65 @@ class Task:
             ctx.task_coms.put(self.name, RETURN_VALUE_KEY, resp.response)
         ctx._reset_current_task()
         return resp.response
+
+
+def filter_bf_related_libraries(
+    libraries: Optional[List[TaskLibrary]],
+) -> List[TaskLibrary]:
+    if libraries is None:
+        return []
+    resp: List[TaskLibrary] = []
+    for lib in libraries:
+        if isinstance(lib, PypiTaskLibrary):
+            if lib.package.startswith("brickflow") is False:
+                resp.append(lib)
+        if isinstance(lib, MavenTaskLibrary):
+            if lib.coordinates.startswith("com.cronutils:cron-utils:9.2.0") is False:
+                resp.append(lib)
+    return resp
+
+
+def is_sem_ver(v: str) -> bool:
+    return len(v.split(".")) >= 3
+
+
+def get_brickflow_lib_version(bf_version: str, cli_version: str) -> str:
+    cli_version_is_actual_tag = all(v.isnumeric() for v in cli_version.split("."))
+    if bf_version is not None and is_sem_ver(bf_version) is True:
+        bf_version = f"v{bf_version.lstrip('v')}"
+    elif (
+        bf_version is not None
+        and bf_version == DEFAULT_BRICKFLOW_VERSION_MODE
+        and cli_version_is_actual_tag is True
+    ):
+        bf_version = f"v{cli_version}"
+    elif (
+        bf_version is not None
+        and bf_version != DEFAULT_BRICKFLOW_VERSION_MODE
+        and is_sem_ver(bf_version) is False
+    ):
+        pass  # do nothing and use the version as is
+    else:
+        bf_version = "main"
+    return bf_version
+
+
+def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
+    settings = BrickflowProjectDeploymentSettings()
+    bf_version = settings.brickflow_project_runtime_version
+    cli_version = get_brickflow_version()
+    bf_version = get_brickflow_lib_version(bf_version, cli_version)
+
+    if settings.brickflow_enable_plugins is True or enable_plugins is True:
+        return [
+            PypiTaskLibrary(
+                f"brickflow[airflow] @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+            ),
+            MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
+        ]
+    else:
+        return [
+            PypiTaskLibrary(
+                f"brickflow @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+            ),
+        ]

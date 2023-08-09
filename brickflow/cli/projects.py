@@ -15,6 +15,8 @@ from brickflow import (
     BrickflowDefaultEnvs,
     BrickflowEnvVars,
     _ilog,
+    BrickflowProjectDeploymentSettings,
+    ctx,
 )
 from brickflow.cli.bundles import (
     bundle_deploy,
@@ -31,6 +33,7 @@ from brickflow.cli.configure import (
     bind_env_var,
 )
 from brickflow.cli.constants import INTERACTIVE_MODE, BrickflowDeployMode
+from brickflow.resolver import get_notebook_ws_path
 
 DEFAULT_BRICKFLOW_VERSION_MODE = "auto"
 
@@ -41,6 +44,7 @@ class BrickflowProject(BaseModel):
     path_project_root_to_workflows_dir: str  # used for repos with multiple batches of workflows
     deployment_mode: str = BrickflowDeployMode.BUNDLE.value
     brickflow_version: str = DEFAULT_BRICKFLOW_VERSION_MODE
+    enable_plugins: bool = False
 
     class Config:
         extra = "forbid"
@@ -103,10 +107,12 @@ class MultiProjectManager:
             else {}
         )
 
-    def __new__(cls) -> "MultiProjectManager":
+    def __new__(cls, *args: Any, **kwargs: Any) -> "MultiProjectManager":
         # singleton
         if not hasattr(cls, "instance"):
             cls.instance = super(MultiProjectManager, cls).__new__(cls)
+            if "config_file_name" in kwargs:
+                cls.instance._config_file = Path(kwargs["config_file_name"])
         return cls.instance  # noqa
 
     def _config_exists(self) -> bool:
@@ -140,6 +146,9 @@ class MultiProjectManager:
                 )
         return root_dict
 
+    def root(self) -> Path:
+        return self._config_file.parent
+
     def add_project(self, project: BrickflowProject) -> None:
         if self.project_exists(project) is True:
             raise ValueError(f"Project with name {project.name} already exists")
@@ -172,6 +181,13 @@ class MultiProjectManager:
         self._project_config_dict[project.path_from_repo_root_to_project_root].projects[
             project.name
         ] = project
+
+    @staticmethod
+    def set_current_project_settings(project: BrickflowProject) -> None:
+        settings = BrickflowProjectDeploymentSettings()
+        settings.brickflow_project_runtime_version = project.brickflow_version
+        settings.brickflow_enable_plugins = project.enable_plugins
+        settings.brickflow_project_name = project.name
 
     def list_project_names(self) -> List[str]:
         return list(self._brickflow_multi_project_config.project_roots.keys())
@@ -207,7 +223,28 @@ class MultiProjectManager:
             yaml.dump(self._brickflow_multi_project_config.dict(), f)
 
 
-multi_project_manager = MultiProjectManager()
+class BrickflowRootNotFound(Exception):
+    pass
+
+
+def get_brickflow_root(current_path: Optional[Path] = None) -> Path:
+    current_dir = Path(current_path or get_notebook_ws_path(ctx.dbutils) or os.getcwd())
+    potential_config_file_path = (
+        current_dir
+        / BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value
+    )
+    if potential_config_file_path.exists():
+        return potential_config_file_path
+    elif current_dir.parent == current_dir:
+        # Reached the filesystem root, return just raw file value
+        return Path(
+            BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value
+        )
+    else:
+        return get_brickflow_root(current_dir.parent)
+
+
+multi_project_manager = MultiProjectManager(config_file_name=str(get_brickflow_root()))
 
 
 def initialize_project_entrypoint(
@@ -257,7 +294,7 @@ def initialize_project_entrypoint(
 @click.option(
     "-bfv",
     "--brickflow-version",
-    default=get_brickflow_version(),
+    default=DEFAULT_BRICKFLOW_VERSION_MODE,
     type=str,
     prompt=INTERACTIVE_MODE,
 )
@@ -301,14 +338,19 @@ def projects() -> None:
 
 @contextlib.contextmanager
 def use_project(
-    name: str, project_root_dir: Optional[str] = None
+    name: str,
+    project: BrickflowProject,
+    brickflow_root: Optional[Path] = None,
+    project_root_dir: Optional[str] = None,
 ) -> Generator[None, None, None]:
     # if no directory is provided do nothing
-    if project_root_dir is not None:
+    if brickflow_root is not None and project_root_dir is not None:
         current_directory = os.getcwd()
-        _ilog.info("Changed to directory: %s", project_root_dir)
-        os.chdir(project_root_dir)
+        project_path = str(brickflow_root / project_root_dir)
+        _ilog.info("Changed to directory: %s", project_path)
+        os.chdir(brickflow_root / project_root_dir)
         os.environ[BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value] = name
+        multi_project_manager.set_current_project_settings(project)
         try:
             yield
         finally:
@@ -391,7 +433,12 @@ def add(
     _create_gitignore_if_not_exists()
     _update_gitignore()
 
-    with use_project(name, project.path_from_repo_root_to_project_root):
+    with use_project(
+        name,
+        project,
+        multi_project_manager.root(),
+        project.path_from_repo_root_to_project_root,
+    ):
         if skip_entrypoint is False:
             initialize_project_entrypoint(
                 project.name,
@@ -471,6 +518,14 @@ def apply_bundles_deployment_options(
             default=False,
             help="Auto approve brickflow pipeline without being prompted to approve.",
         ),
+        "skip-libraries": click.option(
+            "--skip-libraries",
+            type=bool,
+            is_flag=True,
+            show_default=True,
+            default=False,
+            help="Skip automatically adding brickflow libraries.",
+        ),
         "force-acquire-lock": click.option(
             "--force-acquire-lock",
             type=bool,
@@ -501,7 +556,9 @@ def destroy_project(project: str, **kwargs: Any) -> None:
     """Destroy projects in the brickflow-multi-project.yml file"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
-    with use_project(project, dir_to_change):
+    if kwargs.get("skip_libraries", None) is True:
+        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = False
+    with use_project(project, bf_project, multi_project_manager.root(), dir_to_change):
         bundle_destroy(
             workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
         )
@@ -524,7 +581,9 @@ def synth_bundles_for_project(project: str, **kwargs: Any) -> None:
     """Synth the bundle.yml for project"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
-    with use_project(project, dir_to_change):
+    if kwargs.get("skip_libraries", None) is True:
+        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = False
+    with use_project(project, bf_project, multi_project_manager.root(), dir_to_change):
         # wf dir is required for generating the bundle.yml in the workflows dir
         project_synth(
             workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
@@ -537,7 +596,9 @@ def deploy_project(project: str, **kwargs: Any) -> None:
     """Deploy projects in the brickflow-multi-project.yml file"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
-    with use_project(project, dir_to_change):
+    if kwargs.get("skip_libraries", None) is True:
+        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = False
+    with use_project(project, bf_project, multi_project_manager.root(), dir_to_change):
         bundle_deploy(
             workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
         )

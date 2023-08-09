@@ -14,14 +14,22 @@ from typing import Dict, Optional, List, Any, Type
 
 from decouple import config
 
-from brickflow import _ilog, BrickflowEnvVars
+from brickflow import (
+    _ilog,
+    BrickflowEnvVars,
+    BrickflowProjectDeploymentSettings,
+)
 from brickflow.cli import BrickflowDeployMode
 from brickflow.codegen import CodegenInterface
 from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
 from brickflow.codegen.hashicorp_cdktf import HashicorpCDKTFGen
 from brickflow.context import ctx, BrickflowInternalVariables
 from brickflow.engine import get_current_commit
-from brickflow.engine.task import TaskLibrary
+from brickflow.engine.task import (
+    TaskLibrary,
+    filter_bf_related_libraries,
+    get_brickflow_libraries,
+)
 from brickflow.engine.utils import wraps_keyerror
 from brickflow.engine.workflow import Workflow
 
@@ -164,7 +172,7 @@ class Project:
         str
     ] = None  # repo name or folder where bundle assets will be saved
     bundle_base_path: Optional[str] = None
-
+    enable_plugins: bool = False
     _project: _Project = field(init=False)
 
     def __post_init__(self) -> None:
@@ -175,11 +183,16 @@ class Project:
             config(BrickflowEnvVars.BRICKFLOW_MODE.value, default=Stage.execute.value)
         ]
         self.entry_point_path = self.entry_point_path or get_caller_info()
-
+        deploy_settings = BrickflowProjectDeploymentSettings()
         # setup current_project
-        env_project_name = config(
-            BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, default=None
-        )
+        env_project_name = deploy_settings.brickflow_project_name
+
+        self.libraries = self.libraries or []
+        if deploy_settings.brickflow_auto_add_libraries is True:
+            _ilog.info("Auto adding brickflow libraries...")
+            self.libraries = filter_bf_related_libraries(self.libraries)
+            # here libraries should not be null anymore if this branch is invoked
+            self.libraries += get_brickflow_libraries()
 
         if (
             env_project_name is not None
@@ -266,7 +279,7 @@ class Project:
             self.git_reference,
             self.s3_backend,
             self.entry_point_path,
-            libraries=self.libraries or [],
+            libraries=self.libraries,
             batch=self.batch,
             bundle_obj_name=self.bundle_obj_name,
             bundle_base_path=self.bundle_base_path,

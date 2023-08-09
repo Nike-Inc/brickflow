@@ -130,7 +130,7 @@ class Workflow:
     run_as_service_principal: Optional[str] = None
     # this a databricks limit set on workflows, you can override it if you have exception
     max_tasks_in_workflow: int = 100
-    ensure_brickflow_plugins: Optional[bool] = None
+    enable_plugins: Optional[bool] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
@@ -282,8 +282,8 @@ class Workflow:
             else depends_on
         )
 
-        if self.ensure_brickflow_plugins is not None:
-            ensure_plugins = self.ensure_brickflow_plugins
+        if self.enable_plugins is not None:
+            ensure_plugins = self.enable_plugins
         else:
             ensure_plugins = ensure_brickflow_plugins
 

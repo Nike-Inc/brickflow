@@ -155,6 +155,70 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
             BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
+            BrickflowEnvVars.BRICKFLOW_AUTO_ADD_LIBRARIES.value: "true",
+            BrickflowEnvVars.BRICKFLOW_PROJECT_RUNTIME_VERSION.value: "0.1.0",
+        },
+    )
+    @patch("subprocess.check_output")
+    @patch("brickflow.context.ctx.get_parameter")
+    def test_generate_bundle_dev_auto_add_libs(
+        self,
+        dbutils: Mock,
+        sub_proc_mock: Mock,
+    ):
+        dbutils.return_value = None
+        git_ref_b = b"a"
+        git_repo = "https://github.com/"
+        git_provider = "github"
+        sub_proc_mock.return_value = git_ref_b
+
+        workspace_client = get_workspace_client_mock()
+
+        # get caller part breaks here
+        with Project(
+            "test-project",
+            entry_point_path="test_databricks_bundle.py",
+            git_repo=git_repo,
+            provider=git_provider,
+            codegen_kwargs={
+                "mutators": [DatabricksBundleTagsAndNameMutator(workspace_client)]
+            },  # dont test import mutator
+        ) as f:
+            f.add_workflow(wf)
+            from brickflow import Workflow, Cluster
+
+            fake_workflow = Workflow(
+                "some_wf",
+                default_cluster=Cluster.from_existing_cluster("some-id"),
+                enable_plugins=True,
+            )
+
+            @fake_workflow.task
+            def some_task():
+                pass
+
+            f.add_workflow(fake_workflow)
+
+        assert f.git_reference == "commit/" + git_ref_b.decode("utf-8")
+        assert f.git_repo == git_repo
+        assert f.provider == git_provider
+        with open(BUNDLE_FILE_NAME, "r", encoding="utf-8") as bundle:
+            bundle_content = bundle.read()
+            assert bundle_content is not None
+            assert len(bundle_content) > 0
+
+        actual = read_yaml_file(BUNDLE_FILE_NAME)
+        expected = get_expected_bundle_yaml("dev_bundle_polyrepo_with_auto_libs.yml")
+        assert_equal_dicts(actual, expected)
+        if os.path.exists(BUNDLE_FILE_NAME):
+            os.remove(BUNDLE_FILE_NAME)
+
+    @patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
+            BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
+            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
             BrickflowEnvVars.BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT.value: "some/path/to/root",
         },
     )
