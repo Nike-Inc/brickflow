@@ -429,22 +429,21 @@ def pretty_print_function_source(
 
     buffer = StringIO()
     file_name = inspect.getfile(func)
-    # pylint: disable=anomalous-backslash-in-string
     buffer.write(
-        """
-      | # ======================================================== 
-      | #     ____                        _____        __   
-      | #    / __/__  __ _____________   / ___/__  ___/ /__ 
-      | #   _\ \/ _ \/ // / __/ __/ -_) / /__/ _ \/ _  / -_)
-      | #  /___/\___/\_,_/_/  \__/\__/  \___/\___/\_,_/\__/ 
-      | # ========================================================"""  # noqa
+        r"""
+      | # ======================================================================
+      | #     ____                                     ____             _       
+      | #    / ___|   ___   _   _  _ __   ___   ___   / ___|  ___    __| |  ___ 
+      | #    \___ \  / _ \ | | | || '__| / __| / _ \ | |     / _ \  / _` | / _ \
+      | #     ___) || (_) || |_| || |   | (__ |  __/ | |___ | (_) || (_| ||  __/
+      | #    |____/  \___/  \__,_||_|    \___| \___|  \____| \___/  \__,_| \___|
+      | # ======================================================================"""  # noqa
         + f"\n"
         f"      | # Task Name: {task_name}\n"
         f"      | # Function Name: '{func.__name__}'\n"
         f"      | # File: {file_name}\n"
         f"      | # Lines: {start_line}-{end_line}\n"
     )
-    # pylint: enable=anomalous-backslash-in-string
 
     for line_num, line in enumerate(formatted_code.split("\n"), start=start_line_num):
         if start_line <= line_num <= end_line:
