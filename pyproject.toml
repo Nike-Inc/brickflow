@@ -47,7 +47,6 @@ pydantic = "^1.10.9"
 databricks-sdk = ">=0.1.8 <1.0.0"
 pyyaml = "^6.0.0"
 # cerberus-python-client = {version = "~2.5.4",  optional = true } # Users might have to manually install cerberus-python-client if required
-apache-airflow = {version = ">=2.6.3 <2.7.0",  optional = true }
 
 [tool.poetry.scripts]
 bf = "brickflow.cli:cli"
@@ -56,9 +55,9 @@ brickflow = "brickflow.cli:cli"
 [tool.poetry.extras]
 deploy = ["cdktf"]
 # cerberus = ["cerberus-python-client"]
-airflow = ["apache-airflow"]
+#airflow = ["apache-airflow"]
 # databricks = ["databricks-cli"] todo: Move this to sdks when they come out
-all = ["apache-airflow", "cdktf"]
+all = ["cdktf"]
 
 [tool.poetry.group.dev.dependencies]
 types-requests = ">=2.28.11.16 <3.0.0.0" # only for development purposes no need to make installation req
@@ -81,6 +80,7 @@ mike = "^1.1.2"
 py4j = "^0.10.9.7"
 pre-commit = "3.3.1"
 datamodel-code-generator = "^0.19.0"
+apache-airflow = ">=2.6.3 <2.7.0"
 
 [build-system]
 requires = ["poetry-core", "poetry-dynamic-versioning"]

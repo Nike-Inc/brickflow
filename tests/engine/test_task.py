@@ -388,7 +388,7 @@ class TestTask:
     def test_get_brickflow_libraries(self):
         settings = BrickflowProjectDeploymentSettings()
         settings.brickflow_project_runtime_version = "1.0.0"
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 2
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 3
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {

@@ -712,6 +712,9 @@ def filter_bf_related_libraries(
         if isinstance(lib, PypiTaskLibrary):
             if lib.package.startswith("brickflow") is True:
                 continue
+        if isinstance(lib, PypiTaskLibrary):
+            if lib.package.startswith("apache-airflow") is True:
+                continue
         if isinstance(lib, MavenTaskLibrary):
             # TODO: clean this up but no one should really be using cron-utils at the moment for outside of brickflow
             if lib.coordinates.startswith("com.cronutils:cron-utils:9.2.0") is True:
@@ -754,8 +757,9 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
         return [
             PypiTaskLibrary(
-                f"brickflow[airflow] @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+                f"brickflow @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
             ),
+            PypiTaskLibrary(f"apache-airflow==2.6.3"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:
