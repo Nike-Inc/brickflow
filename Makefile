@@ -16,6 +16,7 @@ cov: check
 	poetry run coverage xml
 
 gen-bundle-sdk:
+	@pip install . --force-reinstall
 	@./tools/gen-bundle.sh
 
 dev:
