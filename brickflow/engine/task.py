@@ -759,7 +759,7 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
             PypiTaskLibrary(
                 f"brickflow @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
             ),
-            PypiTaskLibrary(f"apache-airflow==2.6.3"),
+            PypiTaskLibrary("apache-airflow==2.6.3"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:
