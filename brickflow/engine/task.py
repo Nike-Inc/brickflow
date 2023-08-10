@@ -511,8 +511,10 @@ class Task:
             # 2 braces to escape 1
             BrickflowInternalVariables.task_id.value: f"{{{{{BrickflowBuiltInTaskVariables.task_key.name}}}}}",
             BrickflowInternalVariables.only_run_tasks.value: "",
-            BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix,
-            BrickflowInternalVariables.workflow_suffix.value: self.workflow.suffix,
+            BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix
+            or "",
+            BrickflowInternalVariables.workflow_suffix.value: self.workflow.suffix
+            or "",
             BrickflowInternalVariables.env.value: ctx.env,
         }
 

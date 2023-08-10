@@ -139,6 +139,7 @@ class _Project:
 class Stage(Enum):
     deploy = "deploy"
     execute = "execute"
+    unittest = "unittest"
 
 
 def get_caller_info() -> Optional[str]:
@@ -295,6 +296,11 @@ class Project:
 
         if len(self._project.workflows) == 0:
             _ilog.info("Doing nothing no workflows...")
+            return
+
+        if self._mode == Stage.unittest:
+            # Mode is purely for testing purposes for the _Project internal class
+            _ilog.info("Running unit tests...")
             return
 
         if self._mode.value == Stage.deploy.value:

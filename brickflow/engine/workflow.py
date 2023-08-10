@@ -4,14 +4,15 @@ from dataclasses import dataclass, field
 from typing import Callable, List, Optional, Dict, Union, Iterator, Any
 
 import networkx as nx
-from decouple import config
 
+from brickflow import env_chain, BrickflowEnvVars
 from brickflow.bundles.model import (
     JobsEmailNotifications,
     JobsWebhookNotifications,
     JobsNotificationSettings,
     JobsTrigger,
 )
+from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
@@ -122,8 +123,8 @@ class Workflow:
     active_task: Optional[str] = None
     graph: nx.DiGraph = field(default_factory=nx.DiGraph)
     tasks: Dict[str, Task] = field(default_factory=lambda: {})
-    prefix: str = field(default_factory=lambda: config("BRICKFLOW_WORKFLOW_PREFIX", ""))
-    suffix: str = field(default_factory=lambda: config("BRICKFLOW_WORKFLOW_SUFFIX", ""))
+    prefix: Optional[str] = None
+    suffix: Optional[str] = None
     common_task_parameters: Optional[Dict[str, str]] = None
     # TODO: Support for cdktf, only works for bundles atm
     run_as_user: Optional[str] = None
@@ -138,6 +139,18 @@ class Workflow:
             raise NoWorkflowComputeError(
                 f"Please configure default_cluster or "
                 f"clusters field for workflow: {self.name}"
+            )
+        if self.prefix is None:
+            self.prefix = env_chain(
+                BrickflowEnvVars.BRICKFLOW_WORKFLOW_PREFIX.value,
+                BrickflowInternalVariables.workflow_prefix.value,
+                "",
+            )
+        if self.suffix is None:
+            self.suffix = env_chain(
+                BrickflowEnvVars.BRICKFLOW_WORKFLOW_SUFFIX.value,
+                BrickflowInternalVariables.workflow_suffix.value,
+                "",
             )
         if self.default_cluster is None:
             # the default cluster is set to the first cluster if it is not configured

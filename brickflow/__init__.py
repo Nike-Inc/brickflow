@@ -79,6 +79,19 @@ class BrickflowEnvVars(Enum):
     BRICKFLOW_USE_PROJECT_NAME = "BRICKFLOW_USE_PROJECT_NAME"  # for projects which injects project name to cli context
 
 
+def env_chain(env_var: str, dbx_get_param: str, default: Optional[str] = None) -> str:
+    from_env = config(env_var, default=None)
+    if from_env is not None and isinstance(from_env, str):
+        return from_env
+    from_task_param = ctx.get_parameter(
+        dbx_get_param,
+        None,
+    )
+    if from_task_param is not None and isinstance(from_task_param, str):
+        return from_task_param
+    return default
+
+
 class Empty:
     pass
 

@@ -4,6 +4,8 @@ from unittest.mock import Mock, call, patch, mock_open
 
 import pytest
 
+from brickflow import BrickflowEnvVars, BrickflowDefaultEnvs
+from brickflow.codegen import GitRepoIsDirtyError
 from brickflow.context import ctx, BrickflowInternalVariables
 from brickflow.engine.compute import Cluster
 from brickflow.engine.project import (
@@ -13,8 +15,6 @@ from brickflow.engine.project import (
     get_caller_info,
     ExecuteError,
 )
-from brickflow.codegen import GitRepoIsDirtyError
-from brickflow import BrickflowEnvVars, BrickflowDefaultEnvs
 from brickflow.engine.workflow import Workflow
 from brickflow.tf import (  # noqa needed for import and jsii metadata being properly loading
     databricks,
@@ -38,6 +38,21 @@ def dynamic_side_effect_return(custom_var, custom_return):
             return custom_return
 
     return side_effect_return
+
+
+def get_fake_wf(name: str, hard_coded_suffix=None, hard_coded_prefix=None):
+    this_wf = Workflow(
+        name,
+        suffix=hard_coded_suffix,
+        prefix=hard_coded_prefix,
+        default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),
+    )
+
+    @this_wf.task()
+    def some_other_function(*, test="var"):  # noqa
+        return "hello world"
+
+    return this_wf
 
 
 class TestProject:
@@ -208,6 +223,120 @@ class TestProject:
         dbutils.side_effect = side_effect
         with Project("test-project") as f:
             f.add_pkg(sample_workflows)
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.unittest.value,
+            BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
+            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: "bundle",
+        },
+    )
+    @patch("brickflow.context.ctx.get_parameter")
+    def test_get_with_prefix_suffix_hardcoded(self, dbutils):
+        some_name = "some_name"
+        some_suffix = "_some_suffix"
+        some_prefix = "some_prefix_"
+        expected_workflow_name = some_prefix + some_name + some_suffix
+        this_wf = get_fake_wf(
+            some_name, hard_coded_suffix=some_suffix, hard_coded_prefix=some_prefix
+        )
+
+        dbutils.side_effect = side_effect
+        with Project("test-project-2") as f:
+            # pass
+            f.add_workflow(this_wf)
+
+        first_wf = list(f.workflows.values())[0]
+        first_task = list(first_wf.tasks.values())[0]
+        wf_id = first_task.get_obj_dict("something")["base_parameters"][
+            BrickflowInternalVariables.workflow_id.value
+        ]
+
+        assert this_wf.suffix == some_suffix
+        assert this_wf.prefix == some_prefix
+        assert this_wf.name == expected_workflow_name
+        assert wf_id == expected_workflow_name
+        assert f.get_workflow(wf_id) is not None
+        del this_wf
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.unittest.value,
+            BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
+            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: "bundle",
+            BrickflowEnvVars.BRICKFLOW_WORKFLOW_SUFFIX.value: "_something",
+            BrickflowEnvVars.BRICKFLOW_WORKFLOW_PREFIX.value: "prefix_",
+        },
+    )
+    @patch("brickflow.context.ctx.get_parameter")
+    def test_get_with_prefix_suffix_via_env(self, dbutils):
+        some_name = "some_name"
+        expected_workflow_name = "prefix_" + some_name + "_something"
+        this_wf = get_fake_wf(some_name)
+        dbutils.side_effect = side_effect
+        with Project("test-project-2") as f:
+            # pass
+            f.add_workflow(this_wf)
+
+        first_wf = list(f.workflows.values())[0]
+        first_task = list(first_wf.tasks.values())[0]
+        wf_id = first_task.get_obj_dict("something")["base_parameters"][
+            BrickflowInternalVariables.workflow_id.value
+        ]
+        # assert wf_id == expected_workflow_name
+
+        assert this_wf.suffix == "_something"
+        assert this_wf.prefix == "prefix_"
+        assert this_wf.name == expected_workflow_name
+        assert wf_id == expected_workflow_name
+        assert f.get_workflow(expected_workflow_name) is not None
+        del this_wf
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.unittest.value,
+            BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
+            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: "bundle",
+        },
+    )
+    @patch("brickflow.context.ctx.get_parameter")
+    def test_get_with_prefix_suffix_via_dbutils(self, dbutils):
+        some_name = "some_name"
+        some_suffix = "_some_suffix"
+        some_prefix = "some_prefix_"
+        expected_workflow_name = some_prefix + some_name + some_suffix
+
+        def custom_side_effect(a, _) -> str:  # noqa
+            if a == BrickflowInternalVariables.workflow_id.value:
+                return expected_workflow_name
+            if a == BrickflowInternalVariables.workflow_suffix.value:
+                return some_suffix
+            if a == BrickflowInternalVariables.workflow_prefix.value:
+                return some_prefix
+
+        dbutils.side_effect = custom_side_effect
+
+        this_wf = get_fake_wf(some_name)
+        with Project("test-project-2") as f:
+            # pass
+            f.add_workflow(this_wf)
+
+        first_wf = list(f.workflows.values())[0]
+        first_task = list(first_wf.tasks.values())[0]
+        wf_id = first_task.get_obj_dict("something")["base_parameters"][
+            BrickflowInternalVariables.workflow_id.value
+        ]
+        # assert wf_id == expected_workflow_name
+
+        assert this_wf.suffix == some_suffix
+        assert this_wf.prefix == some_prefix
+        assert this_wf.name == expected_workflow_name
+        assert wf_id == expected_workflow_name
+        assert f.get_workflow(expected_workflow_name) is not None
+        del this_wf
 
     # @mock.patch.dict(
     #     os.environ,
