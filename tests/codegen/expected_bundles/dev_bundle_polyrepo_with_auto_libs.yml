@@ -4,6 +4,61 @@ environments:
   test-project-dev:
     resources:
       jobs:
+        some_wf:
+          email_notifications: null
+          git_source:
+            git_commit: a
+            git_provider: github
+            git_url: https://github.com/
+          job_clusters: [ ]
+          max_concurrent_runs: 1.0
+          name: dev_some_wf
+          notification_settings: null
+          permissions: null
+          schedule: null
+          tags:
+            brickflow_deployment_mode: Databricks Asset Bundles
+            brickflow_project_name: test-project
+            deployed_by: test_user
+            environment: dev
+          tasks:
+            - depends_on: [ ]
+              email_notifications: { }
+              existing_cluster_id: some-id
+              libraries:
+                - pypi:
+                    package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                    repo: null
+                - pypi:
+                    package: apache-airflow==2.6.3
+                    repo: null
+                - maven:
+                    coordinates: com.cronutils:cron-utils:9.2.0
+                    exclusions: null
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ''
+                  brickflow_internal_task_name: '{{task_key}}'
+                  brickflow_internal_workflow_name: some_wf
+                  brickflow_internal_workflow_prefix: ''
+                  brickflow_internal_workflow_suffix: ''
+                  brickflow_job_id: '{{job_id}}'
+                  brickflow_parent_run_id: '{{parent_run_id}}'
+                  brickflow_run_id: '{{run_id}}'
+                  brickflow_start_date: '{{start_date}}'
+                  brickflow_start_time: '{{start_time}}'
+                  brickflow_task_key: '{{task_key}}'
+                  brickflow_task_retry_count: '{{task_retry_count}}'
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: some_task
+              timeout_seconds: null
+          webhook_notifications: null
         test:
           email_notifications: null
           notification_settings: null
@@ -39,7 +94,10 @@ environments:
           - depends_on: []
             email_notifications: {}
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -59,7 +117,7 @@ environments:
                 brickflow_start_time: '{{start_time}}'
                 brickflow_task_key: '{{task_key}}'
                 brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: some/path/to/root/test_databricks_bundle.py
+              notebook_path: test_databricks_bundle.py
               source: GIT
             retry_on_timeout: null
             task_key: custom_python_task_push
@@ -72,10 +130,13 @@ environments:
             pipeline_task:
               pipeline_id: ${resources.pipelines.test_hello_world.id}
             task_key: dlt_pipeline_2
-          - depends_on: []
-            email_notifications: {}
+          - depends_on: [ ]
+            email_notifications: { }
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -86,7 +147,10 @@ environments:
           - depends_on: []
             email_notifications: {}
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -107,7 +171,7 @@ environments:
                 brickflow_task_key: '{{task_key}}'
                 brickflow_task_retry_count: '{{task_retry_count}}'
                 test: var
-              notebook_path: some/path/to/root/test_databricks_bundle.py
+              notebook_path: test_databricks_bundle.py
               source: GIT
             retry_on_timeout: null
             task_key: task_function
@@ -116,7 +180,10 @@ environments:
             - task_key: task_function
             email_notifications: {}
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -136,7 +203,7 @@ environments:
                 brickflow_start_time: '{{start_time}}'
                 brickflow_task_key: '{{task_key}}'
                 brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: some/path/to/root/test_databricks_bundle.py
+              notebook_path: test_databricks_bundle.py
               source: GIT
             retry_on_timeout: null
             task_key: task_function_2
@@ -145,7 +212,10 @@ environments:
             - task_key: task_function_2
             email_notifications: {}
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -165,7 +235,7 @@ environments:
                 brickflow_start_time: '{{start_time}}'
                 brickflow_task_key: '{{task_key}}'
                 brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: some/path/to/root/test_databricks_bundle.py
+              notebook_path: test_databricks_bundle.py
               source: GIT
             retry_on_timeout: null
             task_key: task_function_3
@@ -174,7 +244,10 @@ environments:
             - task_key: task_function_3
             email_notifications: {}
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -194,7 +267,7 @@ environments:
                 brickflow_start_time: '{{start_time}}'
                 brickflow_task_key: '{{task_key}}'
                 brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: some/path/to/root/test_databricks_bundle.py
+              notebook_path: test_databricks_bundle.py
               source: GIT
             retry_on_timeout: null
             task_key: task_function_4
@@ -202,7 +275,10 @@ environments:
           - depends_on: []
             email_notifications: {}
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -223,7 +299,7 @@ environments:
                 brickflow_task_key: '{{task_key}}'
                 brickflow_task_retry_count: '{{task_retry_count}}'
                 test: var
-              notebook_path: some/path/to/root/test_databricks_bundle.py
+              notebook_path: test_databricks_bundle.py
               source: GIT
             retry_on_timeout: null
             task_key: task_function_no_deco_args
@@ -231,7 +307,10 @@ environments:
           - depends_on: []
             email_notifications: {}
             existing_cluster_id: existing_cluster_id
-            libraries: []
+            libraries:
+            - pypi:
+                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                repo: null
             max_retries: null
             min_retry_interval_millis: null
             notebook_task:
@@ -251,7 +330,7 @@ environments:
                 brickflow_start_time: '{{start_time}}'
                 brickflow_task_key: '{{task_key}}'
                 brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: some/path/to/root/test_databricks_bundle.py
+              notebook_path: test_databricks_bundle.py
               source: GIT
             retry_on_timeout: null
             task_key: task_function_nokwargs

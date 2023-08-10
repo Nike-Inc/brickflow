@@ -16,6 +16,15 @@ if __name__ == "__main__":
         else:
             return None
 
+    def remove_timestamp_line(input_code: str) -> str:
+        return "\n".join(
+            [
+                _line
+                for _line in input_code.split("\n")
+                if not _line.startswith("#   timestamp: ")
+            ]
+        )
+
     with open(file_path, "r") as f:
         lines = f.readlines()
         for line in lines:
@@ -33,4 +42,5 @@ if __name__ == "__main__":
         with open(file_path, "w") as w:
             for key, value in bad_class_names.items():
                 data = data.replace(key, value)
+            data = remove_timestamp_line(data)
             w.write(data)

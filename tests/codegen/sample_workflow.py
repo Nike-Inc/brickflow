@@ -4,6 +4,7 @@ from brickflow.engine.task import (
     TaskType,
     TaskResponse,
     DLTPipeline,
+    NotebookTask,
 )
 from brickflow.engine.workflow import Workflow, WorkflowPermissions, User
 
@@ -32,6 +33,14 @@ def task_function(*, test="var"):
 def task_function_no_deco_args(*, test="var"):
     print(test)
     return "hello world"
+
+
+@wf.notebook_task()
+def notebook_task_a(*, test="var"):
+    print(test)
+    return NotebookTask(
+        notebook_path="notebooks/notebook_a",
+    )
 
 
 @wf.dlt_task

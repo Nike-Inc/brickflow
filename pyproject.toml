@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "brickflow"
-version = "0.0.0"
+version = "0.0.1-pre.36+4a13620"
 description = "Deploy scalable workflows to databricks using python"
 authors = ["Ashok Singamaneni, Sriharsha Tikkireddy"]
 readme = "README.md"
@@ -39,16 +39,14 @@ python-decouple = "3.8"
 networkx = "3.1"
 pendulum = "2.1.2"
 Jinja2 = "3.1.2"
-click = "8.1.3"
-pluggy = "1.0.0"
-requests = "^2.28.2"
-types-requests = "2.28.11.16"
-cdktf  = {version = "~0.12.3",  optional = true }
+click = "^8.1.3"
+pluggy = "^1.0.0"
+requests = ">=2.28.2 <3.0.0"
+cdktf  = {version = "~0.17.3",  optional = true }
 pydantic = "^1.10.9"
-databricks-sdk = "^0.1.8"
+databricks-sdk = ">=0.1.8 <1.0.0"
 pyyaml = "^6.0.0"
 # cerberus-python-client = {version = "~2.5.4",  optional = true } # Users might have to manually install cerberus-python-client if required
-apache-airflow = {version = "~2.4.1",  optional = true }
 
 [tool.poetry.scripts]
 bf = "brickflow.cli:cli"
@@ -57,11 +55,13 @@ brickflow = "brickflow.cli:cli"
 [tool.poetry.extras]
 deploy = ["cdktf"]
 # cerberus = ["cerberus-python-client"]
-airflow = ["apache-airflow"]
+#airflow = ["apache-airflow"]
 # databricks = ["databricks-cli"] todo: Move this to sdks when they come out
-all = ["apache-airflow", "cdktf"]
+all = ["cdktf"]
 
 [tool.poetry.group.dev.dependencies]
+types-requests = ">=2.28.11.16 <3.0.0.0" # only for development purposes no need to make installation req
+types-PyYAML = "^6.0.0" # only for development purposes no need to make installation req
 pytest = "7.3.1"
 pytest-mock = "3.10.0"
 coverage = "7.2.5"
@@ -77,15 +77,17 @@ mkdocs-markdownextradata-plugin = "0.2.5"
 mkdocstrings = {version = "0.20.0", extras=["python"]}
 mkdocs-autorefs = "0.4.1"
 mike = "^1.1.2"
+py4j = "^0.10.9.7"
 pre-commit = "3.3.1"
 datamodel-code-generator = "^0.19.0"
+apache-airflow = ">=2.6.3 <2.7.0"
 
 [build-system]
 requires = ["poetry-core", "poetry-dynamic-versioning"]
 build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry-dynamic-versioning]
-enable = true
+enable = false
 vcs = "git"
 bump = true
 style = "semver"
@@ -114,5 +116,7 @@ files = [
     "brickflow/cli/*.py",
     "brickflow/hints/*.py",
     "brickflow/engine/*.py",
+    "brickflow/resolver/*.py",
+    "brickflow/codegen/*.py",
 ]
 follow_imports = "skip"

@@ -1,7 +1,10 @@
+from collections import namedtuple
 from unittest.mock import Mock, patch
 
 import pytest
+from deepdiff import DeepDiff
 
+from brickflow import BrickflowProjectDeploymentSettings
 from brickflow.context import (
     ctx,
     BRANCH_SKIP_EXCEPT,
@@ -21,6 +24,8 @@ from brickflow.engine.task import (
     CranTaskLibrary,
     InvalidTaskLibraryError,
     TaskLibrary,
+    get_brickflow_lib_version,
+    get_brickflow_libraries,
 )
 from tests.engine.sample_workflow import (
     wf,
@@ -103,7 +108,10 @@ class TestTask:
         assert wf.get_task(task_function_2.__name__).parents == ["task_function"]
 
     def test_task_type(self):
-        assert wf.get_task(task_function_2.__name__).task_type_str == "notebook_task"
+        assert (
+            wf.get_task(task_function_2.__name__).databricks_task_type_str
+            == "notebook_task"
+        )
 
     def test_depends_on(self):
         assert wf.get_task(task_function_3.__name__).depends_on == ["task_function_2"]
@@ -163,7 +171,7 @@ class TestTask:
         assert reason is None
         ctx._configure()
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_skip_not_selected_task(self, dbutils):
         dbutils.value = "sometihngelse"
         skip, reason = wf.get_task(
@@ -178,7 +186,7 @@ class TestTask:
         )
         assert wf.get_task(task_function_4.__name__).execute() is None
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     def test_no_skip_selected_task(self, dbutils: Mock):
         dbutils.return_value = task_function_4.__name__
         skip, reason = wf.get_task(
@@ -207,7 +215,7 @@ class TestTask:
             task_function_3.__name__, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK
         )
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     @patch("brickflow.context.ctx._task_coms")
     def test_execute(self, task_coms_mock: Mock, dbutils: Mock):
         dbutils.return_value = ""
@@ -218,7 +226,7 @@ class TestTask:
 
         assert resp is task_function()
 
-    @patch("brickflow.context.ctx.dbutils_widget_get_or_else")
+    @patch("brickflow.context.ctx.get_parameter")
     @patch("brickflow.context.ctx._task_coms")
     def test_execute_custom(self, task_coms_mock: Mock, dbutils: Mock):
         dbutils.return_value = ""
@@ -352,3 +360,42 @@ class TestTask:
         ) == [JarTaskLibrary(s3_path)]
 
         assert not TaskLibrary.unique_libraries(None)
+
+    def test_get_brickflow_lib_version(self):
+        settings = BrickflowProjectDeploymentSettings()
+        InputOutput = namedtuple(
+            "MyNamedTuple", ["bf_version", "cli_version", "expected_version"]
+        )
+
+        input_outputs = [
+            InputOutput("1.0.0", "1.0.0", "v1.0.0"),
+            InputOutput("main", "1.0.0", "main"),
+            InputOutput("auto", "0.1.0rcabc12e312", "main"),
+            InputOutput("auto", "0.1.0", "v0.1.0"),
+            InputOutput("auto", "something", "main"),
+            InputOutput("v1.0.0", "something", "v1.0.0"),
+        ]
+        for input_output in input_outputs:
+            settings.brickflow_project_runtime_version = input_output.bf_version
+            assert (
+                get_brickflow_lib_version(
+                    input_output.bf_version, input_output.cli_version
+                )
+                == input_output.expected_version
+            )
+            settings.brickflow_project_runtime_version = None
+
+    def test_get_brickflow_libraries(self):
+        settings = BrickflowProjectDeploymentSettings()
+        settings.brickflow_project_runtime_version = "1.0.0"
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 3
+        assert len(get_brickflow_libraries(enable_plugins=False)) == 1
+        lib = get_brickflow_libraries(enable_plugins=False)[0].dict
+        expected = {
+            "pypi": {
+                "package": "brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v1.0.0",
+                "repo": None,
+            }
+        }
+        diff = DeepDiff(lib, expected)
+        assert not diff, diff

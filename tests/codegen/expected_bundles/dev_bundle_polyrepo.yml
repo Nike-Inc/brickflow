@@ -1,10 +1,13 @@
 bundle:
   name: test-project
 environments:
-  dev:
+  test-project-dev:
     resources:
       jobs:
         test:
+          email_notifications: null
+          notification_settings: null
+          webhook_notifications: null
           git_source:
             git_commit: a
             git_provider: github
@@ -28,7 +31,7 @@ environments:
             timezone_id: UTC
           tags:
             brickflow_project_name: test-project
-            databricks_deploy_mode: Databricks Asset Bundles
+            brickflow_deployment_mode: Databricks Asset Bundles
             deployed_by: test_user
             environment: dev
             test: test2
@@ -69,6 +72,17 @@ environments:
             pipeline_task:
               pipeline_id: ${resources.pipelines.test_hello_world.id}
             task_key: dlt_pipeline_2
+          - depends_on: [ ]
+            email_notifications: { }
+            existing_cluster_id: existing_cluster_id
+            libraries: [ ]
+            max_retries: null
+            min_retry_interval_millis: null
+            notebook_task:
+              notebook_path: notebooks/notebook_a
+            retry_on_timeout: null
+            task_key: notebook_task_a
+            timeout_seconds: null
           - depends_on: []
             email_notifications: {}
             existing_cluster_id: existing_cluster_id

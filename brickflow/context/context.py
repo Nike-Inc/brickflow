@@ -10,7 +10,7 @@ from typing import Optional, Any, Union, Callable, Hashable, Dict, List, TypeVar
 
 from decouple import config
 
-from brickflow import log, _ilog, BrickflowEnvVars, BrickflowDefaultEnvs
+from brickflow import log, _ilog, BrickflowEnvVars, BrickflowDefaultEnvs, deprecated
 
 BRANCH_SKIP_EXCEPT = "branch_skip_except"
 SKIP_EXCEPT_HACK = "brickflow_hack_skip_all"
@@ -53,7 +53,7 @@ def bind_variable(builtin: BrickflowBuiltInTaskVariables) -> Callable:
             debug = kwargs["debug"]
             f(*args, **kwargs)  # no-op
             if _self.dbutils is not None:
-                return _self.dbutils_widget_get_or_else(builtin.value, debug)
+                return _self.get_parameter(builtin.value, debug)
             return debug
 
         return func
@@ -158,6 +158,7 @@ class Context:
         self._task_coms: BrickflowTaskComs
         self._current_task: Optional[str] = None
         self._configure()
+        self._current_project: Optional[str] = None
 
     def __new__(cls) -> "Context":
         if not hasattr(cls, "instance"):
@@ -202,6 +203,29 @@ class Context:
     @property
     def task_coms(self) -> BrickflowTaskComs:
         return self._task_coms
+
+    @property
+    def current_project(self) -> Optional[str]:
+        # TODO: not a public api move to internal context or deployment context
+        return self._current_project or config(
+            BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None
+        )
+
+    @staticmethod
+    def _ensure_valid_project(project: str) -> None:
+        env_project = config(BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None)
+        if env_project is None:
+            return
+        if env_project != project:
+            raise RuntimeError(
+                f"Project: {project} does not match with env var: {BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value} "
+                f"value: {env_project}"
+            )
+
+    def set_current_project(self, project: str) -> None:
+        # TODO: not a public api move to internal context or deployment context
+        self._ensure_valid_project(project)
+        self._current_project = project
 
     @bind_variable(BrickflowBuiltInTaskVariables.task_key)
     def task_key(self, *, debug: Optional[str] = None) -> Any:
@@ -280,7 +304,7 @@ class Context:
         # dbutils widgets during runtime time in jobs
         return config(
             BrickflowEnvVars.BRICKFLOW_ENV.value,
-            self.dbutils_widget_get_or_else(
+            self.get_parameter(
                 BrickflowInternalVariables.env.value,
                 BrickflowDefaultEnvs.LOCAL.value,
             ),
@@ -332,6 +356,7 @@ class Context:
         res = _dict.get(_env, default)
         return res
 
+    @deprecated
     def dbutils_widget_get_or_else(
         self, key: str, debug: Optional[str]
     ) -> Optional[str]:
@@ -339,6 +364,14 @@ class Context:
             return self.dbutils.widgets.get(key)
         except Exception:
             # todo: log error
+            return debug
+
+    def get_parameter(self, key: str, debug: Optional[str] = None) -> Optional[str]:
+        try:
+            return self.dbutils.widgets.get(key)
+        except Exception:
+            # todo: log error
+            _ilog.debug("Unable to get parameter: %s from dbutils", key)
             return debug
 
     def _try_import_chaining(self, callables: List[Callable]) -> Optional[Any]:

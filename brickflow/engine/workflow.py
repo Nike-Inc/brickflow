@@ -4,8 +4,15 @@ from dataclasses import dataclass, field
 from typing import Callable, List, Optional, Dict, Union, Iterator, Any
 
 import networkx as nx
-from decouple import config
 
+from brickflow import env_chain, BrickflowEnvVars
+from brickflow.bundles.model import (
+    JobsEmailNotifications,
+    JobsWebhookNotifications,
+    JobsNotificationSettings,
+    JobsTrigger,
+)
+from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
@@ -79,6 +86,22 @@ class WorkflowPermissions:
         return access_controls
 
 
+class WorkflowEmailNotifications(JobsEmailNotifications):
+    pass
+
+
+class WorkflowWebhookNotifications(JobsWebhookNotifications):
+    pass
+
+
+class WorkflowNotificationSettings(JobsNotificationSettings):
+    pass
+
+
+class Trigger(JobsTrigger):
+    pass
+
+
 # TODO: Re-architect to make this frozen and immutable after being defined.
 @dataclass(eq=True)
 class Workflow:
@@ -89,6 +112,10 @@ class Workflow:
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
     default_task_settings: TaskSettings = TaskSettings()
+    email_notifications: Optional[WorkflowEmailNotifications] = None
+    webhook_notifications: Optional[WorkflowWebhookNotifications] = None
+    notification_settings: Optional[WorkflowNotificationSettings] = None
+    trigger: Optional[Trigger] = None
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     tags: Optional[Dict[str, str]] = None
     max_concurrent_runs: int = 1
@@ -96,14 +123,15 @@ class Workflow:
     active_task: Optional[str] = None
     graph: nx.DiGraph = field(default_factory=nx.DiGraph)
     tasks: Dict[str, Task] = field(default_factory=lambda: {})
-    prefix: str = field(default_factory=lambda: config("BRICKFLOW_WORKFLOW_PREFIX", ""))
-    suffix: str = field(default_factory=lambda: config("BRICKFLOW_WORKFLOW_SUFFIX", ""))
+    prefix: Optional[str] = None
+    suffix: Optional[str] = None
     common_task_parameters: Optional[Dict[str, str]] = None
     # TODO: Support for cdktf, only works for bundles atm
     run_as_user: Optional[str] = None
     run_as_service_principal: Optional[str] = None
     # this a databricks limit set on workflows, you can override it if you have exception
     max_tasks_in_workflow: int = 100
+    enable_plugins: Optional[bool] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
@@ -111,6 +139,18 @@ class Workflow:
             raise NoWorkflowComputeError(
                 f"Please configure default_cluster or "
                 f"clusters field for workflow: {self.name}"
+            )
+        if self.prefix is None:
+            self.prefix = env_chain(
+                BrickflowEnvVars.BRICKFLOW_WORKFLOW_PREFIX.value,
+                BrickflowInternalVariables.workflow_prefix.value,
+                "",
+            )
+        if self.suffix is None:
+            self.suffix = env_chain(
+                BrickflowEnvVars.BRICKFLOW_WORKFLOW_SUFFIX.value,
+                BrickflowInternalVariables.workflow_suffix.value,
+                "",
             )
         if self.default_cluster is None:
             # the default cluster is set to the first cluster if it is not configured
@@ -231,10 +271,12 @@ class Workflow:
         description: Optional[str] = None,
         cluster: Optional[Cluster] = None,
         libraries: Optional[List[TaskLibrary]] = None,
-        task_type: TaskType = TaskType.NOTEBOOK,
+        task_type: TaskType = TaskType.BRICKFLOW_TASK,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,
+        task_settings: Optional[TaskSettings] = None,
+        ensure_brickflow_plugins: bool = False,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -252,6 +294,12 @@ class Workflow:
             if isinstance(depends_on, str) or callable(depends_on)
             else depends_on
         )
+
+        if self.enable_plugins is not None:
+            ensure_plugins = self.enable_plugins
+        else:
+            ensure_plugins = ensure_brickflow_plugins
+
         self.tasks[task_id] = Task(
             task_id=task_id,
             task_func=f,
@@ -262,7 +310,9 @@ class Workflow:
             depends_on=_depends_on or [],
             task_type=task_type,
             trigger_rule=trigger_rule,
+            task_settings=task_settings,
             custom_execute_callback=custom_execute_callback,
+            ensure_brickflow_plugins=ensure_plugins,
         )
 
         # attempt to create task object before adding to graph
@@ -279,16 +329,37 @@ class Workflow:
     ) -> Callable:
         return self.task(task_func, name, task_type=TaskType.DLT, depends_on=depends_on)
 
+    def notebook_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        cluster: Optional[Cluster] = None,
+        libraries: Optional[List[TaskLibrary]] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            cluster=cluster,
+            libraries=libraries,
+            task_type=TaskType.NOTEBOOK_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+        )
+
     def task(
         self,
         task_func: Optional[Callable] = None,
         name: Optional[str] = None,
         cluster: Optional[Cluster] = None,
         libraries: Optional[List[TaskLibrary]] = None,
-        task_type: TaskType = TaskType.NOTEBOOK,
+        task_type: TaskType = TaskType.BRICKFLOW_TASK,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS,
         custom_execute_callback: Optional[Callable] = None,
+        task_settings: Optional[TaskSettings] = None,
+        ensure_brickflow_plugins: bool = False,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -309,6 +380,8 @@ class Workflow:
                 depends_on=depends_on,
                 trigger_rule=trigger_rule,
                 custom_execute_callback=custom_execute_callback,
+                task_settings=task_settings,
+                ensure_brickflow_plugins=ensure_brickflow_plugins,
             )
 
             @functools.wraps(f)

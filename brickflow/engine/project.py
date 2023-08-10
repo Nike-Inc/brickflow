@@ -1,8 +1,11 @@
 import importlib
 import importlib.util
 import inspect
+import logging
 import os
 import sys
+import types
+
 from dataclasses import field, dataclass
 from enum import Enum
 from pathlib import Path
@@ -11,14 +14,22 @@ from typing import Dict, Optional, List, Any, Type
 
 from decouple import config
 
-from brickflow import _ilog, BrickflowEnvVars
+from brickflow import (
+    _ilog,
+    BrickflowEnvVars,
+    BrickflowProjectDeploymentSettings,
+)
 from brickflow.cli import BrickflowDeployMode
 from brickflow.codegen import CodegenInterface
 from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
 from brickflow.codegen.hashicorp_cdktf import HashicorpCDKTFGen
 from brickflow.context import ctx, BrickflowInternalVariables
 from brickflow.engine import get_current_commit
-from brickflow.engine.task import TaskLibrary
+from brickflow.engine.task import (
+    TaskLibrary,
+    filter_bf_related_libraries,
+    get_brickflow_libraries,
+)
 from brickflow.engine.utils import wraps_keyerror
 from brickflow.engine.workflow import Workflow
 
@@ -95,9 +106,20 @@ class _Project:
             spec.loader.exec_module(mod)  # type: ignore
             for obj in dir(mod):
                 module_item = getattr(mod, obj)
-                if isinstance(module_item, Workflow):
-                    # checked to see if this is a workflow object
-                    self.add_workflow(module_item)
+                # handling adding any module item if it is a workflow, list of workflows, or dict of workflows
+                self._add_if_workflow(module_item)
+
+    def _add_if_workflow(self, maybe_workflow: Any) -> None:
+        if isinstance(maybe_workflow, Workflow):
+            self.add_workflow(maybe_workflow)
+        elif isinstance(maybe_workflow, (list, types.GeneratorType)):
+            for item in maybe_workflow:
+                # Add check for list of workflows
+                self._add_if_workflow(item)
+        elif isinstance(maybe_workflow, dict):
+            for item in maybe_workflow.values():
+                # Add check for dict of workflows
+                self._add_if_workflow(item)
 
     def add_workflow(self, workflow: Workflow) -> None:
         if self.workflow_exists(workflow) is True:
@@ -117,6 +139,7 @@ class _Project:
 class Stage(Enum):
     deploy = "deploy"
     execute = "execute"
+    unittest = "unittest"
 
 
 def get_caller_info() -> Optional[str]:
@@ -150,14 +173,38 @@ class Project:
         str
     ] = None  # repo name or folder where bundle assets will be saved
     bundle_base_path: Optional[str] = None
-
+    enable_plugins: bool = False
     _project: _Project = field(init=False)
 
     def __post_init__(self) -> None:
+        # during entry of project enable logging
+        _ilog.setLevel(logging.INFO)
+
         self._mode = Stage[
             config(BrickflowEnvVars.BRICKFLOW_MODE.value, default=Stage.execute.value)
         ]
         self.entry_point_path = self.entry_point_path or get_caller_info()
+        deploy_settings = BrickflowProjectDeploymentSettings()
+        # setup current_project
+        env_project_name = deploy_settings.brickflow_project_name
+
+        self.libraries = self.libraries or []
+        if deploy_settings.brickflow_auto_add_libraries is True:
+            _ilog.info("Auto adding brickflow libraries...")
+            self.libraries = filter_bf_related_libraries(self.libraries)
+            # here libraries should not be null anymore if this branch is invoked
+            self.libraries += get_brickflow_libraries()
+
+        if (
+            env_project_name is not None
+            and self.name is not None
+            and env_project_name != self.name
+        ):
+            raise ValueError(
+                "Project name in config files and entrypoint must be the same"
+            )
+
+        ctx.set_current_project(self.name or env_project_name)  # always setup first
 
         # populate bundle info via env vars
         self.bundle_obj_name = config(
@@ -169,19 +216,19 @@ class Project:
             default="/Users/${workspace.current_user.userName}",
         )
 
-        if self._mode == Stage.deploy:
-            git_ref_default = (
-                self.git_reference
-                if self.git_reference is not None
-                else f"commit/{get_current_commit()}"
-            )
-        else:
-            git_ref_default = (
-                self.git_reference if self.git_reference is not None else ""
-            )
         self.git_reference = config(
-            BrickflowEnvVars.BRICKFLOW_GIT_REF.value, default=git_ref_default
+            BrickflowEnvVars.BRICKFLOW_GIT_REF.value, default=self.get_git_ref()
         )
+
+        if (
+            self._mode == Stage.deploy
+            and ctx.is_local() is False
+            and self.git_reference is None
+        ):
+            raise ValueError(
+                "git_reference must be set when deploying to non-local envs"
+            )
+
         self.provider = config(
             BrickflowEnvVars.BRICKFLOW_GIT_PROVIDER.value, default=self.provider
         )
@@ -210,6 +257,21 @@ class Project:
         if self.codegen_kwargs is None:
             self.codegen_kwargs = {}
 
+    def get_git_ref(self) -> Optional[str]:
+        if self._mode == Stage.deploy:
+            if self.git_reference is not None:
+                return self.git_reference
+            else:
+                try:
+                    return f"commit/{get_current_commit()}"
+                except Exception:
+                    _ilog.warning(
+                        "Unable to get current commit; defaulting to empty string"
+                    )
+                    return "commit/fake-local-stub" if ctx.is_local() else None
+        else:
+            return self.git_reference if self.git_reference is not None else ""
+
     def __enter__(self) -> "_Project":
         self._project = _Project(
             self.name,
@@ -218,7 +280,7 @@ class Project:
             self.git_reference,
             self.s3_backend,
             self.entry_point_path,
-            libraries=self.libraries or [],
+            libraries=self.libraries,
             batch=self.batch,
             bundle_obj_name=self.bundle_obj_name,
             bundle_base_path=self.bundle_base_path,
@@ -236,6 +298,11 @@ class Project:
             _ilog.info("Doing nothing no workflows...")
             return
 
+        if self._mode == Stage.unittest:
+            # Mode is purely for testing purposes for the _Project internal class
+            _ilog.info("Running unit tests...")
+            return
+
         if self._mode.value == Stage.deploy.value:
             _ilog.info("Deploying changes... to %s", ctx.env)
             if self.codegen_mechanism is None:
@@ -246,16 +313,16 @@ class Project:
                 project=self._project,
                 id_=f"{ctx.env}_{self.name}",
                 env=ctx.env,
-                **self.codegen_kwargs,
+                **(self.codegen_kwargs or {}),
             )
             codegen.synth()
 
         if self._mode.value == Stage.execute.value:
-            wf_id = ctx.dbutils_widget_get_or_else(
+            wf_id = ctx.get_parameter(
                 BrickflowInternalVariables.workflow_id.value,
                 self.debug_execute_workflow,
             )
-            t_id = ctx.dbutils_widget_get_or_else(
+            t_id = ctx.get_parameter(
                 BrickflowInternalVariables.task_id.value, self.debug_execute_task
             )
 

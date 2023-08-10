@@ -4,8 +4,11 @@ import base64
 import dataclasses
 import functools
 import inspect
+import logging
+import textwrap
 from dataclasses import dataclass, field
 from enum import Enum
+from io import StringIO
 from pathlib import Path
 from typing import (
     Callable,
@@ -23,7 +26,14 @@ from typing import (
 import pluggy
 from decouple import config
 
-from brickflow import _ilog, BrickflowDefaultEnvs
+from brickflow import (
+    _ilog,
+    BrickflowDefaultEnvs,
+    BrickflowProjectDeploymentSettings,
+    get_brickflow_version,
+)
+from brickflow.bundles.model import JobsTasksNotebookTask, JobsTasksNotificationSettings
+from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
     BrickflowBuiltInTaskVariables,
     BrickflowInternalVariables,
@@ -80,10 +90,11 @@ class BrickflowTriggerRule(Enum):
 
 
 class TaskType(Enum):
-    NOTEBOOK = "notebook_task"
+    BRICKFLOW_TASK = "brickflow_task"
     SQL = "sql_task"
     DLT = "pipeline_task"
     CUSTOM_PYTHON_TASK = "custom_python_task"
+    NOTEBOOK_TASK = "notebook_task"
 
 
 @dataclass(frozen=True)
@@ -217,9 +228,14 @@ class EmailNotifications:
         }
 
 
+class TaskNotificationSettings(JobsTasksNotificationSettings):
+    pass
+
+
 @dataclass(frozen=True)
 class TaskSettings:
     email_notifications: Optional[EmailNotifications] = None
+    notification_settings: Optional[TaskNotificationSettings] = None
     timeout_seconds: Optional[int] = None
     max_retries: Optional[int] = None
     min_retry_interval_millis: Optional[int] = None
@@ -231,6 +247,7 @@ class TaskSettings:
             return self
         return TaskSettings(
             other.email_notifications or self.email_notifications,
+            other.notification_settings or self.notification_settings,
             other.timeout_seconds or self.timeout_seconds or 0,
             other.max_retries or self.max_retries,
             other.min_retry_interval_millis or self.min_retry_interval_millis,
@@ -251,7 +268,13 @@ class TaskSettings:
             if self.email_notifications is not None
             else {}
         )
+        notification_settings = (
+            {}
+            if self.notification_settings is None
+            else {"notification_settings": self.notification_settings.dict()}
+        )
         return {
+            **notification_settings,
             "email_notifications": email_not,
             "timeout_seconds": self.timeout_seconds,
             "max_retries": self.max_retries,
@@ -325,6 +348,10 @@ class DLTPipeline:
         return d
 
 
+class NotebookTask(JobsTasksNotebookTask):
+    pass
+
+
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     @staticmethod
     @brickflow_task_plugin_impl
@@ -352,18 +379,78 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
 
 
 @functools.lru_cache
-def get_brickflow_tasks_hook() -> BrickflowTaskPluginSpec:
+def get_plugin_manager() -> pluggy.PluginManager:
     pm = pluggy.PluginManager(BRICKFLOW_TASK_PLUGINS)
     pm.add_hookspecs(BrickflowTaskPluginSpec)
     pm.load_setuptools_entrypoints(BRICKFLOW_TASK_PLUGINS)
-    pm.register(DefaultBrickflowTaskPluginImpl())
+    pm.register(DefaultBrickflowTaskPluginImpl(), name="default")
     for name, plugin_instance in pm.list_name_plugin():
         _ilog.info(
             "Loaded plugin with name: %s and class: %s",
             name,
             plugin_instance.__class__.__name__,
         )
-    return pm.hook
+    return pm
+
+
+@functools.lru_cache
+def get_brickflow_tasks_hook(
+    cache_bust: Optional[pluggy.PluginManager] = None,
+) -> BrickflowTaskPluginSpec:
+    """cache_bust is only used for unit testing"""
+    try:
+        from brickflow_plugins import load_plugins, ensure_installation  # noqa
+
+        ensure_installation()
+        load_plugins(cache_bust)
+    except ImportError as e:
+        _ilog.info(
+            "If you need airflow support: brickflow extras not installed "
+            "please pip install brickflow[airflow] and py4j! Error: %s",
+            str(e.msg),
+        )
+    return get_plugin_manager().hook
+
+
+def pretty_print_function_source(
+    task_name: str,
+    func: Callable,
+    start_line: Optional[int] = None,
+    end_line: Optional[int] = None,
+) -> str:
+    source_lines, start_line_num = inspect.getsourcelines(func)
+    source_code = "".join(source_lines)
+    formatted_code = textwrap.dedent(source_code)
+
+    if start_line is None:
+        start_line = start_line_num
+    if end_line is None:
+        end_line = start_line_num + len(source_lines) - 1
+
+    buffer = StringIO()
+    file_name = inspect.getfile(func)
+    buffer.write(
+        r"""
+      | # ======================================================================
+      | #     ____                                     ____             _       
+      | #    / ___|   ___   _   _  _ __   ___   ___   / ___|  ___    __| |  ___ 
+      | #    \___ \  / _ \ | | | || '__| / __| / _ \ | |     / _ \  / _` | / _ \
+      | #     ___) || (_) || |_| || |   | (__ |  __/ | |___ | (_) || (_| ||  __/
+      | #    |____/  \___/  \__,_||_|    \___| \___|  \____| \___/  \__,_| \___|
+      | # ======================================================================"""  # noqa
+        + f"\n"
+        f"      | # Task Name: {task_name}\n"
+        f"      | # Function Name: '{func.__name__}'\n"
+        f"      | # File: {file_name}\n"
+        f"      | # Lines: {start_line}-{end_line}\n"
+    )
+
+    for line_num, line in enumerate(formatted_code.split("\n"), start=start_line_num):
+        if start_line <= line_num <= end_line:
+            buffer.write(f"{line_num:5d} | {line}\n")
+    buffer.write("      | # ========================================================\n")
+    buffer.seek(0)
+    return buffer.read()
 
 
 @dataclass(frozen=True)
@@ -375,10 +462,11 @@ class Task:
     description: Optional[str] = None
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     depends_on: List[Union[Callable, str]] = field(default_factory=lambda: [])
-    task_type: TaskType = TaskType.NOTEBOOK
+    task_type: TaskType = TaskType.BRICKFLOW_TASK
     trigger_rule: BrickflowTriggerRule = BrickflowTriggerRule.ALL_SUCCESS
     task_settings: Optional[TaskSettings] = None
     custom_execute_callback: Optional[Callable] = None
+    ensure_brickflow_plugins: bool = False
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
@@ -400,7 +488,11 @@ class Task:
                 yield str(i)
 
     @property
-    def task_type_str(self) -> str:
+    def databricks_task_type_str(self) -> str:
+        if self.task_type == TaskType.BRICKFLOW_TASK:
+            return TaskType.NOTEBOOK_TASK.value
+        if self.task_type == TaskType.CUSTOM_PYTHON_TASK:
+            return TaskType.NOTEBOOK_TASK.value
         return self.task_type.value
 
     @property
@@ -419,8 +511,10 @@ class Task:
             # 2 braces to escape 1
             BrickflowInternalVariables.task_id.value: f"{{{{{BrickflowBuiltInTaskVariables.task_key.name}}}}}",
             BrickflowInternalVariables.only_run_tasks.value: "",
-            BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix,
-            BrickflowInternalVariables.workflow_suffix.value: self.workflow.suffix,
+            BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix
+            or "",
+            BrickflowInternalVariables.workflow_suffix.value: self.workflow.suffix
+            or "",
             BrickflowInternalVariables.env.value: ctx.env,
         }
 
@@ -443,6 +537,19 @@ class Task:
                 # TODO: implement only after validating limit on parameters
             },
         }
+
+    def _ensure_brickflow_plugins(self) -> None:
+        if self.ensure_brickflow_plugins is False:
+            return
+        try:
+            import brickflow_plugins  # noqa
+        except ImportError as e:
+            raise ImportError(
+                f"Brickflow Plugins not available for task: {self.name}. "
+                "If you need airflow support: brickflow extras not installed "
+                "please pip install brickflow[airflow] and py4j! Error: %s",
+                str(e.msg),
+            )
 
     # TODO: error if star isn't there
     def is_valid_task_signature(self) -> None:
@@ -491,7 +598,7 @@ class Task:
     def get_runtime_parameter_values(self) -> Dict[str, Any]:
         # if dbutils returns None then return v instead
         return {
-            k: (ctx.dbutils_widget_get_or_else(k, str(v)) or v)
+            k: (ctx.get_parameter(k, str(v)) or v)
             for k, v in (
                 inspect.getfullargspec(self.task_func).kwonlydefaults or {}
             ).items()
@@ -534,7 +641,7 @@ class Task:
         )
 
     def _skip_because_not_selected(self) -> Tuple[bool, Optional[str]]:
-        selected_tasks = ctx.dbutils_widget_get_or_else(
+        selected_tasks = ctx.get_parameter(
             BrickflowInternalVariables.only_run_tasks.value,
             config(BrickflowTaskEnvVars.BRICKFLOW_SELECT_TASKS.value, ""),
         )
@@ -549,15 +656,21 @@ class Task:
         return False, None
 
     @with_brickflow_logger
-    def execute(self) -> Any:
+    def execute(self, ignore_all_deps: bool = False) -> Any:
         # Workflow is:
         #   1. Check to see if there selected tasks and if there are is this task in the list
         #   2. Check to see if the previous task is skipped and trigger rule.
         #   3. Check to see if this a custom python task and execute it
         #   4. Execute the task function
+        _ilog.setLevel(logging.INFO)  # enable logging for task execution
         ctx._set_current_task(self.name)
+        self._ensure_brickflow_plugins()  # if you are expecting brickflow plugins to be installed
+        if ignore_all_deps is True:
+            _ilog.info(
+                "Ignoring all dependencies for task: %s due to debugging", self.name
+            )
         _select_task_skip, _select_task_skip_reason = self._skip_because_not_selected()
-        if _select_task_skip is True:
+        if _select_task_skip is True and ignore_all_deps is False:
             # check if this task is skipped due to task selection
             _ilog.info(
                 "Skipping task... %s for reason: %s",
@@ -567,11 +680,14 @@ class Task:
             ctx._reset_current_task()
             return
         _skip, reason = self.should_skip()
-        if _skip is True:
+        if _skip is True and ignore_all_deps is False:
             _ilog.info("Skipping task... %s for reason: %s", self.name, reason)
             ctx.task_coms.put(self.name, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK)
             ctx._reset_current_task()
             return
+
+        _ilog.info("Executing task... %s", self.name)
+        _ilog.info("%s", pretty_print_function_source(self.name, self.task_func))
 
         initial_resp: TaskResponse = get_brickflow_tasks_hook().task_execute(
             task=self, workflow=self.workflow
@@ -584,3 +700,71 @@ class Task:
             ctx.task_coms.put(self.name, RETURN_VALUE_KEY, resp.response)
         ctx._reset_current_task()
         return resp.response
+
+
+def filter_bf_related_libraries(
+    libraries: Optional[List[TaskLibrary]],
+) -> List[TaskLibrary]:
+    if libraries is None:
+        return []
+    resp: List[TaskLibrary] = []
+    for lib in libraries:
+        if isinstance(lib, PypiTaskLibrary):
+            if lib.package.startswith("brickflow") is True:
+                continue
+        if isinstance(lib, PypiTaskLibrary):
+            if lib.package.startswith("apache-airflow") is True:
+                continue
+        if isinstance(lib, MavenTaskLibrary):
+            # TODO: clean this up but no one should really be using cron-utils at the moment for outside of brickflow
+            if lib.coordinates.startswith("com.cronutils:cron-utils:9.2.0") is True:
+                continue
+        resp.append(lib)
+    return resp
+
+
+def is_sem_ver(v: str) -> bool:
+    return len(v.split(".")) >= 3
+
+
+def get_brickflow_lib_version(bf_version: str, cli_version: str) -> str:
+    cli_version_is_actual_tag = all(v.isnumeric() for v in cli_version.split("."))
+    if bf_version is not None and is_sem_ver(bf_version) is True:
+        bf_version = f"v{bf_version.lstrip('v')}"
+    elif (
+        bf_version is not None
+        and bf_version == DEFAULT_BRICKFLOW_VERSION_MODE
+        and cli_version_is_actual_tag is True
+    ):
+        bf_version = f"v{cli_version}"
+    elif (
+        bf_version is not None
+        and bf_version != DEFAULT_BRICKFLOW_VERSION_MODE
+        and is_sem_ver(bf_version) is False
+    ):
+        pass  # do nothing and use the version as is
+    else:
+        bf_version = "main"
+    return bf_version
+
+
+def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
+    settings = BrickflowProjectDeploymentSettings()
+    bf_version = settings.brickflow_project_runtime_version
+    cli_version = get_brickflow_version()
+    bf_version = get_brickflow_lib_version(bf_version, cli_version)
+
+    if settings.brickflow_enable_plugins is True or enable_plugins is True:
+        return [
+            PypiTaskLibrary(
+                f"brickflow @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+            ),
+            PypiTaskLibrary("apache-airflow==2.6.3"),
+            MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
+        ]
+    else:
+        return [
+            PypiTaskLibrary(
+                f"brickflow @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+            ),
+        ]

@@ -16,10 +16,8 @@ cov: check
 	poetry run coverage xml
 
 gen-bundle-sdk:
+	@pip install . --force-reinstall
 	@./tools/gen-bundle.sh
-#
-#gen-bundle-sdk-v2:
-#	@datamodel-codegen  --input brickflow/bundle/output_schema.json --use-title-as-name --input-file-type jsonschema --output brickflow/bundle/model_v2.py
 
 dev:
 	@poetry install --all-extras --with dev

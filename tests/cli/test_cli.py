@@ -11,12 +11,16 @@ import click
 import pytest
 from click.testing import CliRunner
 
+from brickflow import BrickflowProjectDeploymentSettings
 from brickflow.cli import (
     cli,
-    bundle_download_path,
-    download_and_unzip_databricks_cli,
     exec_command,
 )
+from brickflow.cli.bundles import (
+    bundle_download_path,
+    download_and_unzip_databricks_cli,
+)
+from brickflow.cli.projects import handle_libraries
 
 
 def fake_run(*_, **__):
@@ -121,7 +125,7 @@ class TestCli:
         path_mock.isdir.return_value = True
         result = runner.invoke(cli, ["cdktf", "help"])  # noqa
         assert result.exit_code == 0, traceback.print_exception(*result.exc_info)
-        assert result.output.strip() == "hello world"
+        assert result.output.strip().endswith("hello world")
         run_mock.assert_called_once_with(
             ["cdktf", "help"], check=True, env=os.environ.copy()
         )
@@ -141,7 +145,7 @@ class TestCli:
         path_mock.isdir.return_value = True
         result = runner.invoke(cli, ["cdktf", "diff"])  # noqa
         assert result.exit_code == 0, traceback.print_exception(*result.exc_info)
-        assert result.output.strip() == "hello world"
+        assert result.output.strip().endswith("hello world")
         run_mock.assert_called_once_with(
             ["cdktf", "diff"], check=True, env=os.environ.copy()
         )
@@ -161,9 +165,8 @@ class TestCli:
         path_mock.isdir.return_value = True
         result = runner.invoke(cli, ["cdktf", "help"])  # noqa
         assert result.exit_code == 1, traceback.print_exception(*result.exc_info)
-        assert (
-            result.output.strip()
-            == "Error: Command 'cdktf help' returned non-zero exit status 127."
+        assert result.output.strip().endswith(
+            "Error: Command 'cdktf help' returned non-zero exit status 127."
         )
         run_mock.assert_called_once_with(
             ["cdktf", "help"], check=True, env=os.environ.copy()
@@ -247,3 +250,12 @@ class TestCli:
         directory_path = ".databricks"
         if os.path.exists(directory_path):
             shutil.rmtree(directory_path)
+
+    def test_projects_handle_libraries(self):
+        bpd = BrickflowProjectDeploymentSettings()
+        bpd.brickflow_auto_add_libraries = None
+        handle_libraries(skip_libraries=True)
+        assert bpd.brickflow_auto_add_libraries is False
+        handle_libraries(skip_libraries=False)
+        assert bpd.brickflow_auto_add_libraries is True
+        bpd.brickflow_auto_add_libraries = None

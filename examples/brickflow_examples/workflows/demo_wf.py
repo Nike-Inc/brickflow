@@ -11,9 +11,9 @@ from brickflow import (
     Workflow,
     WorkflowPermissions,
     User,
+    NotebookTask,
 )
 from brickflow_plugins import TaskDependencySensor
-
 
 wf = Workflow(
     "brickflow-demo",
@@ -49,6 +49,16 @@ wf = Workflow(
 @wf.task
 def start():
     pass
+
+
+@wf.notebook_task
+def example_notebook():
+    return NotebookTask(
+        notebook_path="notebooks/example_notebook.py",
+        base_parameters={
+            "some_parameter": "some_value",  # in the notebook access these via dbutils.widgets.get("some_parameter")
+        },
+    )
 
 
 @wf.task(depends_on=start)
