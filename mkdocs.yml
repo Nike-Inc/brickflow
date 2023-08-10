@@ -39,8 +39,8 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  logo: img/logo.png
-  favicon: img/logo.png
+  logo: img/bf_logo.png
+  favicon: img/bf_logo.png
   language: en
 
 repo_name: nike/brickflow
