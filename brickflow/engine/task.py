@@ -710,11 +710,13 @@ def filter_bf_related_libraries(
     resp: List[TaskLibrary] = []
     for lib in libraries:
         if isinstance(lib, PypiTaskLibrary):
-            if lib.package.startswith("brickflow") is False:
-                resp.append(lib)
+            if lib.package.startswith("brickflow") is True:
+                continue
         if isinstance(lib, MavenTaskLibrary):
-            if lib.coordinates.startswith("com.cronutils:cron-utils:9.2.0") is False:
-                resp.append(lib)
+            # TODO: clean this up but no one should really be using cron-utils at the moment for outside of brickflow
+            if lib.coordinates.startswith("com.cronutils:cron-utils:9.2.0") is True:
+                continue
+        resp.append(lib)
     return resp
 
 

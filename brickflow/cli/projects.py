@@ -553,14 +553,20 @@ def apply_bundles_deployment_options(
     return _apply_bundles_deployment_options
 
 
+def handle_libraries(skip_libraries: Optional[bool] = None, **_: Any) -> None:
+    if skip_libraries is True:
+        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = False
+    else:
+        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = True
+
+
 @projects.command(name="destroy")
 @apply_bundles_deployment_options
 def destroy_project(project: str, **kwargs: Any) -> None:
     """Destroy projects in the brickflow-multi-project.yml file"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
-    if kwargs.get("skip_libraries", None) is True:
-        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = False
+    handle_libraries(**kwargs)
     with use_project(project, bf_project, multi_project_manager.root(), dir_to_change):
         bundle_destroy(
             workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
@@ -584,8 +590,7 @@ def synth_bundles_for_project(project: str, **kwargs: Any) -> None:
     """Synth the bundle.yml for project"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
-    if kwargs.get("skip_libraries", None) is True:
-        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = False
+    handle_libraries(**kwargs)
     with use_project(project, bf_project, multi_project_manager.root(), dir_to_change):
         # wf dir is required for generating the bundle.yml in the workflows dir
         project_synth(
@@ -599,8 +604,7 @@ def deploy_project(project: str, **kwargs: Any) -> None:
     """Deploy projects in the brickflow-multi-project.yml file"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
-    if kwargs.get("skip_libraries", None) is True:
-        BrickflowProjectDeploymentSettings().brickflow_auto_add_libraries = False
+    handle_libraries(**kwargs)
     with use_project(project, bf_project, multi_project_manager.root(), dir_to_change):
         bundle_deploy(
             workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
