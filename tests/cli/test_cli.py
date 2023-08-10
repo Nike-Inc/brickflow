@@ -11,6 +11,7 @@ import click
 import pytest
 from click.testing import CliRunner
 
+from brickflow import BrickflowProjectDeploymentSettings
 from brickflow.cli import (
     cli,
     exec_command,
@@ -19,6 +20,7 @@ from brickflow.cli.bundles import (
     bundle_download_path,
     download_and_unzip_databricks_cli,
 )
+from brickflow.cli.projects import handle_libraries
 
 
 def fake_run(*_, **__):
@@ -248,3 +250,12 @@ class TestCli:
         directory_path = ".databricks"
         if os.path.exists(directory_path):
             shutil.rmtree(directory_path)
+
+    def test_projects_handle_libraries(self):
+        bpd = BrickflowProjectDeploymentSettings()
+        bpd.brickflow_auto_add_libraries = None
+        handle_libraries(skip_libraries=True)
+        assert bpd.brickflow_auto_add_libraries is False
+        handle_libraries(skip_libraries=False)
+        assert bpd.brickflow_auto_add_libraries is True
+        bpd.brickflow_auto_add_libraries = None
