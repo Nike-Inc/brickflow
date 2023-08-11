@@ -78,7 +78,7 @@ def bundle_sync(
     exec_command(
         get_valid_bundle_cli(bundle_cli),
         "bundle",
-        ["sync", "-e", brickflow_ctx.env, *additional_args],
+        ["sync", "-e", get_bundles_project_env(), *additional_args],
     )
 
 

@@ -16,7 +16,6 @@ from brickflow import (
     _ilog,
 )
 from brickflow.cli.bundles import (
-    bundle_sync,
     bundle_cli_setup,
 )
 from brickflow.cli.commands import exec_command
@@ -220,49 +219,3 @@ def disable_project_name_in_env() -> None:
     # used for legacy bundles deploy and destroy commands
     # disable multiple projects in same directory
     os.environ[BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value] = "False"
-
-
-@cli.command
-@click.option(
-    "--deploy-mode",
-    type=click.Choice(["bundle"]),
-    show_default=True,
-    default="bundle",
-    help="Which deployment framework to use to deploy.",
-)
-@click.option(
-    "--watch",
-    type=bool,
-    is_flag=True,
-    show_default=True,
-    default=False,
-    help="Enable filewatcher to sync files over.",
-)
-@click.option(
-    "--full",
-    type=bool,
-    is_flag=True,
-    show_default=True,
-    default=False,
-    help="Run a full sync.",
-)
-@click.option(
-    "--interval-duration",
-    type=str,
-    show_default=True,
-    default=None,
-    help="File system polling interval (for --watch).",
-)
-@click.option(
-    "--debug",
-    type=str,
-    show_default=True,
-    default=None,
-    help="File system polling interval (for --watch).",
-)
-@bundle_env_set_options
-def sync(**kwargs: Any) -> None:
-    """Synchronize your bundle tree to databricks workspace"""
-    deploy_mode = get_deployment_mode(**kwargs)
-    if deploy_mode == BrickflowDeployMode.BUNDLE:
-        bundle_sync(**kwargs)

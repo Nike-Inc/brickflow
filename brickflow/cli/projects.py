@@ -21,6 +21,7 @@ from brickflow.cli.bundles import (
     bundle_deploy,
     bundle_destroy,
     pre_bundle_hook,
+    bundle_sync,
 )
 from brickflow.cli.configure import (
     _create_gitignore_if_not_exists,
@@ -520,6 +521,50 @@ def destroy_project(project: str, **kwargs: Any) -> None:
 def project_synth(**_: Any) -> None:
     # empty stub to invoke the pre_bundle_hook
     pass
+
+
+@projects.command(name="sync")
+@click.option(
+    "--watch",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Enable filewatcher to sync files over.",
+)
+@click.option(
+    "--full",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Run a full sync.",
+)
+@click.option(
+    "--interval-duration",
+    type=str,
+    show_default=True,
+    default=None,
+    help="File system polling interval (for --watch).",
+)
+@click.option(
+    "--debug",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Enable debug logs",
+)
+@apply_bundles_deployment_options
+def sync_project(project: str, **kwargs: Any) -> None:
+    """Sync project into databricks workspace from local. It is only unidirectional."""
+    bf_project = multi_project_manager.get_project(project)
+    dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
+    handle_libraries(**kwargs)
+    with use_project(project, bf_project, multi_project_manager.root(), dir_to_change):
+        bundle_sync(
+            workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
+        )
 
 
 @projects.command(name="synth")
