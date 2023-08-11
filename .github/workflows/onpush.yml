@@ -61,6 +61,13 @@ jobs:
           export GITHUB_ACTIONS=true
           make cov
 
+      - name: Publish test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          fail_ci_if_error: true
+
   deploy:
     name: Deploy to PyPi
     runs-on: ubuntu-latest
