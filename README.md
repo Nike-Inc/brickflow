@@ -9,15 +9,22 @@
 
 <p align="center">
 BrickFlow is specifically designed to enable the development of Databricks workflows using Python, streamlining the 
-process through a command-line interface (CLI) tool.
+process through a command-line interface (CLI) tool.</p>
 
-<img src="./docs/img/bf_logo_1.png" width="400" height="400">
+<p align="center">
+<img src=https://raw.githubusercontent.com/Nike-Inc/brickflow/master/docs/img/bf_logo_1.png width="400" height="400"></p>
 
 ---
 
 ### Documentation
 
 Brickflow documentation can be found [here](https://engineering.nike.com/brickflow/).
+
+### Installation
+
+```shell
+pip install brickflows
+```
 
 ### Contributors
 
