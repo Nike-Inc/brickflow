@@ -17,7 +17,7 @@ process through a command-line interface (CLI) tool.
 
 ### Documentation
 
-Brickflow documentation can be found [here]().
+Brickflow documentation can be found [here](https://engineering.nike.com/brickflow/).
 
 ### Contributors
 
