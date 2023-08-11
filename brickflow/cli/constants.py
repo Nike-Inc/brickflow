@@ -8,7 +8,6 @@ from brickflow import BrickflowEnvVars
 
 
 class BrickflowDeployMode(Enum):
-    CDKTF = "cdktf"
     BUNDLE = "bundle"
 
 

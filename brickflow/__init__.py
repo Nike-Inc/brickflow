@@ -60,10 +60,6 @@ class BrickflowEnvVars(Enum):
     BRICKFLOW_DEPLOY_ONLY_WORKFLOWS = "BRICKFLOW_DEPLOY_ONLY_WORKFLOWS"
     BRICKFLOW_WORKFLOW_PREFIX = "BRICKFLOW_WORKFLOW_PREFIX"
     BRICKFLOW_WORKFLOW_SUFFIX = "BRICKFLOW_WORKFLOW_SUFFIX"
-    BRICKFLOW_S3_BACKEND_BUCKET = "BRICKFLOW_S3_BACKEND_BUCKET"
-    BRICKFLOW_S3_BACKEND_KEY = "BRICKFLOW_S3_BACKEND_KEY"
-    BRICKFLOW_S3_BACKEND_REGION = "BRICKFLOW_S3_BACKEND_REGION"
-    BRICKFLOW_S3_BACKEND_DYNAMODB_TABLE = "BRICKFLOW_S3_BACKEND_DYNAMODB_TABLE"
     BRICKFLOW_INTERACTIVE_MODE = "BRICKFLOW_INTERACTIVE_MODE"
     BRICKFLOW_BUNDLE_BASE_PATH = "BRICKFLOW_BUNDLE_BASE_PATH"
     BRICKFLOW_BUNDLE_OBJ_NAME = "BRICKFLOW_BUNDLE_OBJ_NAME"
@@ -110,10 +106,6 @@ class BrickflowProjectDeploymentSettings:
         self.brickflow_deploy_only_workflows = Empty()
         self.brickflow_workflow_prefix = Empty()
         self.brickflow_workflow_suffix = Empty()
-        self.brickflow_s3_backend_bucket = Empty()
-        self.brickflow_s3_backend_key = Empty()
-        self.brickflow_s3_backend_region = Empty()
-        self.brickflow_s3_backend_dynamodb_table = Empty()
         self.brickflow_interactive_mode = Empty()
         self.brickflow_bundle_base_path = Empty()
         self.brickflow_bundle_obj_name = Empty()
@@ -332,6 +324,7 @@ __all__: List[str] = [
     "get_default_log_handler",
     "get_brickflow_version",
     "BrickflowProjectConstants",
+    "BrickflowProjectDeploymentSettings",
 ]
 
 # auto path resolver

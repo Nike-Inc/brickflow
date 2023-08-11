@@ -6,7 +6,6 @@ from typing import Dict, Optional, List, Generator, Any, Callable
 
 import click
 import yaml
-from click import ClickException
 from pydantic import BaseModel, Field
 
 from brickflow import (
@@ -275,62 +274,6 @@ def initialize_project_entrypoint(
             spark_expectations_version=spark_expectations_version,
         ),
     )
-
-
-# TODO: init is deprecated, remove in next major release
-@click.command(deprecated=True)
-@click.option("-n", "--project-name", type=str, prompt=INTERACTIVE_MODE)
-@click.option(
-    "-g",
-    "--git-https-url",
-    type=str,
-    prompt=INTERACTIVE_MODE,
-    help="Provide the github URL for your project, example: https://github.com/nike-eda-apla/brickflow",
-)
-@click.option(
-    "-wd",
-    "--workflows-dir",
-    default="src/workflows",
-    type=click.Path(exists=False, file_okay=False),
-    prompt=INTERACTIVE_MODE,
-)
-@click.option(
-    "-bfv",
-    "--brickflow-version",
-    default=DEFAULT_BRICKFLOW_VERSION_MODE,
-    type=str,
-    prompt=INTERACTIVE_MODE,
-)
-@click.option(
-    "-sev",
-    "--spark-expectations-version",
-    default="0.5.0",
-    type=str,
-    prompt=INTERACTIVE_MODE,
-)
-def init(
-    project_name: str,
-    git_https_url: str,
-    workflows_dir: str,
-    brickflow_version: str,
-    spark_expectations_version: str,
-) -> None:
-    """Initialize your project with Brickflow..."""
-    try:
-        _create_gitignore_if_not_exists()  # assumes you are at root
-        _update_gitignore()  # assumes you are at root
-    except Exception as e:
-        raise ClickException(
-            "An Exception occurred. Please make sure you create a .gitignore file in the root directory."
-        ) from e
-    initialize_project_entrypoint(
-        project_name,
-        git_https_url,
-        workflows_dir,
-        brickflow_version,
-        spark_expectations_version,
-    )
-    create_brickflow_project_root_marker()
 
 
 @click.group()

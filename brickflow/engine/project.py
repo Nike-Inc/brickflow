@@ -22,7 +22,6 @@ from brickflow import (
 from brickflow.cli import BrickflowDeployMode
 from brickflow.codegen import CodegenInterface
 from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
-from brickflow.codegen.hashicorp_cdktf import HashicorpCDKTFGen
 from brickflow.context import ctx, BrickflowInternalVariables
 from brickflow.engine import get_current_commit
 from brickflow.engine.task import (
@@ -55,9 +54,8 @@ class ExecuteError(Exception):
 class _Project:
     name: str
     git_repo: Optional[str] = None
-    provider: Optional[str] = None
+    provider: str = "github"
     git_reference: Optional[str] = None
-    s3_backend: Optional[Dict[str, str]] = None
     entry_point_path: Optional[str] = None
     workflows: Dict[str, Workflow] = field(default_factory=lambda: {})
     libraries: Optional[List[TaskLibrary]] = None
@@ -159,11 +157,9 @@ class Project:
     debug_execute_workflow: Optional[str] = None
     debug_execute_task: Optional[str] = None
     git_repo: Optional[str] = None
-    provider: Optional[str] = None
+    provider: str = "github"
     libraries: Optional[List[TaskLibrary]] = None
     git_reference: Optional[str] = None
-    # refer to: https://developer.hashicorp.com/terraform/language/settings/backends/s3
-    s3_backend: Optional[Dict[str, str]] = None
     entry_point_path: Optional[str] = None
     mode: Optional[str] = None
     batch: bool = True
@@ -235,24 +231,11 @@ class Project:
         self.git_repo = config(
             BrickflowEnvVars.BRICKFLOW_GIT_REPO.value, default=self.git_repo
         )
-        if self.s3_backend is None:
-            self.s3_backend = {
-                "bucket": config("BRICKFLOW_S3_BACKEND_BUCKET", default=None),
-                "key": config("BRICKFLOW_S3_BACKEND_KEY", default=None),
-                "region": config("BRICKFLOW_S3_BACKEND_REGION", default=None),
-                "dynamodb_table": config(
-                    "BRICKFLOW_S3_BACKEND_DYNAMODB_TABLE", default=None
-                ),
-            }
-            if all(value is None for value in self.s3_backend.values()):
-                self.s3_backend = None
 
         deployment_mode = config(
-            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value, default="cdktf"
+            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value, default="bundle"
         )
-        if deployment_mode == BrickflowDeployMode.CDKTF.value:
-            self.codegen_mechanism = HashicorpCDKTFGen
-        elif deployment_mode == BrickflowDeployMode.BUNDLE.value:
+        if deployment_mode == BrickflowDeployMode.BUNDLE.value:
             self.codegen_mechanism = DatabricksBundleCodegen
         if self.codegen_kwargs is None:
             self.codegen_kwargs = {}
@@ -278,7 +261,6 @@ class Project:
             self.git_repo,
             self.provider,
             self.git_reference,
-            self.s3_backend,
             self.entry_point_path,
             libraries=self.libraries,
             batch=self.batch,

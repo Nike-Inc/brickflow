@@ -18,13 +18,6 @@ def _call(cmd: str, **kwargs: bool) -> bytes:
     )
 
 
-def is_git_dirty() -> bool:
-    p = _call("git diff --stat", shell=True).decode("utf-8")
-    if len(p) > 10:
-        return True
-    return False
-
-
 def get_current_commit() -> str:
     p = _call('git log -n 1 --pretty=format:"%H"', shell=True)
     return p.strip().decode("utf-8")

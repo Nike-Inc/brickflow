@@ -25,10 +25,6 @@ class CodegenInterface(abc.ABC):
         pass
 
 
-class GitRepoIsDirtyError(Exception):
-    pass
-
-
 class DatabricksDefaultClusterTagKeys(Enum):
     ENVIRONMENT = "environment"
     DEPLOYED_BY = "deployed_by"
