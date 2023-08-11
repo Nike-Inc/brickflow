@@ -126,7 +126,6 @@ class Workflow:
     prefix: Optional[str] = None
     suffix: Optional[str] = None
     common_task_parameters: Optional[Dict[str, str]] = None
-    # TODO: Support for cdktf, only works for bundles atm
     run_as_user: Optional[str] = None
     run_as_service_principal: Optional[str] = None
     # this a databricks limit set on workflows, you can override it if you have exception

@@ -6,6 +6,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![PYPI version](https://img.shields.io/pypi/v/brickflows.svg)
 
 <p align="center">
 BrickFlow is specifically designed to enable the development of Databricks workflows using Python, streamlining the 
@@ -28,9 +29,9 @@ pip install brickflows
 
 ### Contributors
 
-Thanks to all the [contributors](CONTRIBUTORS.md) who have helped ideate, develop and bring Brickflow to its current state. 
+Thanks to all the [contributors](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTORS.md) who have helped ideate, develop and bring Brickflow to its current state. 
 
 ### Contributing
 
 We're delighted that you're interested in contributing to our project! To get started, 
-please carefully read and follow the guidelines provided in our [contributing](CONTRIBUTING.md) document.
+please carefully read and follow the guidelines provided in our [contributing](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTING.md) document.

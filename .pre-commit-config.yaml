@@ -7,7 +7,7 @@ repos:
         language: system
         files: '\.py$'
         pass_filenames: false
-        always_run: false
+        always_run: true
         stages: [commit]
       - id: make-cov
         name: Running Lint Checks & Test Suite
@@ -15,5 +15,5 @@ repos:
         language: system
         files: '\.py$'
         pass_filenames: false
-        always_run: false
+        always_run: true
         stages: [push]
