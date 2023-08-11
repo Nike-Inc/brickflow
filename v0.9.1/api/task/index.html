@@ -1,0 +1,4802 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Brickflow is a tool for managing and deploying scalable workflows on Databricks.">
+      
+      
+      
+        <link rel="canonical" href="https://brickflow.readthedocs.io/en/latest/v0.9.1/api/task/">
+      
+      
+        <link rel="prev" href="../compute/">
+      
+      
+        <link rel="next" href="../context/">
+      
+      <link rel="icon" href="../../img/bf_logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.12">
+    
+    
+      
+        <title>Task - BrickFlow</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../css/custom.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#brickflow.engine.task-classes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="BrickFlow" class="md-header__button md-logo" aria-label="BrickFlow" data-md-component="logo">
+      
+  <img src="../../img/bf_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            BrickFlow
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Task
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Nike-Inc/brickflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nike/brickflow
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../bundles-quickstart/" class="md-tabs__link">
+        Quickstart
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../highlevel/" class="md-tabs__link">
+        Concepts
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../cli/reference/" class="md-tabs__link">
+        CLI
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../limitations/" class="md-tabs__link">
+      Limitations
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../project/" class="md-tabs__link md-tabs__link--active">
+        Python API
+      </a>
+    </li>
+  
+
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="BrickFlow" class="md-nav__button md-logo" aria-label="BrickFlow" data-md-component="logo">
+      
+  <img src="../../img/bf_logo.png" alt="logo">
+
+    </a>
+    BrickFlow
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Nike-Inc/brickflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nike/brickflow
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          Quickstart
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Quickstart
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../bundles-quickstart/" class="md-nav__link">
+        Bundles (Recommended)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        CDKTF (Deprecated)
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../highlevel/" class="md-nav__link">
+        HighLevel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflows/" class="md-nav__link">
+        Workflows
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/" class="md-nav__link">
+        Tasks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../projects/" class="md-nav__link">
+        Projects
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../environment-variables/" class="md-nav__link">
+        ENV Variables
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          CLI
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          CLI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/reference/" class="md-nav__link">
+        Commands
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../limitations/" class="md-nav__link">
+        Limitations
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Python API
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Python API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" checked>
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+          Engine
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Engine
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../project/" class="md-nav__link">
+        Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow/" class="md-nav__link">
+        Workflow
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compute/" class="md-nav__link">
+        Compute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Task
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Task
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task" class="md-nav__link">
+    Task
+  </a>
+  
+    <nav class="md-nav" aria-label="Task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.brickflow_default_params" class="md-nav__link">
+    brickflow_default_params
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.builtin_notebook_params" class="md-nav__link">
+    builtin_notebook_params
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.cluster" class="md-nav__link">
+    cluster
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.custom_execute_callback" class="md-nav__link">
+    custom_execute_callback
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.custom_task_parameters" class="md-nav__link">
+    custom_task_parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.databricks_task_type_str" class="md-nav__link">
+    databricks_task_type_str
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.depends_on" class="md-nav__link">
+    depends_on
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.depends_on_names" class="md-nav__link">
+    depends_on_names
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.description" class="md-nav__link">
+    description
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.ensure_brickflow_plugins" class="md-nav__link">
+    ensure_brickflow_plugins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.libraries" class="md-nav__link">
+    libraries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.name" class="md-nav__link">
+    name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.parents" class="md-nav__link">
+    parents
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_func" class="md-nav__link">
+    task_func
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_func_name" class="md-nav__link">
+    task_func_name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_id" class="md-nav__link">
+    task_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_settings" class="md-nav__link">
+    task_settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_type" class="md-nav__link">
+    task_type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.trigger_rule" class="md-nav__link">
+    trigger_rule
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.workflow" class="md-nav__link">
+    workflow
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task-functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.execute" class="md-nav__link">
+    execute()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.get_obj_dict" class="md-nav__link">
+    get_obj_dict()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.get_runtime_parameter_values" class="md-nav__link">
+    get_runtime_parameter_values()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.handle_notebook_path" class="md-nav__link">
+    handle_notebook_path()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.is_valid_task_signature" class="md-nav__link">
+    is_valid_task_signature()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.should_skip" class="md-nav__link">
+    should_skip()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications" class="md-nav__link">
+    EmailNotifications
+  </a>
+  
+    <nav class="md-nav" aria-label="EmailNotifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.on_failure" class="md-nav__link">
+    on_failure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.on_start" class="md-nav__link">
+    on_start
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.on_success" class="md-nav__link">
+    on_success
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications-functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.to_tf_dict" class="md-nav__link">
+    to_tf_dict()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.JarTaskLibrary" class="md-nav__link">
+    JarTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="JarTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.JarTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.JarTaskLibrary.jar" class="md-nav__link">
+    jar
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EggTaskLibrary" class="md-nav__link">
+    EggTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="EggTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EggTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EggTaskLibrary.egg" class="md-nav__link">
+    egg
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.WheelTaskLibrary" class="md-nav__link">
+    WheelTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="WheelTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.WheelTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.WheelTaskLibrary.whl" class="md-nav__link">
+    whl
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary" class="md-nav__link">
+    PypiTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="PypiTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary.dict" class="md-nav__link">
+    dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary.package" class="md-nav__link">
+    package
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary.repo" class="md-nav__link">
+    repo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary" class="md-nav__link">
+    MavenTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="MavenTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.coordinates" class="md-nav__link">
+    coordinates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.dict" class="md-nav__link">
+    dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.exclusions" class="md-nav__link">
+    exclusions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.repo" class="md-nav__link">
+    repo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary" class="md-nav__link">
+    CranTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="CranTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary.dict" class="md-nav__link">
+    dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary.package" class="md-nav__link">
+    package
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary.repo" class="md-nav__link">
+    repo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule" class="md-nav__link">
+    BrickflowTriggerRule
+  </a>
+  
+    <nav class="md-nav" aria-label="BrickflowTriggerRule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule.ALL_SUCCESS" class="md-nav__link">
+    ALL_SUCCESS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule.NONE_FAILED" class="md-nav__link">
+    NONE_FAILED
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTaskEnvVars" class="md-nav__link">
+    BrickflowTaskEnvVars
+  </a>
+  
+    <nav class="md-nav" aria-label="BrickflowTaskEnvVars">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTaskEnvVars-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTaskEnvVars.BRICKFLOW_SELECT_TASKS" class="md-nav__link">
+    BRICKFLOW_SELECT_TASKS
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings" class="md-nav__link">
+    TaskSettings
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskSettings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.email_notifications" class="md-nav__link">
+    email_notifications
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.max_retries" class="md-nav__link">
+    max_retries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.min_retry_interval_millis" class="md-nav__link">
+    min_retry_interval_millis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.notification_settings" class="md-nav__link">
+    notification_settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.retry_on_timeout" class="md-nav__link">
+    retry_on_timeout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.timeout_seconds" class="md-nav__link">
+    timeout_seconds
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings-functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.merge" class="md-nav__link">
+    merge()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.to_tf_dict" class="md-nav__link">
+    to_tf_dict()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType" class="md-nav__link">
+    TaskType
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.BRICKFLOW_TASK" class="md-nav__link">
+    BRICKFLOW_TASK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.CUSTOM_PYTHON_TASK" class="md-nav__link">
+    CUSTOM_PYTHON_TASK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.DLT" class="md-nav__link">
+    DLT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.NOTEBOOK_TASK" class="md-nav__link">
+    NOTEBOOK_TASK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.SQL" class="md-nav__link">
+    SQL
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../context/" class="md-nav__link">
+        Context
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        CLI
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+          Brickflow Plugins
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          Brickflow Plugins
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_external_task_dependency/" class="md-nav__link">
+        AirflowTaskDependencySensor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_native_operators/" class="md-nav__link">
+        AirflowNativeOperators
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow_dependency_sensor/" class="md-nav__link">
+        WorkflowDependencySensor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../secrets/" class="md-nav__link">
+        Secrets
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task" class="md-nav__link">
+    Task
+  </a>
+  
+    <nav class="md-nav" aria-label="Task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.brickflow_default_params" class="md-nav__link">
+    brickflow_default_params
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.builtin_notebook_params" class="md-nav__link">
+    builtin_notebook_params
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.cluster" class="md-nav__link">
+    cluster
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.custom_execute_callback" class="md-nav__link">
+    custom_execute_callback
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.custom_task_parameters" class="md-nav__link">
+    custom_task_parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.databricks_task_type_str" class="md-nav__link">
+    databricks_task_type_str
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.depends_on" class="md-nav__link">
+    depends_on
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.depends_on_names" class="md-nav__link">
+    depends_on_names
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.description" class="md-nav__link">
+    description
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.ensure_brickflow_plugins" class="md-nav__link">
+    ensure_brickflow_plugins
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.libraries" class="md-nav__link">
+    libraries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.name" class="md-nav__link">
+    name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.parents" class="md-nav__link">
+    parents
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_func" class="md-nav__link">
+    task_func
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_func_name" class="md-nav__link">
+    task_func_name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_id" class="md-nav__link">
+    task_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_settings" class="md-nav__link">
+    task_settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.task_type" class="md-nav__link">
+    task_type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.trigger_rule" class="md-nav__link">
+    trigger_rule
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.workflow" class="md-nav__link">
+    workflow
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task-functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.execute" class="md-nav__link">
+    execute()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.get_obj_dict" class="md-nav__link">
+    get_obj_dict()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.get_runtime_parameter_values" class="md-nav__link">
+    get_runtime_parameter_values()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.handle_notebook_path" class="md-nav__link">
+    handle_notebook_path()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.is_valid_task_signature" class="md-nav__link">
+    is_valid_task_signature()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.Task.should_skip" class="md-nav__link">
+    should_skip()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications" class="md-nav__link">
+    EmailNotifications
+  </a>
+  
+    <nav class="md-nav" aria-label="EmailNotifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.on_failure" class="md-nav__link">
+    on_failure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.on_start" class="md-nav__link">
+    on_start
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.on_success" class="md-nav__link">
+    on_success
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications-functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EmailNotifications.to_tf_dict" class="md-nav__link">
+    to_tf_dict()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.JarTaskLibrary" class="md-nav__link">
+    JarTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="JarTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.JarTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.JarTaskLibrary.jar" class="md-nav__link">
+    jar
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EggTaskLibrary" class="md-nav__link">
+    EggTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="EggTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EggTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.EggTaskLibrary.egg" class="md-nav__link">
+    egg
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.WheelTaskLibrary" class="md-nav__link">
+    WheelTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="WheelTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.WheelTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.WheelTaskLibrary.whl" class="md-nav__link">
+    whl
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary" class="md-nav__link">
+    PypiTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="PypiTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary.dict" class="md-nav__link">
+    dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary.package" class="md-nav__link">
+    package
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.PypiTaskLibrary.repo" class="md-nav__link">
+    repo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary" class="md-nav__link">
+    MavenTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="MavenTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.coordinates" class="md-nav__link">
+    coordinates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.dict" class="md-nav__link">
+    dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.exclusions" class="md-nav__link">
+    exclusions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.MavenTaskLibrary.repo" class="md-nav__link">
+    repo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary" class="md-nav__link">
+    CranTaskLibrary
+  </a>
+  
+    <nav class="md-nav" aria-label="CranTaskLibrary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary.dict" class="md-nav__link">
+    dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary.package" class="md-nav__link">
+    package
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.CranTaskLibrary.repo" class="md-nav__link">
+    repo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule" class="md-nav__link">
+    BrickflowTriggerRule
+  </a>
+  
+    <nav class="md-nav" aria-label="BrickflowTriggerRule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule.ALL_SUCCESS" class="md-nav__link">
+    ALL_SUCCESS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTriggerRule.NONE_FAILED" class="md-nav__link">
+    NONE_FAILED
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTaskEnvVars" class="md-nav__link">
+    BrickflowTaskEnvVars
+  </a>
+  
+    <nav class="md-nav" aria-label="BrickflowTaskEnvVars">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTaskEnvVars-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.BrickflowTaskEnvVars.BRICKFLOW_SELECT_TASKS" class="md-nav__link">
+    BRICKFLOW_SELECT_TASKS
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings" class="md-nav__link">
+    TaskSettings
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskSettings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.email_notifications" class="md-nav__link">
+    email_notifications
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.max_retries" class="md-nav__link">
+    max_retries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.min_retry_interval_millis" class="md-nav__link">
+    min_retry_interval_millis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.notification_settings" class="md-nav__link">
+    notification_settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.retry_on_timeout" class="md-nav__link">
+    retry_on_timeout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.timeout_seconds" class="md-nav__link">
+    timeout_seconds
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings-functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.merge" class="md-nav__link">
+    merge()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskSettings.to_tf_dict" class="md-nav__link">
+    to_tf_dict()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType" class="md-nav__link">
+    TaskType
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.BRICKFLOW_TASK" class="md-nav__link">
+    BRICKFLOW_TASK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.CUSTOM_PYTHON_TASK" class="md-nav__link">
+    CUSTOM_PYTHON_TASK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.DLT" class="md-nav__link">
+    DLT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.NOTEBOOK_TASK" class="md-nav__link">
+    NOTEBOOK_TASK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow.engine.task.TaskType.SQL" class="md-nav__link">
+    SQL
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<div class="doc doc-object doc-module">
+
+
+
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+<h1 id="brickflow.engine.task-classes">Classes<a href="#brickflow.engine.task-classes" class="headerlink" title="Permanent link">&para;</a></h1>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.Task" class="doc doc-heading">
+          <code>brickflow.engine.task.Task</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.Task-attributes">Attributes<a href="#brickflow.engine.task.Task-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.brickflow_default_params" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">brickflow_default_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.brickflow_default_params" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.builtin_notebook_params" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">builtin_notebook_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.builtin_notebook_params" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.cluster" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">cluster</span><span class="p">:</span> <span class="n">Cluster</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.cluster" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.custom_execute_callback" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">custom_execute_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.custom_execute_callback" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.custom_task_parameters" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">custom_task_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.custom_task_parameters" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.databricks_task_type_str" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">databricks_task_type_str</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.databricks_task_type_str" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.depends_on" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">depends_on</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="p">[])</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.depends_on" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.depends_on_names" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">depends_on_names</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.depends_on_names" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.description" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.description" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.ensure_brickflow_plugins" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ensure_brickflow_plugins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.ensure_brickflow_plugins" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.libraries" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">libraries</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskLibrary</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span> <span class="p">:</span> <span class="p">[])</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.libraries" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.name" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.name" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.parents" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">parents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.parents" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.task_func" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">task_func</span><span class="p">:</span> <span class="n">Callable</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.task_func" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.task_func_name" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">task_func_name</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.task_func_name" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.task_id" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.task_id" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.task_settings" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">task_settings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskSettings</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.task_settings" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.task_type" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">task_type</span><span class="p">:</span> <span class="n">TaskType</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">BRICKFLOW_TASK</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.task_type" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.trigger_rule" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">trigger_rule</span><span class="p">:</span> <span class="n">BrickflowTriggerRule</span> <span class="o">=</span> <span class="n">BrickflowTriggerRule</span><span class="o">.</span><span class="n">ALL_SUCCESS</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.trigger_rule" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.Task.workflow" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">workflow</span><span class="p">:</span> <span class="n">Workflow</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.workflow" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<h3 id="brickflow.engine.task.Task-functions">Functions<a href="#brickflow.engine.task.Task-functions" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.Task.execute" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">execute</span><span class="p">(</span><span class="n">ignore_all_deps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span></code>
+
+<a href="#brickflow.engine.task.Task.execute" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-658">658</a></span>
+<span class="normal"><a href="#__codelineno-0-659">659</a></span>
+<span class="normal"><a href="#__codelineno-0-660">660</a></span>
+<span class="normal"><a href="#__codelineno-0-661">661</a></span>
+<span class="normal"><a href="#__codelineno-0-662">662</a></span>
+<span class="normal"><a href="#__codelineno-0-663">663</a></span>
+<span class="normal"><a href="#__codelineno-0-664">664</a></span>
+<span class="normal"><a href="#__codelineno-0-665">665</a></span>
+<span class="normal"><a href="#__codelineno-0-666">666</a></span>
+<span class="normal"><a href="#__codelineno-0-667">667</a></span>
+<span class="normal"><a href="#__codelineno-0-668">668</a></span>
+<span class="normal"><a href="#__codelineno-0-669">669</a></span>
+<span class="normal"><a href="#__codelineno-0-670">670</a></span>
+<span class="normal"><a href="#__codelineno-0-671">671</a></span>
+<span class="normal"><a href="#__codelineno-0-672">672</a></span>
+<span class="normal"><a href="#__codelineno-0-673">673</a></span>
+<span class="normal"><a href="#__codelineno-0-674">674</a></span>
+<span class="normal"><a href="#__codelineno-0-675">675</a></span>
+<span class="normal"><a href="#__codelineno-0-676">676</a></span>
+<span class="normal"><a href="#__codelineno-0-677">677</a></span>
+<span class="normal"><a href="#__codelineno-0-678">678</a></span>
+<span class="normal"><a href="#__codelineno-0-679">679</a></span>
+<span class="normal"><a href="#__codelineno-0-680">680</a></span>
+<span class="normal"><a href="#__codelineno-0-681">681</a></span>
+<span class="normal"><a href="#__codelineno-0-682">682</a></span>
+<span class="normal"><a href="#__codelineno-0-683">683</a></span>
+<span class="normal"><a href="#__codelineno-0-684">684</a></span>
+<span class="normal"><a href="#__codelineno-0-685">685</a></span>
+<span class="normal"><a href="#__codelineno-0-686">686</a></span>
+<span class="normal"><a href="#__codelineno-0-687">687</a></span>
+<span class="normal"><a href="#__codelineno-0-688">688</a></span>
+<span class="normal"><a href="#__codelineno-0-689">689</a></span>
+<span class="normal"><a href="#__codelineno-0-690">690</a></span>
+<span class="normal"><a href="#__codelineno-0-691">691</a></span>
+<span class="normal"><a href="#__codelineno-0-692">692</a></span>
+<span class="normal"><a href="#__codelineno-0-693">693</a></span>
+<span class="normal"><a href="#__codelineno-0-694">694</a></span>
+<span class="normal"><a href="#__codelineno-0-695">695</a></span>
+<span class="normal"><a href="#__codelineno-0-696">696</a></span>
+<span class="normal"><a href="#__codelineno-0-697">697</a></span>
+<span class="normal"><a href="#__codelineno-0-698">698</a></span>
+<span class="normal"><a href="#__codelineno-0-699">699</a></span>
+<span class="normal"><a href="#__codelineno-0-700">700</a></span>
+<span class="normal"><a href="#__codelineno-0-701">701</a></span>
+<span class="normal"><a href="#__codelineno-0-702">702</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-658" name="__codelineno-0-658"></a><span class="nd">@with_brickflow_logger</span>
+<a id="__codelineno-0-659" name="__codelineno-0-659"></a><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignore_all_deps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<a id="__codelineno-0-660" name="__codelineno-0-660"></a>    <span class="c1"># Workflow is:</span>
+<a id="__codelineno-0-661" name="__codelineno-0-661"></a>    <span class="c1">#   1. Check to see if there selected tasks and if there are is this task in the list</span>
+<a id="__codelineno-0-662" name="__codelineno-0-662"></a>    <span class="c1">#   2. Check to see if the previous task is skipped and trigger rule.</span>
+<a id="__codelineno-0-663" name="__codelineno-0-663"></a>    <span class="c1">#   3. Check to see if this a custom python task and execute it</span>
+<a id="__codelineno-0-664" name="__codelineno-0-664"></a>    <span class="c1">#   4. Execute the task function</span>
+<a id="__codelineno-0-665" name="__codelineno-0-665"></a>    <span class="n">_ilog</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>  <span class="c1"># enable logging for task execution</span>
+<a id="__codelineno-0-666" name="__codelineno-0-666"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">_set_current_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<a id="__codelineno-0-667" name="__codelineno-0-667"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_brickflow_plugins</span><span class="p">()</span>  <span class="c1"># if you are expecting brickflow plugins to be installed</span>
+<a id="__codelineno-0-668" name="__codelineno-0-668"></a>    <span class="k">if</span> <span class="n">ignore_all_deps</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+<a id="__codelineno-0-669" name="__codelineno-0-669"></a>        <span class="n">_ilog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-670" name="__codelineno-0-670"></a>            <span class="s2">&quot;Ignoring all dependencies for task: </span><span class="si">%s</span><span class="s2"> due to debugging&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+<a id="__codelineno-0-671" name="__codelineno-0-671"></a>        <span class="p">)</span>
+<a id="__codelineno-0-672" name="__codelineno-0-672"></a>    <span class="n">_select_task_skip</span><span class="p">,</span> <span class="n">_select_task_skip_reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skip_because_not_selected</span><span class="p">()</span>
+<a id="__codelineno-0-673" name="__codelineno-0-673"></a>    <span class="k">if</span> <span class="n">_select_task_skip</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">ignore_all_deps</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+<a id="__codelineno-0-674" name="__codelineno-0-674"></a>        <span class="c1"># check if this task is skipped due to task selection</span>
+<a id="__codelineno-0-675" name="__codelineno-0-675"></a>        <span class="n">_ilog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-676" name="__codelineno-0-676"></a>            <span class="s2">&quot;Skipping task... </span><span class="si">%s</span><span class="s2"> for reason: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-677" name="__codelineno-0-677"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-0-678" name="__codelineno-0-678"></a>            <span class="n">_select_task_skip_reason</span><span class="p">,</span>
+<a id="__codelineno-0-679" name="__codelineno-0-679"></a>        <span class="p">)</span>
+<a id="__codelineno-0-680" name="__codelineno-0-680"></a>        <span class="n">ctx</span><span class="o">.</span><span class="n">_reset_current_task</span><span class="p">()</span>
+<a id="__codelineno-0-681" name="__codelineno-0-681"></a>        <span class="k">return</span>
+<a id="__codelineno-0-682" name="__codelineno-0-682"></a>    <span class="n">_skip</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_skip</span><span class="p">()</span>
+<a id="__codelineno-0-683" name="__codelineno-0-683"></a>    <span class="k">if</span> <span class="n">_skip</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">ignore_all_deps</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+<a id="__codelineno-0-684" name="__codelineno-0-684"></a>        <span class="n">_ilog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping task... </span><span class="si">%s</span><span class="s2"> for reason: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">reason</span><span class="p">)</span>
+<a id="__codelineno-0-685" name="__codelineno-0-685"></a>        <span class="n">ctx</span><span class="o">.</span><span class="n">task_coms</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">BRANCH_SKIP_EXCEPT</span><span class="p">,</span> <span class="n">SKIP_EXCEPT_HACK</span><span class="p">)</span>
+<a id="__codelineno-0-686" name="__codelineno-0-686"></a>        <span class="n">ctx</span><span class="o">.</span><span class="n">_reset_current_task</span><span class="p">()</span>
+<a id="__codelineno-0-687" name="__codelineno-0-687"></a>        <span class="k">return</span>
+<a id="__codelineno-0-688" name="__codelineno-0-688"></a>
+<a id="__codelineno-0-689" name="__codelineno-0-689"></a>    <span class="n">_ilog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Executing task... </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<a id="__codelineno-0-690" name="__codelineno-0-690"></a>    <span class="n">_ilog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pretty_print_function_source</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_func</span><span class="p">))</span>
+<a id="__codelineno-0-691" name="__codelineno-0-691"></a>
+<a id="__codelineno-0-692" name="__codelineno-0-692"></a>    <span class="n">initial_resp</span><span class="p">:</span> <span class="n">TaskResponse</span> <span class="o">=</span> <span class="n">get_brickflow_tasks_hook</span><span class="p">()</span><span class="o">.</span><span class="n">task_execute</span><span class="p">(</span>
+<a id="__codelineno-0-693" name="__codelineno-0-693"></a>        <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow</span>
+<a id="__codelineno-0-694" name="__codelineno-0-694"></a>    <span class="p">)</span>
+<a id="__codelineno-0-695" name="__codelineno-0-695"></a>    <span class="n">resp</span><span class="p">:</span> <span class="n">TaskResponse</span> <span class="o">=</span> <span class="n">get_brickflow_tasks_hook</span><span class="p">()</span><span class="o">.</span><span class="n">handle_results</span><span class="p">(</span>
+<a id="__codelineno-0-696" name="__codelineno-0-696"></a>        <span class="n">resp</span><span class="o">=</span><span class="n">initial_resp</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow</span>
+<a id="__codelineno-0-697" name="__codelineno-0-697"></a>    <span class="p">)</span>
+<a id="__codelineno-0-698" name="__codelineno-0-698"></a>
+<a id="__codelineno-0-699" name="__codelineno-0-699"></a>    <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">push_return_value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+<a id="__codelineno-0-700" name="__codelineno-0-700"></a>        <span class="n">ctx</span><span class="o">.</span><span class="n">task_coms</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">RETURN_VALUE_KEY</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-0-701" name="__codelineno-0-701"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">_reset_current_task</span><span class="p">()</span>
+<a id="__codelineno-0-702" name="__codelineno-0-702"></a>    <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">response</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.Task.get_obj_dict" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_obj_dict</span><span class="p">(</span><span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
+
+<a href="#brickflow.engine.task.Task.get_obj_dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-529">529</a></span>
+<span class="normal"><a href="#__codelineno-0-530">530</a></span>
+<span class="normal"><a href="#__codelineno-0-531">531</a></span>
+<span class="normal"><a href="#__codelineno-0-532">532</a></span>
+<span class="normal"><a href="#__codelineno-0-533">533</a></span>
+<span class="normal"><a href="#__codelineno-0-534">534</a></span>
+<span class="normal"><a href="#__codelineno-0-535">535</a></span>
+<span class="normal"><a href="#__codelineno-0-536">536</a></span>
+<span class="normal"><a href="#__codelineno-0-537">537</a></span>
+<span class="normal"><a href="#__codelineno-0-538">538</a></span>
+<span class="normal"><a href="#__codelineno-0-539">539</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-529" name="__codelineno-0-529"></a><span class="k">def</span> <span class="nf">get_obj_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<a id="__codelineno-0-530" name="__codelineno-0-530"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-0-531" name="__codelineno-0-531"></a>        <span class="s2">&quot;notebook_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_notebook_path</span><span class="p">(</span><span class="n">entrypoint</span><span class="p">),</span>
+<a id="__codelineno-0-532" name="__codelineno-0-532"></a>        <span class="s2">&quot;base_parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-0-533" name="__codelineno-0-533"></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">builtin_notebook_params</span><span class="p">,</span>
+<a id="__codelineno-0-534" name="__codelineno-0-534"></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">brickflow_default_params</span><span class="p">,</span>
+<a id="__codelineno-0-535" name="__codelineno-0-535"></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_task_parameters</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-0-536" name="__codelineno-0-536"></a>            <span class="c1"># **(self.custom_unique_task_parameters or {}),</span>
+<a id="__codelineno-0-537" name="__codelineno-0-537"></a>            <span class="c1"># TODO: implement only after validating limit on parameters</span>
+<a id="__codelineno-0-538" name="__codelineno-0-538"></a>        <span class="p">},</span>
+<a id="__codelineno-0-539" name="__codelineno-0-539"></a>    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.Task.get_runtime_parameter_values" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_runtime_parameter_values</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
+
+<a href="#brickflow.engine.task.Task.get_runtime_parameter_values" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-598">598</a></span>
+<span class="normal"><a href="#__codelineno-0-599">599</a></span>
+<span class="normal"><a href="#__codelineno-0-600">600</a></span>
+<span class="normal"><a href="#__codelineno-0-601">601</a></span>
+<span class="normal"><a href="#__codelineno-0-602">602</a></span>
+<span class="normal"><a href="#__codelineno-0-603">603</a></span>
+<span class="normal"><a href="#__codelineno-0-604">604</a></span>
+<span class="normal"><a href="#__codelineno-0-605">605</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-598" name="__codelineno-0-598"></a><span class="k">def</span> <span class="nf">get_runtime_parameter_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<a id="__codelineno-0-599" name="__codelineno-0-599"></a>    <span class="c1"># if dbutils returns None then return v instead</span>
+<a id="__codelineno-0-600" name="__codelineno-0-600"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-0-601" name="__codelineno-0-601"></a>        <span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="ow">or</span> <span class="n">v</span><span class="p">)</span>
+<a id="__codelineno-0-602" name="__codelineno-0-602"></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span>
+<a id="__codelineno-0-603" name="__codelineno-0-603"></a>            <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_func</span><span class="p">)</span><span class="o">.</span><span class="n">kwonlydefaults</span> <span class="ow">or</span> <span class="p">{}</span>
+<a id="__codelineno-0-604" name="__codelineno-0-604"></a>        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<a id="__codelineno-0-605" name="__codelineno-0-605"></a>    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.Task.handle_notebook_path" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">handle_notebook_path</span><span class="p">(</span><span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.Task.handle_notebook_path" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-521">521</a></span>
+<span class="normal"><a href="#__codelineno-0-522">522</a></span>
+<span class="normal"><a href="#__codelineno-0-523">523</a></span>
+<span class="normal"><a href="#__codelineno-0-524">524</a></span>
+<span class="normal"><a href="#__codelineno-0-525">525</a></span>
+<span class="normal"><a href="#__codelineno-0-526">526</a></span>
+<span class="normal"><a href="#__codelineno-0-527">527</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-521" name="__codelineno-0-521"></a><span class="nd">@staticmethod</span>
+<a id="__codelineno-0-522" name="__codelineno-0-522"></a><span class="k">def</span> <span class="nf">handle_notebook_path</span><span class="p">(</span><span class="n">entrypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-523" name="__codelineno-0-523"></a>    <span class="c1"># local will get created as workspace notebook job and not a git source job</span>
+<a id="__codelineno-0-524" name="__codelineno-0-524"></a>    <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">env</span> <span class="o">==</span> <span class="n">BrickflowDefaultEnvs</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+<a id="__codelineno-0-525" name="__codelineno-0-525"></a>        <span class="c1"># check and ensure suffix has .py extension</span>
+<a id="__codelineno-0-526" name="__codelineno-0-526"></a>        <span class="k">return</span> <span class="n">entrypoint</span> <span class="k">if</span> <span class="n">entrypoint</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entrypoint</span><span class="si">}</span><span class="s2">.py&quot;</span>
+<a id="__codelineno-0-527" name="__codelineno-0-527"></a>    <span class="k">return</span> <span class="n">entrypoint</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.Task.is_valid_task_signature" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">is_valid_task_signature</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+
+<a href="#brickflow.engine.task.Task.is_valid_task_signature" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-555">555</a></span>
+<span class="normal"><a href="#__codelineno-0-556">556</a></span>
+<span class="normal"><a href="#__codelineno-0-557">557</a></span>
+<span class="normal"><a href="#__codelineno-0-558">558</a></span>
+<span class="normal"><a href="#__codelineno-0-559">559</a></span>
+<span class="normal"><a href="#__codelineno-0-560">560</a></span>
+<span class="normal"><a href="#__codelineno-0-561">561</a></span>
+<span class="normal"><a href="#__codelineno-0-562">562</a></span>
+<span class="normal"><a href="#__codelineno-0-563">563</a></span>
+<span class="normal"><a href="#__codelineno-0-564">564</a></span>
+<span class="normal"><a href="#__codelineno-0-565">565</a></span>
+<span class="normal"><a href="#__codelineno-0-566">566</a></span>
+<span class="normal"><a href="#__codelineno-0-567">567</a></span>
+<span class="normal"><a href="#__codelineno-0-568">568</a></span>
+<span class="normal"><a href="#__codelineno-0-569">569</a></span>
+<span class="normal"><a href="#__codelineno-0-570">570</a></span>
+<span class="normal"><a href="#__codelineno-0-571">571</a></span>
+<span class="normal"><a href="#__codelineno-0-572">572</a></span>
+<span class="normal"><a href="#__codelineno-0-573">573</a></span>
+<span class="normal"><a href="#__codelineno-0-574">574</a></span>
+<span class="normal"><a href="#__codelineno-0-575">575</a></span>
+<span class="normal"><a href="#__codelineno-0-576">576</a></span>
+<span class="normal"><a href="#__codelineno-0-577">577</a></span>
+<span class="normal"><a href="#__codelineno-0-578">578</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-555" name="__codelineno-0-555"></a><span class="k">def</span> <span class="nf">is_valid_task_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-556" name="__codelineno-0-556"></a>    <span class="c1"># only supports kwonlyargs with defaults</span>
+<a id="__codelineno-0-557" name="__codelineno-0-557"></a>    <span class="n">spec</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">FullArgSpec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_func</span><span class="p">)</span>
+<a id="__codelineno-0-558" name="__codelineno-0-558"></a>    <span class="n">sig</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_func</span><span class="p">)</span>
+<a id="__codelineno-0-559" name="__codelineno-0-559"></a>    <span class="n">signature_error_msg</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-560" name="__codelineno-0-560"></a>        <span class="s2">&quot;Task signatures only supports kwargs with defaults. or catch all varkw **kwargs&quot;</span>
+<a id="__codelineno-0-561" name="__codelineno-0-561"></a>        <span class="s2">&quot;For example def execute(*, variable_a=None, variable_b=None, **kwargs). &quot;</span>
+<a id="__codelineno-0-562" name="__codelineno-0-562"></a>        <span class="sa">f</span><span class="s2">&quot;Please fix function def </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">task_func_name</span><span class="si">}{</span><span class="n">sig</span><span class="si">}</span><span class="s2">: ...&quot;</span>
+<a id="__codelineno-0-563" name="__codelineno-0-563"></a>    <span class="p">)</span>
+<a id="__codelineno-0-564" name="__codelineno-0-564"></a>    <span class="n">kwargs_default_error_msg</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-565" name="__codelineno-0-565"></a>        <span class="sa">f</span><span class="s2">&quot;Keyword arguments must be Strings. &quot;</span>
+<a id="__codelineno-0-566" name="__codelineno-0-566"></a>        <span class="sa">f</span><span class="s2">&quot;Please handle booleans and numbers via strings. &quot;</span>
+<a id="__codelineno-0-567" name="__codelineno-0-567"></a>        <span class="sa">f</span><span class="s2">&quot;Please fix function def </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">task_func_name</span><span class="si">}{</span><span class="n">sig</span><span class="si">}</span><span class="s2">: ...&quot;</span>
+<a id="__codelineno-0-568" name="__codelineno-0-568"></a>    <span class="p">)</span>
+<a id="__codelineno-0-569" name="__codelineno-0-569"></a>
+<a id="__codelineno-0-570" name="__codelineno-0-570"></a>    <span class="n">valid_case</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">varargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">defaults</span> <span class="ow">is</span> <span class="kc">None</span>
+<a id="__codelineno-0-571" name="__codelineno-0-571"></a>    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">kwonlydefaults</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-0-572" name="__codelineno-0-572"></a>        <span class="c1"># in python boolean is a type of int must be captured here via short circuit</span>
+<a id="__codelineno-0-573" name="__codelineno-0-573"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-0-574" name="__codelineno-0-574"></a>            <span class="k">raise</span> <span class="n">InvalidTaskSignatureDefinition</span><span class="p">(</span><span class="n">kwargs_default_error_msg</span><span class="p">)</span>
+<a id="__codelineno-0-575" name="__codelineno-0-575"></a>    <span class="k">if</span> <span class="n">valid_case</span><span class="p">:</span>
+<a id="__codelineno-0-576" name="__codelineno-0-576"></a>        <span class="k">return</span>
+<a id="__codelineno-0-577" name="__codelineno-0-577"></a>
+<a id="__codelineno-0-578" name="__codelineno-0-578"></a>    <span class="k">raise</span> <span class="n">InvalidTaskSignatureDefinition</span><span class="p">(</span><span class="n">signature_error_msg</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.Task.should_skip" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">should_skip</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span></code>
+
+<a href="#brickflow.engine.task.Task.should_skip" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-613">613</a></span>
+<span class="normal"><a href="#__codelineno-0-614">614</a></span>
+<span class="normal"><a href="#__codelineno-0-615">615</a></span>
+<span class="normal"><a href="#__codelineno-0-616">616</a></span>
+<span class="normal"><a href="#__codelineno-0-617">617</a></span>
+<span class="normal"><a href="#__codelineno-0-618">618</a></span>
+<span class="normal"><a href="#__codelineno-0-619">619</a></span>
+<span class="normal"><a href="#__codelineno-0-620">620</a></span>
+<span class="normal"><a href="#__codelineno-0-621">621</a></span>
+<span class="normal"><a href="#__codelineno-0-622">622</a></span>
+<span class="normal"><a href="#__codelineno-0-623">623</a></span>
+<span class="normal"><a href="#__codelineno-0-624">624</a></span>
+<span class="normal"><a href="#__codelineno-0-625">625</a></span>
+<span class="normal"><a href="#__codelineno-0-626">626</a></span>
+<span class="normal"><a href="#__codelineno-0-627">627</a></span>
+<span class="normal"><a href="#__codelineno-0-628">628</a></span>
+<span class="normal"><a href="#__codelineno-0-629">629</a></span>
+<span class="normal"><a href="#__codelineno-0-630">630</a></span>
+<span class="normal"><a href="#__codelineno-0-631">631</a></span>
+<span class="normal"><a href="#__codelineno-0-632">632</a></span>
+<span class="normal"><a href="#__codelineno-0-633">633</a></span>
+<span class="normal"><a href="#__codelineno-0-634">634</a></span>
+<span class="normal"><a href="#__codelineno-0-635">635</a></span>
+<span class="normal"><a href="#__codelineno-0-636">636</a></span>
+<span class="normal"><a href="#__codelineno-0-637">637</a></span>
+<span class="normal"><a href="#__codelineno-0-638">638</a></span>
+<span class="normal"><a href="#__codelineno-0-639">639</a></span>
+<span class="normal"><a href="#__codelineno-0-640">640</a></span>
+<span class="normal"><a href="#__codelineno-0-641">641</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-613" name="__codelineno-0-613"></a><span class="k">def</span> <span class="nf">should_skip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<a id="__codelineno-0-614" name="__codelineno-0-614"></a>    <span class="c1"># return true or false and reason</span>
+<a id="__codelineno-0-615" name="__codelineno-0-615"></a>    <span class="n">node_skip_checks</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-616" name="__codelineno-0-616"></a>    <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
+<a id="__codelineno-0-617" name="__codelineno-0-617"></a>        <span class="k">if</span> <span class="n">parent</span> <span class="o">!=</span> <span class="n">ROOT_NODE</span><span class="p">:</span>
+<a id="__codelineno-0-618" name="__codelineno-0-618"></a>            <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-619" name="__codelineno-0-619"></a>                <span class="n">task_to_not_skip</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">task_coms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">BRANCH_SKIP_EXCEPT</span><span class="p">)</span>
+<a id="__codelineno-0-620" name="__codelineno-0-620"></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">task_to_not_skip</span><span class="p">:</span>
+<a id="__codelineno-0-621" name="__codelineno-0-621"></a>                    <span class="c1"># set this task to skip hack to keep to empty to trigger failure</span>
+<a id="__codelineno-0-622" name="__codelineno-0-622"></a>                    <span class="c1"># key look up will fail</span>
+<a id="__codelineno-0-623" name="__codelineno-0-623"></a>                    <span class="n">node_skip_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-624" name="__codelineno-0-624"></a>                <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-625" name="__codelineno-0-625"></a>                    <span class="n">node_skip_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-0-626" name="__codelineno-0-626"></a>            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<a id="__codelineno-0-627" name="__codelineno-0-627"></a>                <span class="c1"># ignore errors as it probably doesnt exist</span>
+<a id="__codelineno-0-628" name="__codelineno-0-628"></a>                <span class="c1"># TODO: log errors</span>
+<a id="__codelineno-0-629" name="__codelineno-0-629"></a>                <span class="n">node_skip_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-0-630" name="__codelineno-0-630"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">node_skip_checks</span><span class="p">:</span>
+<a id="__codelineno-0-631" name="__codelineno-0-631"></a>        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+<a id="__codelineno-0-632" name="__codelineno-0-632"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger_rule</span> <span class="o">==</span> <span class="n">BrickflowTriggerRule</span><span class="o">.</span><span class="n">NONE_FAILED</span><span class="p">:</span>
+<a id="__codelineno-0-633" name="__codelineno-0-633"></a>        <span class="c1"># by default a task failure automatically skips</span>
+<a id="__codelineno-0-634" name="__codelineno-0-634"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_skip_with_reason</span><span class="p">(</span>
+<a id="__codelineno-0-635" name="__codelineno-0-635"></a>            <span class="nb">all</span><span class="p">(</span><span class="n">node_skip_checks</span><span class="p">),</span>
+<a id="__codelineno-0-636" name="__codelineno-0-636"></a>            <span class="s2">&quot;At least one task before this were not successful&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-637" name="__codelineno-0-637"></a>        <span class="p">)</span>
+<a id="__codelineno-0-638" name="__codelineno-0-638"></a>    <span class="c1"># default is BrickflowTriggerRule.ALL_SUCCESS</span>
+<a id="__codelineno-0-639" name="__codelineno-0-639"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_skip_with_reason</span><span class="p">(</span>
+<a id="__codelineno-0-640" name="__codelineno-0-640"></a>        <span class="nb">any</span><span class="p">(</span><span class="n">node_skip_checks</span><span class="p">),</span> <span class="s2">&quot;All tasks before this were not successful&quot;</span>
+<a id="__codelineno-0-641" name="__codelineno-0-641"></a>    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.EmailNotifications" class="doc doc-heading">
+          <code>brickflow.engine.task.EmailNotifications</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.EmailNotifications" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.EmailNotifications-attributes">Attributes<a href="#brickflow.engine.task.EmailNotifications-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.EmailNotifications.on_failure" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">on_failure</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.EmailNotifications.on_failure" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.EmailNotifications.on_start" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">on_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.EmailNotifications.on_start" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.EmailNotifications.on_success" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">on_success</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.EmailNotifications.on_success" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<h3 id="brickflow.engine.task.EmailNotifications-functions">Functions<a href="#brickflow.engine.task.EmailNotifications-functions" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.EmailNotifications.to_tf_dict" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">to_tf_dict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span></code>
+
+<a href="#brickflow.engine.task.EmailNotifications.to_tf_dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-223">223</a></span>
+<span class="normal"><a href="#__codelineno-0-224">224</a></span>
+<span class="normal"><a href="#__codelineno-0-225">225</a></span>
+<span class="normal"><a href="#__codelineno-0-226">226</a></span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span>
+<span class="normal"><a href="#__codelineno-0-228">228</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="k">def</span> <span class="nf">to_tf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<a id="__codelineno-0-224" name="__codelineno-0-224"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a>        <span class="s2">&quot;on_start&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span><span class="p">,</span>
+<a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="s2">&quot;on_failure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_failure</span><span class="p">,</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a>        <span class="s2">&quot;on_success&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_success</span><span class="p">,</span>
+<a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.JarTaskLibrary" class="doc doc-heading">
+          <code>brickflow.engine.task.JarTaskLibrary</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.JarTaskLibrary" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="brickflow.engine.task.StorageBasedTaskLibrary">StorageBasedTaskLibrary</span></code></p>
+
+  
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>jar</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>String to s3/dbfs path for jar</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.JarTaskLibrary-attributes">Attributes<a href="#brickflow.engine.task.JarTaskLibrary-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.JarTaskLibrary.jar" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">jar</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.JarTaskLibrary.jar" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.EggTaskLibrary" class="doc doc-heading">
+          <code>brickflow.engine.task.EggTaskLibrary</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.EggTaskLibrary" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="brickflow.engine.task.StorageBasedTaskLibrary">StorageBasedTaskLibrary</span></code></p>
+
+  
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>egg</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>String to s3/dbfs path for egg</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.EggTaskLibrary-attributes">Attributes<a href="#brickflow.engine.task.EggTaskLibrary-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.EggTaskLibrary.egg" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">egg</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.EggTaskLibrary.egg" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.WheelTaskLibrary" class="doc doc-heading">
+          <code>brickflow.engine.task.WheelTaskLibrary</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.WheelTaskLibrary" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="brickflow.engine.task.StorageBasedTaskLibrary">StorageBasedTaskLibrary</span></code></p>
+
+  
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>whl</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>String to s3/dbfs path for whl</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.WheelTaskLibrary-attributes">Attributes<a href="#brickflow.engine.task.WheelTaskLibrary-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.WheelTaskLibrary.whl" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">whl</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.WheelTaskLibrary.whl" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.PypiTaskLibrary" class="doc doc-heading">
+          <code>brickflow.engine.task.PypiTaskLibrary</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.PypiTaskLibrary" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="brickflow.engine.task.TaskLibrary">TaskLibrary</span></code></p>
+
+  
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>package</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The package in pypi i.e. requests, requests==x.y.z, git+<a href="https://github.com/Nike-Inc/brickflow.git">https://github.com/Nike-Inc/brickflow.git</a></p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>repo</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The repository where the package can be found. By default pypi is used</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.PypiTaskLibrary-attributes">Attributes<a href="#brickflow.engine.task.PypiTaskLibrary-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.PypiTaskLibrary.dict" class="doc doc-heading">
+<code class="highlight language-python"><span class="nb">dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.PypiTaskLibrary.dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.PypiTaskLibrary.package" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">package</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.PypiTaskLibrary.package" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.PypiTaskLibrary.repo" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.PypiTaskLibrary.repo" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.MavenTaskLibrary" class="doc doc-heading">
+          <code>brickflow.engine.task.MavenTaskLibrary</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.MavenTaskLibrary" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="brickflow.engine.task.TaskLibrary">TaskLibrary</span></code></p>
+
+  
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>coordinates</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Gradle-style Maven coordinates. For example: org.jsoup:jsoup:1.7.2.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>repo</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Maven repo to install the Maven package from.
+If omitted, both Maven Central Repository and Spark Packages are searched.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>exclusions</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="typing.List">List</span>[str]]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of dependences to exclude. For example: ["slf4j:slf4j", "*:hadoop-client"].
+Maven dependency exclusions:
+<a href="https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html">https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html</a>.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.MavenTaskLibrary-attributes">Attributes<a href="#brickflow.engine.task.MavenTaskLibrary-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.MavenTaskLibrary.coordinates" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">coordinates</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.MavenTaskLibrary.coordinates" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.MavenTaskLibrary.dict" class="doc doc-heading">
+<code class="highlight language-python"><span class="nb">dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.MavenTaskLibrary.dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.MavenTaskLibrary.exclusions" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">exclusions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.MavenTaskLibrary.exclusions" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.MavenTaskLibrary.repo" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.MavenTaskLibrary.repo" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.CranTaskLibrary" class="doc doc-heading">
+          <code>brickflow.engine.task.CranTaskLibrary</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.CranTaskLibrary" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="brickflow.engine.task.TaskLibrary">TaskLibrary</span></code></p>
+
+  
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>package</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The name of the CRAN package to install.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>repo</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The repository where the package can be found. If not specified, the default CRAN repo is used.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.CranTaskLibrary-attributes">Attributes<a href="#brickflow.engine.task.CranTaskLibrary-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.CranTaskLibrary.dict" class="doc doc-heading">
+<code class="highlight language-python"><span class="nb">dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.CranTaskLibrary.dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.CranTaskLibrary.package" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">package</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.CranTaskLibrary.package" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.CranTaskLibrary.repo" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.CranTaskLibrary.repo" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.BrickflowTriggerRule" class="doc doc-heading">
+          <code>brickflow.engine.task.BrickflowTriggerRule</code>
+
+
+<a href="#brickflow.engine.task.BrickflowTriggerRule" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.BrickflowTriggerRule-attributes">Attributes<a href="#brickflow.engine.task.BrickflowTriggerRule-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.BrickflowTriggerRule.ALL_SUCCESS" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ALL_SUCCESS</span> <span class="o">=</span> <span class="s1">&#39;all_success&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.BrickflowTriggerRule.ALL_SUCCESS" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.BrickflowTriggerRule.NONE_FAILED" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">NONE_FAILED</span> <span class="o">=</span> <span class="s1">&#39;none_failed&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.BrickflowTriggerRule.NONE_FAILED" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.BrickflowTaskEnvVars" class="doc doc-heading">
+          <code>brickflow.engine.task.BrickflowTaskEnvVars</code>
+
+
+<a href="#brickflow.engine.task.BrickflowTaskEnvVars" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.BrickflowTaskEnvVars-attributes">Attributes<a href="#brickflow.engine.task.BrickflowTaskEnvVars-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.BrickflowTaskEnvVars.BRICKFLOW_SELECT_TASKS" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">BRICKFLOW_SELECT_TASKS</span> <span class="o">=</span> <span class="s1">&#39;BRICKFLOW_SELECT_TASKS&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.BrickflowTaskEnvVars.BRICKFLOW_SELECT_TASKS" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.TaskSettings" class="doc doc-heading">
+          <code>brickflow.engine.task.TaskSettings</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskSettings" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.TaskSettings-attributes">Attributes<a href="#brickflow.engine.task.TaskSettings-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.email_notifications" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">email_notifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EmailNotifications</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskSettings.email_notifications" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.max_retries" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">max_retries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskSettings.max_retries" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.min_retry_interval_millis" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">min_retry_interval_millis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskSettings.min_retry_interval_millis" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.notification_settings" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">notification_settings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskNotificationSettings</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskSettings.notification_settings" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.retry_on_timeout" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">retry_on_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskSettings.retry_on_timeout" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.timeout_seconds" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">timeout_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskSettings.timeout_seconds" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<h3 id="brickflow.engine.task.TaskSettings-functions">Functions<a href="#brickflow.engine.task.TaskSettings-functions" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.merge" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">merge</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;TaskSettings&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;TaskSettings&#39;</span></code>
+
+<a href="#brickflow.engine.task.TaskSettings.merge" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span>
+<span class="normal"><a href="#__codelineno-0-252">252</a></span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;TaskSettings&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;TaskSettings&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="c1"># overrides top level values</span>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a>        <span class="k">return</span> <span class="bp">self</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="k">return</span> <span class="n">TaskSettings</span><span class="p">(</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>        <span class="n">other</span><span class="o">.</span><span class="n">email_notifications</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_notifications</span><span class="p">,</span>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a>        <span class="n">other</span><span class="o">.</span><span class="n">notification_settings</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">notification_settings</span><span class="p">,</span>
+<a id="__codelineno-0-251" name="__codelineno-0-251"></a>        <span class="n">other</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-252" name="__codelineno-0-252"></a>        <span class="n">other</span><span class="o">.</span><span class="n">max_retries</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
+<a id="__codelineno-0-253" name="__codelineno-0-253"></a>        <span class="n">other</span><span class="o">.</span><span class="n">min_retry_interval_millis</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_retry_interval_millis</span><span class="p">,</span>
+<a id="__codelineno-0-254" name="__codelineno-0-254"></a>        <span class="n">other</span><span class="o">.</span><span class="n">retry_on_timeout</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_on_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-255" name="__codelineno-0-255"></a>    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow.engine.task.TaskSettings.to_tf_dict" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">to_tf_dict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]]</span></code>
+
+<a href="#brickflow.engine.task.TaskSettings.to_tf_dict" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow/engine/task.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-257">257</a></span>
+<span class="normal"><a href="#__codelineno-0-258">258</a></span>
+<span class="normal"><a href="#__codelineno-0-259">259</a></span>
+<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+<span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span>
+<span class="normal"><a href="#__codelineno-0-263">263</a></span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span>
+<span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span>
+<span class="normal"><a href="#__codelineno-0-267">267</a></span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span>
+<span class="normal"><a href="#__codelineno-0-269">269</a></span>
+<span class="normal"><a href="#__codelineno-0-270">270</a></span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span>
+<span class="normal"><a href="#__codelineno-0-272">272</a></span>
+<span class="normal"><a href="#__codelineno-0-273">273</a></span>
+<span class="normal"><a href="#__codelineno-0-274">274</a></span>
+<span class="normal"><a href="#__codelineno-0-275">275</a></span>
+<span class="normal"><a href="#__codelineno-0-276">276</a></span>
+<span class="normal"><a href="#__codelineno-0-277">277</a></span>
+<span class="normal"><a href="#__codelineno-0-278">278</a></span>
+<span class="normal"><a href="#__codelineno-0-279">279</a></span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span>
+<span class="normal"><a href="#__codelineno-0-281">281</a></span>
+<span class="normal"><a href="#__codelineno-0-282">282</a></span>
+<span class="normal"><a href="#__codelineno-0-283">283</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="k">def</span> <span class="nf">to_tf_dict</span><span class="p">(</span>
+<a id="__codelineno-0-258" name="__codelineno-0-258"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a>    <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-261" name="__codelineno-0-261"></a>    <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<a id="__codelineno-0-262" name="__codelineno-0-262"></a>    <span class="o">|</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<a id="__codelineno-0-263" name="__codelineno-0-263"></a>    <span class="o">|</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+<a id="__codelineno-0-264" name="__codelineno-0-264"></a>    <span class="o">|</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]],</span>
+<a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="p">]:</span>
+<a id="__codelineno-0-266" name="__codelineno-0-266"></a>    <span class="n">email_not</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-267" name="__codelineno-0-267"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">email_notifications</span><span class="o">.</span><span class="n">to_tf_dict</span><span class="p">()</span>
+<a id="__codelineno-0-268" name="__codelineno-0-268"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_notifications</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<a id="__codelineno-0-269" name="__codelineno-0-269"></a>        <span class="k">else</span> <span class="p">{}</span>
+<a id="__codelineno-0-270" name="__codelineno-0-270"></a>    <span class="p">)</span>
+<a id="__codelineno-0-271" name="__codelineno-0-271"></a>    <span class="n">notification_settings</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-272" name="__codelineno-0-272"></a>        <span class="p">{}</span>
+<a id="__codelineno-0-273" name="__codelineno-0-273"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">notification_settings</span> <span class="ow">is</span> <span class="kc">None</span>
+<a id="__codelineno-0-274" name="__codelineno-0-274"></a>        <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;notification_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">notification_settings</span><span class="o">.</span><span class="n">dict</span><span class="p">()}</span>
+<a id="__codelineno-0-275" name="__codelineno-0-275"></a>    <span class="p">)</span>
+<a id="__codelineno-0-276" name="__codelineno-0-276"></a>    <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a>        <span class="o">**</span><span class="n">notification_settings</span><span class="p">,</span>
+<a id="__codelineno-0-278" name="__codelineno-0-278"></a>        <span class="s2">&quot;email_notifications&quot;</span><span class="p">:</span> <span class="n">email_not</span><span class="p">,</span>
+<a id="__codelineno-0-279" name="__codelineno-0-279"></a>        <span class="s2">&quot;timeout_seconds&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_seconds</span><span class="p">,</span>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a>        <span class="s2">&quot;max_retries&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
+<a id="__codelineno-0-281" name="__codelineno-0-281"></a>        <span class="s2">&quot;min_retry_interval_millis&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_retry_interval_millis</span><span class="p">,</span>
+<a id="__codelineno-0-282" name="__codelineno-0-282"></a>        <span class="s2">&quot;retry_on_timeout&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_on_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-283" name="__codelineno-0-283"></a>    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow.engine.task.TaskType" class="doc doc-heading">
+          <code>brickflow.engine.task.TaskType</code>
+
+
+<a href="#brickflow.engine.task.TaskType" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow.engine.task.TaskType-attributes">Attributes<a href="#brickflow.engine.task.TaskType-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskType.BRICKFLOW_TASK" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">BRICKFLOW_TASK</span> <span class="o">=</span> <span class="s1">&#39;brickflow_task&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskType.BRICKFLOW_TASK" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskType.CUSTOM_PYTHON_TASK" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">CUSTOM_PYTHON_TASK</span> <span class="o">=</span> <span class="s1">&#39;custom_python_task&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskType.CUSTOM_PYTHON_TASK" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskType.DLT" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">DLT</span> <span class="o">=</span> <span class="s1">&#39;pipeline_task&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskType.DLT" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskType.NOTEBOOK_TASK" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">NOTEBOOK_TASK</span> <span class="o">=</span> <span class="s1">&#39;notebook_task&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskType.NOTEBOOK_TASK" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow.engine.task.TaskType.SQL" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">SQL</span> <span class="o">=</span> <span class="s1">&#39;sql_task&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow.engine.task.TaskType.SQL" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "content.tooltips", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c2be25ad.min.js"></script>
+      
+    
+  </body>
+</html>
