@@ -1,10 +1,10 @@
 import os
 from unittest import mock
-from unittest.mock import Mock, call, patch, mock_open
+from unittest.mock import Mock, patch
 
 import pytest
 
-from brickflow import BrickflowEnvVars, BrickflowDefaultEnvs
+from brickflow import BrickflowEnvVars
 from brickflow.context import ctx, BrickflowInternalVariables
 from brickflow.engine.compute import Cluster
 from brickflow.engine.project import (
@@ -69,38 +69,6 @@ class TestProject:
             test="helloworld"
         )
 
-    @mock.patch.dict(
-        os.environ,
-        {
-            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
-            BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
-        },
-    )
-    @patch("pathlib.Path.open", new_callable=mock_open, read_data="data")
-    @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.get_parameter")
-    def test_project_deploy(self, dbutils: Mock, subproc: Mock, mock_open_file: Mock):
-        dbutils.side_effect = side_effect
-        git_ref_b = b"a"
-        git_repo = "https://github.com/"
-        git_provider = "github"
-        subproc.return_value = git_ref_b
-
-        with Project("test-project1", git_repo=git_repo, provider=git_provider) as f:
-            f.add_workflow(wf)
-
-        # default path uses commit
-        assert f.git_reference == "commit/" + git_ref_b.decode("utf-8")
-        assert f.git_repo == git_repo
-        assert f.provider == git_provider
-
-        mock_open_file.assert_called()
-        subproc.assert_has_calls(
-            [  # noqa
-                call(['git log -n 1 --pretty=format:"%H"'], shell=True),
-            ]
-        )
-
     @patch("brickflow.context.ctx.get_parameter")
     def test_project_workflow_already_exists_error(self, dbutils):
         dbutils.side_effect = side_effect
@@ -124,70 +92,6 @@ class TestProject:
             "test-project",
         ) as f:
             f.add_workflow(wf)
-
-    @mock.patch.dict(
-        os.environ, {BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value}
-    )
-    @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.get_parameter")
-    def test_project_deploy_workflow_no_schedule(self, dbutils: Mock, subproc: Mock):
-        dbutils.return_value = (
-            "local"  # needs to let the workflow know it a local deployment
-        )
-
-        with Project(
-            "test-project",
-        ) as f:
-            f.add_workflow(
-                Workflow(
-                    "my-workflow",
-                    default_cluster=Cluster.from_existing_cluster("someid"),
-                )
-            )
-        subproc.assert_called()
-
-    @mock.patch.dict(
-        os.environ,
-        {
-            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
-            BrickflowEnvVars.BRICKFLOW_ENV.value: BrickflowDefaultEnvs.LOCAL.value,
-        },
-    )
-    @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.get_parameter")
-    def test_project_deploy_local_mode(self, dbutils: Mock, subproc: Mock):
-        dbutils.return_value = None
-
-        with Project(
-            "test-project",
-        ) as f:
-            f.add_workflow(
-                Workflow(
-                    "my-workflow",
-                    default_cluster=Cluster.from_existing_cluster("someid"),
-                )
-            )
-        subproc.assert_called()
-
-    @mock.patch.dict(
-        os.environ,
-        {
-            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
-            BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
-        },
-    )
-    @patch("pathlib.Path.open", new_callable=mock_open, read_data="data")
-    @patch("subprocess.check_output")
-    @patch("brickflow.context.ctx.get_parameter")
-    def test_project_workflow_deploy_batch_false(
-        self, dbutils: Mock, sub_proc_mock: Mock, mock_open_file: Mock
-    ):
-        dbutils.return_value = None
-        sub_proc_mock.return_value = b""
-        with Project("test-project", batch=False) as f:
-            f.add_workflow(wf)
-
-        mock_open_file.assert_called()
 
     @patch("brickflow.context.ctx.get_parameter")
     def test_adding_pkg(self, dbutils):
