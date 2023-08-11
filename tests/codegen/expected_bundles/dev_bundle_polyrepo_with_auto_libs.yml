@@ -27,7 +27,7 @@ environments:
               existing_cluster_id: some-id
               libraries:
                 - pypi:
-                    package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                    package: brickflows==0.1.0
                     repo: null
                 - pypi:
                     package: apache-airflow==2.6.3
@@ -96,7 +96,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
@@ -135,7 +135,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
@@ -149,7 +149,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
@@ -182,7 +182,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
@@ -214,7 +214,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
@@ -246,7 +246,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
@@ -277,7 +277,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
@@ -309,7 +309,7 @@ environments:
             existing_cluster_id: existing_cluster_id
             libraries:
             - pypi:
-                package: brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v0.1.0
+                package: brickflows==0.1.0
                 repo: null
             max_retries: null
             min_retry_interval_millis: null
