@@ -88,7 +88,7 @@ class CdktfCmd(click.Group):
 
 
 @click.group(invoke_without_command=True, no_args_is_help=True, cls=CdktfCmd)
-@click.version_option(prog_name="brickflow")
+@click.version_option(package_name="brickflows")
 def cli() -> None:
     """CLI for managing Databricks Workflows"""
 

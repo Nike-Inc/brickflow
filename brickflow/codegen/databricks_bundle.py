@@ -23,6 +23,7 @@ from brickflow import (
     _ilog,
     get_bundles_project_env,
     BrickflowEnvVars,
+    get_brickflow_version,
 )
 from brickflow.bundles.model import (
     Jobs,
@@ -92,6 +93,7 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
             DatabricksDefaultClusterTagKeys.DEPLOYED_BY.value: self._get_current_user_alphanumeric(),
             DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: ci.project.name,
             DatabricksDefaultClusterTagKeys.BRICKFLOW_DEPLOYMENT_MODE.value: "Databricks Asset Bundles",
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_VERSION.value: get_brickflow_version(),
         }
 
     def _rewrite_name(self, name: str) -> str:
