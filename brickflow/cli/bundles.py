@@ -89,7 +89,7 @@ def bundle_deploy(
     """CLI deploy the bundle."""
     deploy_args = ["deploy", "-e", get_bundles_project_env()]
     if force_acquire_lock is True:
-        deploy_args.append("--force")
+        deploy_args.append("--force-lock")
     exec_command(get_valid_bundle_cli(bundle_cli), "bundle", deploy_args)
 
 
@@ -105,7 +105,7 @@ def bundle_destroy(
     if auto_approve is True:
         destroy_args.append("--auto-approve")
     if force_acquire_lock is True:
-        destroy_args.append("--force")
+        destroy_args.append("--force-lock")
 
     exec_command(get_valid_bundle_cli(bundle_cli), "bundle", destroy_args)
 
