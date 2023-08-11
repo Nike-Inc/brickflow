@@ -38,7 +38,7 @@ def read_yaml_file(file_name: str):
 
 
 def assert_equal_dicts(actual: Dict[str, Any], expected: Dict[str, Any]):
-    diff = DeepDiff(actual, expected)
+    diff = DeepDiff(expected, actual)
     # pylint indicates that empty dictionary is falsey
     # diff should be empty dict
     assert not diff, diff
