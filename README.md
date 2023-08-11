@@ -28,9 +28,9 @@ pip install brickflows
 
 ### Contributors
 
-Thanks to all the [contributors](CONTRIBUTORS.md) who have helped ideate, develop and bring Brickflow to its current state. 
+Thanks to all the [contributors](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTORS.md) who have helped ideate, develop and bring Brickflow to its current state. 
 
 ### Contributing
 
 We're delighted that you're interested in contributing to our project! To get started, 
-please carefully read and follow the guidelines provided in our [contributing](CONTRIBUTING.md) document.
+please carefully read and follow the guidelines provided in our [contributing](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTING.md) document.
