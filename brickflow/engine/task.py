@@ -710,7 +710,7 @@ def filter_bf_related_libraries(
     resp: List[TaskLibrary] = []
     for lib in libraries:
         if isinstance(lib, PypiTaskLibrary):
-            if lib.package.startswith("brickflow") is True:
+            if lib.package.startswith("brickflows") is True:
                 continue
         if isinstance(lib, PypiTaskLibrary):
             if lib.package.startswith("apache-airflow") is True:
@@ -723,24 +723,43 @@ def filter_bf_related_libraries(
     return resp
 
 
-def is_sem_ver(v: str) -> bool:
+def is_semver(v: str) -> bool:
     return len(v.split(".")) >= 3
 
 
 def get_brickflow_lib_version(bf_version: str, cli_version: str) -> str:
-    cli_version_is_actual_tag = all(v.isnumeric() for v in cli_version.split("."))
-    if bf_version is not None and is_sem_ver(bf_version) is True:
+    bf_version = bf_version.lstrip(
+        "v"
+    )  # users can provide v1.0.0 we want to normalize it to 1.0.0; it could be a tag
+    cli_version_is_actual_tag = all(
+        v.isnumeric() for v in cli_version.split(".")
+    )  # is it a proper tag for pypi
+    bf_version_is_actual_tag = all(
+        v.isnumeric() for v in bf_version.split(".")
+    )  # is it a proper tag for pypi
+    # TODO: make these if conditions into sentences
+    if (
+        bf_version is not None
+        and is_semver(bf_version) is True
+        and bf_version_is_actual_tag is True
+    ):
+        bf_version = bf_version.lstrip("v")
+    elif (
+        bf_version is not None
+        and is_semver(bf_version) is True
+        and bf_version_is_actual_tag is False
+    ):
         bf_version = f"v{bf_version.lstrip('v')}"
     elif (
         bf_version is not None
         and bf_version == DEFAULT_BRICKFLOW_VERSION_MODE
         and cli_version_is_actual_tag is True
     ):
-        bf_version = f"v{cli_version}"
+        bf_version = cli_version
     elif (
         bf_version is not None
         and bf_version != DEFAULT_BRICKFLOW_VERSION_MODE
-        and is_sem_ver(bf_version) is False
+        and is_semver(bf_version) is False
     ):
         pass  # do nothing and use the version as is
     else:
@@ -753,18 +772,21 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
     bf_version = settings.brickflow_project_runtime_version
     cli_version = get_brickflow_version()
     bf_version = get_brickflow_lib_version(bf_version, cli_version)
+    is_bf_version_semver = is_semver(bf_version)
+    is_all_parts_numeric = all(v.isnumeric() for v in bf_version.split("."))
+
+    if is_bf_version_semver is True and is_all_parts_numeric is True:
+        bf_lib = PypiTaskLibrary(f"brickflows=={bf_version}")
+    else:
+        bf_lib = PypiTaskLibrary(
+            f"brickflows @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+        )
 
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
         return [
-            PypiTaskLibrary(
-                f"brickflow @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
-            ),
+            bf_lib,
             PypiTaskLibrary("apache-airflow==2.6.3"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:
-        return [
-            PypiTaskLibrary(
-                f"brickflow @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
-            ),
-        ]
+        return [bf_lib]

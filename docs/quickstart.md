@@ -53,9 +53,7 @@ The project relies on terraform and cdktf to deploy your python projects.
 1. Install brew if not installed already using - [brew-install](https://brew.sh/)
 2. Install node using `brew install node`
 3. Install cdktf-cli via `npm install -g cdktf-cli`
-4. Install the brickflow package via `pip install brickflow[deploy]`
-5. Install the cerberus if needed via `pip install brickflow[cerberus]`
-6. Install the airflow if needed via `pip install brickflow[airflow]`
+4. Install the brickflow package via `pip install brickflows`
 
 ## Setup Project
 

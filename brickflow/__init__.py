@@ -191,7 +191,7 @@ def get_entrypoint_python() -> str:
     return str(sys.executable)
 
 
-def get_brickflow_version(package_name: str = "brickflow") -> str:
+def get_brickflow_version(package_name: str = "brickflows") -> str:
     try:
         from importlib import metadata  # type: ignore
     except ImportError:

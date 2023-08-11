@@ -368,12 +368,13 @@ class TestTask:
         )
 
         input_outputs = [
-            InputOutput("1.0.0", "1.0.0", "v1.0.0"),
+            InputOutput("1.0.0", "1.0.0", "1.0.0"),
+            InputOutput("1.0.0rc12312", "1.0.0", "v1.0.0rc12312"),
             InputOutput("main", "1.0.0", "main"),
             InputOutput("auto", "0.1.0rcabc12e312", "main"),
-            InputOutput("auto", "0.1.0", "v0.1.0"),
+            InputOutput("auto", "0.1.0", "0.1.0"),
             InputOutput("auto", "something", "main"),
-            InputOutput("v1.0.0", "something", "v1.0.0"),
+            InputOutput("v1.0.0", "something", "1.0.0"),
         ]
         for input_output in input_outputs:
             settings.brickflow_project_runtime_version = input_output.bf_version
@@ -385,6 +386,7 @@ class TestTask:
             )
             settings.brickflow_project_runtime_version = None
 
+    # TODO: parameterize these tests
     def test_get_brickflow_libraries(self):
         settings = BrickflowProjectDeploymentSettings()
         settings.brickflow_project_runtime_version = "1.0.0"
@@ -393,9 +395,41 @@ class TestTask:
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
             "pypi": {
-                "package": "brickflow @ git+https://github.com/Nike-Inc/brickflow.git@v1.0.0",
+                "package": "brickflows==1.0.0",
                 "repo": None,
             }
         }
-        diff = DeepDiff(lib, expected)
+        diff = DeepDiff(expected, lib)
+        assert not diff, diff
+
+    def test_get_brickflow_libraries_semver_non_numeric(self):
+        settings = BrickflowProjectDeploymentSettings()
+        tag = "1.0.1rc1234"
+        settings.brickflow_project_runtime_version = tag
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 3
+        assert len(get_brickflow_libraries(enable_plugins=False)) == 1
+        lib = get_brickflow_libraries(enable_plugins=False)[0].dict
+        expected = {
+            "pypi": {
+                "package": f"brickflows @ git+https://github.com/Nike-Inc/brickflow.git@v{tag}",
+                "repo": None,
+            }
+        }
+        diff = DeepDiff(expected, lib)
+        assert not diff, diff
+
+    def test_get_brickflow_libraries_non_semver(self):
+        settings = BrickflowProjectDeploymentSettings()
+        tag = "somebranch"
+        settings.brickflow_project_runtime_version = tag
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 3
+        assert len(get_brickflow_libraries(enable_plugins=False)) == 1
+        lib = get_brickflow_libraries(enable_plugins=False)[0].dict
+        expected = {
+            "pypi": {
+                "package": f"brickflows @ git+https://github.com/Nike-Inc/brickflow.git@{tag}",
+                "repo": None,
+            }
+        }
+        diff = DeepDiff(expected, lib)
         assert not diff, diff
