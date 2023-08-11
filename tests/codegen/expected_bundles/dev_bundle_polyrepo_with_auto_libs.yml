@@ -19,6 +19,7 @@ environments:
           tags:
             brickflow_deployment_mode: Databricks Asset Bundles
             brickflow_project_name: test-project
+            brickflow_version: 1.0.0
             deployed_by: test_user
             environment: dev
           tasks:
@@ -88,6 +89,7 @@ environments:
             brickflow_project_name: test-project
             brickflow_deployment_mode: Databricks Asset Bundles
             deployed_by: test_user
+            brickflow_version: 1.0.0
             environment: dev
             test: test2
           tasks:

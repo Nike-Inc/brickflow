@@ -65,16 +65,17 @@ class TestBundleCodegen:
     )
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
+    @patch("importlib.metadata.version")
     def test_generate_bundle_local(
         self,
+        bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
-
+        bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
-
         # get caller part breaks here
         with Project(
             "test-project",
@@ -96,6 +97,7 @@ class TestBundleCodegen:
 
         actual = read_yaml_file(BUNDLE_FILE_NAME)
         expected = get_expected_bundle_yaml("local_bundle.yml")
+        bf_version_mock.assert_called_once()
         assert_equal_dicts(actual, expected)
         if os.path.exists(BUNDLE_FILE_NAME):
             os.remove(BUNDLE_FILE_NAME)
@@ -110,8 +112,10 @@ class TestBundleCodegen:
     )
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
+    @patch("importlib.metadata.version")
     def test_generate_bundle_dev(
         self,
+        bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
     ):
@@ -120,6 +124,7 @@ class TestBundleCodegen:
         git_repo = "https://github.com/"
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
+        bf_version_mock.return_value = "1.0.0"
 
         workspace_client = get_workspace_client_mock()
 
@@ -161,8 +166,10 @@ class TestBundleCodegen:
     )
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
+    @patch("importlib.metadata.version")
     def test_generate_bundle_dev_auto_add_libs(
         self,
+        bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
     ):
@@ -171,6 +178,7 @@ class TestBundleCodegen:
         git_repo = "https://github.com/"
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
+        bf_version_mock.return_value = "1.0.0"
 
         workspace_client = get_workspace_client_mock()
 
@@ -224,8 +232,10 @@ class TestBundleCodegen:
     )
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
+    @patch("importlib.metadata.version")
     def test_generate_bundle_dev_monorepo(
         self,
+        bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
     ):
@@ -234,6 +244,7 @@ class TestBundleCodegen:
         git_repo = "https://github.com/"
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
+        bf_version_mock.return_value = "1.0.0"
 
         workspace_client = get_workspace_client_mock()
 

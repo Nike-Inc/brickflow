@@ -35,6 +35,7 @@ environments:
             deployed_by: test_user
             environment: dev
             test: test2
+            brickflow_version: 1.0.0
           tasks:
           - depends_on: []
             email_notifications: {}

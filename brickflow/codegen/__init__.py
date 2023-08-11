@@ -35,6 +35,7 @@ class DatabricksDefaultClusterTagKeys(Enum):
     BRICKFLOW_PROJECT_NAME = "brickflow_project_name"
     BRICKFLOW_DEPLOYMENT_MODE = "brickflow_deployment_mode"
     DATABRICKS_TF_PROVIDER_VERSION = "databricks_tf_provider_version"
+    BRICKFLOW_VERSION = "brickflow_version"
 
 
 BRICKFLOW_BUILTIN_DEPLOY_TAGS = {
