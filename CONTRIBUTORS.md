@@ -1,5 +1,5 @@
 # Authors
-* [Ashok Singamaneni](https://github.com/asingamaneni)
+* [Ashok Singamaneni](https://www.linkedin.com/in/ashok-singamaneni-193b1a32/)
 * [Sriharsha Tikkireddy](https://github.com/stikkireddy)
 
 # Contributors
