@@ -50,14 +50,14 @@ class AirflowClusterAuth(abc.ABC):
 class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
     def __init__(
             self,
-            oauth2_connection_id: str,
+            oauth2_conn_id: str,
             airflow_cluster_url: str,
             airflow_version: str = None,
             get_airflow_version_callback: Callable[[str, str], str] = None,
     ):
         self._airflow_version = airflow_version
         self._get_airflow_version_callback = get_airflow_version_callback
-        self._oauth2_conn_id = oauth2_connection_id
+        self._oauth2_conn_id = oauth2_conn_id
         self._airflow_url = airflow_cluster_url.rstrip("/")
         if airflow_version is None and get_airflow_version_callback is None:
             raise Exception(
