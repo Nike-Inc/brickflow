@@ -287,6 +287,7 @@ from brickflow_plugins import TaskDependencySensor, AirflowProxyOktaClusterAuth
 
 wf = Workflow(...)
 
+
 @wf.task
 def airflow_external_task_dependency_sensor():
    import base64
@@ -300,7 +301,7 @@ def airflow_external_task_dependency_sensor():
       task_id="sensor",
       timeout=180,
       airflow_cluster_auth=AirflowProxyOktaClusterAuth(
-         okta_conn_id=f"b64://{data}",
+         oauth2_connection_id=f"b64://{data}",
          airflow_cluster_url="https://proxy.../.../cluster_id/",
          airflow_version="2.0.2",
       ),

@@ -1,4 +1,5 @@
 import abc
+import functools
 import json
 import logging
 from http import HTTPStatus
@@ -49,33 +50,35 @@ class AirflowClusterAuth(abc.ABC):
 class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
     def __init__(
             self,
-            okta_conn_id: str,
+            oauth2_connection_id: str,
             airflow_cluster_url: str,
             airflow_version: str = None,
             get_airflow_version_callback: Callable[[str, str], str] = None,
     ):
         self._airflow_version = airflow_version
         self._get_airflow_version_callback = get_airflow_version_callback
-        self._okta_conn: Connection = Connection.get_connection_from_secrets(
-            okta_conn_id
-        )
+        self._oauth2_conn_id = oauth2_connection_id
         self._airflow_url = airflow_cluster_url.rstrip("/")
         if airflow_version is None and get_airflow_version_callback is None:
             raise Exception(
                 "Either airflow_version or get_airflow_version_callback must be provided"
             )
 
+    @functools.lru_cache
+    def get_okta_conn(self):
+        return Connection.get_connection_from_secrets(self._oauth2_conn_id)
+
     def get_okta_url(self) -> str:
-        conn_type = self._okta_conn.conn_type
-        host = self._okta_conn.host
-        schema = self._okta_conn.schema
+        conn_type = self.get_okta_conn().conn_type
+        host = self.get_okta_conn().host
+        schema = self.get_okta_conn().schema
         return f"{conn_type}://{host}/{schema}"
 
     def get_okta_client_id(self) -> str:
-        return self._okta_conn.login
+        return self.get_okta_conn().login
 
     def get_okta_client_secret(self) -> str:
-        return self._okta_conn.get_password()
+        return self.get_okta_conn().get_password()
 
     def get_access_token(self) -> str:
         okta_url = self.get_okta_url()
@@ -220,7 +223,6 @@ class TaskDependencySensor(BaseSensorOperator):
             wf_id=self.external_dag_id,
             task_id=self.external_task_id,
             run_date=exec_time,
-            cluster_id=self.cluster_id,
         )
         log.info(f"task_status= {task_status}")
 
