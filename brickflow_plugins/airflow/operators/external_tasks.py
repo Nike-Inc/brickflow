@@ -1,17 +1,19 @@
+import abc
 import json
 import logging
-import os
 from http import HTTPStatus
+from typing import Callable
 
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 from airflow.models import Connection
 from airflow.sensors.base import BaseSensorOperator
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 from brickflow_plugins import log
 
 
-class MapDagSchedule:
+class DagSchedule:
     def get_schedule(self, wf_id: str, **args):
         """
         Function that the sensors defined while deriving this class should
@@ -19,9 +21,7 @@ class MapDagSchedule:
         """
         raise Exception("Override me.")
 
-    def get_task_run_status(
-        self, wf_id: str, task_id: str, run_date=None, cluster_id=None, **args
-    ):
+    def get_task_run_status(self, wf_id: str, task_id: str, run_date=None, **args):
         """
         Function that the sensors defined while deriving this class should
         override.
@@ -32,11 +32,38 @@ class MapDagSchedule:
 # TODO: implement Delta Json
 
 
-class MapDagScheduleHelper(MapDagSchedule):
-    def __init__(self, okta_conn_id: str):
+class AirflowClusterAuth(abc.ABC):
+    @abc.abstractmethod
+    def get_access_token(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def get_airflow_api_url(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def get_version(self) -> str:
+        pass
+
+
+class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
+    def __init__(
+            self,
+            okta_conn_id: str,
+            airflow_cluster_url: str,
+            airflow_version: str = None,
+            get_airflow_version_callback: Callable[[str, str], str] = None,
+    ):
+        self._airflow_version = airflow_version
+        self._get_airflow_version_callback = get_airflow_version_callback
         self._okta_conn: Connection = Connection.get_connection_from_secrets(
             okta_conn_id
         )
+        self._airflow_url = airflow_cluster_url.rstrip("/")
+        if airflow_version is None and get_airflow_version_callback is None:
+            raise Exception(
+                "Either airflow_version or get_airflow_version_callback must be provided"
+            )
 
     def get_okta_url(self) -> str:
         conn_type = self._okta_conn.conn_type
@@ -55,7 +82,6 @@ class MapDagScheduleHelper(MapDagSchedule):
         client_id = self.get_okta_client_id()
         client_secret = self.get_okta_client_secret()
 
-        okta_url = os.getenv("OKTA_URL", okta_url)
         payload = (
             "client_id="
             + client_id
@@ -80,37 +106,27 @@ class MapDagScheduleHelper(MapDagSchedule):
         token_data = response.json()["access_token"]
         return token_data
 
-    def get_airflow_api_url(self, cluster_id: str) -> str:
+    def get_airflow_api_url(self) -> str:
         # TODO: templatize this to a env variable
-        base_api_url = f"https://proxy.us-east-1.map.nike.com/{cluster_id}"
-        return base_api_url
+        return self._airflow_url
 
-    def get_version(self, cluster_id: str) -> str:
-        session = requests.Session()
-        retries = Retry(
-            total=10, backoff_factor=1, status_forcelist=[502, 503, 504, 500]
-        )
-        session.mount("https://", HTTPAdapter(max_retries=retries))
-        version_check_url = (
-            self.get_airflow_api_url(cluster_id) + "/admin/rest_api/api?api=version"
-        )
-        logging.info(version_check_url)
-        otoken = self.get_access_token()
-        headers = {"Authorization": "Bearer " + otoken, "Accept": "application/json"}
-        out_version = "UKN"
-        response = session.get(version_check_url, headers=headers, verify=False)
-        if response.status_code == HTTPStatus.OK:
-            out_version = response.json()["output"]
-        log.info(response.text.encode("utf8"))
-        session.close()
-        return out_version
+    def get_version(self) -> str:
+        if self._airflow_version is not None:
+            return self._airflow_version
+        else:
+            return self._get_airflow_version_callback(
+                self._airflow_url, self.get_access_token()
+            )
 
-    def get_task_run_status(
-        self, wf_id: str, task_id: str, run_date=None, cluster_id=None, **args
-    ):
-        token_data = self.get_access_token()
-        api_url = self.get_airflow_api_url(cluster_id)
-        version_nr = self.get_version(cluster_id)
+
+class AirflowScheduleHelper(DagSchedule):
+    def __init__(self, airflow_auth: AirflowClusterAuth):
+        self._airflow_auth = airflow_auth
+
+    def get_task_run_status(self, wf_id: str, task_id: str, run_date=None, **args):
+        token_data = self._airflow_auth.get_access_token()
+        api_url = self._airflow_auth.get_airflow_api_url()
+        version_nr = self._airflow_auth.get_version()
         dag_id = wf_id
         headers = {
             "Content-Type": "application/json",
@@ -162,28 +178,21 @@ class MapDagScheduleHelper(MapDagSchedule):
 
         return o_task_status
 
-    def get_schedule(self, wf_id: str, **kwargs):
-        """
-        get work flow schedule cron syntax
-        """
-        raise Exception("Do not have implementation")
-
 
 class TaskDependencySensor(BaseSensorOperator):
     def __init__(
         self,
         external_dag_id,
         external_task_id,
-        okta_conn_id,
+            airflow_cluster_auth: AirflowClusterAuth,
         allowed_states=None,
         execution_delta=None,
         execution_delta_json=None,
-        cluster_id=None,
         *args,
         **kwargs,
     ):
         super(TaskDependencySensor, self).__init__(*args, **kwargs)
-        self.okta_conn_id = okta_conn_id
+        self.airflow_auth = airflow_cluster_auth
         self.allowed_states = allowed_states or ["success"]
 
         if execution_delta_json and execution_delta:
@@ -196,7 +205,6 @@ class TaskDependencySensor(BaseSensorOperator):
         self.allowed_states = allowed_states
         self.execution_delta = execution_delta
         self.execution_delta_json = execution_delta_json
-        self.cluster_id = cluster_id
 
         self._poke_count = 0
         self.dbx_wf_id = kwargs.get("dbx_wf_id")
@@ -208,7 +216,7 @@ class TaskDependencySensor(BaseSensorOperator):
 
         exec_time = context["execution_date"]
 
-        task_status = MapDagScheduleHelper(self.okta_conn_id).get_task_run_status(
+        task_status = AirflowScheduleHelper(self.airflow_auth).get_task_run_status(
             wf_id=self.external_dag_id,
             task_id=self.external_task_id,
             run_date=exec_time,

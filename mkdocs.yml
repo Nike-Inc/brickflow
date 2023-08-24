@@ -22,6 +22,7 @@ theme:
     - content.code.annotate
     # - content.tabs.link
     - content.tooltips
+    - content.code.copy
     # - header.autohide
     # - navigation.expand
     - navigation.indexes
@@ -116,17 +117,18 @@ extra_css:
 nav:
   - Home: index.md
   - Quickstart:
-      - Bundles (Recommended): bundles-quickstart.md
-      - CDKTF (Deprecated): quickstart.md
+      - Brickflow Projects: bundles-quickstart.md
+      - Upgrading to v0.10.x: upgrades/upgrade-pre-0-10-0-to-0-10-0.md
   - Concepts:
       - HighLevel: highlevel.md
       - Workflows: workflows.md
       - Tasks: tasks.md
       - Projects: projects.md
       - ENV Variables: environment-variables.md
+      - Importing Modules: how-imports-work.md
+  - FAQ: faq/faq.md
   - CLI:
       - Commands: cli/reference.md
-  - Limitations: limitations.md
   - Python API:
       - Engine:
           - Project: api/project.md

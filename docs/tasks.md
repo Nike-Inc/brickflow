@@ -99,8 +99,8 @@ wf = Workflow(...)
 @wf.task
 def common_params():
     import some_pyspark_function  # (1)!
-    
-    catalog_env = ctx.dbutils_widget_get_or_else(key="catalog", debug="local")  # (2)!
+
+    catalog_env = ctx.get_parameter(key="catalog", debug="local")  # (2)!
     some_pyspark_function(catalog_env)  # (3)!
 ```
 
@@ -120,40 +120,40 @@ wf = Workflow(...)
 
 @wf.task
 def inbuilt_params():
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_env",  # (1)! 
         debug="local"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_run_id",  # (2)! 
         debug="788868"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_job_id",  # (3)! 
         debug="987987987987987"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_start_date",  # (4)! 
         debug="2023-05-03"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_start_time",  # (5)! 
         debug="1683102411626"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_task_retry_count",  # (6)! 
         debug="2"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_parent_run_id",  # (7)! 
         debug="788869"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_task_key",  # (8)! 
         debug="inbuilt_params"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_internal_workflow_name",  # (9)! 
         debug="Sample_Workflow"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_internal_task_name",  # (10)! 
         debug="inbuilt_params"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_internal_workflow_prefix",  # (11)! 
         debug="inbuilt_params"))
-    print(ctx.dbutils_widget_get_or_else(
+   print(ctx.get_parameter(
         key="brickflow_internal_workflow_suffix",  # (12)! 
         debug="inbuilt_params"))
 ```
@@ -222,22 +222,11 @@ def notebook_task():
 @wf.task(task_type=TaskType.DLT)
 def dlt_task():
     pass
-
-@wf.task(
-   task_type=TaskType.CUSTOM_PYTHON_TASK,  # (1)!
-   trigger_rule=BrickflowTriggerRule.NONE_FAILED,  # (2)!
-   custom_execute_callback=lambda x: TaskResponse(x.name, 
-                                                  push_return_value=True),  # (3)!
-)
-def custom_python_task():
-    pass
 ```
 
 1. Provide the task type that is to be used for this task. Default is a notebook task
 2. Trigger rule can be attached. It can be ALL_SUCCESS or NONE_FAILED. In this case, this task will be triggered, if all
    the upstream tasks are at-least run and completed.
-3. Custom function that have to be executed as a call back. "push_return_value" will assign the output to task values.
-   Task values can be compared to xcom values in airflow
 
 
 ### Trigger rules
@@ -294,7 +283,7 @@ Even if you migrate to databricks workflows, brickflow gives you the flexibility
 
 ```python title="task_dependency_sensor"
 from brickflow import Workflow, ctx
-from brickflow_plugins import TaskDependencySensor
+from brickflow_plugins import TaskDependencySensor, AirflowProxyOktaClusterAuth
 
 wf = Workflow(...)
 
@@ -310,12 +299,39 @@ def airflow_external_task_dependency_sensor():
    return TaskDependencySensor(
       task_id="sensor",
       timeout=180,
-      okta_conn_id=f"b64://{data}",
+      airflow_cluster_auth=AirflowProxyOktaClusterAuth(
+         okta_conn_id=f"b64://{data}",
+         airflow_cluster_url="https://proxy.../.../cluster_id/",
+         airflow_version="2.0.2",
+      ),
       external_dag_id="external_airlfow_dag",
       external_task_id="hello",
       allowed_states=["success"],
       execution_delta=None,
       execution_delta_json=None,
-      cluster_id="your_cluster_id",
    )
+```
+
+#### Workflow Dependency Sensor
+
+Wait for a workflow to finish before kicking off the current workflow's tasks
+
+```python title="workflow_dependency_sensor"
+from brickflow_plugins import WorkflowDependencySensor
+
+wf = Workflow(...)
+
+
+@wf.task
+def wait_on_workflow(*args):
+   sensor = WorkflowDependencySensor(
+      databricks_host="https://your_workspace_url.cloud.databricks.com",
+      databricks_secrets_scope="brickflow-demo-tobedeleted",
+      databricks_secrets_key="api_token_key",
+      dependency_job_id=job_id,
+      poke_interval=20,
+      timeout=60,
+      delta=timedelta(days=1)
+   )
+   sensor.execute()
 ```

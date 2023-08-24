@@ -9,7 +9,6 @@ import yaml
 from pydantic import BaseModel, Field
 
 from brickflow import (
-    get_brickflow_version,
     BrickflowProjectConstants,
     BrickflowDefaultEnvs,
     BrickflowEnvVars,
@@ -323,13 +322,6 @@ def use_project(
     help="Path from project root to workflows dir",
 )
 @click.option(
-    "--deployment-mode",
-    prompt="Deployment mode",
-    type=click.Choice([BrickflowDeployMode.BUNDLE.value]),
-    default=BrickflowDeployMode.BUNDLE.value,
-    help="Deployment mode",
-)
-@click.option(
     "-g",
     "--git-https-url",
     type=str,
@@ -339,7 +331,7 @@ def use_project(
 @click.option(
     "-bfv",
     "--brickflow-version",
-    default=get_brickflow_version(),
+    default=DEFAULT_BRICKFLOW_VERSION_MODE,
     type=str,
     prompt=INTERACTIVE_MODE,
 )
@@ -362,7 +354,6 @@ def add(
     name: str,
     path_from_repo_root_to_project_root: str,
     path_project_root_to_workflows_dir: str,
-    deployment_mode: str,
     git_https_url: str,
     brickflow_version: str,
     spark_expectations_version: str,
@@ -373,7 +364,7 @@ def add(
         name=name,
         path_from_repo_root_to_project_root=path_from_repo_root_to_project_root,
         path_project_root_to_workflows_dir=path_project_root_to_workflows_dir,
-        deployment_mode=deployment_mode,
+        deployment_mode=BrickflowDeployMode.BUNDLE.value,
     )
     multi_project_manager.add_project(project)
 
@@ -507,7 +498,7 @@ def handle_libraries(skip_libraries: Optional[bool] = None, **_: Any) -> None:
 @projects.command(name="destroy")
 @apply_bundles_deployment_options
 def destroy_project(project: str, **kwargs: Any) -> None:
-    """Destroy projects in the brickflow-multi-project.yml file"""
+    """Destroys the deployed resources and workflows in databricks for the project"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
     handle_libraries(**kwargs)
@@ -557,7 +548,8 @@ def project_synth(**_: Any) -> None:
 )
 @apply_bundles_deployment_options
 def sync_project(project: str, **kwargs: Any) -> None:
-    """Sync project into databricks workspace from local. It is only unidirectional."""
+    """Sync project file tree into databricks workspace from local.
+    It is only one way from local to databricks workspace."""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
     handle_libraries(**kwargs)
@@ -584,12 +576,14 @@ def synth_bundles_for_project(project: str, **kwargs: Any) -> None:
         project_synth(
             workflows_dir=bf_project.path_project_root_to_workflows_dir, **kwargs
         )
+    _ilog.info("SUCCESSFULLY SYNTHESIZED BUNDLE.YML FOR PROJECT %s", project)
 
 
 @projects.command(name="deploy")
 @apply_bundles_deployment_options
 def deploy_project(project: str, **kwargs: Any) -> None:
-    """Deploy projects in the brickflow-multi-project.yml file"""
+    """Deploy the resources and workflows to databricks for the project
+    configured in the brickflow-project-root.yml file"""
     bf_project = multi_project_manager.get_project(project)
     dir_to_change = multi_project_manager.get_project_ref(project).root_yaml_rel_path
     handle_libraries(**kwargs)
