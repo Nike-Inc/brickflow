@@ -392,6 +392,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -413,7 +415,21 @@
   
     <li class="md-nav__item">
       <a href="../bundles-quickstart/" class="md-nav__link">
-        Bundles (Recommended)
+        Brickflow Projects
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrades/upgrade-pre-0-10-0-to-0-10-0/" class="md-nav__link">
+        Upgrading to v0.10.x
       </a>
     </li>
   
@@ -1228,7 +1244,7 @@ the workflow level. Now in this section, we shall see how to use the common task
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">def</span> <span class="nf">common_params</span><span class="p">():</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="kn">import</span> <span class="nn">some_pyspark_function</span>  <span class="c1"># (1)!</span>
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">catalog_env</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;catalog&quot;</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>  <span class="c1"># (2)!</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">catalog_env</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;catalog&quot;</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>  <span class="c1"># (2)!</span>
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">some_pyspark_function</span><span class="p">(</span><span class="n">catalog_env</span><span class="p">)</span>  <span class="c1"># (3)!</span>
 </code></pre></div>
 <ol>
@@ -1245,40 +1261,40 @@ the workflow level. Now in this section, we shall see how to use the common task
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nd">@wf</span><span class="o">.</span><span class="n">task</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">def</span> <span class="nf">inbuilt_params</span><span class="p">():</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_env&quot;</span><span class="p">,</span>  <span class="c1"># (1)! </span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_run_id&quot;</span><span class="p">,</span>  <span class="c1"># (2)! </span>
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;788868&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_job_id&quot;</span><span class="p">,</span>  <span class="c1"># (3)! </span>
 <a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;987987987987987&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_start_date&quot;</span><span class="p">,</span>  <span class="c1"># (4)! </span>
 <a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;2023-05-03&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_start_time&quot;</span><span class="p">,</span>  <span class="c1"># (5)! </span>
 <a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;1683102411626&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_task_retry_count&quot;</span><span class="p">,</span>  <span class="c1"># (6)! </span>
 <a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;2&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_parent_run_id&quot;</span><span class="p">,</span>  <span class="c1"># (7)! </span>
 <a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;788869&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_task_key&quot;</span><span class="p">,</span>  <span class="c1"># (8)! </span>
 <a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;inbuilt_params&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_internal_workflow_name&quot;</span><span class="p">,</span>  <span class="c1"># (9)! </span>
 <a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;Sample_Workflow&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_internal_task_name&quot;</span><span class="p">,</span>  <span class="c1"># (10)! </span>
 <a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;inbuilt_params&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_internal_workflow_prefix&quot;</span><span class="p">,</span>  <span class="c1"># (11)! </span>
 <a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;inbuilt_params&quot;</span><span class="p">))</span>
-<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">dbutils_widget_get_or_else</span><span class="p">(</span>
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span>
 <a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;brickflow_internal_workflow_suffix&quot;</span><span class="p">,</span>  <span class="c1"># (12)! </span>
 <a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a>        <span class="n">debug</span><span class="o">=</span><span class="s2">&quot;inbuilt_params&quot;</span><span class="p">))</span>
 </code></pre></div>
@@ -1335,22 +1351,11 @@ brickflow is NOTEBOOK</p>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="nd">@wf</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">task_type</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">DLT</span><span class="p">)</span>
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">def</span> <span class="nf">dlt_task</span><span class="p">():</span>
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="k">pass</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="nd">@wf</span><span class="o">.</span><span class="n">task</span><span class="p">(</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>   <span class="n">task_type</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">CUSTOM_PYTHON_TASK</span><span class="p">,</span>  <span class="c1"># (1)!</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>   <span class="n">trigger_rule</span><span class="o">=</span><span class="n">BrickflowTriggerRule</span><span class="o">.</span><span class="n">NONE_FAILED</span><span class="p">,</span>  <span class="c1"># (2)!</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>   <span class="n">custom_execute_callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">TaskResponse</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> 
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>                                                  <span class="n">push_return_value</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>  <span class="c1"># (3)!</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="p">)</span>
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="k">def</span> <span class="nf">custom_python_task</span><span class="p">():</span>
-<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="k">pass</span>
 </code></pre></div>
 <ol>
 <li>Provide the task type that is to be used for this task. Default is a notebook task</li>
 <li>Trigger rule can be attached. It can be ALL_SUCCESS or NONE_FAILED. In this case, this task will be triggered, if all
    the upstream tasks are at-least run and completed.</li>
-<li>Custom function that have to be executed as a call back. "push_return_value" will assign the output to task values.
-   Task values can be compared to xcom values in airflow</li>
 </ol>
 <h3 id="trigger-rules">Trigger rules<a class="headerlink" href="#trigger-rules" title="Permanent link">&para;</a></h3>
 <p>There are two types of trigger rules that can be applied on a task. It can be either ALL_SUCCESS or NONE_FAILED</p>
@@ -1394,7 +1399,7 @@ type.</p>
 <h4 id="task-dependency-sensor">Task Dependency Sensor<a class="headerlink" href="#task-dependency-sensor" title="Permanent link">&para;</a></h4>
 <p>Even if you migrate to databricks workflows, brickflow gives you the flexibility to have a dependency on the airflow job</p>
 <div class="highlight"><span class="filename">task_dependency_sensor</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span> <span class="nn">brickflow</span> <span class="kn">import</span> <span class="n">Workflow</span><span class="p">,</span> <span class="n">ctx</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span> <span class="nn">brickflow_plugins</span> <span class="kn">import</span> <span class="n">TaskDependencySensor</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span> <span class="nn">brickflow_plugins</span> <span class="kn">import</span> <span class="n">TaskDependencySensor</span><span class="p">,</span> <span class="n">AirflowProxyOktaClusterAuth</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">wf</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
@@ -1410,14 +1415,17 @@ type.</p>
 <a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>   <span class="k">return</span> <span class="n">TaskDependencySensor</span><span class="p">(</span>
 <a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>      <span class="n">task_id</span><span class="o">=</span><span class="s2">&quot;sensor&quot;</span><span class="p">,</span>
 <a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>      <span class="n">timeout</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span>
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>      <span class="n">okta_conn_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;b64://</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>      <span class="n">external_dag_id</span><span class="o">=</span><span class="s2">&quot;external_airlfow_dag&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>      <span class="n">external_task_id</span><span class="o">=</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>      <span class="n">allowed_states</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">],</span>
-<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>      <span class="n">execution_delta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>      <span class="n">execution_delta_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>      <span class="n">cluster_id</span><span class="o">=</span><span class="s2">&quot;your_cluster_id&quot;</span><span class="p">,</span>
-<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>   <span class="p">)</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>      <span class="n">airflow_cluster_auth</span><span class="o">=</span><span class="n">AirflowProxyOktaClusterAuth</span><span class="p">(</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>            <span class="n">okta_conn_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;b64://</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>            <span class="n">airflow_cluster_url</span><span class="o">=</span><span class="s2">&quot;https://proxy.../.../cluster_id/&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>            <span class="n">airflow_version</span><span class="o">=</span><span class="s2">&quot;2.0.2&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>      <span class="p">),</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>      <span class="n">external_dag_id</span><span class="o">=</span><span class="s2">&quot;external_airlfow_dag&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>      <span class="n">external_task_id</span><span class="o">=</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>      <span class="n">allowed_states</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">],</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>      <span class="n">execution_delta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>      <span class="n">execution_delta_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>   <span class="p">)</span>
 </code></pre></div>
 
 
@@ -1456,7 +1464,7 @@ type.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.tooltips", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.tooltips", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.c2be25ad.min.js"></script>
