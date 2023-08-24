@@ -465,6 +465,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#confirming-the-setup" class="md-nav__link">
+    Confirming the setup
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#post-setup" class="md-nav__link">
     Post Setup
   </a>
@@ -990,6 +997,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#confirming-the-setup" class="md-nav__link">
+    Confirming the setup
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#post-setup" class="md-nav__link">
     Post Setup
   </a>
@@ -1056,16 +1070,32 @@
 </code></pre></div>
 </li>
 </ul>
+<h2 id="confirming-the-setup">Confirming the setup<a class="headerlink" href="#confirming-the-setup" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>To confirm the setup run the following command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bf<span class="w"> </span>--help
+</code></pre></div>
+</li>
+<li>
+<p>Also confirm the connectivity to databricks:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>databricks<span class="w"> </span>workspace<span class="w"> </span>list<span class="w"> </span>/
+</code></pre></div>
+  or if you have specific profile</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>databricks<span class="w"> </span>workspace<span class="w"> </span>list<span class="w"> </span>/<span class="w">  </span>--profile<span class="w"> </span>&lt;profile&gt;
+</code></pre></div>
+</li>
+</ul>
 <h2 id="post-setup">Post Setup<a class="headerlink" href="#post-setup" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>To deploy run the following command</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bf<span class="w"> </span>deploy<span class="w"> </span>--deploy-mode<span class="o">=</span>bundle<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;&lt;profile&gt;&quot;</span><span class="w"> </span>-wd<span class="w"> </span>&lt;workflows<span class="w"> </span>directory&gt;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>bf<span class="w"> </span>deploy<span class="w"> </span>--deploy-mode<span class="o">=</span>bundle<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;&lt;profile&gt;&quot;</span><span class="w"> </span>-wd<span class="w"> </span>&lt;workflows<span class="w"> </span>directory&gt;
 </code></pre></div>
 </li>
 <li>
 <p>To destroy run the following command</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bf<span class="w"> </span>destroy<span class="w"> </span>--deploy-mode<span class="o">=</span>bundle<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;&lt;profile&gt;&quot;</span><span class="w"> </span>-wd<span class="w"> </span>&lt;workflows<span class="w"> </span>directory&gt;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>bf<span class="w"> </span>destroy<span class="w"> </span>--deploy-mode<span class="o">=</span>bundle<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;&lt;profile&gt;&quot;</span><span class="w"> </span>-wd<span class="w"> </span>&lt;workflows<span class="w"> </span>directory&gt;
 </code></pre></div>
 </li>
 </ul>
