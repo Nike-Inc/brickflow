@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "brickflows"
-version = "0.0.1-pre.12+92390c7"
+version = "0.0.1-pre.36+4a13620"
 description = "Deploy scalable workflows to databricks using python"
 authors = ["Ashok Singamaneni, Sriharsha Tikkireddy"]
 readme = "README.md"
