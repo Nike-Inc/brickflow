@@ -232,8 +232,11 @@ The first step is to create a new project.
     Please note that if you are an advanced user and understand the concepts of both files described above, 
     you can manually create the files thats brickflow projects add creates.
 
-1. `brickflow projects add`
-2. Update your .gitignore file with the correct directories to ignore.
+1. Run the following command:
+```
+bf projects add
+```
+2. Update your .gitignore file with the correct directories to ignore. `.databricks` and `bundle.yml` should be ignored.
 
 * It will prompt you for the:
 

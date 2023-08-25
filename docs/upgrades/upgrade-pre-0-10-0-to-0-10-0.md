@@ -5,14 +5,23 @@ search:
 
 ## Upgrade checklist
 
-* [x] Update brickflow version to 0.10.0
+* [x] The package has been renamed from `brickflow` to `brickflows`. Please run:
+
     ```
-    pip install brickflows --upgrade
+    pip uninstall brickflow
+    ```
+    
+    and then
+    
+    ```
+    pip install brickflows>=0.10.0
     bf --version
     ```
 
 * [x] If you are upgrading from a CDKTF version of brickflow then do not worry, the existing workflows as long as you do
   not change their names will be imported.
+
+* [x] Start using project configurations following the [quickstart guide](../../bundles-quickstart/#brickflow-projects-setup).
 
 * [x] Confirm the existence of the following files:
 
@@ -29,7 +38,7 @@ search:
 * [x] Ensure import for brickflow is at the top of your entrypoint.py
 
 
-* [x] Ensure your entrypoint looks like this:
+* [x] Ensure your entrypoint looks like this. **Make sure to click the plus buttons and read the highlighted sections**:
 
 ```python linenums="1" hl_lines="5 7 15 18"
 # Databricks notebook source
