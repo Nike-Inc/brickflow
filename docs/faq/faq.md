@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 ## How do I enable airflow features?
 
 !!! warning

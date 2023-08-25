@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 
 ::: brickflow_plugins.airflow.operators.external_tasks
     handler: python

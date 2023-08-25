@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3 
+---
+
 ### Prerequisites
 
 1. Install Locally (optional):
@@ -38,7 +43,7 @@
     databricks workspace list /  --profile <profile>
     ```
 
-## Brickflow Projects
+## Brickflow Projects Setup
 
 Brickflow introduced projects in version 0.9.2 for managing mono repos with multiple projects or workflows that need
 to be deployed in groups. It helps with the following things:
@@ -128,14 +133,14 @@ Folder structure:
     version: v1
     ```
 
-   The important fields are:
+The important fields are:
 
-    * path_from_repo_root_to_project_root: This is the path from the repo root to the project root. This is the path
-      that will be used to find the entrypoint file.
-    * path_project_root_to_workflows_dir: This is the path from the project .git root and is used to find and load
-      modules into python
-        * This is what helps you make your imports work in your notebooks. It is the path from the project root to the
-          workflows directory.
+* **path_from_repo_root_to_project_root**: This is the path from the repo root to the project root. This is the path
+  that will be used to find the entrypoint file.
+* **path_project_root_to_workflows_dir**: This is the path from the project .git root and is used to find and load
+  modules into python
+    * This is what helps you make your imports work in your notebooks. It is the path from the project root to the
+      workflows directory.
 
 ### Polyrepo Style
 
@@ -270,8 +275,7 @@ Skip entrypoint [y/N]: # (7)!
 
 * Anything else would indicate an error.
 
-  
-## gitignore
+### gitignore
 
 * For now all the bundle.yml files will be code generated so you can add the following to your .gitignore file:
 
@@ -279,15 +283,77 @@ Skip entrypoint [y/N]: # (7)!
     **/bundle.yml
     ```
 
-
-
-## Post Setup
+## Deploying your Project
 
 * To deploy the workflow run the following command
 
     ```shell
     bf projects deploy --project <project> -p <profile> --force-acquire-lock # force acquire lock is optional
     ```
+
+  By default this will deploy to local.
+
+!!! important
+
+    Keep in mind that environments are logical, your profile controls where the workflows are deployed and your code 
+    may have business logic based on which environment you are on.
+
+If you want to deploy to a higher environment you can use the following command:
+
+* dev:
+
+    ```shell
+    bf projects deploy --project <project> -p <profile> -e dev --force-acquire-lock # force acquire lock is optional
+    ```
+
+* test:
+
+    ```shell
+    bf projects deploy --project <project> -p <profile> -e test --force-acquire-lock # force acquire lock is optional
+    ```
+
+* prod:
+
+    ```shell
+    bf projects deploy --project <project> -p <profile> -e prod --force-acquire-lock # force acquire lock is optional
+    ```
+
+#### Deployments By Release Candidates or PRs
+
+Sometimes you may want to deploy multiple RC branches into the same "test" environment. Your objective will be to:
+
+1. Deploy the workflows
+2. Run and test the workflows
+3. Destroy the workflows after confirming the tests pass
+
+To do this you can use the `BRICKFLOW_WORKFLOW_PREFIX` and `BRICKFLOW_WORKFLOW_SUFFIX` environment variables.
+
+* Doing it based on release candidates
+
+```shell
+BRICKFLOW_WORKFLOW_SUFFIX="0.1.0-rc1" bf projects deploy --project <project> -p <profile> -e test --force-acquire-lock # force acquire lock is optional
+```
+
+* Doing it based on PRs
+
+```shell
+BRICKFLOW_WORKFLOW_SUFFIX="0.1.0-pr34" bf projects deploy --project <project> -p <profile> -e test --force-acquire-lock # force acquire lock is optional
+```
+
+Make sure when using the suffix and prefix that you destroy them, they are considered independent deployments and have
+their own state.
+
+```shell
+BRICKFLOW_WORKFLOW_SUFFIX="0.1.0-rc1" bf projects destroy --project <project> -p <profile> -e test --force-acquire-lock # force acquire lock is optional
+```
+
+* Doing it based on PRs
+
+```shell
+BRICKFLOW_WORKFLOW_SUFFIX="0.1.0-pr34" bf projects destroy --project <project> -p <profile> -e test --force-acquire-lock # force acquire lock is optional
+```
+
+## Destroying your project
 
 * To destroy the workflow run the following command
 

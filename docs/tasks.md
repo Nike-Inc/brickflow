@@ -253,7 +253,7 @@ def all_success_task():
 1. NONE_FAILED - use this if you want to trigger the task irrespective of the upstream tasks success or failure state
 2. ALL_SUCCESS - use this if you want to trigger the task only if all the upstream tasks are all having success state
 
-### Operators
+### Airflow Operators
 
 We have adopted/extended certain airflow operators that might be needed to run as a task in databricks workflows.
 Typically for airflow operators we return the operator and brickflow will execute the operator based on task return
@@ -301,7 +301,7 @@ def airflow_external_task_dependency_sensor():
       task_id="sensor",
       timeout=180,
       airflow_cluster_auth=AirflowProxyOktaClusterAuth(
-         oauth2_connection_id=f"b64://{data}",
+         oauth2_conn_id=f"b64://{data}",
          airflow_cluster_url="https://proxy.../.../cluster_id/",
          airflow_version="2.0.2",
       ),

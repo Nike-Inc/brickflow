@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 
 ::: brickflow_plugins.secrets
     handler: python

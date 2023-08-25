@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 
 This page provides documentation for our command line tools.
 

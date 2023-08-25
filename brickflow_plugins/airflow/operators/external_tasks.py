@@ -1,5 +1,4 @@
 import abc
-import functools
 import json
 import logging
 from http import HTTPStatus
@@ -64,7 +63,6 @@ class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
                 "Either airflow_version or get_airflow_version_callback must be provided"
             )
 
-    @functools.lru_cache
     def get_okta_conn(self):
         return Connection.get_connection_from_secrets(self._oauth2_conn_id)
 
@@ -126,7 +124,7 @@ class AirflowScheduleHelper(DagSchedule):
     def __init__(self, airflow_auth: AirflowClusterAuth):
         self._airflow_auth = airflow_auth
 
-    def get_task_run_status(self, wf_id: str, task_id: str, run_date=None, **args):
+    def get_task_run_status(self, wf_id: str, task_id: str, run_date=None, **kwargs):
         token_data = self._airflow_auth.get_access_token()
         api_url = self._airflow_auth.get_airflow_api_url()
         version_nr = self._airflow_auth.get_version()
@@ -210,7 +208,6 @@ class TaskDependencySensor(BaseSensorOperator):
         self.execution_delta_json = execution_delta_json
 
         self._poke_count = 0
-        self.dbx_wf_id = kwargs.get("dbx_wf_id")
 
     def poke(self, context):
         log.info(f"executing poke.. {self._poke_count}")

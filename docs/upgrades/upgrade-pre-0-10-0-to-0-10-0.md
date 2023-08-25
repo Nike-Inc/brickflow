@@ -1,3 +1,8 @@
+---
+search:
+  boost: 2 
+---
+
 ## Upgrade checklist
 
 * [x] Update brickflow version to 0.10.0
