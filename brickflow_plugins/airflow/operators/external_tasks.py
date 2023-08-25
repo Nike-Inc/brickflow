@@ -48,11 +48,11 @@ class AirflowClusterAuth(abc.ABC):
 
 class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
     def __init__(
-            self,
-            oauth2_conn_id: str,
-            airflow_cluster_url: str,
-            airflow_version: str = None,
-            get_airflow_version_callback: Callable[[str, str], str] = None,
+        self,
+        oauth2_conn_id: str,
+        airflow_cluster_url: str,
+        airflow_version: str = None,
+        get_airflow_version_callback: Callable[[str, str], str] = None,
     ):
         self._airflow_version = airflow_version
         self._get_airflow_version_callback = get_airflow_version_callback
@@ -185,7 +185,7 @@ class TaskDependencySensor(BaseSensorOperator):
         self,
         external_dag_id,
         external_task_id,
-            airflow_cluster_auth: AirflowClusterAuth,
+        airflow_cluster_auth: AirflowClusterAuth,
         allowed_states=None,
         execution_delta=None,
         execution_delta_json=None,

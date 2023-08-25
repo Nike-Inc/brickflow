@@ -303,7 +303,7 @@ def airflow_external_task_dependency_sensor():
       airflow_cluster_auth=AirflowProxyOktaClusterAuth(
          oauth2_conn_id=f"b64://{data}",
          airflow_cluster_url="https://proxy.../.../cluster_id/",
-         airflow_version="2.0.2",
+         airflow_version="2.0.2", # if you are using airflow 1.x please make sure this is the right value, the apis are different between them!
       ),
       external_dag_id="external_airlfow_dag",
       external_task_id="hello",
