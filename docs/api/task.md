@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 
 ::: brickflow.engine.task
     handler: python

@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 
 ::: brickflow.cli
     handler: python

@@ -5,6 +5,7 @@
 # Contributors
 Thanks to the contributors who helped on this project apart from the authors
 * [Danny Meijer](https://www.linkedin.com/in/dannydatascientist/)
+* [Pariksheet Marotrao Barapatre](https://www.linkedin.com/in/pari-data-products/)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project
@@ -13,4 +14,3 @@ Thanks to the team below for invaluable insights and support throughout the init
 * [Aditya Chaturvedi](https://www.linkedin.com/in/chaturvediaditya/)
 * [Scott Haines](https://www.linkedin.com/in/scotthaines/)
 * [Arijit Banerjee](https://www.linkedin.com/in/massborn/)
-* [Pariksheet Marotrao Barapatre](https://www.linkedin.com/in/pari-data-products/)

@@ -1,4 +1,7 @@
-
+---
+search:
+  exclude: true
+---
 
 ::: brickflow.engine.project
     handler: python

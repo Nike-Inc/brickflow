@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 
 ::: brickflow_plugins.airflow.operators.native_operators
     handler: python
