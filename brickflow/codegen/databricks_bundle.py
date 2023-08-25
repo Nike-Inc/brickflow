@@ -617,6 +617,22 @@ class DatabricksBundleCodegen(CodegenInterface):
             / self.env
         )
 
+        bundle_suffix = config(
+            BrickflowEnvVars.BRICKFLOW_WORKFLOW_SUFFIX.value,
+            default=None,
+        )
+
+        bundle_prefix = config(
+            BrickflowEnvVars.BRICKFLOW_WORKFLOW_PREFIX.value,
+            default=None,
+        )
+
+        if bundle_prefix is not None:
+            bundle_root_path = bundle_root_path / bundle_prefix
+
+        if bundle_suffix is not None:
+            bundle_root_path = bundle_root_path / bundle_suffix
+
         env_content = Environments(
             workspace=Workspace(
                 root_path=str(bundle_root_path.as_posix()),
