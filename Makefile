@@ -11,7 +11,8 @@ mypy:
 	@poetry run mypy
 
 cov: check
-	@poetry run coverage run --source=brickflow --omit "brickflow/sample_dags/*,sample_workflows/*,brickflow/tf/*" -m pytest && \
+	@poetry ru`n coverage run --source=brickflow --omit "brickflow/sample_dags/*,sample_workflows/*,brickflow/tf/*" -m pytest && \
+
 	poetry run coverage report -m && \
 	poetry run coverage xml
 
