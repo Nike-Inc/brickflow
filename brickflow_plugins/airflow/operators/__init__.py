@@ -116,6 +116,7 @@ class CatchAllOperatorModifier(OperatorModifier):
         "BashOperator",
         "ShortCircuitOperator",
         "TaskDependencySensor",
+        "AutosysSensor",
     ]
 
     def _validate_operators(self, operator: BaseOperator, task: Task) -> None:

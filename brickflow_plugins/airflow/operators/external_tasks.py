@@ -236,22 +236,23 @@ class TaskDependencySensor(BaseSensorOperator):
 
 class AutosysSensor(BaseSensorOperator):
     def __init__(
-            self,
-            url: str,
-            job_name: str,
-            poke_interval: int,
-            headers: dict = None,
-            time_delta: Union[timedelta, dict] = {"days": 0},
-            *args,
-            **kwargs
+        self,
+        url: str,
+        job_name: str,
+        poke_interval: int,
+        headers: dict = None,
+        time_delta: Union[timedelta, dict] = {"days": 0},
+        *args,
+        **kwargs,
     ):
-            super().__init__(*args, **kwargs)
-            self.url = url
-            self.job_name = job_name
-            self.poke_interval = poke_interval
-            self.headers = headers
-            self.time_delta = time_delta
-            self.url = self.url + self.job_name
+        super().__init__(*args, **kwargs)
+        self.url = url
+        self.job_name = job_name
+        self.poke_interval = poke_interval
+        self.headers = headers
+        self.time_delta = time_delta
+        self.url = self.url + self.job_name
+
     """
         Takes in url, job_name, headers, poke_interval and execution delta as parameters and sends a http get() request,
         checks the API response and exits the process if the specified conditions are met.
@@ -260,17 +261,23 @@ class AutosysSensor(BaseSensorOperator):
     """
 
     def poke(self, context):
-        logging.info('Poking: ' + self.url)
+        logging.info("Poking: " + self.url)
         response = requests.get(self.url, headers=self.headers, verify=False)
 
         if response.status_code != 200:
-            raise HTTPError(f"Request failed with '{response.status_code}' code. \n{response.text}")
+            raise HTTPError(
+                f"Request failed with '{response.status_code}' code. \n{response.text}"
+            )
         else:
-            status = response.json()['status'][:2].upper()
+            status = response.json()["status"][:2].upper()
 
-            timestamp_format = '%Y-%m-%dT%H:%M:%SZ'
-            lastend = datetime.strptime(response.json()['lastEndUTC'], timestamp_format)
-            time_delta = self.time_delta if isinstance(self.time_delta, timedelta) else timedelta(**self.time_delta)
+            timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
+            lastend = datetime.strptime(response.json()["lastEndUTC"], timestamp_format)
+            time_delta = (
+                self.time_delta
+                if isinstance(self.time_delta, timedelta)
+                else timedelta(**self.time_delta)
+            )
             rundate = context["execution_date"] - time_delta
 
             if "SU" in status and lastend >= rundate:
@@ -282,4 +289,3 @@ class AutosysSensor(BaseSensorOperator):
                 time.sleep(self.poke_interval)
                 logging.info("Poking again")
                 AutosysSensor.poke(self, context)
-
