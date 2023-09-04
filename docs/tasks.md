@@ -313,6 +313,40 @@ def airflow_external_task_dependency_sensor():
    )
 ```
 
+#### Autosys Sensor
+
+This operator calls an Autosys API and is used to place a dependency on Autosys jobs, when necessary.
+
+```python title="task_dependency_sensor"
+from brickflow import Workflow, ctx
+from brickflow_plugins import AutosysSensor, AirflowProxyOktaClusterAuth
+
+wf = Workflow(...)
+
+
+@wf.task
+def airflow_autosys_sensor():
+   import base64
+
+   data = base64.b64encode(
+      ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
+         "utf-8"
+      )
+   ).decode("utf-8")
+   return AutosysSensor(
+      task_id="sensor",
+      url="https://autosys.../.../api/",
+      airflow_cluster_auth=AirflowProxyOktaClusterAuth(
+         oauth2_conn_id=f"b64://{data}",
+         airflow_cluster_url="https://autosys.../.../api/",
+         airflow_version="2.0.2", 
+      ),
+      poke_interval=200,
+      job_name="hello",
+      time_delta={"days": 0},
+   )
+```
+
 #### Workflow Dependency Sensor
 
 Wait for a workflow to finish before kicking off the current workflow's tasks

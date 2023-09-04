@@ -240,7 +240,7 @@ class AutosysSensor(BaseSensorOperator):
         url: str,
         job_name: str,
         poke_interval: int,
-        headers: dict = None,
+        airflow_cluster_auth: AirflowClusterAuth,
         time_delta: Union[timedelta, dict] = {"days": 0},
         *args,
         **kwargs,
@@ -249,12 +249,12 @@ class AutosysSensor(BaseSensorOperator):
         self.url = url
         self.job_name = job_name
         self.poke_interval = poke_interval
-        self.headers = headers
+        self.airflow_auth = airflow_cluster_auth
         self.time_delta = time_delta
         self.url = self.url + self.job_name
 
     """
-        Takes in url, job_name, headers, poke_interval and execution delta as parameters and sends a http get() request,
+        Takes in url, job_name, poke_interval and execution delta as parameters and sends a http get() request,
         checks the API response and exits the process if the specified conditions are met.
         If not, waits for the given poke interval, then runs the same process again and again until the conditions
         are met or times out.
@@ -262,7 +262,16 @@ class AutosysSensor(BaseSensorOperator):
 
     def poke(self, context):
         logging.info("Poking: " + self.url)
-        response = requests.get(self.url, headers=self.headers, verify=False)
+        token = self.airflow_auth.get_access_token()
+        response = requests.get(
+            self.url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/json",
+                "cache-control": "no-cache",
+            },
+            verify=False,
+        )
 
         if response.status_code != 200:
             raise HTTPError(
