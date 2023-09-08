@@ -11,7 +11,9 @@ def main() -> None:
         git_repo="https://github.com/nike-sole-community/sole-data-product-template.git",
         provider="github",
         libraries=[
-            PypiTaskLibrary(package="spark-expectations==0.8.0"), # comment if spark-expectations is not needed
+            PypiTaskLibrary(
+                package="spark-expectations==0.8.0"
+            ),  # comment if spark-expectations is not needed
         ],
     ) as f:
         f.add_pkg(workflows)
