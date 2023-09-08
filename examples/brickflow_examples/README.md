@@ -101,13 +101,16 @@ def lending_data_ingest():
     """
     )
 ```
+_Note: Modify the values of catalog/database for common_task_parameters._
 
 ### Update demo_wf.py
 - demo_wf.py explains the various tasks and options available for the tasks
 - You can remove the demo_wf.py in case you just to run the hello_world_workflow.py
-- In case you want to run the demo_wf.py, follow the below steps
-   - Update cluster id
-   - email_ids in demo_wf.py
+- In case you want to run the demo_wf.py, update the below params with your values
+   - default_cluster
+   - common_task_parameters
+   - permissions
+   - default_task_settings
 
 ### Deploy the workflow to databricks
 ```shell
@@ -117,5 +120,5 @@ brickflow projects deploy --project brickflow-demo -e local
 ### Run the demo workflow
 - login to databricks workspace
 - go to the workflows and select the workflow
-![img.png](docs/assets/workflow.png)
+![img.png](../../docs/img/workflow.png)
 - click on the run button
