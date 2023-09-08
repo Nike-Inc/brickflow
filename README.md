@@ -137,6 +137,8 @@ def lending_data_ingest():
     )
 ```
 _Note: Modify the values of catalog/database for common_task_parameters._
+
+
 5. Create a new file example_notebook.py in the notebooks directory
 ```shell
 touch notebooks/example_notebook.py
