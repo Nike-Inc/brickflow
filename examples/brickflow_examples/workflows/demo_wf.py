@@ -25,8 +25,8 @@ wf = Workflow(
         "slack_channel": "YOUR_SLACK_CHANNEL",
     },
     common_task_parameters={
-        "catalog": "development",
-        "database": "your_database",
+        "catalog": "<unity-catalog-name>",
+        "database": "<unity-schema-name>",
     },
     # replace <emails> with existing users' email on databricks
     permissions=WorkflowPermissions(

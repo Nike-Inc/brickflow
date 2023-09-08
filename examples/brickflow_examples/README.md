@@ -58,8 +58,8 @@ wf = Workflow(
         "product_id": "brickflow_demo",
     },
     common_task_parameters={
-        "catalog": "development",
-        "database": "your_database",
+        "catalog": "<uc-catalog-name>",
+        "database": "<uc-schema-name>",
     },
 )
 
@@ -79,7 +79,7 @@ def example_notebook():
     )
 
 
-@wf.task(depends_on=start)
+@wf.task(depends_on=[start, example_notebook])
 # this task runs a bash command
 def list_lending_club_data_files():
     return BashOperator(
@@ -116,5 +116,6 @@ brickflow projects deploy --project brickflow-demo -e local
 
 ### Run the demo workflow
 - login to databricks workspace
-- go to the workflows and select the brickflow-demo
+- go to the workflows and select the workflow
+![img.png](docs/assets/workflow.png)
 - click on the run button
