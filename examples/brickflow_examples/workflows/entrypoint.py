@@ -8,7 +8,7 @@ import workflows
 def main() -> None:
     with Project(
         "brickflow-demo",
-        git_repo="https://github.com/nike-sole-community/sole-data-product-template.git",
+        git_repo="https://github.com/Nike-Inc/brickflow",
         provider="github",
         libraries=[
             PypiTaskLibrary(
