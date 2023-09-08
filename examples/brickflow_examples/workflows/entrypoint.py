@@ -1,24 +1,17 @@
 # Databricks notebook source
 
-import resolver
+import brickflow
+from brickflow import Project, PypiTaskLibrary
 import workflows
-
-from brickflow import Project, PypiTaskLibrary, MavenTaskLibrary
-
-ARTIFACTORY = ""
 
 
 def main() -> None:
-    """Project entrypoint"""
     with Project(
         "brickflow-demo",
-        git_repo="https://github.com/Nike-Inc/brickflow",
+        git_repo="https://github.com/nike-sole-community/sole-data-product-template.git",
         provider="github",
         libraries=[
-            PypiTaskLibrary(
-                package="brickflow==1.0.0 --extra-index-url " + ARTIFACTORY
-            ),
-            MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
+            PypiTaskLibrary(package="spark-expectations==0.8.0"), # comment if spark-expectations is not needed
         ],
     ) as f:
         f.add_pkg(workflows)

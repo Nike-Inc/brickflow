@@ -1,4 +1,3 @@
-import resolver
 from datetime import timedelta
 
 from airflow.operators.bash import BashOperator
