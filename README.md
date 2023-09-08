@@ -24,19 +24,19 @@ Brickflow documentation can be found [here](https://engineering.nike.com/brickfl
 ### Getting Started
 
 #### Prerequisites
-1.Install brickflows
+1. Install brickflows
 
 ```shell
 pip install brickflows
 ```
 
-2.Install [Databricks CLI](https://docs.databricks.com/en/dev-tools/cli/databricks-cli.html)
+2. Install [Databricks CLI](https://docs.databricks.com/en/dev-tools/cli/databricks-cli.html)
 
 ```shell
 curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sudo sh
 ```
 
-3.Configure Databricks cli with workspace token. This configures your `~/.databrickscfg` file.
+3. Configure Databricks cli with workspace token. This configures your `~/.databrickscfg` file.
 
 ```shell
 databricks configure --token
@@ -141,6 +141,7 @@ _Note: Modify the values of catalog/database for common_task_parameters._
 
 5. Create a new file example_notebook.py in the notebooks directory
 ```shell
+mkdir notebooks
 touch notebooks/example_notebook.py
 ```
 6. Copy the following code in the example_notebook.py file
