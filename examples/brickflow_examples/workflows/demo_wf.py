@@ -1,4 +1,3 @@
-import resolver
 from datetime import timedelta
 
 from airflow.operators.bash import BashOperator
@@ -17,7 +16,8 @@ from brickflow_plugins import TaskDependencySensor
 
 wf = Workflow(
     "brickflow-demo",
-    default_cluster=Cluster.from_existing_cluster("YOUR_CLUSTER_ID"),
+    # replace <all-purpose-cluster-id> with your cluster id
+    default_cluster=Cluster.from_existing_cluster("<all-purpose-cluster-id>"),
     # Optional parameters below
     schedule_quartz_expression="0 0/20 0 ? * * *",
     tags={
@@ -25,14 +25,16 @@ wf = Workflow(
         "slack_channel": "YOUR_SLACK_CHANNEL",
     },
     common_task_parameters={
-        "catalog": "development",
-        "database": "your_database",
+        "catalog": "<unity-catalog-name>",
+        "database": "<unity-schema-name>",
     },
+    # replace <emails> with existing users' email on databricks
     permissions=WorkflowPermissions(
         can_manage_run=[User("abc@gmail.com"), User("xyz@gmail.com")],
         can_view=[User("def@gmail.com")],
         can_manage=[User("ghi@gmail.com")],
     ),
+    # replace <emails> with existing users' email on databricks
     default_task_settings=TaskSettings(
         email_notifications=EmailNotifications(
             on_start=["xyz@gmail.com"],
