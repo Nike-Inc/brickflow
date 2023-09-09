@@ -17,6 +17,15 @@ process through a command-line interface (CLI) tool.</p>
 
 ---
 
+### Contributors
+
+Thanks to all the [contributors](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTORS.md) who have helped ideate, develop and bring Brickflow to its current state. 
+
+### Contributing
+
+We're delighted that you're interested in contributing to our project! To get started, 
+please carefully read and follow the guidelines provided in our [contributing](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTING.md) document.
+
 ### Documentation
 
 Brickflow documentation can be found [here](https://engineering.nike.com/brickflow/).
@@ -70,11 +79,11 @@ touch workflows/hello_world_wf.py
 4. Copy the following code in hello_world_wf.py file
 ```python
 from brickflow import (
+    ctx,
     Cluster,
     Workflow,
     NotebookTask,
 )
-from brickflow.context import ctx
 from airflow.operators.bash import BashOperator
 
 
@@ -159,17 +168,11 @@ brickflow projects deploy --project hello-world-brickflow -e local
 ### Run the demo workflow
 1. Login to databricks workspace
 2. Go to the workflows and select the workflow
-![img.png](docs/img/workflow.png)
-3. click on the run button
+<p align="center">
+<img src=https://raw.githubusercontent.com/Nike-Inc/brickflow/master/docs/img/workflow.png?raw=true width=1000></p>
+4. click on the run button
 
 ### Examples
 Refer to the [examples](https://github.com/Nike-Inc/brickflow/tree/main/examples/brickflow_examples) for more examples.
 
-### Contributors
 
-Thanks to all the [contributors](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTORS.md) who have helped ideate, develop and bring Brickflow to its current state. 
-
-### Contributing
-
-We're delighted that you're interested in contributing to our project! To get started, 
-please carefully read and follow the guidelines provided in our [contributing](https://github.com/Nike-Inc/brickflow/blob/main/CONTRIBUTING.md) document.
