@@ -9,7 +9,8 @@ from airflow.models import Connection
 from airflow.sensors.base import BaseSensorOperator
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-
+from datetime import datetime, timedelta
+import time
 from brickflow_plugins import log
 
 
@@ -197,7 +198,9 @@ class TaskDependencySensor(BaseSensorOperator):
         super(TaskDependencySensor, self).__init__(*args, **kwargs)
         self.airflow_auth = airflow_cluster_auth
         self.allowed_states = allowed_states or ["success"]
-
+        self.okta_token = self.airflow_auth.get_access_token()
+        self.api_url = self.airflow_auth.get_airflow_api_url()
+        self.af_version = self.airflow_auth.get_version()
         if execution_delta_json and execution_delta:
             raise Exception(
                 "Only one of `execution_date` or `execution_delta_json` maybe provided to Sensor; not more than one."
@@ -218,10 +221,10 @@ class TaskDependencySensor(BaseSensorOperator):
         Returns:
             string: state of the desired task id and dag_run_id (success/failure/running)
         """
-        okta_token = self._airflow_auth.get_access_token()
-        api_url = self._airflow_auth.get_airflow_api_url()
-        af_version = self._airflow_auth.get_version()
         latest = self.latest
+        okta_token = self.okta_token
+        api_url = self.api_url
+        af_version = self.af_version
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
