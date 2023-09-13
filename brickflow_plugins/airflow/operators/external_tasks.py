@@ -245,7 +245,7 @@ class TaskDependencySensor(BaseSensorOperator):
             url = (
                 api_url
                 + "/api/v1/dags/"
-                + dag_id
+                + external_dag_id
                 + f"/dagRuns?execution_date_gte={execution_window_tz}"
             )
         log.info(f"URL to poke for dag runs {url}")
@@ -269,7 +269,12 @@ class TaskDependencySensor(BaseSensorOperator):
             f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
         )
         if af_version.startswith("1."):
-            task_url = url + "/{dag_run_id}/tasks/{external_task_id}"
+            if dag_run_id >= execution_window_tz:
+                task_url = url + "/{dag_run_id}/tasks/{external_task_id}"
+            else:
+                log.info(
+                f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}"
+            )
         else:
             task_url = (
                 url[: url.rfind("/")]
