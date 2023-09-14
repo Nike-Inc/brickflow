@@ -288,7 +288,7 @@ class TaskDependencySensor(BaseSensorOperator):
         task_state = task_response.json()["state"]
         return task_state
 
-    def poke(self):
+    def poke(self, context):
         log.info(f"executing poke.. {self._poke_count}")
         self._poke_count = self._poke_count + 1
         logging.info("Poking.. {0} round".format(str(self._poke_count)))
@@ -312,7 +312,7 @@ class TaskDependencySensor(BaseSensorOperator):
         log.info(f"Executing TaskDependency Sensor Operator for {external_dag_id} dag, task {external_task_id}")
         status = ""
         while status not in allowed_states:
-            status = self.poke()
+            status = self.poke(context)
             if status == "failed":
                 log.error(
                     f"Upstream dag {external_dag_id} failed at {external_task_id} task "
