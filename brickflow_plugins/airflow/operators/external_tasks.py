@@ -231,6 +231,11 @@ class TaskDependencySensor(BaseSensorOperator):
         execution_window_tz = (datetime.now() + execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
+        headers = {
+            "Content-Type": "application/json",
+            "cache-control": "no-cache",
+            "Authorization": "Bearer " + token_data,
+        }
         if af_version.startswith("1."):
             log.info("this is 1.x cluster")
             url = (
