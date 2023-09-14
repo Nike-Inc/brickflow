@@ -314,6 +314,7 @@ class TaskDependencySensor(BaseSensorOperator):
         allowed_states = self.allowed_states
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
+        execution_delta = self.execution_delta
         execution_window_tz = (datetime.now() + execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
