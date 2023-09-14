@@ -296,7 +296,7 @@ class TaskDependencySensor(BaseSensorOperator):
         log.info(f"task_status= {task_status}")
         return task_status
     
-    def execute(self, context):
+    def execute(self):
         """Function inherited from the BaseSensor Operator to execute the Poke Function
 
         Args:
