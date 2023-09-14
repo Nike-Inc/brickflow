@@ -267,6 +267,11 @@ class TaskDependencySensor(BaseSensorOperator):
             if latest:
                 # Only picking the latest run id if latest flag is True
                 dag_run_id = list_of_dictionaries[0]["dag_run_id"]
+        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")
+        if execution_window_tz>dag_run_id:
+            raise Exception(
+                f"No Runs found after {execution_window_tz}"
+            )
         log.info(
             f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
         )
@@ -309,7 +314,10 @@ class TaskDependencySensor(BaseSensorOperator):
         allowed_states = self.allowed_states
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
-        log.info(f"Executing TaskDependency Sensor Operator for {external_dag_id} dag, task {external_task_id}")
+        execution_window_tz = (datetime.now() + execution_delta).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        log.info(f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} ")
         status = ""
         while status not in allowed_states:
             status = self.poke(context)
