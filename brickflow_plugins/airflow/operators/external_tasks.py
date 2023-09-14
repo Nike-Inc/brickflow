@@ -234,7 +234,7 @@ class TaskDependencySensor(BaseSensorOperator):
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
-            "Authorization": "Bearer " + token_data,
+            "Authorization": "Bearer " + okta_token,
         }
         if af_version.startswith("1."):
             log.info("this is 1.x cluster")
