@@ -252,6 +252,10 @@ class TaskDependencySensor(BaseSensorOperator):
             )
         log.info(f"URL to poke for dag runs {url}")
         response = requests.request("GET", url, headers=headers)
+        if response.status_code ==401:
+            raise Exception(
+                f"No Runs found for {external_dag_id} dag after {execution_window_tz}, Please check upstream dag"
+            )
         response.raise_for_status()
         list_of_dictionaries = response.json()
         list_of_dictionaries = response.json()["dag_runs"]
@@ -267,11 +271,7 @@ class TaskDependencySensor(BaseSensorOperator):
             if latest:
                 # Only picking the latest run id if latest flag is True
                 dag_run_id = list_of_dictionaries[0]["dag_run_id"]
-        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")
-        if execution_window_tz>dag_run_id:
-            raise Exception(
-                f"No Runs found after {execution_window_tz}"
-            )
+        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")    
         log.info(
             f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
         )
