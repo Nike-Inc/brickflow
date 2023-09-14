@@ -100,7 +100,7 @@ def airflow_external_task_dependency_sensor():
       external_dag_id="dag_id",
       external_task_id="task_id",
       allowed_states=["success"],
-      execution_delta=timedelta(days=1),
+      execution_delta=timedelta(days=-1),
       execution_delta_json=None,
    )
 
