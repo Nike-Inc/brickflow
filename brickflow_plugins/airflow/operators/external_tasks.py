@@ -125,7 +125,9 @@ class AirflowScheduleHelper(DagSchedule):
     def __init__(self, airflow_auth: AirflowClusterAuth):
         self._airflow_auth = airflow_auth
 
-    def get_task_run_status(self, wf_id: str, task_id: str, latest=False,run_date=None, **kwargs):
+    def get_task_run_status(
+        self, wf_id: str, task_id: str, latest=False, run_date=None, **kwargs
+    ):
         token_data = self._airflow_auth.get_access_token()
         api_url = self._airflow_auth.get_airflow_api_url()
         version_nr = self._airflow_auth.get_version()
@@ -252,7 +254,7 @@ class TaskDependencySensor(BaseSensorOperator):
             )
         log.info(f"URL to poke for dag runs {url}")
         response = requests.request("GET", url, headers=headers)
-        if response.status_code ==401:
+        if response.status_code == 401:
             raise Exception(
                 f"No Runs found for {external_dag_id} dag after {execution_window_tz}, Please check upstream dag"
             )
@@ -271,7 +273,7 @@ class TaskDependencySensor(BaseSensorOperator):
             if latest:
                 # Only picking the latest run id if latest flag is True
                 dag_run_id = list_of_dictionaries[0]["dag_run_id"]
-        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")    
+        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")
         log.info(
             f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
         )
@@ -280,8 +282,8 @@ class TaskDependencySensor(BaseSensorOperator):
                 task_url = url + "/{dag_run_id}/tasks/{external_task_id}"
             else:
                 log.info(
-                f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}"
-            )
+                    f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}"
+                )
         else:
             task_url = (
                 url[: url.rfind("/")]
@@ -300,7 +302,7 @@ class TaskDependencySensor(BaseSensorOperator):
         task_status = self.get_execution_stats()
         log.info(f"task_status= {task_status}")
         return task_status
-    
+
     def execute(self, context):
         """Function inherited from the BaseSensor Operator to execute the Poke Function
 
@@ -318,7 +320,9 @@ class TaskDependencySensor(BaseSensorOperator):
         execution_window_tz = (datetime.now() + execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
-        log.info(f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} ")
+        log.info(
+            f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} "
+        )
         status = ""
         while status not in allowed_states:
             status = self.poke(context)
