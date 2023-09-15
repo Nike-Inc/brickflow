@@ -246,9 +246,10 @@ class TestWorkflow:
         )
         assert this_wf.schedule_pause_status == "PAUSED"
 
-        with pytest.raises(WorkflowConfigError):
+        with pytest.raises(WorkflowConfigError) as excinfo:
             Workflow(
                 "test",
                 clusters=[Cluster("name", "spark", "vm-node")],
                 schedule_pause_status="invalid",
             )
+        assert "schedule_pause_status must be one of ['PAUSED', 'UNPAUSED']" == str(excinfo.value)
