@@ -9,7 +9,8 @@ from airflow.models import Connection
 from airflow.sensors.base import BaseSensorOperator
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-
+from datetime import datetime, timedelta
+import time
 from brickflow_plugins import log
 
 
@@ -124,7 +125,7 @@ class AirflowScheduleHelper(DagSchedule):
     def __init__(self, airflow_auth: AirflowClusterAuth):
         self._airflow_auth = airflow_auth
 
-    def get_task_run_status(self, wf_id: str, task_id: str, run_date=None, **kwargs):
+    def get_task_run_status(self, wf_id: str, task_id: str, latest=False,run_date=None, **kwargs):
         token_data = self._airflow_auth.get_access_token()
         api_url = self._airflow_auth.get_airflow_api_url()
         version_nr = self._airflow_auth.get_version()
@@ -185,17 +186,18 @@ class TaskDependencySensor(BaseSensorOperator):
         self,
         external_dag_id,
         external_task_id,
-        airflow_cluster_auth: AirflowClusterAuth,
+        airflow_auth: AirflowClusterAuth,
         allowed_states=None,
         execution_delta=None,
         execution_delta_json=None,
+        latest=False,
+        poke_interval=60,
         *args,
         **kwargs,
     ):
         super(TaskDependencySensor, self).__init__(*args, **kwargs)
-        self.airflow_auth = airflow_cluster_auth
+        self._airflow_auth = airflow_auth
         self.allowed_states = allowed_states or ["success"]
-
         if execution_delta_json and execution_delta:
             raise Exception(
                 "Only one of `execution_date` or `execution_delta_json` maybe provided to Sensor; not more than one."
@@ -206,26 +208,125 @@ class TaskDependencySensor(BaseSensorOperator):
         self.allowed_states = allowed_states
         self.execution_delta = execution_delta
         self.execution_delta_json = execution_delta_json
-
+        self.latest = latest
+        self.poke_interval = poke_interval
         self._poke_count = 0
+
+    def get_execution_stats(self):
+        """Function to get the execution stats for task_id within a execution delta window
+
+        Returns:
+            string: state of the desired task id and dag_run_id (success/failure/running)
+        """
+        latest = self.latest
+        okta_token = self._airflow_auth.get_access_token()
+        api_url = self._airflow_auth.get_airflow_api_url()
+        af_version = self._airflow_auth.get_version()
+        external_dag_id = self.external_dag_id
+        external_task_id = self.external_task_id
+        execution_delta = self.execution_delta
+        execution_window_tz = (datetime.now() + execution_delta).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        headers = {
+            "Content-Type": "application/json",
+            "cache-control": "no-cache",
+            "Authorization": "Bearer " + okta_token,
+        }
+        if af_version.startswith("1."):
+            log.info("this is 1.x cluster")
+            url = (
+                api_url
+                + "/api/experimental"
+                + "/dags/"
+                + external_dag_id
+                + "/dag_runs/"
+            )
+        else:
+            # Airflow API for 2.X version limits 100 records, so only picking runs within the execution window provided
+            url = (
+                api_url
+                + "/api/v1/dags/"
+                + external_dag_id
+                + f"/dagRuns?execution_date_gte={execution_window_tz}"
+            )
+        log.info(f"URL to poke for dag runs {url}")
+        response = requests.request("GET", url, headers=headers)
+        if response.status_code ==401:
+            raise Exception(
+                f"No Runs found for {external_dag_id} dag after {execution_window_tz}, Please check upstream dag"
+            )
+        response.raise_for_status()
+        list_of_dictionaries = response.json()
+        list_of_dictionaries = response.json()["dag_runs"]
+        list_of_dictionaries = sorted(
+            list_of_dictionaries, key=lambda k: k["execution_date"], reverse=True
+        )
+        if af_version.startswith("1."):
+            # For airflow 1.X Execution date is needed to check the status of the task
+            dag_run_id = list_of_dictionaries[0]["execution_date"]
+        else:
+            # For airflow 2.X or higher dag_run_id is needed to check the status of the task
+            dag_run_id = list_of_dictionaries[-1]["dag_run_id"]
+            if latest:
+                # Only picking the latest run id if latest flag is True
+                dag_run_id = list_of_dictionaries[0]["dag_run_id"]
+        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")    
+        log.info(
+            f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
+        )
+        if af_version.startswith("1."):
+            if dag_run_id >= execution_window_tz:
+                task_url = url + "/{dag_run_id}/tasks/{external_task_id}"
+            else:
+                log.info(
+                f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}"
+            )
+        else:
+            task_url = (
+                url[: url.rfind("/")]
+                + f"/dagRuns/{dag_run_id}/taskInstances/{external_task_id}"
+            )
+        log.info(f"Pinging airflow API {task_url} for task status ")
+        task_response = requests.request("GET", task_url, headers=headers)
+        task_response.raise_for_status()
+        task_state = task_response.json()["state"]
+        return task_state
 
     def poke(self, context):
         log.info(f"executing poke.. {self._poke_count}")
         self._poke_count = self._poke_count + 1
         logging.info("Poking.. {0} round".format(str(self._poke_count)))
-
-        exec_time = context["execution_date"]
-
-        task_status = AirflowScheduleHelper(self.airflow_auth).get_task_run_status(
-            wf_id=self.external_dag_id,
-            task_id=self.external_task_id,
-            run_date=exec_time,
-        )
+        task_status = self.get_execution_stats()
         log.info(f"task_status= {task_status}")
+        return task_status
+    
+    def execute(self, context):
+        """Function inherited from the BaseSensor Operator to execute the Poke Function
 
-        if task_status not in self.allowed_states:
-            count = 0
-        else:
-            count = 1
+        Args:
+            context (dictionary): instance of the airflow task
 
-        return count
+        Raises:
+            Exception: If Upstream Dag is Failed
+        """
+        self.okta_token = self._airflow_auth.get_access_token()
+        allowed_states = self.allowed_states
+        external_dag_id = self.external_dag_id
+        external_task_id = self.external_task_id
+        execution_delta = self.execution_delta
+        execution_window_tz = (datetime.now() + execution_delta).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        log.info(f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} ")
+        status = ""
+        while status not in allowed_states:
+            status = self.poke(context)
+            if status == "failed":
+                log.error(
+                    f"Upstream dag {external_dag_id} failed at {external_task_id} task "
+                )
+                raise Exception("Upstream Dag Failed")
+            elif status != "success":
+                time.sleep(self.poke_interval)
+        log.info(f"Upstream Dag {external_dag_id} is successful")
