@@ -161,10 +161,10 @@ class Workflow:
             self.default_cluster = self.clusters[0]
 
         self.schedule_pause_status = self.schedule_pause_status.upper()
-        ALLOWED_SCHEDULE_PAUSE_STATUSES = ["PAUSED", "UNPAUSED"]
-        if self.schedule_pause_status not in ALLOWED_SCHEDULE_PAUSE_STATUSES:
+        allowed_scheduled_pause_statuses = ["PAUSED", "UNPAUSED"]
+        if self.schedule_pause_status not in allowed_scheduled_pause_statuses:
             raise WorkflowConfigError(
-                f"schedule_pause_status must be one of {ALLOWED_SCHEDULE_PAUSE_STATUSES}"
+                f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}"
             )
 
     # def __hash__(self) -> int:
