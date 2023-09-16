@@ -392,6 +392,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             return JobsSchedule(
                 quartz_cron_expression=workflow.schedule_quartz_expression,
                 timezone_id=workflow.timezone,
+                pause_status=workflow.schedule_pause_status,
             )
         return None
 

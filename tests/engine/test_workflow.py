@@ -16,6 +16,7 @@ from brickflow.engine.workflow import (
     ServicePrincipal,
     Workflow,
     NoWorkflowComputeError,
+    WorkflowConfigError,
 )
 from tests.engine.sample_workflow import wf, task_function
 
@@ -226,3 +227,31 @@ class TestWorkflow:
 
         assert len(wf1.graph.nodes) == 2
         assert len(wf.graph.nodes) == 10
+
+    def test_schedule_run_status_workflow(self):
+        this_wf = Workflow("test", clusters=[Cluster("name", "spark", "vm-node")])
+        assert this_wf.schedule_pause_status == "UNPAUSED"
+
+        this_wf = Workflow(
+            "test",
+            clusters=[Cluster("name", "spark", "vm-node")],
+            schedule_pause_status="PAUSED",
+        )
+        assert this_wf.schedule_pause_status == "PAUSED"
+
+        this_wf = Workflow(
+            "test",
+            clusters=[Cluster("name", "spark", "vm-node")],
+            schedule_pause_status="paused",
+        )
+        assert this_wf.schedule_pause_status == "PAUSED"
+
+        with pytest.raises(WorkflowConfigError) as excinfo:
+            Workflow(
+                "test",
+                clusters=[Cluster("name", "spark", "vm-node")],
+                schedule_pause_status="invalid",
+            )
+        assert "schedule_pause_status must be one of ['PAUSED', 'UNPAUSED']" == str(
+            excinfo.value
+        )

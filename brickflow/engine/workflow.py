@@ -29,6 +29,10 @@ from brickflow.engine.task import (
 from brickflow.engine.utils import wraps_keyerror
 
 
+class WorkflowConfigError(Exception):
+    pass
+
+
 class NoWorkflowComputeError(Exception):
     pass
 
@@ -109,6 +113,7 @@ class Workflow:
     _name: str
     schedule_quartz_expression: Optional[str] = None
     timezone: str = "UTC"
+    schedule_pause_status: str = "UNPAUSED"
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
     default_task_settings: TaskSettings = TaskSettings()
@@ -154,6 +159,13 @@ class Workflow:
         if self.default_cluster is None:
             # the default cluster is set to the first cluster if it is not configured
             self.default_cluster = self.clusters[0]
+
+        self.schedule_pause_status = self.schedule_pause_status.upper()
+        allowed_scheduled_pause_statuses = ["PAUSED", "UNPAUSED"]
+        if self.schedule_pause_status not in allowed_scheduled_pause_statuses:
+            raise WorkflowConfigError(
+                f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}"
+            )
 
     # def __hash__(self) -> int:
     #     import json

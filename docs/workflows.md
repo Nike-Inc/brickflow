@@ -15,6 +15,7 @@ wf = Workflow(  # (1)!
     # Optional parameters below
     schedule_quartz_expression="0 0/20 0 ? * * *",  # (4)!
     timezone="UTC",  # (5)!
+    schedule_pause_status="PAUSED",  # (15)!
     default_task_settings=TaskSettings(  # (6)!
         email_notifications=EmailNotifications(
             on_start=["email@nike.com"],
@@ -65,6 +66,7 @@ def task_function(*, test="var"):
 12. Suffix for the name of the workflow
 13. Define the common task parameters that can be used in all the tasks
 14. Define a workflow task and associate it to the workflow
+15. Define the schedule pause status. It is defaulted to "UNPAUSED"
 
 ### Clusters
 
