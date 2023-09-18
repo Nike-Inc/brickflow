@@ -7,6 +7,7 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Danny Meijer](https://www.linkedin.com/in/dannydatascientist/)
 * [Pariksheet Marotrao Barapatre](https://www.linkedin.com/in/pari-data-products/)
 * [Bhargav Sangars](https://www.linkedin.com/in/bhargav-sangars-a4b61037/)
+* [Brend Braeckmans](https://www.linkedin.com/in/brendbraeckmans/)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project
