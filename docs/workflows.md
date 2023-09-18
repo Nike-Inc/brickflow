@@ -104,6 +104,35 @@ default_cluster=Cluster(
 )
 ```
 
+#### Use a job cluster with driver and worker instances from the same pool
+```python title="job_cluster_driver_workers_same_pool"
+from brickflow import Cluster
+
+default_cluster=Cluster(
+    name="your_cluster_name",
+    spark_version='11.3.x-scala2.12',
+    min_workers=1,
+    max_workers=3,
+    instance_pool_id="your_instance_pool_id",
+    policy_id='policy_id_of_pool',
+)
+```
+
+#### Use a job cluster with driver and worker instances from different pools
+```python title="job_cluster_driver_workers_same_pool"
+from brickflow import Cluster
+
+default_cluster=Cluster(
+    name="your_cluster_name",
+    spark_version='11.3.x-scala2.12',
+    min_workers=1,
+    max_workers=3,
+    instance_pool_id="your_workers_instance_pool_id",
+    driver_instance_pool_id="your_driver_instance_pool_id",
+    policy_id='policy_id_of_pools',
+)
+```
+
 ### Permissions
 
 Brickflow provides an opportunity to manage permissions on the workflows. 
