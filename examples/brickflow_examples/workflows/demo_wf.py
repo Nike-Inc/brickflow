@@ -12,7 +12,7 @@ from brickflow import (
     User,
     NotebookTask,
 )
-from brickflow_plugins import TaskDependencySensor, AirflowProxyOktaClusterAuth
+from brickflow_plugins import TaskDependencySensor, AirflowProxyOktaClusterAuth, AutosysSensor
 
 wf = Workflow(
     "brickflow-demo",
