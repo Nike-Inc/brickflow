@@ -7,6 +7,8 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![PYPI version](https://img.shields.io/pypi/v/brickflows.svg)
+![PYPI - Downloads](https://static.pepy.tech/badge/brickflows)
+![PYPI - Python Version](https://img.shields.io/pypi/pyversions/brickflows.svg)
 
 <p align="center">
 BrickFlow is specifically designed to enable the development of Databricks workflows using Python, streamlining the 

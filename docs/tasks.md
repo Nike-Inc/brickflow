@@ -291,7 +291,7 @@ wf = Workflow(...)
 @wf.task
 def airflow_external_task_dependency_sensor():
    import base64
-
+   from datetime import timedelta
    data = base64.b64encode(
       ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
          "utf-8"
@@ -308,8 +308,9 @@ def airflow_external_task_dependency_sensor():
       external_dag_id="external_airlfow_dag",
       external_task_id="hello",
       allowed_states=["success"],
-      execution_delta=None,
+      execution_delta=timedelta(hours=-2),
       execution_delta_json=None,
+      poke_interval= 60,
    )
 ```
 

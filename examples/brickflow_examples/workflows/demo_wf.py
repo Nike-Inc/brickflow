@@ -12,7 +12,7 @@ from brickflow import (
     User,
     NotebookTask,
 )
-from brickflow_plugins import TaskDependencySensor, AutosysSensor
+from brickflow_plugins import TaskDependencySensor, AirflowProxyOktaClusterAuth
 
 wf = Workflow(
     "brickflow-demo",
@@ -85,21 +85,21 @@ def airflow_external_task_dependency_sensor():
     import base64
 
     data = base64.b64encode(
-        ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
-            "utf-8"
-        )
+        ctx.dbutils.secrets.get("brickflow-demo", "okta_conn_id").encode("utf-8")
     ).decode("utf-8")
     return TaskDependencySensor(
         task_id="sensor",
         timeout=180,
-        # 'https://username:password@databricks.com:90909/?hello=world' - okta_conn_id sample
-        okta_conn_id=f"b64://{data}",
-        external_dag_id="airflow_test_dag",
-        external_task_id="hello",
+        airflow_cluster_auth=AirflowProxyOktaClusterAuth(
+            oauth2_conn_id=f"b64://{data}",
+            airflow_cluster_url="https://proxy.airflow/cluster_name",
+            airflow_version="2.0.2",  # if you are using airflow 1.x please make sure this is the right value, the apis are different between them!
+        ),
+        external_dag_id="dag_id",
+        external_task_id="task_id",
         allowed_states=["success"],
-        execution_delta=None,
+        execution_delta=timedelta(days=-1),
         execution_delta_json=None,
-        cluster_id="your_cluster_id",
     )
 
 
