@@ -86,7 +86,10 @@ class TestCompute:
             )
         with pytest.raises(
             AssertionError,
-            match="Cannot specify driver_node_type_id if instance_pool_id or driver_instance_pool_id has been specified",
+            match=(
+                "Cannot specify driver_node_type_id if instance_pool_id"
+                " or driver_instance_pool_id has been specified"
+            ),
         ):
             Cluster(
                 "some_name",
@@ -96,7 +99,10 @@ class TestCompute:
             )
         with pytest.raises(
             AssertionError,
-            match="Cannot specify driver_node_type_id if instance_pool_id or driver_instance_pool_id has been specified",
+            match=(
+                "Cannot specify driver_node_type_id if instance_pool_id"
+                " or driver_instance_pool_id has been specified"
+            ),
         ):
             Cluster(
                 "some_name",
@@ -107,7 +113,10 @@ class TestCompute:
             )
         with pytest.raises(
             AssertionError,
-            match="Cannot specify driver_node_type_id if instance_pool_id or driver_instance_pool_id has been specified",
+            match=(
+                "Cannot specify driver_node_type_id if instance_pool_id"
+                " or driver_instance_pool_id has been specified"
+            ),
         ):
             Cluster(
                 "some_name",
