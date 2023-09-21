@@ -391,9 +391,9 @@ class AutosysSensor(BaseSensorOperator):
                 if isinstance(self.time_delta, timedelta)
                 else timedelta(**self.time_delta)
             )
-            execution_date = context["execution_date"]
-            execution_date = datetime.strptime(execution_date, timestamp_format)
-            rundate = execution_date - time_delta
+            print(context["execution_date"])
+            print(type(context["execution_date"]))
+            rundate = context["execution_date"] - time_delta
 
             if "SU" in status and lastend >= rundate:
                 print(f"Last End: {lastend}, Run Date: {rundate}")
