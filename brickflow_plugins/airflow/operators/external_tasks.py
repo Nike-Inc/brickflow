@@ -13,6 +13,7 @@ from requests import HTTPError
 
 from datetime import datetime, timedelta
 import time
+import pytz
 from brickflow_plugins import log
 
 
@@ -385,7 +386,8 @@ class AutosysSensor(BaseSensorOperator):
             status = response.json()["status"][:2].upper()
 
             timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
-            lastend = datetime.strptime(response.json()["lastEndUTC"], timestamp_format)
+            lastend = datetime.strptime(response.json()["lastEndUTC"], timestamp_format).replace(tzinfo=pytz.UTC)
+            print(lastend)
             time_delta = (
                 self.time_delta
                 if isinstance(self.time_delta, timedelta)
@@ -393,7 +395,10 @@ class AutosysSensor(BaseSensorOperator):
             )
             print(context["execution_date"])
             print(type(context["execution_date"]))
-            rundate = context["execution_date"] - time_delta
+            execution_date = datetime.strptime(context["execution_date"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            rundate = execution_date - time_delta
+            print(rundate)
+            print(type(rundate))
 
             if "SU" in status and lastend >= rundate:
                 print(f"Last End: {lastend}, Run Date: {rundate}")
