@@ -400,14 +400,14 @@ class AutosysSensor(BaseSensorOperator):
             execution_date = datetime.strptime(
                 context["execution_date"], "%Y-%m-%dT%H:%M:%S.%f%z"
             )
-            run_date = execution_date - time_delta
+            rundate = execution_date - time_delta
 
-            if "SU" in status and lastend >= run_date:
-                print(f"Last End: {lastend}, Run Date: {run_date}")
+            if "SU" in status and lastend >= rundate:
+                print(f"Last End: {lastend}, Run Date: {rundate}")
                 print("Success criteria met. Exiting")
                 return True
             else:
-                print(f"Last End: {lastend}, Run Date: {run_date}")
+                print(f"Last End: {lastend}, Run Date: {rundate}")
                 time.sleep(self.poke_interval)
                 logging.info("Poking again")
                 AutosysSensor.poke(self, context)
