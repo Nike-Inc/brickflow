@@ -359,9 +359,10 @@ class AutosysSensor(BaseSensorOperator):
         self.url = self.url + self.job_name
 
     """
-        Takes in url, job_name, poke_interval and execution delta as parameters and sends a http get() request,
-        checks the API response and exits the process if the specified conditions are met.
-        If not, waits for the given poke interval, then runs the same process again and again until the conditions
+        Takes in url, job_name, poke_interval, execution delta and airflow_cluster_auth as parameters 
+        and sends a http get() request, checks the API response and exits the process 
+        if the specified conditions are met.
+        If not, waits for the given poke interval, then pokes again and again until the conditions
         are met or times out.
     """
 
@@ -410,3 +411,5 @@ class AutosysSensor(BaseSensorOperator):
                 time.sleep(self.poke_interval)
                 logging.info("Poking again")
                 AutosysSensor.poke(self, context)
+
+
