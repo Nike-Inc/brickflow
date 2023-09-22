@@ -24,7 +24,7 @@ There are a few guidelines that we need contributors to follow so that we are ab
 * Write meaningful, descriptive commit messages.
 * Please follow existing code conventions when working on a file
 * Make sure to check the standards on the code [see below](#-linting-and-standards)
-* Install java 11 since it's required for certain tests to pass
+* Install java 11 since it's required for unit tests while running 'make tests'
 * Make sure to test the code before you push changes [see below](#-testing)
 
 ## 🤝 Submitting Changes
