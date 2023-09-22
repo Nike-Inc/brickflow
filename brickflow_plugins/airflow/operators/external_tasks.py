@@ -411,5 +411,3 @@ class AutosysSensor(BaseSensorOperator):
                 time.sleep(self.poke_interval)
                 logging.info("Poking again")
                 AutosysSensor.poke(self, context)
-
-
