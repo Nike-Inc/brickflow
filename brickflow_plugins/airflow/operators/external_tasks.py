@@ -386,7 +386,9 @@ class AutosysSensor(BaseSensorOperator):
             status = response.json()["status"][:2].upper()
 
             timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
-            lastend = datetime.strptime(response.json()["lastEndUTC"], timestamp_format).replace(tzinfo=pytz.UTC)
+            lastend = datetime.strptime(
+                response.json()["lastEndUTC"], timestamp_format
+            ).replace(tzinfo=pytz.UTC)
 
             time_delta = (
                 self.time_delta
@@ -394,7 +396,9 @@ class AutosysSensor(BaseSensorOperator):
                 else timedelta(**self.time_delta)
             )
 
-            execution_date = datetime.strptime(context["execution_date"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            execution_date = datetime.strptime(
+                context["execution_date"], "%Y-%m-%dT%H:%M:%S.%f%z"
+            )
             run_date = execution_date - time_delta
 
             if "SU" in status and lastend >= run_date:
