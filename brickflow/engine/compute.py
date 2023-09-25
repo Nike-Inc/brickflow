@@ -68,7 +68,7 @@ class DataSecurityMode:
 class Cluster:
     name: str
     spark_version: str
-    node_type_id: str
+    node_type_id: Optional[str] = None
     data_security_mode: str = DataSecurityMode.SINGLE_USER
     existing_cluster_id: Optional[str] = None
     num_workers: Optional[int] = None
@@ -106,6 +106,19 @@ class Cluster:
             (self.min_workers is not None and self.max_workers is not None)
             and (self.min_workers > self.max_workers)
         ), "Min workers should be less than max workers"
+        assert not (
+            self.instance_pool_id is None and self.node_type_id is None
+        ), "Must specify either instance_pool_id or node_type_id"
+        assert not (
+            self.instance_pool_id is not None and self.node_type_id is not None
+        ), "Cannot specify instance_pool_id if node_type_id has been specified"
+        assert not (
+            (self.driver_node_type_id is not None)
+            and (
+                self.instance_pool_id is not None
+                or self.driver_instance_pool_id is not None
+            )
+        ), "Cannot specify driver_node_type_id if instance_pool_id or driver_instance_pool_id has been specified"
 
     def __post_init__(self) -> None:
         self.validate()
