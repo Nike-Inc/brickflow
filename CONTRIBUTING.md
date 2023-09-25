@@ -24,6 +24,7 @@ There are a few guidelines that we need contributors to follow so that we are ab
 * Write meaningful, descriptive commit messages.
 * Please follow existing code conventions when working on a file
 * Make sure to check the standards on the code [see below](#-linting-and-standards)
+* Install java 11 since it's required for unit tests while running 'make tests'
 * Make sure to test the code before you push changes [see below](#-testing)
 
 ## 🤝 Submitting Changes
@@ -69,10 +70,23 @@ Make sure that the linter does not report any errors or warnings before submitti
 ### 🧪 Testing
 
 We use `pytest` to test our code. You can run the tests by running the following command:
-
+ 
 ```bash
 make test
 ```
+
+#### 🧪 Integration Testing
+* Once you add a feature or a bug fix in brickflow, create a whl file from your feature branch
+  * run 'poetry build' to generate the whl under the dist folder
+* Install brickflow from the whl file
+  * pip install -whl file path-
+* Upload the whl file to Databricks workspace
+  * Databricks Workspace --> Add --> Library
+* Copy the path of the uploaded whl file and paste it in the entrypoint.py as a Wheel Library
+  * libraries=[
+            WheelTaskLibrary("dbfs:/FileStore/jars/dummy.whl")
+        ],
+* Create a workflow and deploy it to make sure the feature or bug fix works as expected
 
 Make sure that all tests pass before submitting a pull request.
 

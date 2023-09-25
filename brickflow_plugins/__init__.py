@@ -19,6 +19,7 @@ log = setup_logger()
 
 from brickflow_plugins.airflow.operators.external_tasks import (
     TaskDependencySensor,
+    AutosysSensor,
     AirflowProxyOktaClusterAuth,
 )
 from brickflow_plugins.airflow.operators.native_operators import (
@@ -54,6 +55,7 @@ def ensure_installation():
 
 __all__: List[str] = [
     "TaskDependencySensor",
+    "AutosysSensor",
     "AirflowProxyOktaClusterAuth",
     "BashOperator",
     "BranchPythonOperator",

@@ -12,7 +12,11 @@ from brickflow import (
     User,
     NotebookTask,
 )
-from brickflow_plugins import TaskDependencySensor, AirflowProxyOktaClusterAuth
+from brickflow_plugins import (
+    TaskDependencySensor,
+    AirflowProxyOktaClusterAuth,
+    AutosysSensor,
+)
 
 wf = Workflow(
     "brickflow-demo",
@@ -242,6 +246,26 @@ def list_file():
 
 
 @wf.task(depends_on=list_file)
+def airflow_autosys_sensor():
+    import base64
+
+    data = base64.b64encode(
+        ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
+            "utf-8"
+        )
+    ).decode("utf-8")
+    return AutosysSensor(
+        task_id="sensor",
+        url="https://autosys.../.../api/",
+        # 'https://username:password@databricks.com:90909/?hello=world' - okta_conn_id sample
+        okta_conn_id=f"b64://{data}",
+        poke_interval=200,
+        job_name="hello",
+        time_delta={"days": 0},
+    )
+
+
+@wf.task(depends_on=airflow_autosys_sensor)
 def end():
     pass
 
