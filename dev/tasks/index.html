@@ -678,6 +678,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#autosys-sensor" class="md-nav__link">
+    Autosys Sensor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#workflow-dependency-sensor" class="md-nav__link">
     Workflow Dependency Sensor
   </a>
@@ -1205,6 +1212,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#autosys-sensor" class="md-nav__link">
+    Autosys Sensor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#workflow-dependency-sensor" class="md-nav__link">
     Workflow Dependency Sensor
   </a>
@@ -1509,25 +1523,55 @@ type.</p>
 <a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>      <span class="n">poke_interval</span><span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
 <a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>   <span class="p">)</span>
 </code></pre></div>
+<h4 id="autosys-sensor">Autosys Sensor<a class="headerlink" href="#autosys-sensor" title="Permanent link">&para;</a></h4>
+<p>This operator calls an Autosys API and is used to place a dependency on Autosys jobs, when necessary.</p>
+<div class="highlight"><span class="filename">task_dependency_sensor</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">brickflow</span> <span class="kn">import</span> <span class="n">Workflow</span><span class="p">,</span> <span class="n">ctx</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span> <span class="nn">brickflow_plugins</span> <span class="kn">import</span> <span class="n">AutosysSensor</span><span class="p">,</span> <span class="n">AirflowProxyOktaClusterAuth</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">wf</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="nd">@wf</span><span class="o">.</span><span class="n">task</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">def</span> <span class="nf">airflow_autosys_sensor</span><span class="p">():</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>   <span class="kn">import</span> <span class="nn">base64</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>   <span class="n">data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>      <span class="n">ctx</span><span class="o">.</span><span class="n">dbutils</span><span class="o">.</span><span class="n">secrets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;brickflow-demo-tobedeleted&quot;</span><span class="p">,</span> <span class="s2">&quot;okta_conn_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>         <span class="s2">&quot;utf-8&quot;</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>      <span class="p">)</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>   <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>   <span class="k">return</span> <span class="n">AutosysSensor</span><span class="p">(</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>      <span class="n">task_id</span><span class="o">=</span><span class="s2">&quot;sensor&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>      <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://autosys.../.../api/&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>      <span class="n">airflow_cluster_auth</span><span class="o">=</span><span class="n">AirflowProxyOktaClusterAuth</span><span class="p">(</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>         <span class="n">oauth2_conn_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;b64://</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>         <span class="n">airflow_cluster_url</span><span class="o">=</span><span class="s2">&quot;https://autosys.../.../api/&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>         <span class="n">airflow_version</span><span class="o">=</span><span class="s2">&quot;2.0.2&quot;</span><span class="p">,</span> 
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>      <span class="p">),</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>      <span class="n">poke_interval</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>      <span class="n">job_name</span><span class="o">=</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>      <span class="n">time_delta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>   <span class="p">)</span>
+</code></pre></div>
 <h4 id="workflow-dependency-sensor">Workflow Dependency Sensor<a class="headerlink" href="#workflow-dependency-sensor" title="Permanent link">&para;</a></h4>
 <p>Wait for a workflow to finish before kicking off the current workflow's tasks</p>
-<div class="highlight"><span class="filename">workflow_dependency_sensor</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">brickflow_plugins</span> <span class="kn">import</span> <span class="n">WorkflowDependencySensor</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">wf</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="nd">@wf</span><span class="o">.</span><span class="n">task</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="k">def</span> <span class="nf">wait_on_workflow</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>   <span class="n">sensor</span> <span class="o">=</span> <span class="n">WorkflowDependencySensor</span><span class="p">(</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>      <span class="n">databricks_host</span><span class="o">=</span><span class="s2">&quot;https://your_workspace_url.cloud.databricks.com&quot;</span><span class="p">,</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>      <span class="n">databricks_secrets_scope</span><span class="o">=</span><span class="s2">&quot;brickflow-demo-tobedeleted&quot;</span><span class="p">,</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>      <span class="n">databricks_secrets_key</span><span class="o">=</span><span class="s2">&quot;api_token_key&quot;</span><span class="p">,</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>      <span class="n">dependency_job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>      <span class="n">poke_interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>      <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>      <span class="n">delta</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>   <span class="p">)</span>
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>   <span class="n">sensor</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<div class="highlight"><span class="filename">workflow_dependency_sensor</span><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span> <span class="nn">brickflow_plugins</span> <span class="kn">import</span> <span class="n">WorkflowDependencySensor</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">wf</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="nd">@wf</span><span class="o">.</span><span class="n">task</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="k">def</span> <span class="nf">wait_on_workflow</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>   <span class="n">sensor</span> <span class="o">=</span> <span class="n">WorkflowDependencySensor</span><span class="p">(</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>      <span class="n">databricks_host</span><span class="o">=</span><span class="s2">&quot;https://your_workspace_url.cloud.databricks.com&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>      <span class="n">databricks_secrets_scope</span><span class="o">=</span><span class="s2">&quot;brickflow-demo-tobedeleted&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>      <span class="n">databricks_secrets_key</span><span class="o">=</span><span class="s2">&quot;api_token_key&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>      <span class="n">dependency_job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>      <span class="n">poke_interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>      <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>      <span class="n">delta</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>   <span class="p">)</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>   <span class="n">sensor</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 </code></pre></div>
 
 
