@@ -15,6 +15,7 @@ from brickflow.bundles.model import (
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
     PipelinesClusters,
+    DatabricksAssetBundles,
 )
 from brickflow.cli import BrickflowDeployMode
 from brickflow.codegen import DatabricksDefaultClusterTagKeys
@@ -37,8 +38,14 @@ def read_yaml_file(file_name: str):
     return yaml_data
 
 
+def normalize_bundle_via_pydantic(d: Dict[str, Any]) -> Dict[str, Any]:
+    return DatabricksAssetBundles.parse_obj(d).dict()
+
+
 def assert_equal_dicts(actual: Dict[str, Any], expected: Dict[str, Any]):
-    diff = DeepDiff(expected, actual)
+    diff = DeepDiff(
+        normalize_bundle_via_pydantic(expected), normalize_bundle_via_pydantic(actual)
+    )
     # pylint indicates that empty dictionary is falsey
     # diff should be empty dict
     assert not diff, diff

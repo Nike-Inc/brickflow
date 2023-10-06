@@ -82,6 +82,18 @@ def bundle_sync(
     )
 
 
+def get_force_lock_flag() -> str:
+    version_parts = get_bundle_cli_version().split(".")
+    # TODO: remove this logic on the major version
+    if (
+        len(version_parts) > 2
+        and version_parts[0] == "0"
+        and int(version_parts[1]) <= 202
+    ):
+        return "--force"
+    return "--force-lock"
+
+
 @pre_bundle_hook
 def bundle_deploy(
     bundle_cli: Optional[str] = None, force_acquire_lock: bool = False, **_: Any
@@ -89,7 +101,8 @@ def bundle_deploy(
     """CLI deploy the bundle."""
     deploy_args = ["deploy", "-e", get_bundles_project_env()]
     if force_acquire_lock is True:
-        deploy_args.append("--force-lock")
+        # fix/issue-32
+        deploy_args.append(get_force_lock_flag())
     exec_command(get_valid_bundle_cli(bundle_cli), "bundle", deploy_args)
 
 
@@ -105,7 +118,7 @@ def bundle_destroy(
     if auto_approve is True:
         destroy_args.append("--auto-approve")
     if force_acquire_lock is True:
-        destroy_args.append("--force-lock")
+        destroy_args.append(get_force_lock_flag())
 
     exec_command(get_valid_bundle_cli(bundle_cli), "bundle", destroy_args)
 
@@ -210,7 +223,7 @@ def bundle_synth(**kwargs: Any) -> None:
 
 
 def get_bundle_cli_version() -> str:
-    return config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.203.0")
+    return config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.207.0")
 
 
 def bundle_cli_setup() -> None:
