@@ -318,7 +318,7 @@ def airflow_external_task_dependency_sensor():
 
 This operator calls an Autosys API and is used to place a dependency on Autosys jobs, when necessary.
 
-```python title="task_dependency_sensor"
+```python title="autosys_sensor"
 from brickflow import Workflow, ctx
 from brickflow_plugins import AutosysSensor, AirflowProxyOktaClusterAuth
 
