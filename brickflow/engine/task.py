@@ -97,6 +97,15 @@ class TaskType(Enum):
     NOTEBOOK_TASK = "notebook_task"
 
 
+class TaskRunCondition(Enum):
+    ALL_SUCCESS = "ALL_SUCCESS"
+    AT_LEAST_ONE_SUCCESS = "AT_LEAST_ONE_SUCCESS"
+    NONE_FAILED = "NONE_FAILED"
+    ALL_DONE = "ALL_DONE"
+    AT_LEAST_ONE_FAILED = "AT_LEAST_ONE_FAILED"
+    ALL_FAILED = "ALL_FAILED"
+
+
 @dataclass(frozen=True)
 class TaskLibrary:
     @staticmethod
@@ -240,6 +249,7 @@ class TaskSettings:
     max_retries: Optional[int] = None
     min_retry_interval_millis: Optional[int] = None
     retry_on_timeout: Optional[bool] = None
+    run_if: Optional[TaskRunCondition] = None
 
     def merge(self, other: Optional["TaskSettings"]) -> "TaskSettings":
         # overrides top level values
@@ -252,6 +262,7 @@ class TaskSettings:
             other.max_retries or self.max_retries,
             other.min_retry_interval_millis or self.min_retry_interval_millis,
             other.retry_on_timeout or self.retry_on_timeout,
+            other.run_if or self.run_if,
         )
 
     def to_tf_dict(
@@ -280,6 +291,7 @@ class TaskSettings:
             "max_retries": self.max_retries,
             "min_retry_interval_millis": self.min_retry_interval_millis,
             "retry_on_timeout": self.retry_on_timeout,
+            **({"run_if": self.run_if.value} if self.run_if else {})
         }
 
 
