@@ -253,6 +253,30 @@ def all_success_task():
 1. NONE_FAILED - use this if you want to trigger the task irrespective of the upstream tasks success or failure state
 2. ALL_SUCCESS - use this if you want to trigger the task only if all the upstream tasks are all having success state
 
+
+### Tasks conditional run
+
+Adding condition for task running based on result of parent tasks
+
+```python title="task_conditional_run"
+from brickflow import Workflow, TaskRunCondition, TaskSettings
+wf = Workflow(...)
+
+@wf.task(
+   task_settings=TaskSettings(run_if=TaskRunCondition.AT_LEAST_ONE_FAILED)
+)
+def none_failed_task():
+   pass
+```
+
+This option is determining whether the task is run once its dependencies have been completed. Available options:
+1. `ALL_SUCCESS`: All dependencies have executed and succeeded
+2. `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded
+3. `NONE_FAILED`: None of the dependencies have failed and at least one was executed
+4. `ALL_DONE`: All dependencies completed and at least one was executed
+5. `AT_LEAST_ONE_FAILED`: At least one dependency failed
+6. `ALL_FAILED`: ALl dependencies have failed
+
 ### Airflow Operators
 
 We have adopted/extended certain airflow operators that might be needed to run as a task in databricks workflows.

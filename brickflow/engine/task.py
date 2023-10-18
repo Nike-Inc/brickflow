@@ -291,7 +291,7 @@ class TaskSettings:
             "max_retries": self.max_retries,
             "min_retry_interval_millis": self.min_retry_interval_millis,
             "retry_on_timeout": self.retry_on_timeout,
-            **({"run_if": self.run_if.value} if self.run_if else {})
+            **({"run_if": self.run_if.value} if self.run_if else {}),
         }
 
 

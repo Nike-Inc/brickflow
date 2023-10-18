@@ -4,7 +4,9 @@ from brickflow.engine.task import (
     TaskType,
     TaskResponse,
     DLTPipeline,
-    NotebookTask, TaskSettings, TaskRunCondition,
+    NotebookTask,
+    TaskSettings,
+    TaskRunCondition,
 )
 from brickflow.engine.workflow import Workflow, WorkflowPermissions, User
 
@@ -95,7 +97,10 @@ def task_function_4():
     return "hello world"
 
 
-@wf.task(depends_on="task_function_4", task_settings=TaskSettings(run_if=TaskRunCondition.AT_LEAST_ONE_FAILED))
+@wf.task(
+    depends_on="task_function_4",
+    task_settings=TaskSettings(run_if=TaskRunCondition.AT_LEAST_ONE_FAILED),
+)
 def task_function_5():
     return "hello world"
 
