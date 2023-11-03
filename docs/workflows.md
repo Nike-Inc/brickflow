@@ -20,7 +20,8 @@ wf = Workflow(  # (1)!
         email_notifications=EmailNotifications(
             on_start=["email@nike.com"],
             on_success=["email@nike.com"],
-            on_failure=["email@nike.com"]
+            on_failure=["email@nike.com"],
+            on_duration_warning_threshold_exceeded=["email@nike.com"]
         ),
         timeout_seconds=timedelta(hours=2).seconds
     ),
@@ -44,6 +45,11 @@ wf = Workflow(  # (1)!
         "catalog": "development",
         "database": "your_database"
     },
+    health = { # (16)!
+        "metric": "RUN_DURATION_SECONDS",
+        "op": "GREATER_THAN",
+        "value": 7200
+    }
 )
 
 
@@ -67,6 +73,7 @@ def task_function(*, test="var"):
 13. Define the common task parameters that can be used in all the tasks
 14. Define a workflow task and associate it to the workflow
 15. Define the schedule pause status. It is defaulted to "UNPAUSED"
+16. Define health check condition that triggers duration warning threshold exceeded notifications
 
 ### Clusters
 
@@ -207,7 +214,8 @@ default_task_settings=TaskSettings(
    email_notifications=EmailNotifications(
       on_start=["email@nike.com"],
       on_success=["email@nike.com"],
-      on_failure=["email@nike.com"]
+      on_failure=["email@nike.com"],
+      on_duration_warning_threshold_exceeded=["email@nike.com"]      
    ),
    timeout_seconds=timedelta(hours=2).seconds,
    max_retries=2,
@@ -250,3 +258,4 @@ common_task_parameters={
         "database": "your_database"
     }
 ```
+
