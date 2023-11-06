@@ -1,10 +1,13 @@
-import requests
 from datetime import datetime, timedelta
-import time
-import os
-import logging
-from requests.adapters import HTTPAdapter
 import functools
+import logging
+import os
+from pydantic import SecretStr
+import requests
+from requests.adapters import HTTPAdapter
+import time
+from typing import Union
+
 from brickflow.context import ctx
 
 
@@ -21,22 +24,24 @@ class WorkflowDependencySensor:
     This is used to have dependencies on the databricks workflow
 
     Example Usage in your brickflow task:
+        service_principle_pat = ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "service_principle_id")
         WorkflowDependencySensor(
             databricks_host=https://your_workspace_url.cloud.databricks.com,
-            databricks_secrets_scope="brickflow-demo-tobedeleted",
-            databricks_secrets_key="service_principle_id"
+            databricks_token=service_principle_pat,
             dependency_job_id=job_id,
             poke_interval=20,
             timeout=60,
             delta=timedelta(days=1)
         )
+        In above snippet Databricks secrets is used as a secure service to store the databricks token.
+        If you get your token from another secret management service, like AWS Secrets Manager, GCP Secret Manager or Azure Key Vault,
+        just pass it in the databricks_token argument.
     """
 
     def __init__(
         self,
         databricks_host: str,
-        databricks_secrets_scope: str,
-        databricks_secrets_key: str,
+        databricks_token: Union[str, SecretStr],
         dependency_job_id: int,
         delta: timedelta,
         timeout_seconds: int,
@@ -44,8 +49,11 @@ class WorkflowDependencySensor:
     ):
         self.databricks_host = databricks_host
         self.dependency_job_id = dependency_job_id
-        self.databricks_secrets_scope = databricks_secrets_scope
-        self.databricks_secrets_key = databricks_secrets_key
+        self.databricks_token = (
+            databricks_token
+            if isinstance(databricks_token, SecretStr)
+            else SecretStr(databricks_token)
+        )
         self.poke_interval = poke_interval_seconds
         self.timeout = timeout_seconds
         self.delta = delta
@@ -89,7 +97,7 @@ class WorkflowDependencySensor:
         session = self.get_http_session()
         url = f"{self.databricks_host.rstrip('/')}/api/2.0/jobs/runs/get"
         headers = {
-            "Authorization": f"Bearer {self.get_token()}",
+            "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
             "Content-Type": "application/json",
         }
         run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
@@ -109,17 +117,11 @@ class WorkflowDependencySensor:
         self.log.info(execution_date.strftime("%s"))
         return execution_date.strftime("%s")
 
-    @functools.lru_cache
-    def get_token(self):
-        return ctx.dbutils.secrets.get(
-            self.databricks_secrets_scope, self.databricks_secrets_key
-        )
-
     def execute(self):
         session = self.get_http_session()
         url = f"{self.databricks_host.rstrip('/')}/api/2.0/jobs/runs/list"
         headers = {
-            "Authorization": f"Bearer {self.get_token()}",
+            "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
             "Content-Type": "application/json",
         }
         # http://www.unixtimestampconverter.com/
