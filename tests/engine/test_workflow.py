@@ -182,14 +182,11 @@ class TestWorkflow:
     def test_default_task_settings(self):
         assert wf.default_task_settings is not None
 
-    def test_health_settings(self): 
+    def test_health_settings(self):
         assert wf.health == {
             "rules": [
-            {
-              "metric": "RUN_DURATION_SECONDS",
-              "op": "GREATER_THAN",
-              "value": 7200
-            } ]
+                {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200}
+            ]
         }
 
     def test_user(self):

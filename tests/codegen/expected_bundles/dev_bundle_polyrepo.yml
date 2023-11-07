@@ -8,6 +8,7 @@ environments:
           email_notifications: null
           notification_settings: null
           webhook_notifications: null
+          health: null
           git_source:
             git_commit: a
             git_provider: github
