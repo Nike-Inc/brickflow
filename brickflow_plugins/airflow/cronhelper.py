@@ -27,25 +27,16 @@ class CronHelper:
     def get_jvm(cls):
         if cls._jvm is None:  # Initialize the JVM only once and cache it
             try:
-                log.info(
-                    "Attempting to load JVM from pip installation of py4j for cronhelper"
-                )
+                log.info("Attempting to load JVM from pip installation of py4j for cronhelper")
                 from py4j.java_gateway import JavaGateway
 
-                cron_utils = (
-                    Path(os.path.abspath(__file__)).parent.absolute()
-                    / "cron-utils-9.2.0.jar"
-                )
+                cron_utils = Path(os.path.abspath(__file__)).parent.absolute() / "cron-utils-9.2.0.jar"
                 jg = JavaGateway.launch_gateway(classpath=str(cron_utils))
-                log.info(
-                    "Launched py4j gateway with cronutils jar added to class path from py4j pip installation"
-                )
+                log.info("Launched py4j gateway with cronutils jar added to class path from py4j pip installation")
                 cls._jvm = jg.jvm
             except Py4JError as e:
                 if str(e).startswith("Could not find py4j jar"):
-                    log.info(
-                        "Could not find py4j jar, attempting to load JVM from SparkSession"
-                    )
+                    log.info("Could not find py4j jar, attempting to load JVM from SparkSession")
                     from pyspark.sql import SparkSession
 
                     cls._jvm = SparkSession.getActiveSession()._jvm
@@ -57,18 +48,12 @@ class CronHelper:
         jvm = self.get_jvm()
 
         j_cron_parser = jvm.com.cronutils.parser.CronParser
-        j_cron_definition_builder = (
-            jvm.com.cronutils.model.definition.CronDefinitionBuilder
-        )
+        j_cron_definition_builder = jvm.com.cronutils.model.definition.CronDefinitionBuilder
         j_cron_type = jvm.com.cronutils.model.CronType
 
         self._j_cron_mapper = jvm.com.cronutils.mapper.CronMapper
-        self._unix_parser = j_cron_parser(
-            j_cron_definition_builder.instanceDefinitionFor(j_cron_type.UNIX)
-        )
-        self._quartz_parser = j_cron_parser(
-            j_cron_definition_builder.instanceDefinitionFor(j_cron_type.QUARTZ)
-        )
+        self._unix_parser = j_cron_parser(j_cron_definition_builder.instanceDefinitionFor(j_cron_type.UNIX))
+        self._quartz_parser = j_cron_parser(j_cron_definition_builder.instanceDefinitionFor(j_cron_type.QUARTZ))
 
     def _get_unix_parser(self):
         if self._unix_parser is None:
@@ -83,22 +68,14 @@ class CronHelper:
     @functools.lru_cache(maxsize=128)  # cron expression conversion will not change
     def unix_to_quartz(self, unix_cron: str) -> str:
         unix_parser = self._get_unix_parser()
-        quartz_expr = (
-            self._j_cron_mapper.fromUnixToQuartz()
-            .map(unix_parser.parse(unix_cron))
-            .asString()
-        )
+        quartz_expr = self._j_cron_mapper.fromUnixToQuartz().map(unix_parser.parse(unix_cron)).asString()
         log.info("Converted unix cron %s to quartz cron %s", unix_cron, quartz_expr)
         return quartz_expr
 
     @functools.lru_cache(maxsize=128)  # cron expression conversion will not change
     def quartz_to_unix(self, quartz_cron: str) -> str:
         quartz_parser = self._get_quartz_parser()
-        unix_expr = (
-            self._j_cron_mapper.fromQuartzToUnix()
-            .map(quartz_parser.parse(quartz_cron))
-            .asString()
-        )
+        unix_expr = self._j_cron_mapper.fromQuartzToUnix().map(quartz_parser.parse(quartz_cron)).asString()
         log.info("Converted quartz cron %s to unix cron %s", quartz_cron, unix_expr)
         return unix_expr
 

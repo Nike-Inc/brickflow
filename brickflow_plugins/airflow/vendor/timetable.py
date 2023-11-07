@@ -84,9 +84,7 @@ class CronMixin:
         """
         if not isinstance(other, type(self)):
             return NotImplemented
-        return (
-            self._expression == other._expression and self._timezone == other._timezone
-        )
+        return self._expression == other._expression and self._timezone == other._timezone
 
     @property
     def summary(self) -> str:

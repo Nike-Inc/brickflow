@@ -42,15 +42,11 @@ def go_up_till_brickflow_root(cur_path: str) -> str:
     ]
 
     # recurse to see if there is a brickflow root and return the path
-    while not path.is_dir() or not any(
-        file.name in valid_roots for file in path.iterdir()
-    ):
+    while not path.is_dir() or not any(file.name in valid_roots for file in path.iterdir()):
         path = path.parent
 
         if path == path.parent:
-            raise BrickflowRootNotFound(
-                "Brickflow root directory not found in path hierarchy."
-            )
+            raise BrickflowRootNotFound("Brickflow root directory not found in path hierarchy.")
 
     return str(path.resolve())
 
@@ -78,13 +74,6 @@ def get_notebook_ws_path(dbutils: Optional[Any]) -> Optional[str]:
     if dbutils is not None:
         return str(
             "/Workspace"
-            / Path(
-                dbutils.notebook.entry_point.getDbutils()
-                .notebook()
-                .getContext()
-                .notebookPath()
-                .get()
-                .lstrip("/")
-            )
+            / Path(dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get().lstrip("/"))
         )
     return None

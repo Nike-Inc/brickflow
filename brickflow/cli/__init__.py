@@ -30,9 +30,7 @@ from brickflow.cli.projects import projects
 def bundles_proxy_command() -> click.Command:
     def run_bundle_command(args: Optional[List[str]] = None, **_: Any) -> None:
         bundle_cli_setup()
-        bundle_cli = config(
-            BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value, "databricks"
-        )
+        bundle_cli = config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value, "databricks")
         log_important_versions(bundle_cli)
         exec_command(bundle_cli, "bundle", args or [])
 
@@ -97,13 +95,9 @@ def bundle_env_set_options(f: Callable) -> Callable:
                 "Configuring environment to %s...",
                 BrickflowDefaultEnvs.LOCAL.value,
             )
-            os.environ[
-                BrickflowEnvVars.BRICKFLOW_ENV.value
-            ] = BrickflowDefaultEnvs.LOCAL.value
+            os.environ[BrickflowEnvVars.BRICKFLOW_ENV.value] = BrickflowDefaultEnvs.LOCAL.value
 
-    def deploy_only_workflows(
-        ctx: click.Context, param: str, value: Any
-    ) -> None:  # noqa
+    def deploy_only_workflows(ctx: click.Context, param: str, value: Any) -> None:  # noqa
         # pylint: disable=unused-argument
         if value:
             for file in value:
@@ -111,19 +105,13 @@ def bundle_env_set_options(f: Callable) -> Callable:
                     raise ClickException("Should pass only python files as workflows")
             _ilog.info("Brickflow will only deploy workflows: %s", ", ".join(value))
             if (
-                click.confirm(
-                    "This can delete all of your other workflows that are already deployed? Are you sure?"
-                )
+                click.confirm("This can delete all of your other workflows that are already deployed? Are you sure?")
                 is False
             ):
                 ctx.exit(0)
-            os.environ[
-                BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
-            ] = ",".join(value)
+            os.environ[BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value] = ",".join(value)
 
-    def set_up_bundle_for_workflow_dir(
-        ctx: click.Context, param: str, value: Any  # noqa
-    ) -> None:
+    def set_up_bundle_for_workflow_dir(ctx: click.Context, param: str, value: Any) -> None:  # noqa
         if value is not None:
             return value
 
@@ -187,9 +175,7 @@ def bundle_env_set_options(f: Callable) -> Callable:
             "-p",
             default=None,
             type=str,
-            callback=bind_env_var(
-                BrickflowEnvVars.BRICKFLOW_DATABRICKS_CONFIG_PROFILE.value
-            ),
+            callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_DATABRICKS_CONFIG_PROFILE.value),
             help="The databricks profile to use for authenticating to databricks during deployment.",
         ),
     ]
@@ -203,15 +189,10 @@ def get_deployment_mode(**kwargs: Dict[str, Any]) -> BrickflowDeployMode:
     os.environ[BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value] = str(
         kwargs.get("deploy_mode", BrickflowDeployMode.BUNDLE.value)
     )
-    if (
-        kwargs.get("deploy_mode", BrickflowDeployMode.BUNDLE.value)
-        == BrickflowDeployMode.BUNDLE.value
-    ):
+    if kwargs.get("deploy_mode", BrickflowDeployMode.BUNDLE.value) == BrickflowDeployMode.BUNDLE.value:
         return BrickflowDeployMode.BUNDLE
     else:
-        raise ClickException(
-            "Unsupported deploy mode for sync; currently only supports bundle deploy mode."
-        )
+        raise ClickException("Unsupported deploy mode for sync; currently only supports bundle deploy mode.")
 
 
 def disable_project_name_in_env() -> None:

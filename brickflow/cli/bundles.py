@@ -27,9 +27,7 @@ def pre_bundle_hook(f: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(f)
     def wrapped_bundle_func(*args: Any, **kwargs: Any) -> None:
         bundle_cli_setup()
-        bundle_cli = config(
-            BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value, "databricks"
-        )
+        bundle_cli = config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value, "databricks")
         log_important_versions(bundle_cli)
         bundle_synth(**kwargs)
         return f(*args, **kwargs, bundle_cli=bundle_cli)
@@ -83,9 +81,7 @@ def bundle_sync(
 
 
 @pre_bundle_hook
-def bundle_deploy(
-    bundle_cli: Optional[str] = None, force_acquire_lock: bool = False, **_: Any
-) -> None:
+def bundle_deploy(bundle_cli: Optional[str] = None, force_acquire_lock: bool = False, **_: Any) -> None:
     """CLI deploy the bundle."""
     deploy_args = ["deploy", "-e", get_bundles_project_env()]
     if force_acquire_lock is True:
@@ -126,10 +122,7 @@ def bundle_download_path(version: str) -> str:
     system = platform.system().lower()
     arch = get_arch()
     if version == "snapshot":
-        return (
-            f"https://github.com/databricks/cli/releases/download/"
-            f"{version}/databricks_cli_{system}_{arch}.zip"
-        )
+        return f"https://github.com/databricks/cli/releases/download/" f"{version}/databricks_cli_{system}_{arch}.zip"
 
     return (
         f"https://github.com/databricks/cli/releases/download/"
@@ -139,9 +132,7 @@ def bundle_download_path(version: str) -> str:
 
 def download_url(url: str) -> requests.Response:
     try:
-        return requests.get(
-            url, timeout=60
-        )  # Set a suitable timeout value (e.g., 10 seconds)
+        return requests.get(url, timeout=60)  # Set a suitable timeout value (e.g., 10 seconds)
     except requests.exceptions.Timeout:
         _ilog.error("Request timed out. Failed to download the file.")
         raise
@@ -201,9 +192,7 @@ def download_and_unzip_databricks_cli(url: str, version: str) -> str:
 
 def bundle_synth(**kwargs: Any) -> None:
     entrypoint_file = get_entrypoint(**kwargs)
-    os.environ[
-        BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value
-    ] = BrickflowDeployMode.BUNDLE.value
+    os.environ[BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value] = BrickflowDeployMode.BUNDLE.value
     os.environ[BrickflowEnvVars.BRICKFLOW_MODE.value] = "deploy"
     _ilog.info("Synthesizing bundle...")
     exec_command(get_entrypoint_python(), entrypoint_file, [])

@@ -45,9 +45,7 @@ class TestContext:
         assert comms_obj.to_encoded_value == b64_data
         assert comms_obj.value == task_value
         assert BrickflowTaskComsObject.from_encoded_value(b64_data).value == task_value
-        assert (
-            BrickflowTaskComsObject.from_encoded_value(task_value).value == task_value
-        )
+        assert BrickflowTaskComsObject.from_encoded_value(task_value).value == task_value
 
     def test_brickflow_task_comms(self):
         task_comms = BrickflowTaskComs()
@@ -72,14 +70,10 @@ class TestContext:
         task_comms_v2 = BrickflowTaskComsObject(value2)
         dbutils_mock.jobs.taskValues.get.return_value = task_comms_v1.to_encoded_value
         task_comms.put(task_id, key, value1)
-        dbutils_mock.jobs.taskValues.set.assert_called_once_with(
-            f"{key}", task_comms_v1.to_encoded_value
-        )
+        dbutils_mock.jobs.taskValues.set.assert_called_once_with(f"{key}", task_comms_v1.to_encoded_value)
         assert task_comms.get(task_id, key) == value1
         task_comms.put(task_id, key, value2)
-        dbutils_mock.jobs.taskValues.set.assert_called_with(
-            f"{key}", task_comms_v2.to_encoded_value
-        )
+        dbutils_mock.jobs.taskValues.set.assert_called_with(f"{key}", task_comms_v2.to_encoded_value)
         dbutils_mock.jobs.taskValues.get.return_value = task_comms_v2.to_encoded_value
         assert task_comms.get(task_id, key) == value2
         assert task_comms.get(task_id)[key] == value2
@@ -118,13 +112,9 @@ class TestContext:
         ctx.skip_all_except(task_key)
         task_coms.put.assert_called_with(current_task, BRANCH_SKIP_EXCEPT, task_key)
         ctx.skip_all_except(fake_task)
-        task_coms.put.assert_called_with(
-            current_task, BRANCH_SKIP_EXCEPT, fake_task.__name__
-        )
+        task_coms.put.assert_called_with(current_task, BRANCH_SKIP_EXCEPT, fake_task.__name__)
         ctx.skip_all_following()
-        task_coms.put.assert_called_with(
-            current_task, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK
-        )
+        task_coms.put.assert_called_with(current_task, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK)
         ctx._reset_current_task()
 
     def test_context_skip_runtime_error(self):

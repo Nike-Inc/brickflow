@@ -50,10 +50,7 @@ class TestTask:
     }
 
     def test_builtin_notebook_params(self):
-        assert (
-            wf.get_task(task_function.__name__).builtin_notebook_params
-            == self.builtin_task_params
-        )
+        assert wf.get_task(task_function.__name__).builtin_notebook_params == self.builtin_task_params
 
     def test_builtin_default_params(self):
         assert wf.get_task(task_function.__name__).brickflow_default_params == {
@@ -108,10 +105,7 @@ class TestTask:
         assert wf.get_task(task_function_2.__name__).parents == ["task_function"]
 
     def test_task_type(self):
-        assert (
-            wf.get_task(task_function_2.__name__).databricks_task_type_str
-            == "notebook_task"
-        )
+        assert wf.get_task(task_function_2.__name__).databricks_task_type_str == "notebook_task"
 
     def test_depends_on(self):
         assert wf.get_task(task_function_3.__name__).depends_on == ["task_function_2"]
@@ -174,36 +168,24 @@ class TestTask:
     @patch("brickflow.context.ctx.get_parameter")
     def test_skip_not_selected_task(self, dbutils):
         dbutils.value = "sometihngelse"
-        skip, reason = wf.get_task(
-            task_function_4.__name__
-        )._skip_because_not_selected()
-        dbutils.assert_called_once_with(
-            BrickflowInternalVariables.only_run_tasks.value, ""
-        )
+        skip, reason = wf.get_task(task_function_4.__name__)._skip_because_not_selected()
+        dbutils.assert_called_once_with(BrickflowInternalVariables.only_run_tasks.value, "")
         assert skip is True
-        assert reason.startswith(
-            f"This task: {task_function_4.__name__} is not a selected task"
-        )
+        assert reason.startswith(f"This task: {task_function_4.__name__} is not a selected task")
         assert wf.get_task(task_function_4.__name__).execute() is None
 
     @patch("brickflow.context.ctx.get_parameter")
     def test_no_skip_selected_task(self, dbutils: Mock):
         dbutils.return_value = task_function_4.__name__
-        skip, reason = wf.get_task(
-            task_function_4.__name__
-        )._skip_because_not_selected()
-        dbutils.assert_called_once_with(
-            BrickflowInternalVariables.only_run_tasks.value, ""
-        )
+        skip, reason = wf.get_task(task_function_4.__name__)._skip_because_not_selected()
+        dbutils.assert_called_once_with(BrickflowInternalVariables.only_run_tasks.value, "")
         assert skip is False
         assert reason is None
         assert wf.get_task(task_function_4.__name__).execute() == task_function_4()
 
     @patch("brickflow.engine.task.Task._skip_because_not_selected")
     @patch("brickflow.context.ctx._task_coms")
-    def test_should_skip_true(
-        self, task_coms_mock: Mock, task_skip_selected_mock: Mock
-    ):
+    def test_should_skip_true(self, task_coms_mock: Mock, task_skip_selected_mock: Mock):
         task_skip_selected_mock.return_value = (False, None)
         task_coms_mock.get.value = task_function_2.__name__
         skip, reason = wf.get_task(task_function_3.__name__).should_skip()
@@ -211,18 +193,14 @@ class TestTask:
         assert reason == "All tasks before this were not successful"
         task_coms_mock.get.assert_called_once()
         assert wf.get_task(task_function_3.__name__).execute() is None
-        task_coms_mock.put.assert_called_once_with(
-            task_function_3.__name__, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK
-        )
+        task_coms_mock.put.assert_called_once_with(task_function_3.__name__, BRANCH_SKIP_EXCEPT, SKIP_EXCEPT_HACK)
 
     @patch("brickflow.context.ctx.get_parameter")
     @patch("brickflow.context.ctx._task_coms")
     def test_execute(self, task_coms_mock: Mock, dbutils: Mock):
         dbutils.return_value = ""
         resp = wf.get_task(task_function.__name__).execute()
-        task_coms_mock.put.assert_called_once_with(
-            task_function.__name__, RETURN_VALUE_KEY, task_function()
-        )
+        task_coms_mock.put.assert_called_once_with(task_function.__name__, RETURN_VALUE_KEY, task_function())
 
         assert resp is task_function()
 
@@ -332,9 +310,7 @@ class TestTask:
         assert JarTaskLibrary(s3_path).dict == {"jar": s3_path}
         assert EggTaskLibrary(s3_path).dict == {"egg": s3_path}
         assert WheelTaskLibrary(s3_path).dict == {"whl": s3_path}
-        assert PypiTaskLibrary(package, repo).dict == {
-            "pypi": {"package": package, "repo": repo}
-        }
+        assert PypiTaskLibrary(package, repo).dict == {"pypi": {"package": package, "repo": repo}}
         assert MavenTaskLibrary(coordinates, repo, exclusions).dict == {
             "maven": {
                 "coordinates": coordinates,
@@ -342,9 +318,7 @@ class TestTask:
                 "exclusions": exclusions,
             }
         }
-        assert CranTaskLibrary(package, repo).dict == {
-            "cran": {"package": package, "repo": repo}
-        }
+        assert CranTaskLibrary(package, repo).dict == {"cran": {"package": package, "repo": repo}}
 
     def test_invalid_storage_library_path(self):
         with pytest.raises(InvalidTaskLibraryError):
@@ -363,9 +337,7 @@ class TestTask:
 
     def test_get_brickflow_lib_version(self):
         settings = BrickflowProjectDeploymentSettings()
-        InputOutput = namedtuple(
-            "MyNamedTuple", ["bf_version", "cli_version", "expected_version"]
-        )
+        InputOutput = namedtuple("MyNamedTuple", ["bf_version", "cli_version", "expected_version"])
 
         input_outputs = [
             InputOutput("1.0.0", "1.0.0", "1.0.0"),
@@ -379,9 +351,7 @@ class TestTask:
         for input_output in input_outputs:
             settings.brickflow_project_runtime_version = input_output.bf_version
             assert (
-                get_brickflow_lib_version(
-                    input_output.bf_version, input_output.cli_version
-                )
+                get_brickflow_lib_version(input_output.bf_version, input_output.cli_version)
                 == input_output.expected_version
             )
             settings.brickflow_project_runtime_version = None

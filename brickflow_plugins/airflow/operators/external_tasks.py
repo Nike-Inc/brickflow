@@ -63,9 +63,7 @@ class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
         self._oauth2_conn_id = oauth2_conn_id
         self._airflow_url = airflow_cluster_url.rstrip("/")
         if airflow_version is None and get_airflow_version_callback is None:
-            raise Exception(
-                "Either airflow_version or get_airflow_version_callback must be provided"
-            )
+            raise Exception("Either airflow_version or get_airflow_version_callback must be provided")
 
     def get_okta_conn(self):
         return Connection.get_connection_from_secrets(self._oauth2_conn_id)
@@ -87,22 +85,13 @@ class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
         client_id = self.get_okta_client_id()
         client_secret = self.get_okta_client_secret()
 
-        payload = (
-            "client_id="
-            + client_id
-            + "&client_secret="
-            + client_secret
-            + "&grant_type=client_credentials"
-        )
+        payload = "client_id=" + client_id + "&client_secret=" + client_secret + "&grant_type=client_credentials"
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "cache-control": "no-cache",
         }
         response = requests.post(okta_url, data=payload, headers=headers, timeout=600)
-        if (
-            response.status_code < HTTPStatus.OK
-            or response.status_code > HTTPStatus.PARTIAL_CONTENT
-        ):
+        if response.status_code < HTTPStatus.OK or response.status_code > HTTPStatus.PARTIAL_CONTENT:
             log.error(
                 "Failed request to Okta for JWT status_code={} response={} client_id={}".format(
                     response.status_code, response.text, client_id
@@ -119,18 +108,14 @@ class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
         if self._airflow_version is not None:
             return self._airflow_version
         else:
-            return self._get_airflow_version_callback(
-                self._airflow_url, self.get_access_token()
-            )
+            return self._get_airflow_version_callback(self._airflow_url, self.get_access_token())
 
 
 class AirflowScheduleHelper(DagSchedule):
     def __init__(self, airflow_auth: AirflowClusterAuth):
         self._airflow_auth = airflow_auth
 
-    def get_task_run_status(
-        self, wf_id: str, task_id: str, latest=False, run_date=None, **kwargs
-    ):
+    def get_task_run_status(self, wf_id: str, task_id: str, latest=False, run_date=None, **kwargs):
         token_data = self._airflow_auth.get_access_token()
         api_url = self._airflow_auth.get_airflow_api_url()
         version_nr = self._airflow_auth.get_version()
@@ -142,39 +127,18 @@ class AirflowScheduleHelper(DagSchedule):
         }
         o_task_status = "UKN"
         session = requests.Session()
-        retries = Retry(
-            total=5, backoff_factor=1, status_forcelist=[502, 503, 504, 500]
-        )
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504, 500])
         session.mount("https://", HTTPAdapter(max_retries=retries))
         if version_nr.startswith("1."):
             log.info("this is 1.x cluster")
-            url = (
-                api_url
-                + "/api/experimental"
-                + "/dags/"
-                + dag_id
-                + "/dag_runs/"
-                + run_date
-                + "/tasks/"
-                + task_id
-            )
+            url = api_url + "/api/experimental" + "/dags/" + dag_id + "/dag_runs/" + run_date + "/tasks/" + task_id
         else:
-            url = (
-                api_url
-                + "/api/v1/dags/"
-                + dag_id
-                + "/dagRuns/scheduled__"
-                + run_date
-                + "/taskInstances/"
-                + task_id
-            )
+            url = api_url + "/api/v1/dags/" + dag_id + "/dagRuns/scheduled__" + run_date + "/taskInstances/" + task_id
 
         log.info(f"url= {url.replace(' ', '')}")
         response = session.get(url.replace(" ", ""), headers=headers)
 
-        log.info(
-            f"response.status_code= {response.status_code} response.text= {response.text}"
-        )
+        log.info(f"response.status_code= {response.status_code} response.text= {response.text}")
         if response.status_code == 200:
             log.info(f"response= {response.text}")
             json_obj = json.loads(response.text)
@@ -230,9 +194,7 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (datetime.now() + execution_delta).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
+        execution_window_tz = (datetime.now() + execution_delta).strftime("%Y-%m-%dT%H:%M:%SZ")
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
@@ -240,21 +202,10 @@ class TaskDependencySensor(BaseSensorOperator):
         }
         if af_version.startswith("1."):
             log.info("this is 1.x cluster")
-            url = (
-                api_url
-                + "/api/experimental"
-                + "/dags/"
-                + external_dag_id
-                + "/dag_runs/"
-            )
+            url = api_url + "/api/experimental" + "/dags/" + external_dag_id + "/dag_runs/"
         else:
             # Airflow API for 2.X version limits 100 records, so only picking runs within the execution window provided
-            url = (
-                api_url
-                + "/api/v1/dags/"
-                + external_dag_id
-                + f"/dagRuns?execution_date_gte={execution_window_tz}"
-            )
+            url = api_url + "/api/v1/dags/" + external_dag_id + f"/dagRuns?execution_date_gte={execution_window_tz}"
         log.info(f"URL to poke for dag runs {url}")
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 401:
@@ -264,9 +215,7 @@ class TaskDependencySensor(BaseSensorOperator):
         response.raise_for_status()
         list_of_dictionaries = response.json()
         list_of_dictionaries = response.json()["dag_runs"]
-        list_of_dictionaries = sorted(
-            list_of_dictionaries, key=lambda k: k["execution_date"], reverse=True
-        )
+        list_of_dictionaries = sorted(list_of_dictionaries, key=lambda k: k["execution_date"], reverse=True)
         if af_version.startswith("1."):
             # For airflow 1.X Execution date is needed to check the status of the task
             dag_run_id = list_of_dictionaries[0]["execution_date"]
@@ -277,21 +226,14 @@ class TaskDependencySensor(BaseSensorOperator):
                 # Only picking the latest run id if latest flag is True
                 dag_run_id = list_of_dictionaries[0]["dag_run_id"]
         log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")
-        log.info(
-            f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
-        )
+        log.info(f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} ")
         if af_version.startswith("1."):
             if dag_run_id >= execution_window_tz:
                 task_url = url + "/{dag_run_id}/tasks/{external_task_id}"
             else:
-                log.info(
-                    f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}"
-                )
+                log.info(f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}")
         else:
-            task_url = (
-                url[: url.rfind("/")]
-                + f"/dagRuns/{dag_run_id}/taskInstances/{external_task_id}"
-            )
+            task_url = url[: url.rfind("/")] + f"/dagRuns/{dag_run_id}/taskInstances/{external_task_id}"
         log.info(f"Pinging airflow API {task_url} for task status ")
         task_response = requests.request("GET", task_url, headers=headers)
         task_response.raise_for_status()
@@ -320,9 +262,7 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (datetime.now() + execution_delta).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
+        execution_window_tz = (datetime.now() + execution_delta).strftime("%Y-%m-%dT%H:%M:%SZ")
         log.info(
             f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} "
         )
@@ -330,9 +270,7 @@ class TaskDependencySensor(BaseSensorOperator):
         while status not in allowed_states:
             status = self.poke(context)
             if status == "failed":
-                log.error(
-                    f"Upstream dag {external_dag_id} failed at {external_task_id} task "
-                )
+                log.error(f"Upstream dag {external_dag_id} failed at {external_task_id} task ")
                 raise Exception("Upstream Dag Failed")
             elif status != "success":
                 time.sleep(self.poke_interval)
@@ -380,26 +318,16 @@ class AutosysSensor(BaseSensorOperator):
         )
 
         if response.status_code != 200:
-            raise HTTPError(
-                f"Request failed with '{response.status_code}' code. \n{response.text}"
-            )
+            raise HTTPError(f"Request failed with '{response.status_code}' code. \n{response.text}")
         else:
             status = response.json()["status"][:2].upper()
 
             timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
-            lastend = datetime.strptime(
-                response.json()["lastEndUTC"], timestamp_format
-            ).replace(tzinfo=pytz.UTC)
+            lastend = datetime.strptime(response.json()["lastEndUTC"], timestamp_format).replace(tzinfo=pytz.UTC)
 
-            time_delta = (
-                self.time_delta
-                if isinstance(self.time_delta, timedelta)
-                else timedelta(**self.time_delta)
-            )
+            time_delta = self.time_delta if isinstance(self.time_delta, timedelta) else timedelta(**self.time_delta)
 
-            execution_date = datetime.strptime(
-                context["execution_date"], "%Y-%m-%dT%H:%M:%S.%f%z"
-            )
+            execution_date = datetime.strptime(context["execution_date"], "%Y-%m-%dT%H:%M:%S.%f%z")
             rundate = execution_date - time_delta
 
             if "SU" in status and lastend >= rundate:

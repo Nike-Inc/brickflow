@@ -20,8 +20,6 @@ class BrickflowTaskPluginSpec:
 
     @staticmethod
     @brickflow_plugin_spec(firstresult=True)
-    def handle_results(
-        resp: "TaskResponse", task: "Task", workflow: "Workflow"
-    ) -> "TaskResponse":
+    def handle_results(resp: "TaskResponse", task: "Task", workflow: "Workflow") -> "TaskResponse":
         """Custom execute method that is able to be plugged in."""
         raise NotImplementedError("handle_results must be implemented by a plugin")

@@ -63,10 +63,7 @@ class WorkflowDependencySensor:
             """
 
             def __init__(self, *args, **kwargs):
-                if (
-                    kwargs.get("total", None) != max_retries
-                    and kwargs.get("total", None) > 0
-                ):
+                if kwargs.get("total", None) != max_retries and kwargs.get("total", None) > 0:
                     log.info(f"Retrying with kwargs: {kwargs}")
                 super().__init__(*args, **kwargs)
 
@@ -95,8 +92,7 @@ class WorkflowDependencySensor:
         run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
         if run_id is None:
             raise WorkflowDependencySensorException(
-                "run_id is empty, brickflow_parent_run_id parameter is not found "
-                "or no value present"
+                "run_id is empty, brickflow_parent_run_id parameter is not found " "or no value present"
             )
         params = {"run_id": run_id}
         resp = session.get(url, params=params, headers=headers).json()
@@ -111,9 +107,7 @@ class WorkflowDependencySensor:
 
     @functools.lru_cache
     def get_token(self):
-        return ctx.dbutils.secrets.get(
-            self.databricks_secrets_scope, self.databricks_secrets_key
-        )
+        return ctx.dbutils.secrets.get(self.databricks_secrets_scope, self.databricks_secrets_key)
 
     def execute(self):
         session = self.get_http_session()
@@ -149,10 +143,7 @@ class WorkflowDependencySensor:
                 self.log.info(f"This is offset: {offset}, this is has_more: {has_more}")
 
             self.log.info("Didn't find a successful run yet")
-            if (
-                self.timeout is not None
-                and (time.time() - self.start_time) > self.timeout
-            ):
+            if self.timeout is not None and (time.time() - self.start_time) > self.timeout:
                 raise WorkflowDependencySensorTimeOutException(f"The job has timed out")
 
             self.log.info(f"sleeping for: {self.poke_interval}")

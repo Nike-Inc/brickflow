@@ -39,9 +39,7 @@ def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
     )
 
     if cache_bust is not None:
-        cache_bust.register(
-            AirflowOperatorBrickflowTaskPluginImpl(), name="airflow-plugin"
-        )
+        cache_bust.register(AirflowOperatorBrickflowTaskPluginImpl(), name="airflow-plugin")
         return
 
     get_plugin_manager().register(AirflowOperatorBrickflowTaskPluginImpl())

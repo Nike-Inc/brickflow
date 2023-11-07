@@ -29,9 +29,7 @@ class TestCli:
         non_existent_command = "non_existent_command"
         result = runner.invoke(cli, ["non_existent_command"])  # noqa
         assert result.exit_code == 2
-        assert result.output.strip().endswith(
-            f"Error: No such command '{non_existent_command}'."
-        )
+        assert result.output.strip().endswith(f"Error: No such command '{non_existent_command}'.")
 
     @patch("webbrowser.open")
     def test_docs(self, browser: Mock):
@@ -40,9 +38,7 @@ class TestCli:
         result = runner.invoke(cli, ["docs"])  # noqa
         assert result.exit_code == 0, traceback.print_exception(*result.exc_info)
         assert result.output.strip().startswith("Opening browser for docs...")
-        browser.assert_called_once_with(
-            "https://engineering.nike.com/brickflow/", new=2
-        )
+        browser.assert_called_once_with("https://engineering.nike.com/brickflow/", new=2)
 
     def test_install_cli(self):
         expected_version = "0.200.0"
@@ -50,9 +46,7 @@ class TestCli:
         file_path = download_and_unzip_databricks_cli(url, expected_version)
         assert url is not None
         version_value = exec_command(file_path, "--version", [], capture_output=True)
-        assert (
-            version_value.strip() == f"Databricks CLI v{expected_version}"
-        ), version_value
+        assert version_value.strip() == f"Databricks CLI v{expected_version}", version_value
         directory_path = ".databricks"
         if os.path.exists(directory_path):
             shutil.rmtree(directory_path)

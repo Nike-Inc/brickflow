@@ -33,9 +33,7 @@ def deprecated(func: Callable):
     return new_func
 
 
-def _insert_before_path_startswith(
-    arr: List[str], value: str, new_element: str
-) -> None:
+def _insert_before_path_startswith(arr: List[str], value: str, new_element: str) -> None:
     for index, item in enumerate(arr):
         if item.startswith(value):
             arr.insert(index, new_element)
@@ -147,9 +145,7 @@ class BrickflowProjectDeploymentSettings:
             log.info("Getting attr: %s which has value: %s", upper_attr, value)
             return self._possible_string_to_bool(value)
         else:
-            raise AttributeError(
-                f"Attribute {upper_attr} is not a valid BrickflowEnvVars"
-            )
+            raise AttributeError(f"Attribute {upper_attr} is not a valid BrickflowEnvVars")
 
     def __setattr__(self, attr: str, value: Union[str, bool, Empty]) -> None:
         if isinstance(value, Empty):
@@ -164,9 +160,7 @@ class BrickflowProjectDeploymentSettings:
             else:
                 os.environ[upper_attr] = value
         else:
-            raise AttributeError(
-                f"Attribute {upper_attr} is not a valid BrickflowEnvVars"
-            )
+            raise AttributeError(f"Attribute {upper_attr} is not a valid BrickflowEnvVars")
 
 
 class BrickflowDefaultEnvs(Enum):
@@ -233,10 +227,7 @@ from brickflow.context import ctx
 def get_bundles_project_env() -> str:
     if (
         ctx.current_project is None
-        or config(
-            BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value, default=True, cast=bool
-        )
-        is False
+        or config(BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value, default=True, cast=bool) is False
     ):
         return ctx.env
     return f"{ctx.current_project}-{ctx.env}"

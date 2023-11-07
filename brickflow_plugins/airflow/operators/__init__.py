@@ -8,8 +8,7 @@ try:
     from airflow.utils.weight_rule import WeightRule
 except ImportError:
     raise ImportError(
-        "You must install airflow to use airflow plugins, "
-        "please try pip install brickflow[apache-airflow]"
+        "You must install airflow to use airflow plugins, " "please try pip install brickflow[apache-airflow]"
     )
 
 from brickflow.engine.task import Task
@@ -30,15 +29,11 @@ class UnsupportedAirflowOperatorError(Exception):
 
 class AbstractOperatorModifier(metaclass=ABCMeta):
     @abstractmethod
-    def set_next(
-        self, op_handler: "AbstractOperatorModifier"
-    ) -> "AbstractOperatorModifier":
+    def set_next(self, op_handler: "AbstractOperatorModifier") -> "AbstractOperatorModifier":
         pass
 
     @abstractmethod
-    def modify(
-        self, operator: BaseOperator, task: Task, workflow: Workflow
-    ) -> "BaseOperator":
+    def modify(self, operator: BaseOperator, task: Task, workflow: Workflow) -> "BaseOperator":
         pass
 
 
@@ -46,16 +41,12 @@ class OperatorModifier(AbstractOperatorModifier):
     def __init__(self):
         self._next_handler: Optional[AbstractOperatorModifier] = None
 
-    def set_next(
-        self, op_handler: "AbstractOperatorModifier"
-    ) -> "AbstractOperatorModifier":
+    def set_next(self, op_handler: "AbstractOperatorModifier") -> "AbstractOperatorModifier":
         self._next_handler = op_handler
         return op_handler
 
     @abstractmethod
-    def modify(
-        self, operator: BaseOperator, task: Task, workflow: Workflow
-    ) -> Optional["BaseOperator"]:
+    def modify(self, operator: BaseOperator, task: Task, workflow: Workflow) -> Optional["BaseOperator"]:
         if self._next_handler is not None:
             return self._next_handler.modify(operator, task, workflow)
 
@@ -97,13 +88,9 @@ class InvalidFieldChecker(OperatorModifier):
             if value != default_value:
                 unsupported_fields.append(field)
         if unsupported_fields:
-            raise UnsupportedAirflowTaskFieldError(
-                f"Unsupported fields: {unsupported_fields} for task: {task.task_id}"
-            )
+            raise UnsupportedAirflowTaskFieldError(f"Unsupported fields: {unsupported_fields} for task: {task.task_id}")
 
-    def modify(
-        self, operator: BaseOperator, task: Task, workflow: Workflow
-    ) -> Optional["BaseOperator"]:
+    def modify(self, operator: BaseOperator, task: Task, workflow: Workflow) -> Optional["BaseOperator"]:
         if isinstance(operator, BaseOperator):
             self._validate_task_fields(operator, task)
             return super().modify(operator, task, workflow)
@@ -120,18 +107,11 @@ class CatchAllOperatorModifier(OperatorModifier):
     ]
 
     def _validate_operators(self, operator: BaseOperator, task: Task) -> None:
-        if (
-            issubclass(operator.__class__, BaseOperator)
-            and operator.__class__.__name__ in self.SUPPORTED_OPERATORS
-        ):
+        if issubclass(operator.__class__, BaseOperator) and operator.__class__.__name__ in self.SUPPORTED_OPERATORS:
             return
-        raise UnsupportedAirflowOperatorError(
-            f"Unsupported airflow operator: {type(task)} for task: {task.task_id}"
-        )
+        raise UnsupportedAirflowOperatorError(f"Unsupported airflow operator: {type(task)} for task: {task.task_id}")
 
-    def modify(
-        self, operator: BaseOperator, task: Task, workflow: Workflow
-    ) -> Optional["BaseOperator"]:
+    def modify(self, operator: BaseOperator, task: Task, workflow: Workflow) -> Optional["BaseOperator"]:
         if isinstance(operator, BaseOperator):
             self._validate_operators(operator, task)
             return operator

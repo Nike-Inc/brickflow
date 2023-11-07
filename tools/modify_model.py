@@ -17,13 +17,7 @@ if __name__ == "__main__":
             return None
 
     def remove_timestamp_line(input_code: str) -> str:
-        return "\n".join(
-            [
-                _line
-                for _line in input_code.split("\n")
-                if not _line.startswith("#   timestamp: ")
-            ]
-        )
+        return "\n".join([_line for _line in input_code.split("\n") if not _line.startswith("#   timestamp: ")])
 
     with open(file_path, "r") as f:
         lines = f.readlines()
@@ -32,9 +26,7 @@ if __name__ == "__main__":
             if match:
                 dynamic_value = match.group(0)
                 if remove_number_from_end(dynamic_value):
-                    bad_class_names[dynamic_value] = remove_number_from_end(
-                        dynamic_value
-                    )
+                    bad_class_names[dynamic_value] = remove_number_from_end(dynamic_value)
 
     with open(file_path, "r") as r:
         data = r.read()

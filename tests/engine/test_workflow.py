@@ -252,6 +252,4 @@ class TestWorkflow:
                 clusters=[Cluster("name", "spark", "vm-node")],
                 schedule_pause_status="invalid",
             )
-        assert "schedule_pause_status must be one of ['PAUSED', 'UNPAUSED']" == str(
-            excinfo.value
-        )
+        assert "schedule_pause_status must be one of ['PAUSED', 'UNPAUSED']" == str(excinfo.value)

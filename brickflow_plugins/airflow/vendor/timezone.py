@@ -109,9 +109,7 @@ def make_aware(value: dt.datetime, timezone: dt.tzinfo | None = None) -> dt.date
     ...
 
 
-def make_aware(
-    value: dt.datetime | None, timezone: dt.tzinfo | None = None
-) -> dt.datetime | None:
+def make_aware(value: dt.datetime | None, timezone: dt.tzinfo | None = None) -> dt.datetime | None:
     """
     Make a naive datetime.datetime in a given time zone aware.
 
@@ -214,9 +212,7 @@ def coerce_datetime(v: dt.datetime, tz: dt.tzinfo | None = None) -> DateTime:
     ...
 
 
-def coerce_datetime(
-    v: dt.datetime | None, tz: dt.tzinfo | None = None
-) -> DateTime | None:
+def coerce_datetime(v: dt.datetime | None, tz: dt.tzinfo | None = None) -> DateTime | None:
     """Convert ``v`` into a timezone-aware ``pendulum.DateTime``.
 
     * If ``v`` is *None*, *None* is returned.
@@ -261,9 +257,7 @@ def td_format(td_object: None | dt.timedelta | float | int) -> str | None:
         key = key[0]
         return f"{value}{key}"
 
-    parts = map(
-        _format_part, ("years", "months", "days", "hours", "minutes", "seconds")
-    )
+    parts = map(_format_part, ("years", "months", "days", "hours", "minutes", "seconds"))
     joined = ":".join(part for part in parts if part)
     if not joined:
         return "<1s"

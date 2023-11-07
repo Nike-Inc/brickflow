@@ -13,9 +13,7 @@ if TYPE_CHECKING:
 
 
 class CodegenInterface(abc.ABC):
-    def __init__(
-        self, project: "_Project", id_: str, env: str, **_: Any
-    ) -> None:  # noqa
+    def __init__(self, project: "_Project", id_: str, env: str, **_: Any) -> None:  # noqa
         self.env: str = env
         self.project: "_Project" = project
         self.id_ = id_
@@ -35,21 +33,16 @@ class DatabricksDefaultClusterTagKeys(Enum):
 
 
 BRICKFLOW_BUILTIN_DEPLOY_TAGS = {
-    "brickflow_version": get_brickflow_version()
-    or "undefined",  # certain scenarios get_brickflow_version maybe None
+    "brickflow_version": get_brickflow_version() or "undefined",  # certain scenarios get_brickflow_version maybe None
 }
 
 
-def get_brickflow_tags(
-    user_defined_tags: Optional[Dict[str, str]], other_tags: Dict[str, str]
-) -> Dict[str, str]:
+def get_brickflow_tags(user_defined_tags: Optional[Dict[str, str]], other_tags: Dict[str, str]) -> Dict[str, str]:
     return {**(user_defined_tags or {}), **other_tags, **BRICKFLOW_BUILTIN_DEPLOY_TAGS}
 
 
 def handle_mono_repo_path(project: "_Project", env: str) -> str:
-    base_path = config(
-        BrickflowEnvVars.BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT.value, None
-    )
+    base_path = config(BrickflowEnvVars.BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT.value, None)
 
     if project.entry_point_path is None:
         raise ValueError("project.entry_point_path is None")
