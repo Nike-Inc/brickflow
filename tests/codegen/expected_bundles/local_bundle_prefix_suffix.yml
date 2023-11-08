@@ -8,7 +8,11 @@ environments:
           email_notifications: null
           notification_settings: null
           webhook_notifications: null
-          health: null
+          health: 
+            rules:
+              - metric: "RUN_DURATION_SECONDS"
+                op: "GREATER_THAN" 
+                value: 7200.0
           git_source: null
           job_clusters: []
           max_concurrent_runs: 1.0
