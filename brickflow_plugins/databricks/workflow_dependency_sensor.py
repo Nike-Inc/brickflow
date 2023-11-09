@@ -95,7 +95,7 @@ class WorkflowDependencySensor:
 
     def get_the_execution_date(self) -> str:
         session = self.get_http_session()
-        url = f"{self.databricks_host.rstrip('/')}/api/2.0/jobs/runs/get"
+        url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/get"
         headers = {
             "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
             "Content-Type": "application/json",
@@ -119,7 +119,7 @@ class WorkflowDependencySensor:
 
     def execute(self):
         session = self.get_http_session()
-        url = f"{self.databricks_host.rstrip('/')}/api/2.0/jobs/runs/list"
+        url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/list"
         headers = {
             "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
             "Content-Type": "application/json",
@@ -133,10 +133,9 @@ class WorkflowDependencySensor:
         }
 
         while True:
-            offset = 0
+            page_index = 0
             has_more = True
             while has_more is True:
-                params["offset"] = offset
                 resp = session.get(url, params=params, headers=headers).json()
                 for run in resp.get("runs", []):
                     self.log.info(
@@ -146,9 +145,13 @@ class WorkflowDependencySensor:
                         self.log.info(f"Found a successful run: {run['run_id']}")
                         return
 
-                offset += params["limit"]
                 has_more = resp.get("has_more", False)
-                self.log.info(f"This is offset: {offset}, this is has_more: {has_more}")
+                if has_more:
+                    params["page_token"] = resp["next_page_token"]
+                self.log.info(
+                    f"This is page_index: {page_index}, this is has_more: {has_more}"
+                )
+                page_index += 1
 
             self.log.info("Didn't find a successful run yet")
             if (
