@@ -8,6 +8,11 @@ environments:
           email_notifications: null
           notification_settings: null
           webhook_notifications: null
+          health: 
+            rules:
+              - metric: "RUN_DURATION_SECONDS"
+                op: "GREATER_THAN" 
+                value: 7200.0
           git_source:
             git_commit: a
             git_provider: github

@@ -5,7 +5,7 @@ fmt:
 	@poetry run black .
 
 check: black-check mypy
-	@poetry run prospector --profile prospector.yaml
+	@poetry run prospector --profile prospector.yaml --no-autodetect
 
 mypy:
 	@poetry run mypy

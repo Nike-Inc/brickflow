@@ -32,7 +32,11 @@ from brickflow import (
     BrickflowProjectDeploymentSettings,
     get_brickflow_version,
 )
-from brickflow.bundles.model import JobsTasksNotebookTask, JobsTasksNotificationSettings
+from brickflow.bundles.model import (
+    JobsTasksNotebookTask,
+    JobsTasksNotificationSettings,
+    JobsTasksHealthRules,
+)
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
     BrickflowBuiltInTaskVariables,
@@ -462,6 +466,7 @@ class Task:
     task_settings: Optional[TaskSettings] = None
     custom_execute_callback: Optional[Callable] = None
     ensure_brickflow_plugins: bool = False
+    health: Optional[List[JobsTasksHealthRules]] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
