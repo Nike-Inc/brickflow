@@ -377,6 +377,7 @@ def airflow_autosys_sensor():
 Wait for a workflow to finish before kicking off the current workflow's tasks
 
 ```python title="workflow_dependency_sensor"
+from brickflow.context import ctx
 from brickflow_plugins import WorkflowDependencySensor
 
 wf = Workflow(...)
@@ -384,10 +385,10 @@ wf = Workflow(...)
 
 @wf.task
 def wait_on_workflow(*args):
+   api_token_key = ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "api_token_key")
    sensor = WorkflowDependencySensor(
       databricks_host="https://your_workspace_url.cloud.databricks.com",
-      databricks_secrets_scope="brickflow-demo-tobedeleted",
-      databricks_secrets_key="api_token_key",
+      databricks_token=api_token_key,
       dependency_job_id=job_id,
       poke_interval=20,
       timeout=60,
