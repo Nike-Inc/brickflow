@@ -11,6 +11,7 @@ from brickflow.bundles.model import (
     JobsWebhookNotifications,
     JobsNotificationSettings,
     JobsTrigger,
+    JobsHealthRules,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -116,6 +117,8 @@ class Workflow:
     schedule_pause_status: str = "UNPAUSED"
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
+
+    health: Optional[List[JobsHealthRules]] = None
     default_task_settings: TaskSettings = TaskSettings()
     email_notifications: Optional[WorkflowEmailNotifications] = None
     webhook_notifications: Optional[WorkflowWebhookNotifications] = None
