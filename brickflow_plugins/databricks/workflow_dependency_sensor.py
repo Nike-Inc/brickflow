@@ -93,7 +93,7 @@ class WorkflowDependencySensor:
         session.mount("http://", HTTPAdapter(max_retries=retries))
         return session
 
-    def get_the_execution_date(self) -> str:
+    def get_execution_start_time_unix_miliseconds(self) -> int:
         session = self.get_http_session()
         url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/get"
         headers = {
@@ -109,13 +109,23 @@ class WorkflowDependencySensor:
         params = {"run_id": run_id}
         resp = session.get(url, params=params, headers=headers).json()
 
-        # Convert Unix timestamp to datetime object
+        # Convert Unix timestamp in miliseconds to datetime object to easily incorporate the delta
         start_time = datetime.fromtimestamp(resp["start_time"] / 1000)
-        execution_date = start_time - self.delta
-        self.log.info(start_time)
-        self.log.info(execution_date)
-        self.log.info(execution_date.strftime("%s"))
-        return execution_date.strftime("%s")
+        execution_start_time = start_time - self.delta
+
+        # Convert datetime object back to Unix timestamp in miliseconds
+        execution_start_time_unix_miliseconds = int(
+            execution_start_time.timestamp() * 1000
+        )
+
+        self.log.info(f"This workflow started at {start_time}")
+        self.log.info(
+            f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
+        )
+        self.log.info(
+            f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}"
+        )
+        return execution_start_time_unix_miliseconds
 
     def execute(self):
         session = self.get_http_session()
@@ -124,12 +134,10 @@ class WorkflowDependencySensor:
             "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
             "Content-Type": "application/json",
         }
-        # http://www.unixtimestampconverter.com/
         params = {
             "limit": 25,
             "job_id": self.dependency_job_id,
-            "expand_tasks": "true",
-            "start_time_from": self.get_the_execution_date(),
+            "start_time_from": self.get_execution_start_time_unix_miliseconds(),
         }
 
         while True:
