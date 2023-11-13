@@ -9,6 +9,8 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Bhargav Sangars](https://www.linkedin.com/in/bhargav-sangars-a4b61037/)
 * [Brend Braeckmans](https://www.linkedin.com/in/brendbraeckmans/)
 * [Rebecca Raj Shree](https://www.linkedin.com/in/rebecca-raj-shree/)
+* [Brent (Johnson) Spetner ](https://www.linkedin.com/in/brentjohnsoneng/)
+* [Dmitrii Grigorev](https://www.linkedin.com/in/dmitrii-grigorev-074739135/)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project
