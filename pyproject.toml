@@ -52,7 +52,6 @@ bf = "brickflow.cli:cli"
 brickflow = "brickflow.cli:cli"
 
 [tool.poetry.group.dev.dependencies]
-# apache-airflow = "^2.7.3" # Users might have to manually install apache-airflow if required
 black = "^23.3.0"
 coverage = "^7.2.5"
 datamodel-code-generator = "^0.22.1"
@@ -65,6 +64,7 @@ pytest = ">=7.3.1"
 pytest-mock = "^3.10.0"
 types-PyYAML = "*" # only for development purposes no need to make installation req
 types-requests = ">=2.28.11.16 <3.0.0.0" # only for development purposes no need to make installation req
+apache-airflow = "^2.7.3"
 
 [tool.poetry.group.docs.dependencies]
 mdx-include = ">=1.4.1,<2.0.0"
