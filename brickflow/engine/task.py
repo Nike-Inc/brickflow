@@ -271,10 +271,22 @@ class TaskSettings:
 
     def to_tf_dict(
         self,
-    ) -> Dict[str, Optional[str] | Optional[int] | Optional[bool] | Optional[Dict[str, Optional[List[str]]]],]:
-        email_not = self.email_notifications.to_tf_dict() if self.email_notifications is not None else {}
+    ) -> Dict[
+        str,
+        Optional[str]
+        | Optional[int]
+        | Optional[bool]
+        | Optional[Dict[str, Optional[List[str]]]],
+    ]:
+        email_not = (
+            self.email_notifications.to_tf_dict()
+            if self.email_notifications is not None
+            else {}
+        )
         notification_settings = (
-            {} if self.notification_settings is None else {"notification_settings": self.notification_settings.dict()}
+            {}
+            if self.notification_settings is None
+            else {"notification_settings": self.notification_settings.dict()}
         )
         return {
             **notification_settings,
@@ -329,7 +341,9 @@ class DLTPipeline:
     target: Optional[str] = None
 
     def to_b64(self, working_dir: str) -> str:
-        with (Path(working_dir) / Path(self.notebook_path)).open("r", encoding="utf-8") as f:
+        with (Path(working_dir) / Path(self.notebook_path)).open(
+            "r", encoding="utf-8"
+        ) as f:
             return base64.b64encode(f.read().encode("utf-8")).decode("utf-8")
 
     @staticmethod
@@ -367,7 +381,10 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     def task_execute(task: "Task", workflow: "Workflow") -> TaskResponse:
         """default execute implementation method."""
         _ilog.info("using default plugin for handling task execute")
-        if task.task_type == TaskType.CUSTOM_PYTHON_TASK and task.custom_execute_callback is not None:
+        if (
+            task.task_type == TaskType.CUSTOM_PYTHON_TASK
+            and task.custom_execute_callback is not None
+        ):
             _ilog.info("handling custom execute")
             return task.custom_execute_callback(task)
         else:
@@ -511,8 +528,10 @@ class Task:
             # 2 braces to escape 1
             BrickflowInternalVariables.task_id.value: f"{{{{{BrickflowBuiltInTaskVariables.task_key.name}}}}}",
             BrickflowInternalVariables.only_run_tasks.value: "",
-            BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix or "",
-            BrickflowInternalVariables.workflow_suffix.value: self.workflow.suffix or "",
+            BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix
+            or "",
+            BrickflowInternalVariables.workflow_suffix.value: self.workflow.suffix
+            or "",
             BrickflowInternalVariables.env.value: ctx.env,
         }
 
@@ -584,7 +603,9 @@ class Task:
         if spec.kwonlydefaults is None:
             return final_task_parameters
         # convert numbers into strings for base parameters
-        final_task_parameters.update({k: str(v) for k, v in spec.kwonlydefaults.items()})
+        final_task_parameters.update(
+            {k: str(v) for k, v in spec.kwonlydefaults.items()}
+        )
         return final_task_parameters
 
     # @property
@@ -595,7 +616,9 @@ class Task:
         # if dbutils returns None then return v instead
         return {
             k: (ctx.get_parameter(k, str(v)) or v)
-            for k, v in (inspect.getfullargspec(self.task_func).kwonlydefaults or {}).items()
+            for k, v in (
+                inspect.getfullargspec(self.task_func).kwonlydefaults or {}
+            ).items()
         }
 
     @staticmethod
@@ -630,7 +653,9 @@ class Task:
                 "At least one task before this were not successful",
             )
         # default is BrickflowTriggerRule.ALL_SUCCESS
-        return self._get_skip_with_reason(any(node_skip_checks), "All tasks before this were not successful")
+        return self._get_skip_with_reason(
+            any(node_skip_checks), "All tasks before this were not successful"
+        )
 
     def _skip_because_not_selected(self) -> Tuple[bool, Optional[str]]:
         selected_tasks = ctx.get_parameter(
@@ -658,7 +683,9 @@ class Task:
         ctx._set_current_task(self.name)
         self._ensure_brickflow_plugins()  # if you are expecting brickflow plugins to be installed
         if ignore_all_deps is True:
-            _ilog.info("Ignoring all dependencies for task: %s due to debugging", self.name)
+            _ilog.info(
+                "Ignoring all dependencies for task: %s due to debugging", self.name
+            )
         _select_task_skip, _select_task_skip_reason = self._skip_because_not_selected()
         if _select_task_skip is True and ignore_all_deps is False:
             # check if this task is skipped due to task selection
@@ -679,7 +706,9 @@ class Task:
         _ilog.info("Executing task... %s", self.name)
         _ilog.info("%s", pretty_print_function_source(self.name, self.task_func))
 
-        initial_resp: TaskResponse = get_brickflow_tasks_hook().task_execute(task=self, workflow=self.workflow)
+        initial_resp: TaskResponse = get_brickflow_tasks_hook().task_execute(
+            task=self, workflow=self.workflow
+        )
         resp: TaskResponse = get_brickflow_tasks_hook().handle_results(
             resp=initial_resp, task=self, workflow=self.workflow
         )
@@ -716,17 +745,39 @@ def is_semver(v: str) -> bool:
 
 
 def get_brickflow_lib_version(bf_version: str, cli_version: str) -> str:
-    bf_version = bf_version.lstrip("v")  # users can provide v1.0.0 we want to normalize it to 1.0.0; it could be a tag
-    cli_version_is_actual_tag = all(v.isnumeric() for v in cli_version.split("."))  # is it a proper tag for pypi
-    bf_version_is_actual_tag = all(v.isnumeric() for v in bf_version.split("."))  # is it a proper tag for pypi
+    bf_version = bf_version.lstrip(
+        "v"
+    )  # users can provide v1.0.0 we want to normalize it to 1.0.0; it could be a tag
+    cli_version_is_actual_tag = all(
+        v.isnumeric() for v in cli_version.split(".")
+    )  # is it a proper tag for pypi
+    bf_version_is_actual_tag = all(
+        v.isnumeric() for v in bf_version.split(".")
+    )  # is it a proper tag for pypi
     # TODO: make these if conditions into sentences
-    if bf_version is not None and is_semver(bf_version) is True and bf_version_is_actual_tag is True:
+    if (
+        bf_version is not None
+        and is_semver(bf_version) is True
+        and bf_version_is_actual_tag is True
+    ):
         bf_version = bf_version.lstrip("v")
-    elif bf_version is not None and is_semver(bf_version) is True and bf_version_is_actual_tag is False:
+    elif (
+        bf_version is not None
+        and is_semver(bf_version) is True
+        and bf_version_is_actual_tag is False
+    ):
         bf_version = f"v{bf_version.lstrip('v')}"
-    elif bf_version is not None and bf_version == DEFAULT_BRICKFLOW_VERSION_MODE and cli_version_is_actual_tag is True:
+    elif (
+        bf_version is not None
+        and bf_version == DEFAULT_BRICKFLOW_VERSION_MODE
+        and cli_version_is_actual_tag is True
+    ):
         bf_version = cli_version
-    elif bf_version is not None and bf_version != DEFAULT_BRICKFLOW_VERSION_MODE and is_semver(bf_version) is False:
+    elif (
+        bf_version is not None
+        and bf_version != DEFAULT_BRICKFLOW_VERSION_MODE
+        and is_semver(bf_version) is False
+    ):
         pass  # do nothing and use the version as is
     else:
         bf_version = "main"
@@ -744,7 +795,9 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
     if is_bf_version_semver is True and is_all_parts_numeric is True:
         bf_lib = PypiTaskLibrary(f"brickflows=={bf_version}")
     else:
-        bf_lib = PypiTaskLibrary(f"brickflows @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}")
+        bf_lib = PypiTaskLibrary(
+            f"brickflows @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+        )
 
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
         return [

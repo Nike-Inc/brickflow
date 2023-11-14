@@ -88,13 +88,23 @@ class BrickflowTaskComsObject:
         return base64.b64encode(results_bytes).decode("utf-8")
 
     @classmethod
-    def from_encoded_value(cls, encoded_value: Union[str, bytes]) -> "BrickflowTaskComsObject":
+    def from_encoded_value(
+        cls, encoded_value: Union[str, bytes]
+    ) -> "BrickflowTaskComsObject":
         try:
-            _encoded_value = encoded_value if isinstance(encoded_value, bytes) else encoded_value.encode("utf-8")
+            _encoded_value = (
+                encoded_value
+                if isinstance(encoded_value, bytes)
+                else encoded_value.encode("utf-8")
+            )
             b64_bytes = base64.b64decode(_encoded_value)
             return cls(pickle.loads(b64_bytes).value)
         except binascii.Error:
-            _decoded_value = encoded_value.decode("utf-8") if isinstance(encoded_value, bytes) else encoded_value
+            _decoded_value = (
+                encoded_value.decode("utf-8")
+                if isinstance(encoded_value, bytes)
+                else encoded_value
+            )
             return cls(_decoded_value)
 
 
@@ -129,7 +139,9 @@ class BrickflowTaskComs:
         if key is None:
             return BrickflowTaskComsDict(task_id=task_id, task_coms=self)
         if self.dbutils is not None:
-            encoded_value = self.dbutils.jobs.taskValues.get(key=key, taskKey=task_id, debugValue="debug")
+            encoded_value = self.dbutils.jobs.taskValues.get(
+                key=key, taskKey=task_id, debugValue="debug"
+            )
             return BrickflowTaskComsObject.from_encoded_value(encoded_value).value
         else:
             # TODO: logging using local task coms
@@ -177,7 +189,9 @@ class Context:
         if self._current_task is None:
             raise RuntimeError("Current task is empty unable to skip...")
         branch_task_key = (
-            branch_task.__name__ if callable(branch_task) and hasattr(branch_task, "__name__") is True else branch_task
+            branch_task.__name__
+            if callable(branch_task) and hasattr(branch_task, "__name__") is True
+            else branch_task
         )
         self._task_coms.put(self._current_task, BRANCH_SKIP_EXCEPT, branch_task_key)
 
@@ -193,7 +207,9 @@ class Context:
     @property
     def current_project(self) -> Optional[str]:
         # TODO: not a public api move to internal context or deployment context
-        return self._current_project or config(BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None)
+        return self._current_project or config(
+            BrickflowEnvVars.BRICKFLOW_PROJECT_NAME.value, None
+        )
 
     @staticmethod
     def _ensure_valid_project(project: str) -> None:
@@ -309,7 +325,9 @@ class Context:
         **kwargs: Optional[T],
     ) -> Optional[T]:
         # deep copy without modifying kwargs
-        def add_if_not_none(_d: Dict[str, Optional[T]], _k: str, _v: Optional[T]) -> None:
+        def add_if_not_none(
+            _d: Dict[str, Optional[T]], _k: str, _v: Optional[T]
+        ) -> None:
             if _v is None:
                 return
             _d[_k] = _v
@@ -339,7 +357,9 @@ class Context:
         return res
 
     @deprecated
-    def dbutils_widget_get_or_else(self, key: str, debug: Optional[str]) -> Optional[str]:
+    def dbutils_widget_get_or_else(
+        self, key: str, debug: Optional[str]
+    ) -> Optional[str]:
         try:
             return self.dbutils.widgets.get(key)
         except Exception:
@@ -378,7 +398,9 @@ class Context:
 
             self._spark = SparkSession.getActiveSession()
 
-        self._try_import_chaining([__try_spark_from_ipython_notebook, __try_spark_from_spark_session])
+        self._try_import_chaining(
+            [__try_spark_from_ipython_notebook, __try_spark_from_spark_session]
+        )
         _ilog.info("Spark Session object: ctx.spark is set to: %s", self.spark)
 
     def _configure_dbutils(self) -> ContextMode:
@@ -398,7 +420,9 @@ class Context:
             self._dbutils = DBUtils(self.spark)
             # cant gaurantee databricks
 
-        resp = self._try_import_chaining([__try_dbutils_from_ipython_notebook, __try_dbutils_from_db_connect_jar])
+        resp = self._try_import_chaining(
+            [__try_dbutils_from_ipython_notebook, __try_dbutils_from_db_connect_jar]
+        )
 
         _ilog.info("DBUtils object: ctx.dbutils is set to: %s", self.dbutils)
 

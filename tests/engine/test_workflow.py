@@ -183,7 +183,11 @@ class TestWorkflow:
         assert wf.default_task_settings is not None
 
     def test_health_settings(self):
-        assert wf.health == {"rules": [{"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200}]}
+        assert wf.health == {
+            "rules": [
+                {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200}
+            ]
+        }
 
     def test_user(self):
         principal = "abc@abc.com"
@@ -255,4 +259,6 @@ class TestWorkflow:
                 clusters=[Cluster("name", "spark", "vm-node")],
                 schedule_pause_status="invalid",
             )
-        assert "schedule_pause_status must be one of ['PAUSED', 'UNPAUSED']" == str(excinfo.value)
+        assert "schedule_pause_status must be one of ['PAUSED', 'UNPAUSED']" == str(
+            excinfo.value
+        )

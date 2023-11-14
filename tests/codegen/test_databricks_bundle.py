@@ -81,7 +81,11 @@ class TestBundleCodegen:
             "test-project",
             entry_point_path="test_databricks_bundle.py",
             codegen_kwargs={
-                "mutators": [DatabricksBundleTagsAndNameMutator(databricks_client=workspace_client)]
+                "mutators": [
+                    DatabricksBundleTagsAndNameMutator(
+                        databricks_client=workspace_client
+                    )
+                ]
             },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
@@ -126,7 +130,11 @@ class TestBundleCodegen:
             "test-project",
             entry_point_path="test_databricks_bundle.py",
             codegen_kwargs={
-                "mutators": [DatabricksBundleTagsAndNameMutator(databricks_client=workspace_client)]
+                "mutators": [
+                    DatabricksBundleTagsAndNameMutator(
+                        databricks_client=workspace_client
+                    )
+                ]
             },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
@@ -333,15 +341,23 @@ class TestBundleCodegen:
         databricks_fake_client.current_user.me.return_value.user_name = fake_user_email
 
         fake_job.job_id = fake_job_id
-        fake_job.settings.tags = {DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: project_name}
+        fake_job.settings.tags = {
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: project_name
+        }
         fake_pipeline.pipeline_id = fake_pipeline_id
         fake_pipeline.clusters = [fake_pipeline_cluster]
-        fake_pipeline_cluster.custom_tags = {DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: project_name}
+        fake_pipeline_cluster.custom_tags = {
+            DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: project_name
+        }
         project.name = project_name
         import_mutator = DatabricksBundleImportMutator(databricks_fake_client)
-        tag_and_name_mutator = DatabricksBundleTagsAndNameMutator(databricks_fake_client)
+        tag_and_name_mutator = DatabricksBundleTagsAndNameMutator(
+            databricks_fake_client
+        )
 
-        code_gen = DatabricksBundleCodegen(project, "some-id", "local", mutators=[tag_and_name_mutator, import_mutator])
+        code_gen = DatabricksBundleCodegen(
+            project, "some-id", "local", mutators=[tag_and_name_mutator, import_mutator]
+        )
         resource = Resources(
             jobs={
                 job_name: Jobs(
@@ -358,7 +374,11 @@ class TestBundleCodegen:
                 pipeline_name: Pipelines(
                     name=pipeline_name,
                     clusters=[PipelinesClusters(custom_tags={"test": "test"})],
-                    libraries=[PipelinesLibraries(notebook=PipelinesLibrariesNotebook(path="test-notebook"))],
+                    libraries=[
+                        PipelinesLibraries(
+                            notebook=PipelinesLibrariesNotebook(path="test-notebook")
+                        )
+                    ],
                 )
             },
         )
@@ -373,7 +393,13 @@ class TestBundleCodegen:
             ci=code_gen,
         )
 
-        assert code_gen.imports == [ImportBlock(to=f"databricks_job.{job_name}", id_=fake_job_id)]
+        assert code_gen.imports == [
+            ImportBlock(to=f"databricks_job.{job_name}", id_=fake_job_id)
+        ]
         databricks_fake_client.jobs.list.assert_called_once_with(name=job_name)
         databricks_fake_client.current_user.me.assert_called_once()
-        assert resource.jobs is not None and resource.jobs[job_name].name == f"{fake_user_name}_{job_name}"  # noqa
+        # pylint: disable=unsubscriptable-object
+        jobs: dict = resource.jobs
+        assert (
+            jobs is not None and jobs[job_name].name == f"{fake_user_name}_{job_name}"
+        )  # noqa

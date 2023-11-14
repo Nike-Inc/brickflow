@@ -9,9 +9,13 @@ import pytest
 from brickflow.engine.task import get_plugin_manager, get_brickflow_tasks_hook
 
 
-def assert_plugin_manager(pm: pluggy.PluginManager, expected_plugins: List[str]) -> None:
+def assert_plugin_manager(
+    pm: pluggy.PluginManager, expected_plugins: List[str]
+) -> None:
     num_expected_plugins = len(expected_plugins)
-    assert len(pm.get_plugins()) == num_expected_plugins, f"import error should only {num_expected_plugins} plugins"
+    assert (
+        len(pm.get_plugins()) == num_expected_plugins
+    ), f"import error should only {num_expected_plugins} plugins"
     for plugin in expected_plugins:
         assert pm.has_plugin(plugin), f"plugin manager should have {plugin} plugin"
 

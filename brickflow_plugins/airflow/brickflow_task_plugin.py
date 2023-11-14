@@ -8,7 +8,8 @@ try:
     from airflow.utils.context import Context
 except ImportError:
     raise ImportError(
-        "You must install airflow to use airflow plugins, " "please try pip install brickflow[apache-airflow]"
+        "You must install airflow to use airflow plugins, "
+        "please try pip install brickflow[apache-airflow]"
     )
 
 from jinja2 import Environment
@@ -32,7 +33,9 @@ def epoch_to_pendulum_datetime(epoch_str: Optional[str]):
 class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     @staticmethod
     @brickflow_task_plugin_impl(tryfirst=True)
-    def handle_results(resp: "TaskResponse", task: "Task", workflow: "Workflow") -> "TaskResponse":
+    def handle_results(
+        resp: "TaskResponse", task: "Task", workflow: "Workflow"
+    ) -> "TaskResponse":
         _operator = resp.response
         if not isinstance(_operator, BaseOperator):
             return resp

@@ -28,7 +28,9 @@ def with_brickflow_logger(f: Callable) -> Callable:
     def func(*args, **kwargs):  # type: ignore
         _self = args[0]
         log.handlers = []
-        logger_handler = logging.StreamHandler(stream=sys.stdout)  # Handler for the logger
+        logger_handler = logging.StreamHandler(
+            stream=sys.stdout
+        )  # Handler for the logger
         # First, generic formatter:
         logger_handler.setFormatter(
             logging.Formatter(

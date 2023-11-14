@@ -159,9 +159,15 @@ class CurrentProjectDoesNotExistError(Exception):
     pass
 
 
-def belongs_to_current_project(ref: ResourceReference, resource_project: Optional[str]) -> bool:
-    handle_project_validation = config(BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value, default=True, cast=bool)
-    belongs_to_project = ctx.current_project is not None and resource_project == ctx.current_project
+def belongs_to_current_project(
+    ref: ResourceReference, resource_project: Optional[str]
+) -> bool:
+    handle_project_validation = config(
+        BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value, default=True, cast=bool
+    )
+    belongs_to_project = (
+        ctx.current_project is not None and resource_project == ctx.current_project
+    )
     _ilog.info(
         "Checking if resource %s: %s belongs to current project: %s; "
         "handle project validation mode is %s, and the resource belongs to project: %s",
@@ -212,7 +218,9 @@ class ProjectResourceResolver(abc.ABC):
         if len(import_blocks) == 0:
             return None
         if len(import_blocks) > 1:
-            raise ResourceAlreadyUsedByOtherProjectError(f"Job {ref.name} is used by multiple projects")
+            raise ResourceAlreadyUsedByOtherProjectError(
+                f"Job {ref.name} is used by multiple projects"
+            )
         return import_blocks[0]
 
 
@@ -227,7 +235,9 @@ class JobResolver(ProjectResourceResolver):
         for job in jobs:
             if job.settings is None or job.settings.tags is None:
                 continue  # skip this job for import
-            job_project_tag = job.settings.tags.get(DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value, None)
+            job_project_tag = job.settings.tags.get(
+                DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value, None
+            )
             if belongs_to_current_project(ref, job_project_tag) is True:
                 # only add import blocks for jobs that belong to the current project
                 blocks.append(ImportBlock(to=ref.reference, id_=job.job_id))
@@ -241,16 +251,19 @@ class PipelineResolver(ProjectResourceResolver):
 
     def _resolve(self, ref: ResourceReference) -> List[ImportBlock]:
         blocks = []
-        for pipeline in self.databricks_client.pipelines.list_pipelines(filter=f"name LIKE '{ref.name}'"):
-            pipeline_details: GetPipelineResponse = self.databricks_client.pipelines.get(
-                pipeline_id=pipeline.pipeline_id
+        for pipeline in self.databricks_client.pipelines.list_pipelines(
+            filter=f"name LIKE '{ref.name}'"
+        ):
+            pipeline_details: GetPipelineResponse = (
+                self.databricks_client.pipelines.get(pipeline_id=pipeline.pipeline_id)
             )
 
             if pipeline_details.spec.clusters is None:
                 continue  # no clusters no way to identify if pipeline belongs to project
             project_tag = DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value
             pipeline_belongs_to_current_project = any(
-                cluster.custom_tags is not None and cluster.custom_tags.get(project_tag, None) == ctx.current_project
+                cluster.custom_tags is not None
+                and cluster.custom_tags.get(project_tag, None) == ctx.current_project
                 for cluster in pipeline_details.spec.clusters
             )
             if pipeline_belongs_to_current_project is True:
@@ -298,7 +311,9 @@ class DatabricksBundleImportMutator(DatabricksBundleResourceMutator):
             )
 
     def _imports_iter(self, resource: Resources) -> Iterator[ImportBlock]:
-        for unresolved_ref in itertools.chain(self._job_ref_iter(resource), self._pipeline_ref_iter(resource)):
+        for unresolved_ref in itertools.chain(
+            self._job_ref_iter(resource), self._pipeline_ref_iter(resource)
+        ):
             resolved_ref = self.import_resolver_chain.resolve(unresolved_ref)
             if resolved_ref is not None:
                 yield resolved_ref
@@ -341,7 +356,10 @@ class ImportManager:
         for import_block in import_blocks:
             _ilog.info("Reusing import for %s - %s", import_block.to, import_block.id_)
             import_statements.append(
-                f"import {{ \n" f"  to = {import_block.to} \n" f'  id = "{import_block.id_}" \n' f"}}"
+                f"import {{ \n"
+                f"  to = {import_block.to} \n"
+                f'  id = "{import_block.id_}" \n'
+                f"}}"
             )
         with open(file_path, "w", encoding="utf-8") as f:
             f.truncate()
@@ -395,8 +413,12 @@ class DatabricksBundleCodegen(CodegenInterface):
             if task.task_type == TaskType.DLT:
                 dlt_task: DLTPipeline = task.task_func()
                 pipeline_ref = self.get_pipeline_reference(workflow, dlt_task)
-                pipeline_library = PipelinesLibraries(notebook=PipelinesLibrariesNotebook(path=dlt_task.notebook_path))
-                pipelines_dict[pipeline_ref] = Pipelines(**dlt_task.to_dict(), libraries=[pipeline_library])
+                pipeline_library = PipelinesLibraries(
+                    notebook=PipelinesLibrariesNotebook(path=dlt_task.notebook_path)
+                )
+                pipelines_dict[pipeline_ref] = Pipelines(
+                    **dlt_task.to_dict(), libraries=[pipeline_library]
+                )
 
         return pipelines_dict
 
@@ -450,26 +472,36 @@ class DatabricksBundleCodegen(CodegenInterface):
             task_key=task_name,
         )
 
-    def workflow_obj_to_tasks(self, workflow: Workflow) -> List[Union[JobsTasks, Pipelines]]:
+    def workflow_obj_to_tasks(
+        self, workflow: Workflow
+    ) -> List[Union[JobsTasks, Pipelines]]:
         tasks = []
         for task_name, task in workflow.tasks.items():
             # TODO: DLT
             # pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
             depends_on = [JobsTasksDependsOn(task_key=f) for f in task.depends_on_names]
-            libraries = TaskLibrary.unique_libraries(task.libraries + (self.project.libraries or []))
+            libraries = TaskLibrary.unique_libraries(
+                task.libraries + (self.project.libraries or [])
+            )
             if workflow.enable_plugins is True:
                 libraries = filter_bf_related_libraries(libraries)
                 libraries += get_brickflow_libraries(workflow.enable_plugins)
 
-            task_libraries = [JobsTasksLibraries(**library.dict) for library in libraries]
+            task_libraries = [
+                JobsTasksLibraries(**library.dict) for library in libraries
+            ]
             task_settings = workflow.default_task_settings.merge(task.task_settings)
             if task.task_type == TaskType.DLT:
                 # native dlt task
-                tasks.append(self._build_dlt_task(task_name, task, workflow, depends_on))
+                tasks.append(
+                    self._build_dlt_task(task_name, task, workflow, depends_on)
+                )
             elif task.task_type == TaskType.NOTEBOOK_TASK:
                 # native notebook task
                 tasks.append(
-                    self._build_native_notebook_task(task_name, task, task_libraries, task_settings, depends_on)
+                    self._build_native_notebook_task(
+                        task_name, task, task_libraries, task_settings, depends_on
+                    )
                 )
             else:
                 # brickflow entrypoint task
@@ -515,7 +547,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         if workflow.run_as_user is not None:
             return {"run_as": JobsRunAs(user_name=workflow.run_as_user)}
         elif workflow.run_as_service_principal is not None:
-            return {"run_as": JobsRunAs(service_principal_name=workflow.run_as_service_principal)}
+            return {
+                "run_as": JobsRunAs(
+                    service_principal_name=workflow.run_as_service_principal
+                )
+            }
         return {}
 
     def proj_to_bundle(self) -> DatabricksAssetBundles:
@@ -524,7 +560,9 @@ class DatabricksBundleCodegen(CodegenInterface):
         for workflow_name, workflow in self.project.workflows.items():
             git_ref = self.project.git_reference or ""
             ref_type = git_ref.split("/", maxsplit=1)[0]
-            ref_type = ref_type if ref_type.startswith("git_") else f"git_{ref_type}"  # handle git_branch and git_tag
+            ref_type = (
+                ref_type if ref_type.startswith("git_") else f"git_{ref_type}"
+            )  # handle git_branch and git_tag
             ref_value = "/".join(git_ref.split("/")[1:])
             # only add git source if not local
             git_conf = (
@@ -548,7 +586,9 @@ class DatabricksBundleCodegen(CodegenInterface):
                 schedule=self.workflow_obj_to_schedule(workflow),
                 max_concurrent_runs=workflow.max_concurrent_runs,
                 **self.workflow_handle_run_as(workflow),
-                permissions=self.workflow_obj_to_permissions(workflow),  # will be none if not set
+                permissions=self.workflow_obj_to_permissions(
+                    workflow
+                ),  # will be none if not set
                 email_notifications=workflow.email_notifications,
                 notification_settings=workflow.notification_settings,
                 webhook_notifications=workflow.webhook_notifications,
@@ -573,7 +613,10 @@ class DatabricksBundleCodegen(CodegenInterface):
             raise ValueError("project.name is None")
 
         bundle_root_path = (
-            Path(self.project.bundle_base_path) / self.project.bundle_obj_name / self.project.name / self.env
+            Path(self.project.bundle_base_path)
+            / self.project.bundle_obj_name
+            / self.project.name
+            / self.env
         )
 
         bundle_suffix = config(

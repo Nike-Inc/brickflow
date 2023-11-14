@@ -88,7 +88,9 @@ def print_sample_lending_club_data():
 def airflow_external_task_dependency_sensor():
     import base64
 
-    data = base64.b64encode(ctx.dbutils.secrets.get("brickflow-demo", "okta_conn_id").encode("utf-8")).decode("utf-8")
+    data = base64.b64encode(
+        ctx.dbutils.secrets.get("brickflow-demo", "okta_conn_id").encode("utf-8")
+    ).decode("utf-8")
     return TaskDependencySensor(
         task_id="sensor",
         timeout=180,
@@ -248,7 +250,9 @@ def airflow_autosys_sensor():
     import base64
 
     data = base64.b64encode(
-        ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode("utf-8")
+        ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
+            "utf-8"
+        )
     ).decode("utf-8")
     return AutosysSensor(
         task_id="sensor",

@@ -12,7 +12,9 @@ def wraps_keyerror(error_class: Type[Exception], msg: str) -> Callable:
             try:
                 return f(*args, **kwargs)
             except KeyError as e:
-                raise error_class(f"{msg}; err: {str(e)}; args: {args}; kwargs: {kwargs}")
+                raise error_class(
+                    f"{msg}; err: {str(e)}; args: {args}; kwargs: {kwargs}"
+                )
 
         return func
 

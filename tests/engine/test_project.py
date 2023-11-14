@@ -65,7 +65,9 @@ class TestProject:
         dbutils.side_effect = dynamic_side_effect_return("test", "helloworld")
         with Project("test-project") as f:
             f.add_workflow(wf)
-        assert ctx.get_return_value(task_key=task_function) == task_function(test="helloworld")
+        assert ctx.get_return_value(task_key=task_function) == task_function(
+            test="helloworld"
+        )
 
     @patch("brickflow.context.ctx.get_parameter")
     def test_project_workflow_already_exists_error(self, dbutils):
@@ -74,7 +76,9 @@ class TestProject:
             with Project("test-project") as f:
                 f.add_workflow(wf)
                 f.add_workflow(wf)
-            assert hasattr(err, "__cause__") and isinstance(err.__cause__, WorkflowAlreadyExistsError)
+            assert hasattr(err, "__cause__") and isinstance(
+                err.__cause__, WorkflowAlreadyExistsError
+            )
 
     def test_project_workflow_no_workflows_skip(self):
         with Project("test-project"):
@@ -111,7 +115,9 @@ class TestProject:
         some_suffix = "_some_suffix"
         some_prefix = "some_prefix_"
         expected_workflow_name = some_prefix + some_name + some_suffix
-        this_wf = get_fake_wf(some_name, hard_coded_suffix=some_suffix, hard_coded_prefix=some_prefix)
+        this_wf = get_fake_wf(
+            some_name, hard_coded_suffix=some_suffix, hard_coded_prefix=some_prefix
+        )
 
         dbutils.side_effect = side_effect
         with Project("test-project-2") as f:
@@ -120,7 +126,9 @@ class TestProject:
 
         first_wf = list(f.workflows.values())[0]
         first_task = list(first_wf.tasks.values())[0]
-        wf_id = first_task.get_obj_dict("something")["base_parameters"][BrickflowInternalVariables.workflow_id.value]
+        wf_id = first_task.get_obj_dict("something")["base_parameters"][
+            BrickflowInternalVariables.workflow_id.value
+        ]
 
         assert this_wf.suffix == some_suffix
         assert this_wf.prefix == some_prefix
@@ -151,7 +159,9 @@ class TestProject:
 
         first_wf = list(f.workflows.values())[0]
         first_task = list(first_wf.tasks.values())[0]
-        wf_id = first_task.get_obj_dict("something")["base_parameters"][BrickflowInternalVariables.workflow_id.value]
+        wf_id = first_task.get_obj_dict("something")["base_parameters"][
+            BrickflowInternalVariables.workflow_id.value
+        ]
         # assert wf_id == expected_workflow_name
 
         assert this_wf.suffix == "_something"
@@ -193,7 +203,9 @@ class TestProject:
 
         first_wf = list(f.workflows.values())[0]
         first_task = list(first_wf.tasks.values())[0]
-        wf_id = first_task.get_obj_dict("something")["base_parameters"][BrickflowInternalVariables.workflow_id.value]
+        wf_id = first_task.get_obj_dict("something")["base_parameters"][
+            BrickflowInternalVariables.workflow_id.value
+        ]
         # assert wf_id == expected_workflow_name
 
         assert this_wf.suffix == some_suffix

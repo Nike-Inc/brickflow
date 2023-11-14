@@ -97,11 +97,19 @@ def generate_definitions(schema):
                         definition_data["title"] = get_name(new_path)
                         if "required" in value:
                             definition_data["required"] = value["required"]
-                        if "additionalProperties" in value and isinstance(value["additionalProperties"], bool):
-                            definition_data["additionalProperties"] = value["additionalProperties"]
+                        if "additionalProperties" in value and isinstance(
+                            value["additionalProperties"], bool
+                        ):
+                            definition_data["additionalProperties"] = value[
+                                "additionalProperties"
+                            ]
                     if "properties" in value:
-                        definition_data["properties"] = process_object(value["properties"], new_path)
-                    elif "additionalProperties" in value and isinstance(value["additionalProperties"], dict):
+                        definition_data["properties"] = process_object(
+                            value["properties"], new_path
+                        )
+                    elif "additionalProperties" in value and isinstance(
+                        value["additionalProperties"], dict
+                    ):
                         definition_data["additionalProperties"] = process_object(
                             value["additionalProperties"], new_path
                         )
@@ -111,7 +119,9 @@ def generate_definitions(schema):
                         definition_lookup[json.dumps(definition_data)] = definition_name
                         obj[key] = {"$ref": f"#/definitions/{definition_name}"}
                     else:
-                        obj[key] = {"$ref": f"#/definitions/{definition_lookup[definition_data_json]}"}
+                        obj[key] = {
+                            "$ref": f"#/definitions/{definition_lookup[definition_data_json]}"
+                        }
                 else:
                     obj[key] = process_object(value, f"{path}/{key}")
         return obj

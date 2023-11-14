@@ -11,4 +11,6 @@ class BrickflowDeployMode(Enum):
     BUNDLE = "bundle"
 
 
-INTERACTIVE_MODE = config(BrickflowEnvVars.BRICKFLOW_INTERACTIVE_MODE.value, default=True, cast=bool)
+INTERACTIVE_MODE = config(
+    BrickflowEnvVars.BRICKFLOW_INTERACTIVE_MODE.value, default=True, cast=bool
+)

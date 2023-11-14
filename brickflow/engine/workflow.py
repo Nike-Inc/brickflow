@@ -73,13 +73,21 @@ class WorkflowPermissions:
         access_controls = []
         # TODO: Permissions as ENUM
         if self.owner is not None:
-            access_controls.append({"permission_level": "IS_OWNER", **self.owner.to_access_control()})
+            access_controls.append(
+                {"permission_level": "IS_OWNER", **self.owner.to_access_control()}
+            )
         for principal in list(set(self.can_manage)):
-            access_controls.append({"permission_level": "CAN_MANAGE", **principal.to_access_control()})
+            access_controls.append(
+                {"permission_level": "CAN_MANAGE", **principal.to_access_control()}
+            )
         for principal in list(set(self.can_manage_run)):
-            access_controls.append({"permission_level": "CAN_MANAGE_RUN", **principal.to_access_control()})
+            access_controls.append(
+                {"permission_level": "CAN_MANAGE_RUN", **principal.to_access_control()}
+            )
         for principal in list(set(self.can_view)):
-            access_controls.append({"permission_level": "CAN_VIEW", **principal.to_access_control()})
+            access_controls.append(
+                {"permission_level": "CAN_VIEW", **principal.to_access_control()}
+            )
         return access_controls
 
 
@@ -136,7 +144,8 @@ class Workflow:
         self.graph.add_node(ROOT_NODE)
         if self.default_cluster is None and self.clusters == []:
             raise NoWorkflowComputeError(
-                f"Please configure default_cluster or " f"clusters field for workflow: {self.name}"
+                f"Please configure default_cluster or "
+                f"clusters field for workflow: {self.name}"
             )
         if self.prefix is None:
             self.prefix = env_chain(
@@ -157,7 +166,9 @@ class Workflow:
         self.schedule_pause_status = self.schedule_pause_status.upper()
         allowed_scheduled_pause_statuses = ["PAUSED", "UNPAUSED"]
         if self.schedule_pause_status not in allowed_scheduled_pause_statuses:
-            raise WorkflowConfigError(f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}")
+            raise WorkflowConfigError(
+                f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}"
+            )
 
     # def __hash__(self) -> int:
     #     import json
@@ -171,8 +182,14 @@ class Workflow:
 
     @property
     def unique_new_clusters(self) -> List[Cluster]:
-        clusters = [v.cluster for k, v in self.tasks.items()] + self.clusters + [self.default_cluster]
-        return list(set([c for c in clusters if c is not None and c.is_new_job_cluster]))
+        clusters = (
+            [v.cluster for k, v in self.tasks.items()]
+            + self.clusters
+            + [self.default_cluster]
+        )
+        return list(
+            set([c for c in clusters if c is not None and c.is_new_job_cluster])
+        )
 
     def unique_new_clusters_dict(self) -> List[Dict[str, Any]]:
         self.validate_new_clusters_with_unique_names()
@@ -199,7 +216,8 @@ class Workflow:
         duplicate_list = list(set(duplicates))
         if len(duplicate_list) > 0:
             raise DuplicateClustersDefinitionError(
-                f"Found duplicate cluster definitions in your workflow: {self.name}, " f"with names: {duplicate_list}"
+                f"Found duplicate cluster definitions in your workflow: {self.name}, "
+                f"with names: {duplicate_list}"
             )
 
     @property
@@ -274,13 +292,21 @@ class Workflow:
         ensure_brickflow_plugins: bool = False,
     ) -> None:
         if self.task_exists(task_id):
-            raise TaskAlreadyExistsError(f"Task: {task_id} already exists, please rename your function.")
+            raise TaskAlreadyExistsError(
+                f"Task: {task_id} already exists, please rename your function."
+            )
 
         if self.default_cluster is None:
-            raise RuntimeError("Some how default cluster wasnt set please raise a github issue.")
+            raise RuntimeError(
+                "Some how default cluster wasnt set please raise a github issue."
+            )
 
         _libraries = libraries or [] + self.libraries
-        _depends_on = [depends_on] if isinstance(depends_on, str) or callable(depends_on) else depends_on
+        _depends_on = (
+            [depends_on]
+            if isinstance(depends_on, str) or callable(depends_on)
+            else depends_on
+        )
 
         if self.enable_plugins is not None:
             ensure_plugins = self.enable_plugins
@@ -390,6 +416,8 @@ class Workflow:
             if callable(task_func):
                 return task_wrapper(task_func)
             else:
-                raise NoCallableTaskError("Please use task decorator against a callable function.")
+                raise NoCallableTaskError(
+                    "Please use task decorator against a callable function."
+                )
 
         return task_wrapper

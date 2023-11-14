@@ -27,7 +27,9 @@ class Context(MutableMapping[str, Any]):
         "yesterday_ds_nodash": [],
     }
 
-    def __init__(self, context: MutableMapping[str, Any] | None = None, **kwargs: Any) -> None:
+    def __init__(
+        self, context: MutableMapping[str, Any] | None = None, **kwargs: Any
+    ) -> None:
         self._context: MutableMapping[str, Any] = context or {}
         if kwargs:
             self._context.update(kwargs)

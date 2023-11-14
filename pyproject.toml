@@ -19,8 +19,8 @@ include = [
 exclude = ["sample_workflows", "tests"]
 
 [tool.black]
-line-length = 120
-target-version = ['py38']
+line-length = 88
+target-version = ['py38', 'py39', 'py310']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -34,7 +34,7 @@ extend-exclude = '''
 '''
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.8,<3.11"  # pyspark <3.5 does not play happy with python 3.11
 Jinja2 = "3.1.2"
 click = "^8.1.3"
 databricks-sdk = ">=0.1.8 <1.0.0"
@@ -116,8 +116,10 @@ files = [
 follow_imports = "skip"
 
 [tool.pylint]
+    [tool.pylint."MASTER"]
+    fail-under = 9.0
+
     [tool.pylint.'FORMAT']
-    # Same as Black.
     max-line-length = 120
     # Regexp for a line that is allowed to be longer than the limit.
     ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"

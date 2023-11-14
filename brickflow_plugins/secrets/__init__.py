@@ -13,7 +13,8 @@ try:
     from airflow.secrets import BaseSecretsBackend
 except ImportError:
     raise ImportError(
-        "You must install airflow to use airflow plugins, " "please try pip install brickflow[apache-airflow]"
+        "You must install airflow to use airflow plugins, "
+        "please try pip install brickflow[apache-airflow]"
     )
 
 from brickflow_plugins import log
@@ -54,10 +55,15 @@ class AbstractSecretsHelper(abc.ABC):
 
     def get_secret_value_from_url(self, url_parsed_result: ParseResult):
         allowed_protocols = (
-            [self.PROTOCOL_STARTS_WITH] if isinstance(self.PROTOCOL_STARTS_WITH, str) else self.PROTOCOL_STARTS_WITH
+            [self.PROTOCOL_STARTS_WITH]
+            if isinstance(self.PROTOCOL_STARTS_WITH, str)
+            else self.PROTOCOL_STARTS_WITH
         )
         if self.PROTOCOL_STARTS_WITH is not None and not any(
-            [url_parsed_result.scheme.lower().startswith(protocol) for protocol in allowed_protocols]
+            [
+                url_parsed_result.scheme.lower().startswith(protocol)
+                for protocol in allowed_protocols
+            ]
         ):
             return None
         return self._get_secret_value_from_url(url_parsed_result)

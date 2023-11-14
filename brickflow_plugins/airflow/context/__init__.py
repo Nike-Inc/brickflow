@@ -5,7 +5,8 @@ try:
     from airflow.utils.context import Context
 except ImportError:
     raise ImportError(
-        "You must install airflow to use airflow plugins, " "please try pip install brickflow[apache-airflow]"
+        "You must install airflow to use airflow plugins, "
+        "please try pip install brickflow[apache-airflow]"
     )
 
 from pendulum import DateTime
@@ -39,10 +40,13 @@ class FakeTaskInstance(object):
 
     def xcom_pull(self, task_ids, key=RETURN_VALUE_KEY, dag_id=None):
         if dag_id is not None:
-            raise CrossDagXComsNotSupportedError("Cross dag xcoms not supported in framework raise feature request.")
+            raise CrossDagXComsNotSupportedError(
+                "Cross dag xcoms not supported in framework raise feature request."
+            )
         if isinstance(task_ids, list) and len(task_ids) > 1:
             raise XComsPullMultipleTaskIdsError(
-                "Currently xcoms pull only supports one task_id please raise feature " "request."
+                "Currently xcoms pull only supports one task_id please raise feature "
+                "request."
             )
         task_id = task_ids[0] if isinstance(task_ids, list) else task_ids
         return ctx.task_coms.get(task_id, key)
@@ -70,7 +74,9 @@ def execution_timestamp(
     return tt.align_to_prev(ts)
 
 
-def get_task_context(task_id, operator: BaseOperator, quartz_cron_statement, ts, tz=TIMEZONE) -> Context:
+def get_task_context(
+    task_id, operator: BaseOperator, quartz_cron_statement, ts, tz=TIMEZONE
+) -> Context:
     execution_ts = execution_timestamp(quartz_cron_statement, ts, tz)
     return Context(
         **{

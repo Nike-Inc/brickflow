@@ -23,7 +23,11 @@ wf = Workflow(
     run_as_user="abc@abc.com",
     tags={"test": "test2"},
     common_task_parameters={"all_tasks1": "test", "all_tasks3": "123"},  # type: ignore
-    health={"rules": [{"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}]},
+    health={
+        "rules": [
+            {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
+        ]
+    },
 )
 
 

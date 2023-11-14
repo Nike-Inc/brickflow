@@ -63,7 +63,9 @@ def _bash_empty_on_kill(self):  # pylint:disable=unused-argument
     pass
 
 
-def _skip_all_except(self, ti: "FakeTaskInstance", branch_task_ids):  # pylint:disable=unused-argument
+def _skip_all_except(
+    self, ti: "FakeTaskInstance", branch_task_ids
+):  # pylint:disable=unused-argument
     log.info("Skipping all tasks except: %s", branch_task_ids)
     ti.xcom_push(BRANCH_SKIP_EXCEPT, branch_task_ids)
 
@@ -84,7 +86,9 @@ def _short_circuit_execute(self, context):
 
 class BashOperatorModifier(OperatorModifier):
     @check_if(BashOperator)
-    def modify(self, operator: BashOperator, task: Task, workflow: Workflow) -> Optional["BashOperator"]:
+    def modify(
+        self, operator: BashOperator, task: Task, workflow: Workflow
+    ) -> Optional["BashOperator"]:
         f = types.MethodType(_bash_execute, operator)
         operator.execute = f
         operator.on_kill = _bash_empty_on_kill

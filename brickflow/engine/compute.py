@@ -93,7 +93,9 @@ class Cluster:
 
     def validate(self) -> None:
         assert not (
-            self.num_workers is not None and self.min_workers is not None and self.max_workers is not None
+            self.num_workers is not None
+            and self.min_workers is not None
+            and self.max_workers is not None
         ), "Num workers should not be provided with min and max workers"
         assert not (
             (self.min_workers is None and self.max_workers is not None)
@@ -101,7 +103,8 @@ class Cluster:
         ), "Both min workers and max workers should be present if one is provided"
         # noinspection PyTypeChecker
         assert not (
-            (self.min_workers is not None and self.max_workers is not None) and (self.min_workers > self.max_workers)
+            (self.min_workers is not None and self.max_workers is not None)
+            and (self.min_workers > self.max_workers)
         ), "Min workers should be less than max workers"
         assert not (
             self.instance_pool_id is None and self.node_type_id is None
@@ -111,7 +114,10 @@ class Cluster:
         ), "Cannot specify instance_pool_id if node_type_id has been specified"
         assert not (
             (self.driver_node_type_id is not None)
-            and (self.instance_pool_id is not None or self.driver_instance_pool_id is not None)
+            and (
+                self.instance_pool_id is not None
+                or self.driver_instance_pool_id is not None
+            )
         ), "Cannot specify driver_node_type_id if instance_pool_id or driver_instance_pool_id has been specified"
 
     def __post_init__(self) -> None:

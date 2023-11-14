@@ -51,7 +51,9 @@ class WorkflowDependencySensor:
         self.databricks_host = databricks_host
         self.dependency_job_id = dependency_job_id
         self.databricks_token = (
-            databricks_token if isinstance(databricks_token, SecretStr) else SecretStr(databricks_token)
+            databricks_token
+            if isinstance(databricks_token, SecretStr)
+            else SecretStr(databricks_token)
         )
         self.poke_interval = poke_interval_seconds
         self.timeout = timeout_seconds
@@ -70,7 +72,10 @@ class WorkflowDependencySensor:
             """
 
             def __init__(self, *args, **kwargs):
-                if kwargs.get("total", None) != max_retries and kwargs.get("total", None) > 0:
+                if (
+                    kwargs.get("total", None) != max_retries
+                    and kwargs.get("total", None) > 0
+                ):
                     log.info(f"Retrying with kwargs: {kwargs}")
                 super().__init__(*args, **kwargs)
 
@@ -99,7 +104,8 @@ class WorkflowDependencySensor:
         run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
         if run_id is None:
             raise WorkflowDependencySensorException(
-                "run_id is empty, brickflow_parent_run_id parameter is not found " "or no value present"
+                "run_id is empty, brickflow_parent_run_id parameter is not found "
+                "or no value present"
             )
         params = {"run_id": run_id}
         resp = session.get(url, params=params, headers=headers).json()
@@ -109,11 +115,17 @@ class WorkflowDependencySensor:
         execution_start_time = start_time - self.delta
 
         # Convert datetime object back to Unix timestamp in miliseconds
-        execution_start_time_unix_miliseconds = int(execution_start_time.timestamp() * 1000)
+        execution_start_time_unix_miliseconds = int(
+            execution_start_time.timestamp() * 1000
+        )
 
         self.log.info(f"This workflow started at {start_time}")
-        self.log.info(f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards")
-        self.log.info(f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}")
+        self.log.info(
+            f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
+        )
+        self.log.info(
+            f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}"
+        )
         return execution_start_time_unix_miliseconds
 
     def execute(self):
@@ -145,11 +157,16 @@ class WorkflowDependencySensor:
                 has_more = resp.get("has_more", False)
                 if has_more:
                     params["page_token"] = resp["next_page_token"]
-                self.log.info(f"This is page_index: {page_index}, this is has_more: {has_more}")
+                self.log.info(
+                    f"This is page_index: {page_index}, this is has_more: {has_more}"
+                )
                 page_index += 1
 
             self.log.info("Didn't find a successful run yet")
-            if self.timeout is not None and (time.time() - self.start_time) > self.timeout:
+            if (
+                self.timeout is not None
+                and (time.time() - self.start_time) > self.timeout
+            ):
                 raise WorkflowDependencySensorTimeOutException(f"The job has timed out")
 
             self.log.info(f"sleeping for: {self.poke_interval}")
