@@ -402,4 +402,4 @@ class TestBundleCodegen:
         jobs: dict = resource.jobs
         assert (
             jobs is not None and jobs[job_name].name == f"{fake_user_name}_{job_name}"
-        )  # noqa
+        )
