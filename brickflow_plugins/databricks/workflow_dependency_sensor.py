@@ -1,12 +1,13 @@
-from datetime import datetime, timedelta
 import functools
 import logging
 import os
-from pydantic import SecretStr
-import requests
-from requests.adapters import HTTPAdapter
-import time
+from datetime import datetime, timedelta
 from typing import Union
+
+import requests
+import time
+from pydantic import SecretStr
+from requests.adapters import HTTPAdapter
 
 from brickflow.context import ctx
 

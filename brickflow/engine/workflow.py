@@ -239,8 +239,7 @@ class Workflow:
     def check_no_active_task(self) -> None:
         if self.active_task is not None:
             raise AnotherActiveTaskError(
-                "You are calling another active task in another task. "
-                "Please abstract the code more."
+                "You are calling another active task in another task. Please abstract the code more."
             )
 
     @wraps_keyerror(TaskNotFoundError, "Unable to find task: ")
