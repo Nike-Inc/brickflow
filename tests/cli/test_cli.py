@@ -6,7 +6,7 @@ from unittest.mock import patch, Mock
 import click
 from click.testing import CliRunner
 
-from brickflow import BrickflowProjectDeploymentSettings
+from brickflow import BrickflowProjectDeploymentSettings, BrickflowEnvVars
 from brickflow.cli import (
     cli,
     exec_command,
@@ -14,6 +14,7 @@ from brickflow.cli import (
 from brickflow.cli.bundles import (
     bundle_download_path,
     download_and_unzip_databricks_cli,
+    get_force_lock_flag,
 )
 from brickflow.cli.projects import handle_libraries
 
@@ -43,6 +44,25 @@ class TestCli:
         browser.assert_called_once_with(
             "https://engineering.nike.com/brickflow/", new=2
         )
+
+    def test_force_arg(self):
+        with patch.dict(
+            os.environ, {BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value: "0.203.0"}
+        ):
+            assert get_force_lock_flag() == "--force-lock"
+        with patch.dict(
+            os.environ, {BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value: "auto"}
+        ):
+            assert get_force_lock_flag() == "--force-lock"
+        with patch.dict(
+            os.environ,
+            {BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value: "something else"},
+        ):
+            assert get_force_lock_flag() == "--force-lock"
+        with patch.dict(
+            os.environ, {BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value: "0.202.0"}
+        ):
+            assert get_force_lock_flag() == "--force"
 
     def test_install_cli(self):
         expected_version = "0.200.0"
