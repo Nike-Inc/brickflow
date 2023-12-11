@@ -405,7 +405,8 @@ class TestBundleCodegen:
         ]
         databricks_fake_client.jobs.list.assert_called_once_with(name=job_name)
         databricks_fake_client.current_user.me.assert_called_once()
+        # pylint: disable=unsubscriptable-object
+        jobs: dict = resource.jobs
         assert (
-            resource.jobs is not None
-            and resource.jobs[job_name].name == f"{fake_user_name}_{job_name}"  # noqa
+            jobs is not None and jobs[job_name].name == f"{fake_user_name}_{job_name}"
         )

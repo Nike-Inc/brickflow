@@ -1,10 +1,14 @@
-import requests
-from datetime import datetime, timedelta
-import time
-import os
-import logging
-from requests.adapters import HTTPAdapter
 import functools
+import logging
+import os
+from datetime import datetime, timedelta
+from typing import Union
+
+import requests
+import time
+from pydantic import SecretStr
+from requests.adapters import HTTPAdapter
+
 from brickflow.context import ctx
 
 
@@ -21,22 +25,24 @@ class WorkflowDependencySensor:
     This is used to have dependencies on the databricks workflow
 
     Example Usage in your brickflow task:
+        service_principle_pat = ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "service_principle_id")
         WorkflowDependencySensor(
             databricks_host=https://your_workspace_url.cloud.databricks.com,
-            databricks_secrets_scope="brickflow-demo-tobedeleted",
-            databricks_secrets_key="service_principle_id"
+            databricks_token=service_principle_pat,
             dependency_job_id=job_id,
             poke_interval=20,
             timeout=60,
             delta=timedelta(days=1)
         )
+        In above snippet Databricks secrets is used as a secure service to store the databricks token.
+        If you get your token from another secret management service, like AWS Secrets Manager, GCP Secret Manager or Azure Key Vault,
+        just pass it in the databricks_token argument.
     """
 
     def __init__(
         self,
         databricks_host: str,
-        databricks_secrets_scope: str,
-        databricks_secrets_key: str,
+        databricks_token: Union[str, SecretStr],
         dependency_job_id: int,
         delta: timedelta,
         timeout_seconds: int,
@@ -44,8 +50,11 @@ class WorkflowDependencySensor:
     ):
         self.databricks_host = databricks_host
         self.dependency_job_id = dependency_job_id
-        self.databricks_secrets_scope = databricks_secrets_scope
-        self.databricks_secrets_key = databricks_secrets_key
+        self.databricks_token = (
+            databricks_token
+            if isinstance(databricks_token, SecretStr)
+            else SecretStr(databricks_token)
+        )
         self.poke_interval = poke_interval_seconds
         self.timeout = timeout_seconds
         self.delta = delta
@@ -85,11 +94,11 @@ class WorkflowDependencySensor:
         session.mount("http://", HTTPAdapter(max_retries=retries))
         return session
 
-    def get_the_execution_date(self) -> str:
+    def get_execution_start_time_unix_miliseconds(self) -> int:
         session = self.get_http_session()
-        url = f"{self.databricks_host.rstrip('/')}/api/2.0/jobs/runs/get"
+        url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/get"
         headers = {
-            "Authorization": f"Bearer {self.get_token()}",
+            "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
             "Content-Type": "application/json",
         }
         run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
@@ -101,40 +110,41 @@ class WorkflowDependencySensor:
         params = {"run_id": run_id}
         resp = session.get(url, params=params, headers=headers).json()
 
-        # Convert Unix timestamp to datetime object
+        # Convert Unix timestamp in miliseconds to datetime object to easily incorporate the delta
         start_time = datetime.fromtimestamp(resp["start_time"] / 1000)
-        execution_date = start_time - self.delta
-        self.log.info(start_time)
-        self.log.info(execution_date)
-        self.log.info(execution_date.strftime("%s"))
-        return execution_date.strftime("%s")
+        execution_start_time = start_time - self.delta
 
-    @functools.lru_cache
-    def get_token(self):
-        return ctx.dbutils.secrets.get(
-            self.databricks_secrets_scope, self.databricks_secrets_key
+        # Convert datetime object back to Unix timestamp in miliseconds
+        execution_start_time_unix_miliseconds = int(
+            execution_start_time.timestamp() * 1000
         )
+
+        self.log.info(f"This workflow started at {start_time}")
+        self.log.info(
+            f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
+        )
+        self.log.info(
+            f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}"
+        )
+        return execution_start_time_unix_miliseconds
 
     def execute(self):
         session = self.get_http_session()
-        url = f"{self.databricks_host.rstrip('/')}/api/2.0/jobs/runs/list"
+        url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/list"
         headers = {
-            "Authorization": f"Bearer {self.get_token()}",
+            "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
             "Content-Type": "application/json",
         }
-        # http://www.unixtimestampconverter.com/
         params = {
             "limit": 25,
             "job_id": self.dependency_job_id,
-            "expand_tasks": "true",
-            "start_time_from": self.get_the_execution_date(),
+            "start_time_from": self.get_execution_start_time_unix_miliseconds(),
         }
 
         while True:
-            offset = 0
+            page_index = 0
             has_more = True
             while has_more is True:
-                params["offset"] = offset
                 resp = session.get(url, params=params, headers=headers).json()
                 for run in resp.get("runs", []):
                     self.log.info(
@@ -144,9 +154,13 @@ class WorkflowDependencySensor:
                         self.log.info(f"Found a successful run: {run['run_id']}")
                         return
 
-                offset += params["limit"]
                 has_more = resp.get("has_more", False)
-                self.log.info(f"This is offset: {offset}, this is has_more: {has_more}")
+                if has_more:
+                    params["page_token"] = resp["next_page_token"]
+                self.log.info(
+                    f"This is page_index: {page_index}, this is has_more: {has_more}"
+                )
+                page_index += 1
 
             self.log.info("Didn't find a successful run yet")
             if (

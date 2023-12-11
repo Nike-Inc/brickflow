@@ -11,6 +11,7 @@ from brickflow.bundles.model import (
     JobsWebhookNotifications,
     JobsNotificationSettings,
     JobsTrigger,
+    JobsHealthRules,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -116,6 +117,8 @@ class Workflow:
     schedule_pause_status: str = "UNPAUSED"
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
+
+    health: Optional[List[JobsHealthRules]] = None
     default_task_settings: TaskSettings = TaskSettings()
     email_notifications: Optional[WorkflowEmailNotifications] = None
     webhook_notifications: Optional[WorkflowWebhookNotifications] = None
@@ -236,8 +239,7 @@ class Workflow:
     def check_no_active_task(self) -> None:
         if self.active_task is not None:
             raise AnotherActiveTaskError(
-                "You are calling another active task in another task. "
-                "Please abstract the code more."
+                "You are calling another active task in another task. Please abstract the code more."
             )
 
     @wraps_keyerror(TaskNotFoundError, "Unable to find task: ")

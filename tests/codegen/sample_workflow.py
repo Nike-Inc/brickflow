@@ -5,6 +5,8 @@ from brickflow.engine.task import (
     TaskResponse,
     DLTPipeline,
     NotebookTask,
+    TaskSettings,
+    TaskRunCondition,
 )
 from brickflow.engine.workflow import Workflow, WorkflowPermissions, User
 
@@ -21,6 +23,11 @@ wf = Workflow(
     run_as_user="abc@abc.com",
     tags={"test": "test2"},
     common_task_parameters={"all_tasks1": "test", "all_tasks3": "123"},  # type: ignore
+    health={
+        "rules": [
+            {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
+        ]
+    },
 )
 
 
@@ -92,6 +99,14 @@ def task_function_3():
 
 @wf.task(depends_on="task_function_3", trigger_rule=BrickflowTriggerRule.NONE_FAILED)
 def task_function_4():
+    return "hello world"
+
+
+@wf.task(
+    depends_on="task_function_4",
+    task_settings=TaskSettings(run_if=TaskRunCondition.AT_LEAST_ONE_FAILED),
+)
+def task_function_5():
     return "hello world"
 
 

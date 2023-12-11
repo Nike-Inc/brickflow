@@ -122,8 +122,8 @@ def bundle_env_set_options(f: Callable) -> Callable:
             ] = ",".join(value)
 
     def set_up_bundle_for_workflow_dir(
-        ctx: click.Context, param: str, value: Any  # noqa
-    ) -> None:
+        ctx: click.Context, param: str, value: Any  # pylint: disable=unused-argument
+    ) -> None:  # noqa
         if value is not None:
             return value
 

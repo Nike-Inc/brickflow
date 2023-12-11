@@ -581,6 +581,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 tasks=tasks,
                 git_source=git_conf,
                 tags=workflow.tags,
+                health=workflow.health,
                 job_clusters=[JobsJobClusters(**c) for c in workflow_clusters],
                 schedule=self.workflow_obj_to_schedule(workflow),
                 max_concurrent_runs=workflow.max_concurrent_runs,
