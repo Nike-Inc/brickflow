@@ -396,3 +396,60 @@ def wait_on_workflow(*args):
    )
    sensor.execute()
 ```
+
+#### Snowflake Operator
+
+run snowflake queries from the databricks environment 
+
+As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys   
+&emsp;&emsp;&emsp;&emsp;username : user id created for connecting to snowflake for ex: sample_user  
+&emsp;&emsp;&emsp;&emsp;password : password information for about user for ex: P@$$word  
+&emsp;&emsp;&emsp;&emsp;account  : snowflake account information, not entire url for ex: sample_enterprise  
+&emsp;&emsp;&emsp;&emsp;warehouse: warehouse/cluster information that user has access for ex: sample_warehouse  
+&emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
+&emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
+
+```python title="snowflake_operator"
+from brickflow_plugins import SnowflakeOperator
+
+wf = Workflow(...)
+
+@wf.task
+def run_snowflake_queries(*args):
+  sf_query_run = SnowflakeOperator(
+    secret_cope = "your_databricks secrets scope name",
+    input_params = {'query':"comma_seprated_list_of_queries"}
+  )
+  sf_query_run.execute()
+```
+
+
+#### UC to Snowflake Operator
+
+copy data from databricks to snowflake 
+
+As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys   
+&emsp;&emsp;&emsp;&emsp;username : user id created for connecting to snowflake for ex: sample_user  
+&emsp;&emsp;&emsp;&emsp;password : password information for about user for ex: P@$$word  
+&emsp;&emsp;&emsp;&emsp;account  : snowflake account information, not entire url for ex: sample_enterprise  
+&emsp;&emsp;&emsp;&emsp;warehouse: warehouse/cluster information that user has access for ex: sample_warehouse  
+&emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
+&emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
+
+
+```python title="uc_to_snowflake_operator"
+from brickflow_plugins import UcToSnowflakeOperator
+
+wf = Workflow(...)
+
+@wf.task
+def run_snowflake_queries(*args):
+  uc_to_sf_copy = UcToSnowflakeOperator(
+    secret_cope = "your_databricks secrets scope name",
+    uc_parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
+                      'dbx_table':'sf_operator_1', 'sfSchema':'stage','sfTable':'SF_OPERATOR_1',
+                      'sfGrantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
+                      'sfClusterkeys':''}
+  )
+  uc_to_sf_copy.execute()
+```
