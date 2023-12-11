@@ -447,9 +447,9 @@ def run_snowflake_queries(*args):
   uc_to_sf_copy = UcToSnowflakeOperator(
     secret_cope = "your_databricks secrets scope name",
     uc_parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
-                      'dbx_table':'sf_operator_1', 'sfSchema':'stage','sfTable':'SF_OPERATOR_1',
-                      'sfGrantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
-                      'sfClusterkeys':''}
+                      'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
+                      'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
+                      'sf_cluster_keys':''}
   )
   uc_to_sf_copy.execute()
 ```

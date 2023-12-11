@@ -1,9 +1,12 @@
 import logging
-import snowflake.connector
-import os
-from http import HTTPStatus
 
-from brickflow.context import ctx
+try:
+    import snowflake.connector
+except ImportError:
+    raise ImportError(
+        "You must install snowflake library to use run snowflake plugins, "
+        "please try pip install snowflake-connector-python"
+    )
 
 
 class SnowflakeOperatorException(Exception):
@@ -74,7 +77,13 @@ class SnowflakeOperator:
         """
         logic to connect to snowflake instance with provided details and return a connection object
         """
-        import snowflake.connector
+        try:
+            import snowflake.connector
+        except ImportError:
+            raise ImportError(
+                "You must install snowflake library to use run snowflake plugins, "
+                "please try pip install snowflake-connector-python"
+            )
 
         if self.authenticator:
             print(
@@ -129,7 +138,13 @@ class SnowflakeOperator:
         """
         logic to create a cursor for a successful snowflake connection to execute queries
         """
-        import snowflake.connector
+        try:
+            import snowflake.connector
+        except ImportError:
+            raise ImportError(
+                "You must install snowflake library to use run snowflake plugins, "
+                "please try pip install snowflake-connector-python"
+            )
 
         try:
             # self.log.info('getting connection for secret scope  id {}'.format(self.secret_scope))
@@ -237,23 +252,22 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     above code snippet expects the data as follows
     databricks_secrets_psc contains username, password, account, warehouse, database and role keys with snowflake values
     uc_parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
-                      'dbx_table':'sf_operator_1', 'sfSchema':'stage','sfTable':'SF_OPERATOR_1',
-                      'sfGrantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
-                      'sfClusterkeys':''}
+                      'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
+                      'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
+                      'sf_cluster_keys':''}
     """
 
     def __init__(self, secret_scope, parameters={}, *args, **kwargs):
-        # super(SnowFlakeOperator, self).__init__(*args, **kwargs)
         self.secret_scope = secret_scope
-        self.sfPresteps_sql = None
-        self.sfPoststeps_sql = None
-        self.sfPostgrants_sql = None
+        self.sf_pre_steps_sql = None
+        self.sf_post_steps_sql = None
+        self.sf_post_grants_sql = None
         self.cur = None
         self.conn = None
         self.log = logging
         self.parameters = parameters
         self.write_mode = None
-        self.sfClusterkeys = None
+        self.sf_cluster_keys = None
         self.authenticator = None
         try:
             import base64
@@ -265,8 +279,6 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             self.warehouse = ctx.dbutils.secrets.get(self.secret_scope, "warehouse")
             self.database = ctx.dbutils.secrets.get(self.secret_scope, "database")
             self.role = ctx.dbutils.secrets.get(self.secret_scope, "role")
-            # self.authenticator = base64.b64encode(
-            #    ctx.dbutils.secrets.get(self.secret_scope, "authenticator").encode("utf-8")).decode("utf-8") or None
         except:
             raise ValueError(
                 "Failed to fetch details from secret scope for username, password, account, warehouse, \
@@ -277,26 +289,26 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         queries = """  
                      CREATE OR REPLACE TABLE {sfSchema}.{sfTable_clone} CLONE {sfSchema}.{sfTable};
                      DELETE FROM {sfSchema}.{sfTable_clone} WHERE {incremental_filter}""".format(
-            sfSchema=self.parameters["sfSchema"],
-            sfTable_clone=self.parameters["sfTable"] + "_clone",
-            sfTable=self.parameters["sfTable"],
+            sfSchema=self.parameters["sf_schema"],
+            sfTable_clone=self.parameters["sf_table"] + "_clone",
+            sfTable=self.parameters["sf_table"],
             incremental_filter=self.parameters["incremental_filter"],
         )
         return queries
 
     def get_sf_poststeps(self):
         queries = """ ALTER TABLE {sfSchema}.{sfTable_clone} SWAP WITH {sfSchema}.{sfTable}; DROP TABLE {sfSchema}.{sfTable_clone} """.format(
-            sfSchema=self.parameters["sfSchema"],
-            sfTable_clone=self.parameters["sfTable"] + "_clone",
-            sfTable=self.parameters["sfTable"],
+            sfSchema=self.parameters["sf_schema"],
+            sfTable_clone=self.parameters["sf_table"] + "_clone",
+            sfTable=self.parameters["sf_table"],
         )
         return queries
 
     def get_sf_postgrants(self):
         queries = """ GRANT SELECT ON TABLE {sfSchema}.{sfTable} TO ROLE {sfGrantee_roles};""".format(
-            sfSchema=self.parameters["sfSchema"],
-            sfTable=self.parameters["sfTable"],
-            sfGrantee_roles=self.parameters["sfGrantee_roles"],
+            sfSchema=self.parameters["sf_schema"],
+            sfTable=self.parameters["sf_table"],
+            sfGrantee_roles=self.parameters["sf_grantee_roles"],
         )
         return queries
 
@@ -311,9 +323,9 @@ class UcToSnowflakeOperator(SnowflakeOperator):
                 "dbx_catalog",
                 "dbx_database",
                 "dbx_table",
-                "sfSchema",
-                "sfTable",
-                "sfGrantee_roles",
+                "sf_schema",
+                "sf_table",
+                "sf_grantee_roles",
             )
             if not all(key in self.parameters for key in mandatory_keys):
                 self.log.info(
@@ -326,9 +338,9 @@ class UcToSnowflakeOperator(SnowflakeOperator):
                 )
                 raise Exception("Job failed")
             # Setting up pre,post and grants scripts for snowflake
-            self.sfPresteps_sql = self.get_sf_presteps()
-            self.sfPoststeps_sql = self.get_sf_poststeps()
-            self.sfPostgrants_sql = self.get_sf_postgrants()
+            self.sf_pre_steps_sql = self.get_sf_presteps()
+            self.sf_post_steps_sql = self.get_sf_poststeps()
+            self.sf_post_grants_sql = self.get_sf_postgrants()
         else:
             self.log.error("Input is NOT a dictionary: %s\n" % format(self.parameters))
             raise Exception("Job failed")
@@ -357,10 +369,10 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         """
         Function to apply grants after successful execution
         """
-        grantee_roles = self.parameters.get("sfGrantee_roles")
+        grantee_roles = self.parameters.get("sf_grantee_roles")
         for grantee_role in grantee_roles.split(","):
-            self.parameters.update({"sfGrantee_roles": grantee_role})
-            self.submit_job_snowflake(self.sfPostgrants_sql)
+            self.parameters.update({"sf_grantee_roles": grantee_role})
+            self.submit_job_snowflake(self.sf_post_grants_sql)
 
     def extract_source(self):
         from brickflow import ctx
@@ -399,29 +411,29 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             "sfPassword": self.password,
             "sfWarehouse": self.warehouse,
             "sfDatabase": self.database,
-            "sfSchema": self.parameters["sfSchema"],
+            "sfSchema": self.parameters["sf_schema"],
             "sfRole": self.role,
         }
         self.log.info("snowflake package and options defined...!!!")
         if len(source_df.take(1)) == 0:
             self.write_mode = "Append"
-        if len(self.sfClusterkeys) == 0:
+        if len(self.sf_cluster_keys) == 0:
             # Without order by clause compared to above
             source_df.write.format(sf_package).options(**sf_options).option(
                 "dbtable",
                 "{0}.{1}.{2}".format(
-                    self.database, self.parameters["sfSchema"], target_table
+                    self.database, self.parameters["sf_schema"], target_table
                 ),
             ).mode("{0}".format(self.write_mode)).save()
 
-        elif len(self.sfClusterkeys) > 0:
+        elif len(self.sf_cluster_keys) > 0:
             # Included order by clause compared to above
-            source_df.orderBy(self.sfClusterkeys).write.format(sf_package).options(
+            source_df.orderBy(self.sf_cluster_keys).write.format(sf_package).options(
                 **sf_options
             ).option(
                 "dbtable",
                 "{0}.{1}.{2}".format(
-                    self.database, self.parameters["sfSchema"], target_table
+                    self.database, self.parameters["sf_schema"], target_table
                 ),
             ).mode(
                 "{0}".format(self.write_mode)
@@ -430,18 +442,18 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     def submit_job_compute(self):
         self.log.info("extracting data from databricks")
         target_table = (
-            self.parameters["sfTable"] + "_clone"
+            self.parameters["sf_table"] + "_clone"
             if self.parameters["load_type"].lower() == "incremental"
-            else self.parameters["sfTable"]
+            else self.parameters["sf_table"]
         )
         source_data = self.extract_source()
         self.write_mode = (
             "Overwrite" if self.parameters["load_type"] == "full" else "Append"
         )
-        self.sfClusterkeys = (
+        self.sf_cluster_keys = (
             []
-            if self.parameters["sfClusterkeys"] is None
-            else self.parameters["sfClusterkeys"]
+            if self.parameters["sf_cluster_keys"] is None
+            else self.parameters["sf_cluster_keys"]
         )
         self.log.info("loading data to snowflake")
         self.load_snowflake(source_data, target_table)
@@ -460,12 +472,12 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         if self.parameters.get("load_type").lower() == "incremental":
             self.log.info("Incremental Load Type Requested")
             # Snowflake Presteps execution
-            self.submit_job_snowflake(self.sfPresteps_sql)
+            self.submit_job_snowflake(self.sf_pre_steps_sql)
             self.log.info("Snowflake pre-steps execution succeeded")
             # Calling the spark job to load into snowflake table
             self.submit_job_compute()
             # Snowflake Poststeps execution
-            self.submit_job_snowflake(self.sfPoststeps_sql)
+            self.submit_job_snowflake(self.sf_post_steps_sql)
             self.apply_grants()
             self.log.info("Snowflake post-steps execution succeeded")
 

@@ -4561,17 +4561,17 @@ files = [
 
 [[package]]
 name = "snowflake"
-version = "0.3.0"
-description = "Snowflake Python SDK"
+version = "0.5.1"
+description = "Snowflake Python API"
 optional = false
-python-versions = "<3.11,>=3.8"
+python-versions = ">=3.8"
 files = [
-    {file = "snowflake-0.3.0-py3-none-any.whl", hash = "sha256:71d26406e0b4b273c44fa55884a5e13b2c8beb9d13868b32de9f93e9ab0ab98f"},
-    {file = "snowflake-0.3.0.tar.gz", hash = "sha256:35b928e4982de1b36179a0be8bcc4e6247df013b82ea6d4490f35c13440e8d00"},
+    {file = "snowflake-0.5.1-py3-none-any.whl", hash = "sha256:c4d49563ab8a1e571055c8d3f8d2a0b3e07205b0b573821d2cc5c7b0c65d0540"},
+    {file = "snowflake-0.5.1.tar.gz", hash = "sha256:be9de9acc24892001899d5f94d6625aa9eb15b93c140e993319b29ff1c11de93"},
 ]
 
 [package.dependencies]
-snowflake-core = "0.3.0"
+snowflake-core = "0.5.1"
 snowflake-legacy = "*"
 
 [[package]]
@@ -4630,20 +4630,21 @@ secure-local-storage = ["keyring (!=16.1.0,<25.0.0)"]
 
 [[package]]
 name = "snowflake-core"
-version = "0.3.0"
-description = "Snowflake Python SDK for Resource Management"
+version = "0.5.1"
+description = "Snowflake Python API for Resource Management"
 optional = false
-python-versions = "<3.11,>=3.8"
+python-versions = "<3.12,>=3.8"
 files = [
-    {file = "snowflake_core-0.3.0-py3-none-any.whl", hash = "sha256:243fb1405c64db42accbea9a086e950b60599300ed564f04dae79cfd60d1e2a4"},
-    {file = "snowflake_core-0.3.0.tar.gz", hash = "sha256:93a5bb84872672a612d52e64514665ba4ccf6b29cedc9a4117b5ff83a27086d2"},
+    {file = "snowflake_core-0.5.1-py3-none-any.whl", hash = "sha256:eefe762e25f9519050e0628b6e96284280a9146ee6c587247a64f8e819ff5a4c"},
+    {file = "snowflake_core-0.5.1.tar.gz", hash = "sha256:63ab5ee2b9a043dcdafcd9f0c0a53a7207d5425dbdcc9bd0feda7771e99b9969"},
 ]
 
 [package.dependencies]
 atpublic = ">=4"
 pydantic = ">=1.10.7,<2.0.0"
 python-dateutil = ">=2.8.2"
-snowflake-snowpark-python = ">=1.4.0,<2.0.0"
+snowflake-snowpark-python = ">=1.5.0,<2.0.0"
+urllib3 = "*"
 
 [[package]]
 name = "snowflake-legacy"
@@ -5286,4 +5287,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "d26a7e264bf7258f35daef7eefad93f99bd37bfd057b1e763f9accd7767fbe7f"
+content-hash = "6f71a863ab96c029f708f07dc68356eead4e957331281d9b86f81bfc7cd4bc2d"
