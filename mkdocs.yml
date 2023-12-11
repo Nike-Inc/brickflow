@@ -143,6 +143,8 @@ nav:
           - AirflowTaskDependencySensor: api/airflow_external_task_dependency.md
           - AirflowNativeOperators: api/airflow_native_operators.md
           - WorkflowDependencySensor: api/workflow_dependency_sensor.md
+          - SnowflakeOperator: api/uc_to_snowflake_operator.md
+          - UcToSnowflakeOperator: api/uc_to_snowflake_operator.md
           - Secrets: api/secrets.md
 
 

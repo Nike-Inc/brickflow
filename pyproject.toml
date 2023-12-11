@@ -46,6 +46,7 @@ python-decouple = "3.8"
 pyyaml = "^6.0"
 requests = ">=2.28.2 <3.0.0"
 # cerberus-python-client = {version = "~2.5.4",  optional = true } # Users might have to manually install cerberus-python-client if required
+snowflake = "^0.3.0"
 
 [tool.poetry.scripts]
 bf = "brickflow.cli:cli"
