@@ -11,6 +11,7 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Rebecca Raj Shree](https://www.linkedin.com/in/rebecca-raj-shree/)
 * [Brent (Johnson) Spetner](https://www.linkedin.com/in/brentjohnsoneng/)
 * [Dmitrii Grigorev](https://www.linkedin.com/in/dmitrii-grigorev-074739135/)
+* [Chanukya Konuganti](https://www.linkedin.com/in/chanukyakonuganti/)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project

@@ -30,6 +30,10 @@ from brickflow_plugins.airflow.operators.native_operators import (
 from brickflow_plugins.databricks.workflow_dependency_sensor import (
     WorkflowDependencySensor,
 )
+from brickflow_plugins.databricks.uc_to_snowflake_operator import (
+    SnowflakeOperator,
+    UcToSnowflakeOperator,
+)
 
 
 def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
@@ -61,6 +65,8 @@ __all__: List[str] = [
     "BranchPythonOperator",
     "ShortCircuitOperator",
     "WorkflowDependencySensor",
+    "SnowflakeOperator",
+    "UcToSnowflakeOperator",
     "load_plugins",
     "ensure_installation",
 ]

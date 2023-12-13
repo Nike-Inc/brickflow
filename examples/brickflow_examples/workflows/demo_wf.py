@@ -16,7 +16,10 @@ from brickflow_plugins import (
     TaskDependencySensor,
     AirflowProxyOktaClusterAuth,
     AutosysSensor,
+    SnowflakeOperator,
+    UcToSnowflakeOperator,
 )
+from brickflow.engine.task import PypiTaskLibrary
 
 wf = Workflow(
     "brickflow-demo",
@@ -38,6 +41,7 @@ wf = Workflow(
         can_view=[User("def@gmail.com")],
         can_manage=[User("ghi@gmail.com")],
     ),
+    libraries=[PypiTaskLibrary(package="snowflake==0.5.1")],
     # replace <emails> with existing users' email on databricks
     default_task_settings=TaskSettings(
         email_notifications=EmailNotifications(
@@ -263,6 +267,33 @@ def airflow_autosys_sensor():
         job_name="hello",
         time_delta={"days": 0},
     )
+
+
+@wf.task
+def run_snowflake_queries(*args):
+    uc_to_sf_copy = UcToSnowflakeOperator(
+        secret_cope="sample_scope",
+        uc_parameters={
+            "load_type": "incremental",
+            "dbx_catalog": "sample_catalog",
+            "dbx_database": "sample_schema",
+            "dbx_table": "sf_operator_1",
+            "sf_schema": "stage",
+            "sf_table": "SF_OPERATOR_1",
+            "sf_grantee_roles": "downstream_read_role",
+            "incremental_filter": "dt='2023-10-22'",
+            "sf_cluster_keys": "",
+        },
+    )
+    uc_to_sf_copy.execute()
+
+
+@wf.task
+def run_snowflake_queries(*args):
+    sf_query_run = SnowflakeOperator(
+        secret_cope="sample_scope", input_params={"query": "select * from table"}
+    )
+    sf_query_run.execute()
 
 
 @wf.task(depends_on=airflow_autosys_sensor)

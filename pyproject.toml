@@ -65,6 +65,7 @@ pytest-mock = "^3.10.0"
 types-PyYAML = "*" # only for development purposes no need to make installation req
 types-requests = ">=2.28.11.16 <3.0.0.0" # only for development purposes no need to make installation req
 apache-airflow = "^2.7.3"
+snowflake = "^0.5.1"
 
 [tool.poetry.group.docs.dependencies]
 mdx-include = ">=1.4.1,<2.0.0"

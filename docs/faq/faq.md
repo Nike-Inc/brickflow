@@ -59,3 +59,36 @@ def wait_on_workflow(*args):
     )
     sensor.execute()
 ```
+## How do I run a sql query on snowflake from DBX?
+```python
+from brickflow_plugins import SnowflakeOperator
+
+wf = Workflow(...)
+
+@wf.task
+def run_snowflake_queries(*args):
+  sf_query_run = SnowflakeOperator(
+    secret_cope = "your_databricks secrets scope name",
+    input_params = {'query':"comma_seprated_list_of_queries"}
+  )
+  sf_query_run.execute()
+```
+
+## How do I copy a part/entire data of a UC table to snowflake table?
+```python
+
+from brickflow_plugins import UcToSnowflakeOperator
+
+wf = Workflow(...)
+
+@wf.task
+def copy_from_uc_sf(*args):
+  uc_to_sf_copy = UcToSnowflakeOperator(
+    secret_scope = "your_databricks secrets scope name",
+    uc_parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
+                      'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
+                      'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
+                      'sf_cluster_keys':''}
+  )
+  uc_to_sf_copy.execute()
+```
