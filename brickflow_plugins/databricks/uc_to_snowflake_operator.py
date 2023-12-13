@@ -144,14 +144,6 @@ class SnowflakeOperator:
         logic to create a cursor for a successful snowflake connection to execute queries
         """
         try:
-            import snowflake.connector
-        except ImportError:
-            raise ImportError(
-                "You must install snowflake library to use run snowflake plugins, "
-                "please try pip install snowflake-connector-python"
-            )
-
-        try:
             # self.log.info('getting connection for secret scope  id {}'.format(self.secret_scope))
             con = self.get_snowflake_connection()
         except snowflake.connector.errors.ProgrammingError as e:
