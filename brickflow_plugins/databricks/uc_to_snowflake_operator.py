@@ -4,8 +4,21 @@ try:
     import snowflake.connector
 except ImportError:
     raise ImportError(
-        "You must install snowflake library to use run snowflake plugins, "
-        "please try pip install snowflake-connector-python"
+        """You must install snowflake library to use run snowflake plugins, please add - 'snowflake' library either
+         at project level in entrypoint or at workflow level or at task level. Examples shown below 
+        entrypoint:
+            with Project( ... 
+                          libraries=[PypiTaskLibrary(package="snowflake==0.5.1")]
+                          ...)
+        workflow:
+            wf=Workflow( ...
+                         libraries=[PypiTaskLibrary(package="snowflake==0.5.1")]
+                         ...)
+        Task:
+            @wf.task(Library=[PypiTaskLibrary(package="snowflake==0.5.1")]
+            def run_snowflake_queries(*args):
+                ...
+        """
     )
 
 
@@ -77,14 +90,6 @@ class SnowflakeOperator:
         """
         logic to connect to snowflake instance with provided details and return a connection object
         """
-        try:
-            import snowflake.connector
-        except ImportError:
-            raise ImportError(
-                "You must install snowflake library to use run snowflake plugins, "
-                "please try pip install snowflake-connector-python"
-            )
-
         if self.authenticator:
             print(
                 "snowflake_account_name={0}, database={1}, username={2}, warehouse={3}, role={4}, authenticator={5}".format(
