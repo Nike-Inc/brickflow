@@ -374,6 +374,25 @@ class Workflow:
             depends_on=depends_on,
         )
 
+    def spark_jar_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        cluster: Optional[Cluster] = None,
+        libraries: Optional[List[TaskLibrary]] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            cluster=cluster,
+            libraries=libraries,
+            task_type=TaskType.SPARK_JAR_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+        )
+
     def task(
         self,
         task_func: Optional[Callable] = None,

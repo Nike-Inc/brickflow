@@ -157,6 +157,23 @@ targets:
             retry_on_timeout: null
             task_key: notebook_task_a
             timeout_seconds: null
+          - depends_on:
+              - task_key: notebook_task_a
+            email_notifications: {}
+            existing_cluster_id: existing_cluster_id
+            libraries:
+              - jar: dbfs:/kafka-jars/databricks-shaded-strimzi-kafka-oauth-client-1.1.jar
+              - pypi:
+                  package: brickflows==0.1.0
+            max_retries: null
+            min_retry_interval_millis: null
+            spark_jar_task:
+              main_class_name: com.example.Main
+              parameters: null
+              jar_uri: null
+            retry_on_timeout: null
+            task_key: spark_jar_task_a
+            timeout_seconds: null
           - depends_on: []
             email_notifications: {}
             existing_cluster_id: existing_cluster_id

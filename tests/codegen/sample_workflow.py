@@ -1,3 +1,4 @@
+from brickflow import JarTaskLibrary
 from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
     BrickflowTriggerRule,
@@ -5,6 +6,7 @@ from brickflow.engine.task import (
     TaskResponse,
     DLTPipeline,
     NotebookTask,
+    SparkJarTask,
     TaskSettings,
     TaskRunCondition,
 )
@@ -27,8 +29,7 @@ wf = Workflow(
         "rules": [
             {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
         ]
-    },
-    timeout_seconds=42,
+    },  # type: ignore
 )
 
 
@@ -48,7 +49,19 @@ def notebook_task_a(*, test="var"):
     print(test)
     return NotebookTask(
         notebook_path="notebooks/notebook_a",
-    )
+    )  # type: ignore
+
+
+@wf.spark_jar_task(
+    libraries=[
+        JarTaskLibrary(
+            jar="dbfs:/kafka-jars/databricks-shaded-strimzi-kafka-oauth-client-1.1.jar"
+        )
+    ],
+    depends_on=notebook_task_a,
+)
+def spark_jar_task_a():
+    return SparkJarTask(main_class_name="com.example.Main")  # type: ignore
 
 
 @wf.dlt_task

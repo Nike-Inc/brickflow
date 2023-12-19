@@ -37,6 +37,7 @@ from brickflow.bundles.model import (
     JobsTasksDependsOn,
     JobsTasksLibraries,
     JobsTasksNotebookTask,
+    JobsTasksSparkJarTask,
     Resources,
     Workspace,
     Bundle,
@@ -458,6 +459,33 @@ class DatabricksBundleCodegen(CodegenInterface):
             **task.cluster.job_task_field_dict,
         )
 
+    def _build_native_spark_jar_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_libraries: List[JobsTasksLibraries],
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+    ) -> JobsTasks:
+        try:
+            spark_jar_task: JobsTasksSparkJarTask = task.task_func()
+        except Exception as e:
+            raise ValueError(
+                f"Error while building jar task {task_name}. "
+                f"Make sure {task_name} returns a SparkJarTask object."
+            ) from e
+
+        return JobsTasks(
+            **task_settings.to_tf_dict(),
+            spark_jar_task=spark_jar_task,
+            libraries=task_libraries,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id
+            **task.cluster.job_task_field_dict,
+        )
+
     def _build_dlt_task(
         self,
         task_name: str,
@@ -505,6 +533,13 @@ class DatabricksBundleCodegen(CodegenInterface):
                 # native notebook task
                 tasks.append(
                     self._build_native_notebook_task(
+                        task_name, task, task_libraries, task_settings, depends_on
+                    )
+                )
+            elif task.task_type == TaskType.SPARK_JAR_TASK:
+                # native jar task
+                tasks.append(
+                    self._build_native_spark_jar_task(
                         task_name, task, task_libraries, task_settings, depends_on
                     )
                 )

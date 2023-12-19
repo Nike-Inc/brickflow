@@ -30,6 +30,7 @@ from brickflow.engine.project import Stage, Project
 from brickflow.engine.task import NotebookTask
 from tests.codegen.sample_workflow import wf
 
+# BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
 
 
@@ -47,6 +48,7 @@ def assert_equal_dicts(actual: Dict[str, Any], expected: Dict[str, Any]):
     diff = DeepDiff(
         normalize_bundle_via_pydantic(expected), normalize_bundle_via_pydantic(actual)
     )
+    print(diff)
     # pylint indicates that empty dictionary is falsey
     # diff should be empty dict
     assert not diff, diff
