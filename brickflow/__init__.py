@@ -274,6 +274,7 @@ from brickflow.engine.task import (
     DLTEdition,
     DLTChannels,
     NotebookTask,
+    SparkJarTask,
 )
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
@@ -314,6 +315,7 @@ __all__: List[str] = [
     "EmailNotifications",
     "DLTPipeline",
     "NotebookTask",
+    "SparkJarTask",
     "DLTEdition",
     "DLTChannels",
     "Cluster",
