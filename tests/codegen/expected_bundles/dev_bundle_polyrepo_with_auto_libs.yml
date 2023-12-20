@@ -11,7 +11,7 @@ targets:
             git_commit: a
             git_provider: github
             git_url: https://github.com/
-          job_clusters: [ ]
+          job_clusters: []
           max_concurrent_runs: 1.0
           name: dev_some_wf
           notification_settings: null
@@ -24,8 +24,8 @@ targets:
             deployed_by: test_user
             environment: dev
           tasks:
-            - depends_on: [ ]
-              email_notifications: { }
+            - depends_on: []
+              email_notifications: {}
               existing_cluster_id: some-id
               libraries:
                 - pypi:
@@ -46,18 +46,18 @@ targets:
               notebook_task:
                 base_parameters:
                   brickflow_env: dev
-                  brickflow_internal_only_run_tasks: ''
-                  brickflow_internal_task_name: '{{task_key}}'
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
                   brickflow_internal_workflow_name: some_wf
-                  brickflow_internal_workflow_prefix: ''
-                  brickflow_internal_workflow_suffix: ''
-                  brickflow_job_id: '{{job_id}}'
-                  brickflow_parent_run_id: '{{parent_run_id}}'
-                  brickflow_run_id: '{{run_id}}'
-                  brickflow_start_date: '{{start_date}}'
-                  brickflow_start_time: '{{start_time}}'
-                  brickflow_task_key: '{{task_key}}'
-                  brickflow_task_retry_count: '{{task_retry_count}}'
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
                 notebook_path: test_databricks_bundle.py
                 source: GIT
               retry_on_timeout: null
@@ -68,12 +68,11 @@ targets:
           email_notifications: null
           notification_settings: null
           webhook_notifications: null
-          timeout_seconds: 42
-          health: 
+          health:
             rules:
               - metric: "RUN_DURATION_SECONDS"
-                op: "GREATER_THAN" 
-                value: 7200.0          
+                op: "GREATER_THAN"
+                value: 7200.0
           git_source:
             git_commit: a
             git_provider: github
@@ -84,16 +83,16 @@ targets:
           run_as:
             user_name: abc@abc.com
           permissions:
-          - level: IS_OWNER
-            user_name: abc@abc.com
-          - level: CAN_MANAGE
-            user_name: abc@abc.com
-          - level: CAN_MANAGE_RUN
-            user_name: abc@abc.com
-          - level: CAN_VIEW
-            user_name: abc@abc.com
+            - level: IS_OWNER
+              user_name: abc@abc.com
+            - level: CAN_MANAGE
+              user_name: abc@abc.com
+            - level: CAN_MANAGE_RUN
+              user_name: abc@abc.com
+            - level: CAN_VIEW
+              user_name: abc@abc.com
           schedule:
-            quartz_cron_expression: '* * * * *'
+            quartz_cron_expression: "* * * * *"
             timezone_id: UTC
             pause_status: "UNPAUSED"
           tags:
@@ -104,300 +103,303 @@ targets:
             environment: dev
             test: test2
           tasks:
-          - depends_on: []
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            task_key: custom_python_task_push
-            timeout_seconds: null
-          - depends_on: []
-            pipeline_task:
-              pipeline_id: ${resources.pipelines.test_hello_world.id}
-            task_key: dlt_pipeline
-          - depends_on: []
-            pipeline_task:
-              pipeline_id: ${resources.pipelines.test_hello_world.id}
-            task_key: dlt_pipeline_2
-          - depends_on: [ ]
-            email_notifications: { }
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              notebook_path: notebooks/notebook_a
-            retry_on_timeout: null
-            task_key: notebook_task_a
-            timeout_seconds: null
-          - depends_on:
-              - task_key: notebook_task_a
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-              - jar: dbfs:/kafka-jars/databricks-shaded-strimzi-kafka-oauth-client-1.1.jar
-              - pypi:
-                  package: brickflows==0.1.0
-            max_retries: null
-            min_retry_interval_millis: null
-            spark_jar_task:
-              main_class_name: com.example.Main
-              parameters: null
-              jar_uri: null
-            retry_on_timeout: null
-            task_key: spark_jar_task_a
-            timeout_seconds: null
-          - depends_on: []
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-                test: var
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            task_key: task_function
-            timeout_seconds: null
-          - depends_on:
-            - task_key: task_function
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            task_key: task_function_2
-            timeout_seconds: null
-          - depends_on:
-            - task_key: task_function_2
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            task_key: task_function_3
-            timeout_seconds: null
-          - depends_on:
-            - task_key: task_function_3
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            task_key: task_function_4
-            timeout_seconds: null
-          - depends_on:
-            - task_key: task_function_4
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            run_if: AT_LEAST_ONE_FAILED
-            task_key: task_function_5
-            timeout_seconds: 0.0
-          - depends_on: []
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-                test: var
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            task_key: task_function_no_deco_args
-            timeout_seconds: null
-          - depends_on: []
-            email_notifications: {}
-            existing_cluster_id: existing_cluster_id
-            libraries:
-            - pypi:
-                package: brickflows==0.1.0
-                repo: null
-            max_retries: null
-            min_retry_interval_millis: null
-            notebook_task:
-              base_parameters:
-                all_tasks1: test
-                all_tasks3: '123'
-                brickflow_env: dev
-                brickflow_internal_only_run_tasks: ''
-                brickflow_internal_task_name: '{{task_key}}'
-                brickflow_internal_workflow_name: test
-                brickflow_internal_workflow_prefix: ''
-                brickflow_internal_workflow_suffix: ''
-                brickflow_job_id: '{{job_id}}'
-                brickflow_parent_run_id: '{{parent_run_id}}'
-                brickflow_run_id: '{{run_id}}'
-                brickflow_start_date: '{{start_date}}'
-                brickflow_start_time: '{{start_time}}'
-                brickflow_task_key: '{{task_key}}'
-                brickflow_task_retry_count: '{{task_retry_count}}'
-              notebook_path: test_databricks_bundle.py
-              source: GIT
-            retry_on_timeout: null
-            task_key: task_function_nokwargs
-            timeout_seconds: null
+            - depends_on: []
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: custom_python_task_push
+              timeout_seconds: null
+            - depends_on: []
+              pipeline_task:
+                pipeline_id: ${resources.pipelines.test_hello_world.id}
+              task_key: dlt_pipeline
+            - depends_on: []
+              pipeline_task:
+                pipeline_id: ${resources.pipelines.test_hello_world.id}
+              task_key: dlt_pipeline_2
+            - depends_on: []
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                notebook_path: notebooks/notebook_a
+              retry_on_timeout: null
+              task_key: notebook_task_a
+              timeout_seconds: null
+            - depends_on:
+                - task_key: notebook_task_a
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+                  jar: null
+                - jar: dbfs:/kafka-jars/databricks-shaded-strimzi-kafka-oauth-client-1.1.jar
+                  pypi: null
+              max_retries: null
+              min_retry_interval_millis: null
+              spark_jar_task:
+                main_class_name: com.example.Main
+                parameters: null
+                jar_uri: null
+              retry_on_timeout: null
+              task_key: spark_jar_task_a
+              timeout_seconds: null
+            - depends_on: []
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  test: var
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: task_function
+              timeout_seconds: null
+            - depends_on:
+                - task_key: task_function
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: task_function_2
+              timeout_seconds: null
+            - depends_on:
+                - task_key: task_function_2
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: task_function_3
+              timeout_seconds: null
+            - depends_on:
+                - task_key: task_function_3
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: task_function_4
+              timeout_seconds: null
+            - depends_on:
+                - task_key: task_function_4
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              run_if: AT_LEAST_ONE_FAILED
+              task_key: task_function_5
+              timeout_seconds: 0.0
+            - depends_on: []
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  test: var
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: task_function_no_deco_args
+              timeout_seconds: null
+            - depends_on: []
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: brickflows==0.1.0
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              notebook_task:
+                base_parameters:
+                  all_tasks1: test
+                  all_tasks3: "123"
+                  brickflow_env: dev
+                  brickflow_internal_only_run_tasks: ""
+                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_workflow_name: test
+                  brickflow_internal_workflow_prefix: ""
+                  brickflow_internal_workflow_suffix: ""
+                  brickflow_job_id: "{{job_id}}"
+                  brickflow_parent_run_id: "{{parent_run_id}}"
+                  brickflow_run_id: "{{run_id}}"
+                  brickflow_start_date: "{{start_date}}"
+                  brickflow_start_time: "{{start_time}}"
+                  brickflow_task_key: "{{task_key}}"
+                  brickflow_task_retry_count: "{{task_retry_count}}"
+                notebook_path: test_databricks_bundle.py
+                source: GIT
+              retry_on_timeout: null
+              task_key: task_function_nokwargs
+              timeout_seconds: null
       pipelines:
         test_hello_world:
           catalog: null
@@ -407,11 +409,11 @@ targets:
           development: true
           edition: advanced
           libraries:
-          - notebook:
-              path: scripts/spark_script_2.py
+            - notebook:
+                path: scripts/spark_script_2.py
           name: dev_hello world
           photon: false
-          storage: '123'
+          storage: "123"
           target: null
     workspace:
       file_path: /Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/dev/files

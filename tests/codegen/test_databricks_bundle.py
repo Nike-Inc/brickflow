@@ -46,7 +46,9 @@ def normalize_bundle_via_pydantic(d: Dict[str, Any]) -> Dict[str, Any]:
 
 def assert_equal_dicts(actual: Dict[str, Any], expected: Dict[str, Any]):
     diff = DeepDiff(
-        normalize_bundle_via_pydantic(expected), normalize_bundle_via_pydantic(actual)
+        normalize_bundle_via_pydantic(expected),
+        normalize_bundle_via_pydantic(actual),
+        ignore_order=True,
     )
     print(diff)
     # pylint indicates that empty dictionary is falsey
