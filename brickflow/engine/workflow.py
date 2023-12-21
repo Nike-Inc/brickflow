@@ -351,9 +351,16 @@ class Workflow:
         self,
         task_func: Optional[Callable] = None,
         name: Optional[str] = None,
+        task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
     ) -> Callable:
-        return self.task(task_func, name, task_type=TaskType.DLT, depends_on=depends_on)
+        return self.task(
+            task_func,
+            name,
+            task_type=TaskType.DLT,
+            task_settings=task_settings,
+            depends_on=depends_on,
+        )
 
     def notebook_task(
         self,
@@ -389,6 +396,21 @@ class Workflow:
             cluster=cluster,
             libraries=libraries,
             task_type=TaskType.SPARK_JAR_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+        )
+
+    def run_job_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            task_type=TaskType.RUN_JOB_TASk,
             task_settings=task_settings,
             depends_on=depends_on,
         )

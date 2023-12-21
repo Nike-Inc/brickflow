@@ -36,6 +36,7 @@ from brickflow.bundles.model import (
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
     JobsTasksHealthRules,
+    JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
@@ -105,6 +106,7 @@ class TaskType(Enum):
     CUSTOM_PYTHON_TASK = "custom_python_task"
     NOTEBOOK_TASK = "notebook_task"
     SPARK_JAR_TASK = "spark_jar_task"
+    RUN_JOB_TASk = "run_job_task"
 
 
 class TaskRunCondition(Enum):
@@ -377,6 +379,10 @@ class NotebookTask(JobsTasksNotebookTask):
 
 
 class SparkJarTask(JobsTasksSparkJarTask):
+    pass
+
+
+class RunJobTask(JobsTasksRunJobTask):
     pass
 
 
