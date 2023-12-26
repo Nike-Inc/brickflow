@@ -2,6 +2,7 @@ from brickflow import JarTaskLibrary
 from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
     BrickflowTriggerRule,
+    RunJobTask,
     TaskType,
     TaskResponse,
     DLTPipeline,
@@ -62,6 +63,13 @@ def notebook_task_a(*, test="var"):
 )
 def spark_jar_task_a():
     return SparkJarTask(main_class_name="com.example.Main")  # type: ignore
+
+
+@wf.run_job_task(
+    depends_on=notebook_task_a,
+)
+def run_job_task_a():
+    return RunJobTask(job_id="12345678901234")  # type: ignore
 
 
 @wf.dlt_task

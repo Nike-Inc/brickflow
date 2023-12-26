@@ -135,10 +135,12 @@ targets:
               task_key: custom_python_task_push
               timeout_seconds: null
             - depends_on: []
+              email_notifications: {}
               pipeline_task:
                 pipeline_id: ${resources.pipelines.test_hello_world.id}
               task_key: dlt_pipeline
             - depends_on: []
+              email_notifications: {}
               pipeline_task:
                 pipeline_id: ${resources.pipelines.test_hello_world.id}
               task_key: dlt_pipeline_2
@@ -175,6 +177,17 @@ targets:
                 jar_uri: null
               retry_on_timeout: null
               task_key: spark_jar_task_a
+              timeout_seconds: null
+            - depends_on:
+                - task_key: notebook_task_a
+              email_notifications: {}
+              existing_cluster_id: null
+              max_retries: null
+              min_retry_interval_millis: null
+              run_job_task:
+                job_id: 12345678901234.0
+              retry_on_timeout: null
+              task_key: run_job_task_a
               timeout_seconds: null
             - depends_on: []
               email_notifications: {}
