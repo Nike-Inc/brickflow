@@ -68,7 +68,7 @@ def example_notebook():
         base_parameters={
             "some_parameter": "some_value",  # in the notebook access these via dbutils.widgets.get("some_parameter")
         },
-    )
+    )  # type: ignore
 
 
 @wf.task(depends_on=start)

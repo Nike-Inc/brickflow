@@ -292,7 +292,7 @@ class Context:
         return self._dbutils
 
     @property
-    def spark(self) -> "SparkSession":  # type: ignore # noqa: F821
+    def spark(self) -> Union["SparkSession", "DatabricksSession"]:  # type: ignore # noqa: F821
         return self._spark
 
     def is_local(self) -> bool:
@@ -397,9 +397,20 @@ class Context:
             )
 
             self._spark = SparkSession.getActiveSession()
+            if self._spark is None:
+                raise AttributeError("spark is not set")
+
+        def __try_databricks_connect_from_local() -> None:
+            from databricks.connect.session import DatabricksSession
+
+            self._spark = DatabricksSession.builder.getOrCreate()
 
         self._try_import_chaining(
-            [__try_spark_from_ipython_notebook, __try_spark_from_spark_session]
+            [
+                __try_spark_from_ipython_notebook,
+                __try_spark_from_spark_session,
+                __try_databricks_connect_from_local,
+            ]
         )
         _ilog.info("Spark Session object: ctx.spark is set to: %s", self.spark)
 
@@ -416,12 +427,28 @@ class Context:
             from pyspark.dbutils import (  # noqa # pylint: disable=import-error
                 DBUtils,  # noqa
             )
+            from pyspark.sql import (  # noqa # pylint: disable=import-error
+                SparkSession,  # noqa
+            )
 
-            self._dbutils = DBUtils(self.spark)
+            self._dbutils = (
+                DBUtils(self.spark) if isinstance(self.spark, SparkSession) else None
+            )
             # cant gaurantee databricks
+            if self._dbutils is None:
+                raise AttributeError("dbutils is not set")
+
+        def __try_dbutils_from_local() -> None:
+            from databricks.sdk.dbutils import RemoteDbUtils
+
+            self._dbutils = RemoteDbUtils(self.spark.get_config())
 
         resp = self._try_import_chaining(
-            [__try_dbutils_from_ipython_notebook, __try_dbutils_from_db_connect_jar]
+            [
+                __try_dbutils_from_ipython_notebook,
+                __try_dbutils_from_db_connect_jar,
+                __try_dbutils_from_local,
+            ]
         )
 
         _ilog.info("DBUtils object: ctx.dbutils is set to: %s", self.dbutils)
