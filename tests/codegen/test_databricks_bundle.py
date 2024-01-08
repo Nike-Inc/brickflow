@@ -24,6 +24,7 @@ from brickflow.codegen.databricks_bundle import (
     DatabricksBundleImportMutator,
     DatabricksBundleCodegen,
     ImportBlock,
+    ImportManager,
 )
 from brickflow.engine.project import Stage, Project
 from brickflow.engine.task import NotebookTask
@@ -410,3 +411,21 @@ class TestBundleCodegen:
         assert (
             jobs is not None and jobs[job_name].name == f"{fake_user_name}_{job_name}"
         )
+
+    def test_import_blocks(self):
+        # Databricks object ids are either strings or integers
+        block1 = ImportBlock(to="test", id_=1)
+        block2 = ImportBlock(to="test_2", id_="test")
+        blocks = [block1, block2]
+        expected_output = """import { 
+  to = test 
+  id = "1" 
+}
+
+import { 
+  to = test_2 
+  id = "test" 
+}"""
+        assert (
+            ImportManager.create_import_str(blocks).strip() == expected_output.strip()
+        ), "Import blocks are not equal"
