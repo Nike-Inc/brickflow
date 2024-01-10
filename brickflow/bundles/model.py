@@ -12,14 +12,14 @@ from typing_extensions import Literal
 
 class Files(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     source: str
 
 
 class Artifacts(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     build: Optional[str] = None
     files: Optional[List[Files]] = None
@@ -29,7 +29,7 @@ class Artifacts(BaseModel):
 
 class Git(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     branch: Optional[str] = None
     origin_url: Optional[str] = None
@@ -37,1310 +37,44 @@ class Git(BaseModel):
 
 class Bundle(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     compute_id: Optional[str] = None
     git: Optional[Git] = None
     name: str = Field(..., description='The name of the bundle.')
 
 
-class Bundle(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute_id: Optional[str] = None
-    git: Optional[Git] = None
-    name: str
-
-
-class ExperimentsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class ExperimentsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Optional[str] = None
-    value: Optional[str] = None
-
-
-class Experiments(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    artifact_location: Optional[str] = None
-    creation_time: Optional[float] = None
-    experiment_id: Optional[str] = None
-    last_update_time: Optional[float] = None
-    lifecycle_stage: Optional[str] = None
-    name: Optional[str] = None
-    permissions: Optional[List[ExperimentsPermissions]] = None
-    tags: Optional[List[ExperimentsTags]] = None
-
-
-class JobsComputeSpec(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    kind: Optional[str] = None
-
-
-class JobsCompute(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute_key: str
-    spec: JobsComputeSpec
-
-
-class JobsContinuous(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pause_status: Optional[str] = None
-
-
-class JobsEmailNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    no_alert_for_skipped_runs: Optional[bool] = None
-    on_duration_warning_threshold_exceeded: Optional[List[str]] = None
-    on_failure: Optional[List[str]] = None
-    on_start: Optional[List[str]] = None
-    on_success: Optional[List[str]] = None
-
-
-class JobsGitSourceGitSnapshot(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    used_commit: Optional[str] = None
-
-
-class JobsGitSourceJobSource(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dirty_state: Optional[str] = None
-    import_from_git_branch: str
-    job_config_path: str
-
-
-class JobsGitSource(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    git_branch: Optional[str] = None
-    git_commit: Optional[str] = None
-    git_provider: str
-    git_snapshot: Optional[JobsGitSourceGitSnapshot] = None
-    git_tag: Optional[str] = None
-    git_url: str
-    job_source: Optional[JobsGitSourceJobSource] = None
-
-
-class JobsHealthRules(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    metric: Optional[str] = None
-    op: Optional[str] = None
-    value: Optional[float] = None
-
-
-class JobsHealth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    rules: Optional[List[JobsHealthRules]] = None
-
-
-class JobsJobClustersNewClusterAutoscale(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    max_workers: float
-    min_workers: float
-
-
-class JobsJobClustersNewClusterAwsAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    ebs_volume_count: Optional[float] = None
-    ebs_volume_iops: Optional[float] = None
-    ebs_volume_size: Optional[float] = None
-    ebs_volume_throughput: Optional[float] = None
-    ebs_volume_type: Optional[str] = None
-    first_on_demand: Optional[float] = None
-    instance_profile_arn: Optional[str] = None
-    spot_bid_price_percent: Optional[float] = None
-    zone_id: Optional[str] = None
-
-
-class JobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    log_analytics_primary_key: Optional[str] = None
-    log_analytics_workspace_id: Optional[str] = None
-
-
-class JobsJobClustersNewClusterAzureAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    first_on_demand: Optional[float] = None
-    log_analytics_info: Optional[
-        JobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo
-    ] = None
-    spot_bid_max_price: Optional[float] = None
-
-
-class JobsJobClustersNewClusterClusterLogConfDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsJobClustersNewClusterClusterLogConfS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = None
-    destination: Optional[str] = None
-    enable_encryption: Optional[bool] = None
-    encryption_type: Optional[str] = None
-    endpoint: Optional[str] = None
-    kms_key: Optional[str] = None
-    region: Optional[str] = None
-
-
-class JobsJobClustersNewClusterClusterLogConf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[JobsJobClustersNewClusterClusterLogConfDbfs] = None
-    s3: Optional[JobsJobClustersNewClusterClusterLogConfS] = None
-
-
-class JobsJobClustersNewClusterDockerImageBasicAuth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    password: Optional[str] = None
-    username: Optional[str] = None
-
-
-class JobsJobClustersNewClusterDockerImage(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    basic_auth: Optional[JobsJobClustersNewClusterDockerImageBasicAuth] = None
-    url: Optional[str] = None
-
-
-class JobsJobClustersNewClusterGcpAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    boot_disk_size: Optional[float] = None
-    google_service_account: Optional[str] = None
-    local_ssd_count: Optional[float] = None
-
-
-class JobsJobClustersNewClusterInitScriptsDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsJobClustersNewClusterInitScriptsS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = None
-    destination: Optional[str] = None
-    enable_encryption: Optional[bool] = None
-    encryption_type: Optional[str] = None
-    endpoint: Optional[str] = None
-    kms_key: Optional[str] = None
-    region: Optional[str] = None
-
-
-class JobsJobClustersNewClusterInitScriptsVolumes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsJobClustersNewClusterInitScriptsWorkspace(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsJobClustersNewClusterInitScripts(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[JobsJobClustersNewClusterInitScriptsDbfs] = None
-    s3: Optional[JobsJobClustersNewClusterInitScriptsS] = None
-    volumes: Optional[JobsJobClustersNewClusterInitScriptsVolumes] = None
-    workspace: Optional[JobsJobClustersNewClusterInitScriptsWorkspace] = None
-
-
-class JobsJobClustersNewClusterWorkloadTypeClients(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    jobs: Optional[bool] = None
-    notebooks: Optional[bool] = None
-
-
-class JobsJobClustersNewClusterWorkloadType(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    clients: Optional[JobsJobClustersNewClusterWorkloadTypeClients] = None
-
-
-class JobsJobClustersNewCluster(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    autoscale: Optional[JobsJobClustersNewClusterAutoscale] = None
-    autotermination_minutes: Optional[float] = None
-    aws_attributes: Optional[JobsJobClustersNewClusterAwsAttributes] = None
-    azure_attributes: Optional[JobsJobClustersNewClusterAzureAttributes] = None
-    cluster_log_conf: Optional[JobsJobClustersNewClusterClusterLogConf] = None
-    cluster_name: Optional[str] = None
-    cluster_source: Optional[str] = None
-    custom_tags: Optional[Dict[str, str]] = None
-    data_security_mode: Optional[
-        Literal['SINGLE_USER', 'USER_ISOLATION', 'NONE']
-    ] = Field(
-        'SINGLE_USER',
-        description='The autoscaling mode to use. Valid values are LEGACY, ENHANCED.',
-    )
-    docker_image: Optional[JobsJobClustersNewClusterDockerImage] = None
-    driver_instance_pool_id: Optional[str] = None
-    driver_node_type_id: Optional[str] = None
-    enable_elastic_disk: Optional[bool] = None
-    enable_local_disk_encryption: Optional[bool] = None
-    gcp_attributes: Optional[JobsJobClustersNewClusterGcpAttributes] = None
-    init_scripts: Optional[List[JobsJobClustersNewClusterInitScripts]] = None
-    instance_pool_id: Optional[str] = None
-    node_type_id: Optional[str] = None
-    num_workers: Optional[float] = None
-    policy_id: Optional[str] = None
-    runtime_engine: Optional[str] = None
-    single_user_name: Optional[str] = None
-    spark_conf: Optional[Dict[str, str]] = None
-    spark_env_vars: Optional[Dict[str, str]] = None
-    spark_version: Optional[str] = None
-    ssh_public_keys: Optional[List[str]] = None
-    workload_type: Optional[JobsJobClustersNewClusterWorkloadType] = None
-
-
-class JobsJobClusters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    job_cluster_key: str
-    new_cluster: Optional[JobsJobClustersNewCluster] = None
-
-
-class JobsNotificationSettings(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    no_alert_for_canceled_runs: Optional[bool] = None
-    no_alert_for_skipped_runs: Optional[bool] = None
-
-
-class JobsParameters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    default: str
-    name: str
-
-
-class JobsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class JobsQueue(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    enabled: bool
-
-
-class JobsRunAs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class JobsSchedule(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pause_status: Optional[str] = None
-    quartz_cron_expression: str
-    timezone_id: str
-
-
-class JobsTasksConditionTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    left: Optional[str] = None
-    op: Optional[str] = None
-    right: Optional[str] = None
-
-
-class JobsTasksDbtTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    catalog: Optional[str] = None
-    commands: List[str]
-    profiles_directory: Optional[str] = None
-    project_directory: Optional[str] = None
-    schema_: Optional[str] = Field(None, alias='schema')
-    warehouse_id: Optional[str] = None
-
-
-class JobsTasksDependsOn(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    outcome: Optional[str] = None
-    task_key: str
-
-
-class JobsTasksEmailNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    on_duration_warning_threshold_exceeded: Optional[List[str]] = None
-    on_failure: Optional[List[str]] = None
-    on_start: Optional[List[str]] = None
-    on_success: Optional[List[str]] = None
-
-
-class JobsTasksHealthRules(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    metric: Optional[str] = None
-    op: Optional[str] = None
-    value: Optional[float] = None
-
-
-class JobsTasksHealth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    rules: Optional[List[JobsTasksHealthRules]] = None
-
-
-class JobsTasksLibrariesCran(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    package: str
-    repo: Optional[str] = None
-
-
-class JobsTasksLibrariesMaven(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    coordinates: str
-    exclusions: Optional[List[str]] = None
-    repo: Optional[str] = None
-
-
-class JobsTasksLibrariesPypi(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    package: str
-    repo: Optional[str] = None
-
-
-class JobsTasksLibraries(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    cran: Optional[JobsTasksLibrariesCran] = None
-    egg: Optional[str] = None
-    jar: Optional[str] = None
-    maven: Optional[JobsTasksLibrariesMaven] = None
-    pypi: Optional[JobsTasksLibrariesPypi] = None
-    whl: Optional[str] = None
-
-
-class JobsTasksNewClusterAutoscale(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    max_workers: float
-    min_workers: float
-
-
-class JobsTasksNewClusterAwsAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    ebs_volume_count: Optional[float] = None
-    ebs_volume_iops: Optional[float] = None
-    ebs_volume_size: Optional[float] = None
-    ebs_volume_throughput: Optional[float] = None
-    ebs_volume_type: Optional[str] = None
-    first_on_demand: Optional[float] = None
-    instance_profile_arn: Optional[str] = None
-    spot_bid_price_percent: Optional[float] = None
-    zone_id: Optional[str] = None
-
-
-class JobsTasksNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    log_analytics_primary_key: Optional[str] = None
-    log_analytics_workspace_id: Optional[str] = None
-
-
-class JobsTasksNewClusterAzureAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    first_on_demand: Optional[float] = None
-    log_analytics_info: Optional[
-        JobsTasksNewClusterAzureAttributesLogAnalyticsInfo
-    ] = None
-    spot_bid_max_price: Optional[float] = None
-
-
-class JobsTasksNewClusterClusterLogConfDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsTasksNewClusterClusterLogConfS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = None
-    destination: Optional[str] = None
-    enable_encryption: Optional[bool] = None
-    encryption_type: Optional[str] = None
-    endpoint: Optional[str] = None
-    kms_key: Optional[str] = None
-    region: Optional[str] = None
-
-
-class JobsTasksNewClusterClusterLogConf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[JobsTasksNewClusterClusterLogConfDbfs] = None
-    s3: Optional[JobsTasksNewClusterClusterLogConfS] = None
-
-
-class JobsTasksNewClusterDockerImageBasicAuth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    password: Optional[str] = None
-    username: Optional[str] = None
-
-
-class JobsTasksNewClusterDockerImage(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    basic_auth: Optional[JobsTasksNewClusterDockerImageBasicAuth] = None
-    url: Optional[str] = None
-
-
-class JobsTasksNewClusterGcpAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    boot_disk_size: Optional[float] = None
-    google_service_account: Optional[str] = None
-    local_ssd_count: Optional[float] = None
-
-
-class JobsTasksNewClusterInitScriptsDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsTasksNewClusterInitScriptsS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = None
-    destination: Optional[str] = None
-    enable_encryption: Optional[bool] = None
-    encryption_type: Optional[str] = None
-    endpoint: Optional[str] = None
-    kms_key: Optional[str] = None
-    region: Optional[str] = None
-
-
-class JobsTasksNewClusterInitScriptsVolumes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsTasksNewClusterInitScriptsWorkspace(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class JobsTasksNewClusterInitScripts(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[JobsTasksNewClusterInitScriptsDbfs] = None
-    s3: Optional[JobsTasksNewClusterInitScriptsS] = None
-    volumes: Optional[JobsTasksNewClusterInitScriptsVolumes] = None
-    workspace: Optional[JobsTasksNewClusterInitScriptsWorkspace] = None
-
-
-class JobsTasksNewClusterWorkloadTypeClients(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    jobs: Optional[bool] = None
-    notebooks: Optional[bool] = None
-
-
-class JobsTasksNewClusterWorkloadType(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    clients: Optional[JobsTasksNewClusterWorkloadTypeClients] = None
-
-
-class JobsTasksNewCluster(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    autoscale: Optional[JobsTasksNewClusterAutoscale] = None
-    autotermination_minutes: Optional[float] = None
-    aws_attributes: Optional[JobsTasksNewClusterAwsAttributes] = None
-    azure_attributes: Optional[JobsTasksNewClusterAzureAttributes] = None
-    cluster_log_conf: Optional[JobsTasksNewClusterClusterLogConf] = None
-    cluster_name: Optional[str] = None
-    cluster_source: Optional[str] = None
-    custom_tags: Optional[Dict[str, str]] = None
-    data_security_mode: Optional[str] = None
-    docker_image: Optional[JobsTasksNewClusterDockerImage] = None
-    driver_instance_pool_id: Optional[str] = None
-    driver_node_type_id: Optional[str] = None
-    enable_elastic_disk: Optional[bool] = None
-    enable_local_disk_encryption: Optional[bool] = None
-    gcp_attributes: Optional[JobsTasksNewClusterGcpAttributes] = None
-    init_scripts: Optional[List[JobsTasksNewClusterInitScripts]] = None
-    instance_pool_id: Optional[str] = None
-    node_type_id: Optional[str] = None
-    num_workers: Optional[float] = None
-    policy_id: Optional[str] = None
-    runtime_engine: Optional[str] = None
-    single_user_name: Optional[str] = None
-    spark_conf: Optional[Dict[str, str]] = None
-    spark_env_vars: Optional[Dict[str, str]] = None
-    spark_version: Optional[str] = None
-    ssh_public_keys: Optional[List[str]] = None
-    workload_type: Optional[JobsTasksNewClusterWorkloadType] = None
-
-
-class JobsTasksNotebookTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    base_parameters: Optional[Dict[str, str]] = None
-    notebook_path: str
-    source: Optional[str] = None
-
-
-class JobsTasksNotificationSettings(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alert_on_last_attempt: Optional[bool] = None
-    no_alert_for_canceled_runs: Optional[bool] = None
-    no_alert_for_skipped_runs: Optional[bool] = None
-
-
-class JobsTasksPipelineTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    full_refresh: Optional[bool] = None
-    pipeline_id: Optional[str] = None
-
-
-class JobsTasksPythonWheelTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    entry_point: Optional[str] = None
-    named_parameters: Optional[Dict[str, str]] = None
-    package_name: Optional[str] = None
-    parameters: Optional[List[str]] = None
-
-
-class JobsTasksRunJobTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    job_id: float
-    job_parameters: Optional[Any] = None
-
-
-class JobsTasksSparkJarTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    jar_uri: Optional[str] = None
-    main_class_name: Optional[str] = None
-    parameters: Optional[List[str]] = None
-
-
-class JobsTasksSparkPythonTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    parameters: Optional[List[str]] = None
-    python_file: str
-    source: Optional[str] = None
-
-
-class JobsTasksSparkSubmitTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    parameters: Optional[List[str]] = None
-
-
-class JobsTasksSqlTaskAlertSubscriptions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination_id: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class JobsTasksSqlTaskAlert(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alert_id: str
-    pause_subscriptions: Optional[bool] = None
-    subscriptions: Optional[List[JobsTasksSqlTaskAlertSubscriptions]] = None
-
-
-class JobsTasksSqlTaskDashboardSubscriptions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination_id: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class JobsTasksSqlTaskDashboard(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    custom_subject: Optional[str] = None
-    dashboard_id: str
-    pause_subscriptions: Optional[bool] = None
-    subscriptions: Optional[List[JobsTasksSqlTaskDashboardSubscriptions]] = None
-
-
-class JobsTasksSqlTaskFile(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    path: str
-
-
-class JobsTasksSqlTaskQuery(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    query_id: str
-
-
-class JobsTasksSqlTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alert: Optional[JobsTasksSqlTaskAlert] = None
-    dashboard: Optional[JobsTasksSqlTaskDashboard] = None
-    file: Optional[JobsTasksSqlTaskFile] = None
-    parameters: Optional[Dict[str, str]] = None
-    query: Optional[JobsTasksSqlTaskQuery] = None
-    warehouse_id: str
-
-
-class JobsTasks(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute_key: Optional[str] = None
-    condition_task: Optional[JobsTasksConditionTask] = None
-    dbt_task: Optional[JobsTasksDbtTask] = None
-    depends_on: Optional[List[JobsTasksDependsOn]] = None
-    description: Optional[str] = None
-    email_notifications: Optional[JobsTasksEmailNotifications] = None
-    existing_cluster_id: Optional[str] = None
-    health: Optional[JobsTasksHealth] = None
-    job_cluster_key: Optional[str] = None
-    libraries: Optional[List[JobsTasksLibraries]] = None
-    max_retries: Optional[float] = None
-    min_retry_interval_millis: Optional[float] = None
-    new_cluster: Optional[JobsTasksNewCluster] = None
-    notebook_task: Optional[JobsTasksNotebookTask] = None
-    notification_settings: Optional[JobsTasksNotificationSettings] = None
-    pipeline_task: Optional[JobsTasksPipelineTask] = None
-    python_wheel_task: Optional[JobsTasksPythonWheelTask] = None
-    retry_on_timeout: Optional[bool] = None
-    run_if: Optional[str] = None
-    run_job_task: Optional[JobsTasksRunJobTask] = None
-    spark_jar_task: Optional[JobsTasksSparkJarTask] = None
-    spark_python_task: Optional[JobsTasksSparkPythonTask] = None
-    spark_submit_task: Optional[JobsTasksSparkSubmitTask] = None
-    sql_task: Optional[JobsTasksSqlTask] = None
-    task_key: str
-    timeout_seconds: Optional[float] = None
-
-
-class JobsTriggerFileArrival(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    min_time_between_triggers_seconds: Optional[float] = None
-    url: Optional[str] = None
-    wait_after_last_change_seconds: Optional[float] = None
-
-
-class JobsTrigger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    file_arrival: Optional[JobsTriggerFileArrival] = None
-    pause_status: Optional[str] = None
-
-
-class JobsWebhookNotificationsOnDurationWarningThresholdExceeded(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class JobsWebhookNotificationsOnFailure(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class JobsWebhookNotificationsOnStart(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class JobsWebhookNotificationsOnSuccess(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class JobsWebhookNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    on_duration_warning_threshold_exceeded: Optional[
-        List[JobsWebhookNotificationsOnDurationWarningThresholdExceeded]
-    ] = None
-    on_failure: Optional[List[JobsWebhookNotificationsOnFailure]] = None
-    on_start: Optional[List[JobsWebhookNotificationsOnStart]] = None
-    on_success: Optional[List[JobsWebhookNotificationsOnSuccess]] = None
-
-
-class Jobs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute: Optional[List[JobsCompute]] = None
-    continuous: Optional[JobsContinuous] = None
-    email_notifications: Optional[JobsEmailNotifications] = None
-    format: Optional[str] = None
-    git_source: Optional[JobsGitSource] = None
-    health: Optional[JobsHealth] = None
-    job_clusters: Optional[List[JobsJobClusters]] = None
-    max_concurrent_runs: Optional[float] = None
-    name: Optional[str] = None
-    notification_settings: Optional[JobsNotificationSettings] = None
-    parameters: Optional[List[JobsParameters]] = None
-    permissions: Optional[List[JobsPermissions]] = None
-    queue: Optional[JobsQueue] = None
-    run_as: Optional[JobsRunAs] = None
-    schedule: Optional[JobsSchedule] = None
-    tags: Optional[Dict[str, str]] = None
-    tasks: Optional[List[JobsTasks]] = None
-    timeout_seconds: Optional[float] = None
-    trigger: Optional[JobsTrigger] = None
-    webhook_notifications: Optional[JobsWebhookNotifications] = None
-
-
-class ModelServingEndpointsConfigServedModels(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    environment_vars: Optional[Dict[str, str]] = None
-    instance_profile_arn: Optional[str] = None
-    model_name: str
-    model_version: str
-    name: Optional[str] = None
-    scale_to_zero_enabled: bool
-    workload_size: str
-
-
-class ModelServingEndpointsConfigTrafficConfigRoutes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    served_model_name: str
-    traffic_percentage: float
-
-
-class ModelServingEndpointsConfigTrafficConfig(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    routes: Optional[List[ModelServingEndpointsConfigTrafficConfigRoutes]] = None
-
-
-class ModelServingEndpointsConfig(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    served_models: List[ModelServingEndpointsConfigServedModels]
-    traffic_config: Optional[ModelServingEndpointsConfigTrafficConfig] = None
-
-
-class ModelServingEndpointsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class ModelServingEndpointsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: str
-    value: Optional[str] = None
-
-
-class ModelServingEndpoints(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    config: ModelServingEndpointsConfig
-    name: str
-    permissions: Optional[List[ModelServingEndpointsPermissions]] = None
-    tags: Optional[List[ModelServingEndpointsTags]] = None
-
-
-class ModelsLatestVersionsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Optional[str] = None
-    value: Optional[str] = None
-
-
-class ModelsLatestVersions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    creation_timestamp: Optional[float] = None
-    current_stage: Optional[str] = None
-    description: Optional[str] = None
-    last_updated_timestamp: Optional[float] = None
-    name: Optional[str] = None
-    run_id: Optional[str] = None
-    run_link: Optional[str] = None
-    source: Optional[str] = None
-    status: Optional[str] = None
-    status_message: Optional[str] = None
-    tags: Optional[List[ModelsLatestVersionsTags]] = None
-    user_id: Optional[str] = None
-    version: Optional[str] = None
-
-
-class ModelsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class ModelsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Optional[str] = None
-    value: Optional[str] = None
-
-
-class Models(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    creation_timestamp: Optional[float] = None
-    description: Optional[str] = None
-    last_updated_timestamp: Optional[float] = None
-    latest_versions: Optional[List[ModelsLatestVersions]] = None
-    name: Optional[str] = None
-    permissions: Optional[List[ModelsPermissions]] = None
-    tags: Optional[List[ModelsTags]] = None
-    user_id: Optional[str] = None
-
-
-class PipelinesClustersAutoscale(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    max_workers: float
-    min_workers: float
-    mode: Optional[Literal['LEGACY', 'ENHANCED']] = Field(
-        None,
-        description='The autoscaling mode to use. Valid values are LEGACY, ENHANCED.',
-    )
-
-
-class PipelinesClustersAwsAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    ebs_volume_count: Optional[float] = None
-    ebs_volume_iops: Optional[float] = None
-    ebs_volume_size: Optional[float] = None
-    ebs_volume_throughput: Optional[float] = None
-    ebs_volume_type: Optional[str] = None
-    first_on_demand: Optional[float] = None
-    instance_profile_arn: Optional[str] = None
-    spot_bid_price_percent: Optional[float] = None
-    zone_id: Optional[str] = None
-
-
-class PipelinesClustersAzureAttributesLogAnalyticsInfo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    log_analytics_primary_key: Optional[str] = None
-    log_analytics_workspace_id: Optional[str] = None
-
-
-class PipelinesClustersAzureAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    first_on_demand: Optional[float] = None
-    log_analytics_info: Optional[
-        PipelinesClustersAzureAttributesLogAnalyticsInfo
-    ] = None
-    spot_bid_max_price: Optional[float] = None
-
-
-class PipelinesClustersClusterLogConfDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class PipelinesClustersClusterLogConfS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = None
-    destination: Optional[str] = None
-    enable_encryption: Optional[bool] = None
-    encryption_type: Optional[str] = None
-    endpoint: Optional[str] = None
-    kms_key: Optional[str] = None
-    region: Optional[str] = None
-
-
-class PipelinesClustersClusterLogConf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[PipelinesClustersClusterLogConfDbfs] = None
-    s3: Optional[PipelinesClustersClusterLogConfS] = None
-
-
-class PipelinesClustersGcpAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    boot_disk_size: Optional[float] = None
-    google_service_account: Optional[str] = None
-    local_ssd_count: Optional[float] = None
-
-
-class PipelinesClusters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    apply_policy_default_values: Optional[bool] = None
-    autoscale: Optional[PipelinesClustersAutoscale] = None
-    aws_attributes: Optional[PipelinesClustersAwsAttributes] = None
-    azure_attributes: Optional[PipelinesClustersAzureAttributes] = None
-    cluster_log_conf: Optional[PipelinesClustersClusterLogConf] = None
-    custom_tags: Optional[Dict[str, str]] = None
-    driver_instance_pool_id: Optional[str] = None
-    driver_node_type_id: Optional[str] = None
-    gcp_attributes: Optional[PipelinesClustersGcpAttributes] = None
-    instance_pool_id: Optional[str] = None
-    label: Optional[str] = None
-    node_type_id: Optional[str] = None
-    num_workers: Optional[float] = None
-    policy_id: Optional[str] = None
-    spark_conf: Optional[Dict[str, str]] = None
-    spark_env_vars: Optional[Dict[str, str]] = None
-    ssh_public_keys: Optional[List[str]] = None
-
-
-class PipelinesFilters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    exclude: Optional[List[str]] = None
-    include: Optional[List[str]] = None
-
-
-class PipelinesLibrariesFile(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    path: Optional[str] = None
-
-
-class PipelinesLibrariesMaven(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    coordinates: str
-    exclusions: Optional[List[str]] = None
-    repo: Optional[str] = None
-
-
-class PipelinesLibrariesNotebook(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    path: Optional[str] = None
-
-
-class PipelinesLibraries(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    file: Optional[PipelinesLibrariesFile] = None
-    jar: Optional[str] = None
-    maven: Optional[PipelinesLibrariesMaven] = None
-    notebook: Optional[PipelinesLibrariesNotebook] = None
-
-
-class PipelinesNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alerts: Optional[List[str]] = None
-    email_recipients: Optional[List[str]] = None
-
-
-class PipelinesPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class PipelinesTriggerCron(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    quartz_cron_schedule: Optional[str] = None
-    timezone_id: Optional[str] = None
-
-
-class PipelinesTrigger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    cron: Optional[PipelinesTriggerCron] = None
-    manual: Optional[Any] = None
-
-
-class Pipelines(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    catalog: Optional[str] = None
-    channel: Optional[str] = None
-    clusters: Optional[List[PipelinesClusters]] = None
-    configuration: Optional[Dict[str, str]] = None
-    continuous: Optional[bool] = None
-    development: Optional[bool] = None
-    edition: Optional[str] = None
-    filters: Optional[PipelinesFilters] = None
-    id: Optional[str] = None
-    libraries: Optional[List[PipelinesLibraries]] = None
-    name: Optional[str] = None
-    notifications: Optional[List[PipelinesNotifications]] = None
-    permissions: Optional[List[PipelinesPermissions]] = None
-    photon: Optional[bool] = None
-    serverless: Optional[bool] = None
-    storage: Optional[str] = None
-    target: Optional[str] = None
-    trigger: Optional[PipelinesTrigger] = None
-
-
-class Resources(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    experiments: Optional[Dict[str, Experiments]] = None
-    jobs: Optional[Dict[str, Jobs]] = None
-    model_serving_endpoints: Optional[Dict[str, ModelServingEndpoints]] = None
-    models: Optional[Dict[str, Models]] = None
-    pipelines: Optional[Dict[str, Pipelines]] = None
-
-
-class RunAs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class Workspace(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    artifact_path: Optional[str] = None
-    auth_type: Optional[str] = None
-    azure_client_id: Optional[str] = None
-    azure_environment: Optional[str] = None
-    azure_login_app_id: Optional[str] = None
-    azure_tenant_id: Optional[str] = None
-    azure_use_msi: Optional[bool] = None
-    azure_workspace_resource_id: Optional[str] = None
-    client_id: Optional[str] = None
-    file_path: Optional[str] = None
-    google_service_account: Optional[str] = None
-    host: Optional[str] = None
-    profile: Optional[str] = None
-    root_path: Optional[str] = None
-    state_path: Optional[str] = None
-
-
-class Environments(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    artifacts: Optional[Dict[str, Artifacts]] = None
-    bundle: Optional[Bundle] = None
-    compute_id: Optional[str] = None
-    default: Optional[bool] = None
-    git: Optional[Git] = None
-    mode: Optional[str] = None
-    resources: Optional[Resources] = None
-    run_as: Optional[RunAs] = None
-    variables: Optional[Dict[str, str]] = None
-    workspace: Optional[Workspace] = None
-
-
 class Experimental(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     python_wheel_wrapper: Optional[bool] = None
     scripts: Optional[Dict[str, str]] = None
 
 
+class Permissions(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    group_name: Optional[str] = None
+    level: str
+    service_principal_name: Optional[str] = None
+    user_name: Optional[str] = None
+
+
+class ExperimentsPermissions(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    group_name: Optional[str] = None
+    level: str
+    service_principal_name: Optional[str] = None
+    user_name: Optional[str] = None
+
+
 class ExperimentsTags(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     key: Optional[str] = Field(None, description='The tag key.')
     value: Optional[str] = Field(None, description='The tag value.')
@@ -1348,7 +82,7 @@ class ExperimentsTags(BaseModel):
 
 class Experiments(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     artifact_location: Optional[str] = Field(
         None, description='Location where artifacts for the experiment are stored.'
@@ -1373,7 +107,7 @@ class Experiments(BaseModel):
 
 class JobsComputeSpec(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     kind: Optional[str] = Field(
         None, description='The kind of compute described by this compute specification.'
@@ -1382,7 +116,7 @@ class JobsComputeSpec(BaseModel):
 
 class JobsCompute(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     compute_key: str = Field(
         ...,
@@ -1393,22 +127,38 @@ class JobsCompute(BaseModel):
 
 class JobsContinuous(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     pause_status: Optional[str] = Field(
-        None, description='Whether this trigger is paused or not.'
+        None, description='Indicate whether this schedule is paused or not.'
+    )
+
+
+class JobsDeployment(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    kind: str = Field(
+        ...,
+        description='The kind of deployment that manages the job.\n\n* `BUNDLE`: The job is managed by Databricks Asset Bundle.\n',
+    )
+    metadata_file_path: Optional[str] = Field(
+        None, description='Path of the file that contains deployment metadata.'
     )
 
 
 class JobsEmailNotifications(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     no_alert_for_skipped_runs: Optional[bool] = Field(
         None,
         description='If true, do not send email to recipients specified in `on_failure` if the run is skipped.',
     )
-    on_duration_warning_threshold_exceeded: Optional[List[str]] = None
+    on_duration_warning_threshold_exceeded: Optional[List[str]] = Field(
+        None,
+        description='A list of email addresses to be notified when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. If no rule for the `RUN_DURATION_SECONDS` metric is specified in the `health` field for the job, notifications are not sent.',
+    )
     on_failure: Optional[List[str]] = Field(
         None,
         description='A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.',
@@ -1425,7 +175,7 @@ class JobsEmailNotifications(BaseModel):
 
 class JobsGitSourceGitSnapshot(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     used_commit: Optional[str] = Field(
         None,
@@ -1433,17 +183,34 @@ class JobsGitSourceGitSnapshot(BaseModel):
     )
 
 
+class JobsGitSourceJobSource(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    dirty_state: Optional[str] = Field(
+        None,
+        description='Dirty state indicates the job is not fully synced with the job specification in the remote repository.\n\nPossible values are:\n* `NOT_SYNCED`: The job is not yet synced with the remote job specification. Import the remote job specification from UI to make the job fully synced.\n* `DISCONNECTED`: The job is temporary disconnected from the remote job specification and is allowed for live edit. Import the remote job specification again from UI to make the job fully synced.\n',
+    )
+    import_from_git_branch: str = Field(
+        ..., description='Name of the branch which the job is imported from.'
+    )
+    job_config_path: str = Field(
+        ...,
+        description='Path of the job YAML file that contains the job specification.',
+    )
+
+
 class JobsGitSource(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     git_branch: Optional[str] = Field(
         None,
-        description='Name of the branch to be checked out and used by this job.\nThis field cannot be specified in conjunction with git_tag or git_commit.\n\nThe maximum length is 255 characters.\n',
+        description='Name of the branch to be checked out and used by this job. This field cannot be specified in conjunction with git_tag or git_commit.',
     )
     git_commit: Optional[str] = Field(
         None,
-        description='Commit to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_tag.\nThe maximum length is 64 characters.',
+        description='Commit to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_tag.',
     )
     git_provider: str = Field(
         ...,
@@ -1452,18 +219,36 @@ class JobsGitSource(BaseModel):
     git_snapshot: Optional[JobsGitSourceGitSnapshot] = None
     git_tag: Optional[str] = Field(
         None,
-        description='Name of the tag to be checked out and used by this job.\nThis field cannot be specified in conjunction with git_branch or git_commit.\n\nThe maximum length is 255 characters.\n',
+        description='Name of the tag to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_commit.',
     )
     git_url: str = Field(
-        ...,
-        description='URL of the repository to be cloned by this job.\nThe maximum length is 300 characters.',
+        ..., description='URL of the repository to be cloned by this job.'
     )
     job_source: Optional[JobsGitSourceJobSource] = None
 
 
+class JobsHealthRules(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    metric: Optional[str] = None
+    op: Optional[str] = None
+    value: Optional[float] = Field(
+        None,
+        description='Specifies the threshold value that the health metric should obey to satisfy the health rule.',
+    )
+
+
+class JobsHealth(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    rules: Optional[List[JobsHealthRules]] = None
+
+
 class JobsJobClustersNewClusterAutoscale(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     max_workers: float = Field(
         ...,
@@ -1477,7 +262,7 @@ class JobsJobClustersNewClusterAutoscale(BaseModel):
 
 class JobsJobClustersNewClusterAwsAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     ebs_volume_count: Optional[float] = Field(
@@ -1507,13 +292,13 @@ class JobsJobClustersNewClusterAwsAttributes(BaseModel):
     )
     zone_id: Optional[str] = Field(
         None,
-        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nSee [[AutoAZHelper.scala]] for more details.\nThe list of available zones as well as the default value can be found by using the\n`List Zones`_ method.',
+        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nThe list of available zones as well as the default value can be found by using the\n`List Zones` method.',
     )
 
 
 class JobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     log_analytics_primary_key: Optional[str] = Field(
         None, description='<needs content added>'
@@ -1525,7 +310,7 @@ class JobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
 
 class JobsJobClustersNewClusterAzureAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     first_on_demand: Optional[float] = Field(
@@ -1543,7 +328,7 @@ class JobsJobClustersNewClusterAzureAttributes(BaseModel):
 
 class JobsJobClustersNewClusterClusterLogConfDbfs(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination: Optional[str] = Field(
         None, description='dbfs destination, e.g. `dbfs:/my/path`'
@@ -1552,7 +337,7 @@ class JobsJobClustersNewClusterClusterLogConfDbfs(BaseModel):
 
 class JobsJobClustersNewClusterClusterLogConfS(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     canned_acl: Optional[str] = Field(
         None,
@@ -1586,7 +371,7 @@ class JobsJobClustersNewClusterClusterLogConfS(BaseModel):
 
 class JobsJobClustersNewClusterClusterLogConf(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     dbfs: Optional[JobsJobClustersNewClusterClusterLogConfDbfs] = None
     s3: Optional[JobsJobClustersNewClusterClusterLogConfS] = None
@@ -1594,7 +379,7 @@ class JobsJobClustersNewClusterClusterLogConf(BaseModel):
 
 class JobsJobClustersNewClusterDockerImageBasicAuth(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     password: Optional[str] = Field(None, description='Password of the user')
     username: Optional[str] = Field(None, description='Name of the user')
@@ -1602,7 +387,7 @@ class JobsJobClustersNewClusterDockerImageBasicAuth(BaseModel):
 
 class JobsJobClustersNewClusterDockerImage(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     basic_auth: Optional[JobsJobClustersNewClusterDockerImageBasicAuth] = None
     url: Optional[str] = Field(None, description='URL of the docker image.')
@@ -1610,7 +395,7 @@ class JobsJobClustersNewClusterDockerImage(BaseModel):
 
 class JobsJobClustersNewClusterGcpAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     boot_disk_size: Optional[float] = Field(None, description='boot disk size in GB')
@@ -1626,16 +411,25 @@ class JobsJobClustersNewClusterGcpAttributes(BaseModel):
 
 class JobsJobClustersNewClusterInitScriptsDbfs(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination: Optional[str] = Field(
         None, description='dbfs destination, e.g. `dbfs:/my/path`'
     )
 
 
+class JobsJobClustersNewClusterInitScriptsFile(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    destination: Optional[str] = Field(
+        None, description='local file destination, e.g. `file:/my/local/file.sh`'
+    )
+
+
 class JobsJobClustersNewClusterInitScriptsS(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     canned_acl: Optional[str] = Field(
         None,
@@ -1667,9 +461,19 @@ class JobsJobClustersNewClusterInitScriptsS(BaseModel):
     )
 
 
+class JobsJobClustersNewClusterInitScriptsVolumes(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    destination: Optional[str] = Field(
+        None,
+        description='Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`',
+    )
+
+
 class JobsJobClustersNewClusterInitScriptsWorkspace(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination: Optional[str] = Field(
         None,
@@ -1679,9 +483,10 @@ class JobsJobClustersNewClusterInitScriptsWorkspace(BaseModel):
 
 class JobsJobClustersNewClusterInitScripts(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     dbfs: Optional[JobsJobClustersNewClusterInitScriptsDbfs] = None
+    file: Optional[JobsJobClustersNewClusterInitScriptsFile] = None
     s3: Optional[JobsJobClustersNewClusterInitScriptsS] = None
     volumes: Optional[JobsJobClustersNewClusterInitScriptsVolumes] = None
     workspace: Optional[JobsJobClustersNewClusterInitScriptsWorkspace] = None
@@ -1689,7 +494,7 @@ class JobsJobClustersNewClusterInitScripts(BaseModel):
 
 class JobsJobClustersNewClusterWorkloadTypeClients(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     jobs: Optional[bool] = Field(
         None, description='With jobs set, the cluster can be used for jobs'
@@ -1701,15 +506,16 @@ class JobsJobClustersNewClusterWorkloadTypeClients(BaseModel):
 
 class JobsJobClustersNewClusterWorkloadType(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     clients: Optional[JobsJobClustersNewClusterWorkloadTypeClients] = None
 
 
 class JobsJobClustersNewCluster(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
+    apply_policy_default_values: Optional[bool] = None
     autoscale: Optional[JobsJobClustersNewClusterAutoscale] = None
     autotermination_minutes: Optional[float] = Field(
         None,
@@ -1724,7 +530,19 @@ class JobsJobClustersNewCluster(BaseModel):
     )
     cluster_source: Optional[str] = None
     custom_tags: Optional[Dict[str, str]] = None
-    data_security_mode: Optional[str] = None
+    data_security_mode: Optional[
+        Literal[
+            'LEGACY_TABLE_ACL',
+            'LEGACY_PASSTHROUGH',
+            'LEGACY_SINGLE_USER',
+            'SINGLE_USER',
+            'USER_ISOLATION',
+            'NONE',
+        ]
+    ] = Field(
+        'SINGLE_USER',
+        description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
+    )
     docker_image: Optional[JobsJobClustersNewClusterDockerImage] = None
     driver_instance_pool_id: Optional[str] = Field(
         None,
@@ -1781,7 +599,7 @@ class JobsJobClustersNewCluster(BaseModel):
 
 class JobsJobClusters(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     job_cluster_key: str = Field(
         ...,
@@ -1792,7 +610,7 @@ class JobsJobClusters(BaseModel):
 
 class JobsNotificationSettings(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     no_alert_for_canceled_runs: Optional[bool] = Field(
         None,
@@ -1806,7 +624,7 @@ class JobsNotificationSettings(BaseModel):
 
 class JobsParameters(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     default: str = Field(..., description='Default value of the parameter.')
     name: str = Field(
@@ -1815,9 +633,29 @@ class JobsParameters(BaseModel):
     )
 
 
+class JobsPermissions(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    group_name: Optional[str] = None
+    level: str
+    service_principal_name: Optional[str] = None
+    user_name: Optional[str] = None
+
+
+class JobsQueue(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    enabled: bool = Field(
+        ...,
+        description='If true, enable queueing for the job. This is a required field.',
+    )
+
+
 class JobsRunAs(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     service_principal_name: Optional[str] = Field(
         None,
@@ -1831,10 +669,10 @@ class JobsRunAs(BaseModel):
 
 class JobsSchedule(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     pause_status: Optional[str] = Field(
-        None, description='Whether this trigger is paused or not.'
+        None, description='Indicate whether this schedule is paused or not.'
     )
     quartz_cron_expression: str = Field(
         ...,
@@ -1848,7 +686,7 @@ class JobsSchedule(BaseModel):
 
 class JobsTasksConditionTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     left: Optional[str] = Field(
         None,
@@ -1866,7 +704,7 @@ class JobsTasksConditionTask(BaseModel):
 
 class JobsTasksDbtTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     catalog: Optional[str] = Field(
         None,
@@ -1897,7 +735,7 @@ class JobsTasksDbtTask(BaseModel):
 
 class JobsTasksDependsOn(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     outcome: Optional[str] = Field(
         None,
@@ -1908,9 +746,12 @@ class JobsTasksDependsOn(BaseModel):
 
 class JobsTasksEmailNotifications(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
-    on_duration_warning_threshold_exceeded: Optional[List[str]] = None
+    on_duration_warning_threshold_exceeded: Optional[List[str]] = Field(
+        None,
+        description='A list of email addresses to be notified when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. If no rule for the `RUN_DURATION_SECONDS` metric is specified in the `health` field for the job, notifications are not sent.',
+    )
     on_failure: Optional[List[str]] = Field(
         None,
         description='A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.',
@@ -1925,9 +766,28 @@ class JobsTasksEmailNotifications(BaseModel):
     )
 
 
+class JobsTasksHealthRules(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    metric: Optional[str] = None
+    op: Optional[str] = None
+    value: Optional[float] = Field(
+        None,
+        description='Specifies the threshold value that the health metric should obey to satisfy the health rule.',
+    )
+
+
+class JobsTasksHealth(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    rules: Optional[List[JobsTasksHealthRules]] = None
+
+
 class JobsTasksLibrariesCran(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     package: str = Field(..., description='The name of the CRAN package to install.')
     repo: Optional[str] = Field(
@@ -1938,7 +798,7 @@ class JobsTasksLibrariesCran(BaseModel):
 
 class JobsTasksLibrariesMaven(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     coordinates: str = Field(
         ...,
@@ -1956,7 +816,7 @@ class JobsTasksLibrariesMaven(BaseModel):
 
 class JobsTasksLibrariesPypi(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     package: str = Field(
         ...,
@@ -1970,7 +830,7 @@ class JobsTasksLibrariesPypi(BaseModel):
 
 class JobsTasksLibraries(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     cran: Optional[JobsTasksLibrariesCran] = None
     egg: Optional[str] = Field(
@@ -1991,7 +851,7 @@ class JobsTasksLibraries(BaseModel):
 
 class JobsTasksNewClusterAutoscale(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     max_workers: float = Field(
         ...,
@@ -2005,7 +865,7 @@ class JobsTasksNewClusterAutoscale(BaseModel):
 
 class JobsTasksNewClusterAwsAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     ebs_volume_count: Optional[float] = Field(
@@ -2035,13 +895,13 @@ class JobsTasksNewClusterAwsAttributes(BaseModel):
     )
     zone_id: Optional[str] = Field(
         None,
-        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nSee [[AutoAZHelper.scala]] for more details.\nThe list of available zones as well as the default value can be found by using the\n`List Zones`_ method.',
+        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nThe list of available zones as well as the default value can be found by using the\n`List Zones` method.',
     )
 
 
 class JobsTasksNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     log_analytics_primary_key: Optional[str] = Field(
         None, description='<needs content added>'
@@ -2053,7 +913,7 @@ class JobsTasksNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
 
 class JobsTasksNewClusterAzureAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     first_on_demand: Optional[float] = Field(
@@ -2071,7 +931,7 @@ class JobsTasksNewClusterAzureAttributes(BaseModel):
 
 class JobsTasksNewClusterClusterLogConfDbfs(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination: Optional[str] = Field(
         None, description='dbfs destination, e.g. `dbfs:/my/path`'
@@ -2080,7 +940,7 @@ class JobsTasksNewClusterClusterLogConfDbfs(BaseModel):
 
 class JobsTasksNewClusterClusterLogConfS(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     canned_acl: Optional[str] = Field(
         None,
@@ -2114,7 +974,7 @@ class JobsTasksNewClusterClusterLogConfS(BaseModel):
 
 class JobsTasksNewClusterClusterLogConf(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     dbfs: Optional[JobsTasksNewClusterClusterLogConfDbfs] = None
     s3: Optional[JobsTasksNewClusterClusterLogConfS] = None
@@ -2122,7 +982,7 @@ class JobsTasksNewClusterClusterLogConf(BaseModel):
 
 class JobsTasksNewClusterDockerImageBasicAuth(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     password: Optional[str] = Field(None, description='Password of the user')
     username: Optional[str] = Field(None, description='Name of the user')
@@ -2130,7 +990,7 @@ class JobsTasksNewClusterDockerImageBasicAuth(BaseModel):
 
 class JobsTasksNewClusterDockerImage(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     basic_auth: Optional[JobsTasksNewClusterDockerImageBasicAuth] = None
     url: Optional[str] = Field(None, description='URL of the docker image.')
@@ -2138,7 +998,7 @@ class JobsTasksNewClusterDockerImage(BaseModel):
 
 class JobsTasksNewClusterGcpAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     boot_disk_size: Optional[float] = Field(None, description='boot disk size in GB')
@@ -2154,16 +1014,25 @@ class JobsTasksNewClusterGcpAttributes(BaseModel):
 
 class JobsTasksNewClusterInitScriptsDbfs(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination: Optional[str] = Field(
         None, description='dbfs destination, e.g. `dbfs:/my/path`'
     )
 
 
+class JobsTasksNewClusterInitScriptsFile(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    destination: Optional[str] = Field(
+        None, description='local file destination, e.g. `file:/my/local/file.sh`'
+    )
+
+
 class JobsTasksNewClusterInitScriptsS(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     canned_acl: Optional[str] = Field(
         None,
@@ -2195,9 +1064,19 @@ class JobsTasksNewClusterInitScriptsS(BaseModel):
     )
 
 
+class JobsTasksNewClusterInitScriptsVolumes(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    destination: Optional[str] = Field(
+        None,
+        description='Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`',
+    )
+
+
 class JobsTasksNewClusterInitScriptsWorkspace(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination: Optional[str] = Field(
         None,
@@ -2207,9 +1086,10 @@ class JobsTasksNewClusterInitScriptsWorkspace(BaseModel):
 
 class JobsTasksNewClusterInitScripts(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     dbfs: Optional[JobsTasksNewClusterInitScriptsDbfs] = None
+    file: Optional[JobsTasksNewClusterInitScriptsFile] = None
     s3: Optional[JobsTasksNewClusterInitScriptsS] = None
     volumes: Optional[JobsTasksNewClusterInitScriptsVolumes] = None
     workspace: Optional[JobsTasksNewClusterInitScriptsWorkspace] = None
@@ -2217,7 +1097,7 @@ class JobsTasksNewClusterInitScripts(BaseModel):
 
 class JobsTasksNewClusterWorkloadTypeClients(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     jobs: Optional[bool] = Field(
         None, description='With jobs set, the cluster can be used for jobs'
@@ -2229,15 +1109,16 @@ class JobsTasksNewClusterWorkloadTypeClients(BaseModel):
 
 class JobsTasksNewClusterWorkloadType(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     clients: Optional[JobsTasksNewClusterWorkloadTypeClients] = None
 
 
 class JobsTasksNewCluster(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
+    apply_policy_default_values: Optional[bool] = None
     autoscale: Optional[JobsTasksNewClusterAutoscale] = None
     autotermination_minutes: Optional[float] = Field(
         None,
@@ -2252,7 +1133,19 @@ class JobsTasksNewCluster(BaseModel):
     )
     cluster_source: Optional[str] = None
     custom_tags: Optional[Dict[str, str]] = None
-    data_security_mode: Optional[str] = None
+    data_security_mode: Optional[
+        Literal[
+            'LEGACY_TABLE_ACL',
+            'LEGACY_PASSTHROUGH',
+            'LEGACY_SINGLE_USER',
+            'SINGLE_USER',
+            'USER_ISOLATION',
+            'NONE',
+        ]
+    ] = Field(
+        'SINGLE_USER',
+        description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
+    )
     docker_image: Optional[JobsTasksNewClusterDockerImage] = None
     driver_instance_pool_id: Optional[str] = Field(
         None,
@@ -2309,7 +1202,7 @@ class JobsTasksNewCluster(BaseModel):
 
 class JobsTasksNotebookTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     base_parameters: Optional[Dict[str, str]] = None
     notebook_path: str = Field(
@@ -2324,7 +1217,7 @@ class JobsTasksNotebookTask(BaseModel):
 
 class JobsTasksNotificationSettings(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     alert_on_last_attempt: Optional[bool] = Field(
         None,
@@ -2342,7 +1235,7 @@ class JobsTasksNotificationSettings(BaseModel):
 
 class JobsTasksPipelineTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     full_refresh: Optional[bool] = Field(
         None,
@@ -2355,7 +1248,7 @@ class JobsTasksPipelineTask(BaseModel):
 
 class JobsTasksPythonWheelTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     entry_point: Optional[str] = Field(
         None,
@@ -2371,9 +1264,17 @@ class JobsTasksPythonWheelTask(BaseModel):
     )
 
 
+class JobsTasksRunJobTask(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    job_id: float = Field(..., description='ID of the job to trigger.')
+    job_parameters: Optional[Any] = None
+
+
 class JobsTasksSparkJarTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     jar_uri: Optional[str] = Field(
         None,
@@ -2391,7 +1292,7 @@ class JobsTasksSparkJarTask(BaseModel):
 
 class JobsTasksSparkPythonTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     parameters: Optional[List[str]] = Field(
         None,
@@ -2409,7 +1310,7 @@ class JobsTasksSparkPythonTask(BaseModel):
 
 class JobsTasksSparkSubmitTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     parameters: Optional[List[str]] = Field(
         None,
@@ -2419,20 +1320,21 @@ class JobsTasksSparkSubmitTask(BaseModel):
 
 class JobsTasksSqlTaskAlertSubscriptions(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination_id: Optional[str] = Field(
         None,
-        description='The canonical identifier of the destination to receive email notification.',
+        description='The canonical identifier of the destination to receive email notification. This parameter is mutually exclusive with user_name. You cannot set both destination_id and user_name for subscription notifications.',
     )
     user_name: Optional[str] = Field(
-        None, description='The user name to receive the subscription email.'
+        None,
+        description='The user name to receive the subscription email. This parameter is mutually exclusive with destination_id. You cannot set both destination_id and user_name for subscription notifications.',
     )
 
 
 class JobsTasksSqlTaskAlert(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     alert_id: str = Field(..., description='The canonical identifier of the SQL alert.')
     pause_subscriptions: Optional[bool] = Field(
@@ -2446,20 +1348,21 @@ class JobsTasksSqlTaskAlert(BaseModel):
 
 class JobsTasksSqlTaskDashboardSubscriptions(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination_id: Optional[str] = Field(
         None,
-        description='The canonical identifier of the destination to receive email notification.',
+        description='The canonical identifier of the destination to receive email notification. This parameter is mutually exclusive with user_name. You cannot set both destination_id and user_name for subscription notifications.',
     )
     user_name: Optional[str] = Field(
-        None, description='The user name to receive the subscription email.'
+        None,
+        description='The user name to receive the subscription email. This parameter is mutually exclusive with destination_id. You cannot set both destination_id and user_name for subscription notifications.',
     )
 
 
 class JobsTasksSqlTaskDashboard(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     custom_subject: Optional[str] = Field(
         None, description='Subject of the email sent to subscribers of this task.'
@@ -2478,7 +1381,7 @@ class JobsTasksSqlTaskDashboard(BaseModel):
 
 class JobsTasksSqlTaskFile(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     path: str = Field(
         ..., description='Relative path of the SQL file in the remote Git repository.'
@@ -2487,14 +1390,14 @@ class JobsTasksSqlTaskFile(BaseModel):
 
 class JobsTasksSqlTaskQuery(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     query_id: str = Field(..., description='The canonical identifier of the SQL query.')
 
 
 class JobsTasksSqlTask(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     alert: Optional[JobsTasksSqlTaskAlert] = None
     dashboard: Optional[JobsTasksSqlTaskDashboard] = None
@@ -2503,13 +1406,65 @@ class JobsTasksSqlTask(BaseModel):
     query: Optional[JobsTasksSqlTaskQuery] = None
     warehouse_id: str = Field(
         ...,
-        description='The canonical identifier of the SQL warehouse. Only serverless and pro SQL warehouses are supported.',
+        description='The canonical identifier of the SQL warehouse. Recommended to use with serverless or pro SQL warehouses. Classic SQL warehouses are only supported for SQL alert, dashboard and query tasks and are limited to scheduled single-task jobs.',
+    )
+
+
+class JobsTasksWebhookNotificationsOnDurationWarningThresholdExceeded(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
+
+
+class JobsTasksWebhookNotificationsOnFailure(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
+
+
+class JobsTasksWebhookNotificationsOnStart(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
+
+
+class JobsTasksWebhookNotificationsOnSuccess(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
+
+
+class JobsTasksWebhookNotifications(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    on_duration_warning_threshold_exceeded: Optional[
+        List[JobsTasksWebhookNotificationsOnDurationWarningThresholdExceeded]
+    ] = Field(
+        None,
+        description='An optional list of system notification IDs to call when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. A maximum of 3 destinations can be specified for the `on_duration_warning_threshold_exceeded` property.',
+    )
+    on_failure: Optional[List[JobsTasksWebhookNotificationsOnFailure]] = Field(
+        None,
+        description='An optional list of system notification IDs to call when the run fails. A maximum of 3 destinations can be specified for the `on_failure` property.',
+    )
+    on_start: Optional[List[JobsTasksWebhookNotificationsOnStart]] = Field(
+        None,
+        description='An optional list of system notification IDs to call when the run starts. A maximum of 3 destinations can be specified for the `on_start` property.',
+    )
+    on_success: Optional[List[JobsTasksWebhookNotificationsOnSuccess]] = Field(
+        None,
+        description='An optional list of system notification IDs to call when the run completes successfully. A maximum of 3 destinations can be specified for the `on_success` property.',
     )
 
 
 class JobsTasks(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     compute_key: Optional[str] = Field(
         None,
@@ -2519,11 +1474,10 @@ class JobsTasks(BaseModel):
     dbt_task: Optional[JobsTasksDbtTask] = None
     depends_on: Optional[List[JobsTasksDependsOn]] = Field(
         None,
-        description='An optional array of objects specifying the dependency graph of the task. All tasks specified in this field must complete successfully before executing this task.\nThe key is `task_key`, and the value is the name assigned to the dependent task.\n',
+        description='An optional array of objects specifying the dependency graph of the task. All tasks specified in this field must complete before executing this task. The task will run only if the `run_if` condition is true.\nThe key is `task_key`, and the value is the name assigned to the dependent task.\n',
     )
     description: Optional[str] = Field(
-        None,
-        description='An optional description for this task.\nThe maximum length is 4096 bytes.',
+        None, description='An optional description for this task.'
     )
     email_notifications: Optional[JobsTasksEmailNotifications] = None
     existing_cluster_id: Optional[str] = Field(
@@ -2541,7 +1495,7 @@ class JobsTasks(BaseModel):
     )
     max_retries: Optional[float] = Field(
         None,
-        description='An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value -1 means to retry indefinitely and the value 0 means to never retry. The default behavior is to never retry.',
+        description='An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry.',
     )
     min_retry_interval_millis: Optional[float] = Field(
         None,
@@ -2554,11 +1508,11 @@ class JobsTasks(BaseModel):
     python_wheel_task: Optional[JobsTasksPythonWheelTask] = None
     retry_on_timeout: Optional[bool] = Field(
         None,
-        description='An optional policy to specify whether to retry a task when it times out. The default behavior is to not retry on timeout.',
+        description='An optional policy to specify whether to retry a task when it times out.',
     )
     run_if: Optional[str] = Field(
         None,
-        description='An optional value specifying the condition determining whether the task is run once its dependencies have been completed. When omitted, defaults to `ALL_SUCCESS`.\n\n* `ALL_SUCCESS`: All dependencies have executed and succeeded\n* `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded\n* `NONE_FAILED`: None of the dependencies have failed and at least one was executed\n* `ALL_DONE`: All dependencies completed and at least one was executed\n* `AT_LEAST_ONE_FAILED`: At least one dependency failed\n* `ALL_FAILED`: ALl dependencies have failed\n',
+        description='An optional value specifying the condition determining whether the task is run once its dependencies have been completed.\n\n* `ALL_SUCCESS`: All dependencies have executed and succeeded\n* `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded\n* `NONE_FAILED`: None of the dependencies have failed and at least one was executed\n* `ALL_DONE`: All dependencies have been completed\n* `AT_LEAST_ONE_FAILED`: At least one dependency failed\n* `ALL_FAILED`: ALl dependencies have failed\n',
     )
     run_job_task: Optional[JobsTasksRunJobTask] = None
     spark_jar_task: Optional[JobsTasksSparkJarTask] = None
@@ -2567,17 +1521,18 @@ class JobsTasks(BaseModel):
     sql_task: Optional[JobsTasksSqlTask] = None
     task_key: str = Field(
         ...,
-        description='A unique name for the task. This field is used to refer to this task from other tasks.\nThis field is required and must be unique within its parent job.\nOn Update or Reset, this field is used to reference the tasks to be updated or reset.\nThe maximum length is 100 characters.',
+        description='A unique name for the task. This field is used to refer to this task from other tasks.\nThis field is required and must be unique within its parent job.\nOn Update or Reset, this field is used to reference the tasks to be updated or reset.',
     )
     timeout_seconds: Optional[float] = Field(
         None,
-        description='An optional timeout applied to each run of this job task. The default behavior is to have no timeout.',
+        description='An optional timeout applied to each run of this job task. A value of `0` means no timeout.',
     )
+    webhook_notifications: Optional[JobsTasksWebhookNotifications] = None
 
 
 class JobsTriggerFileArrival(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     min_time_between_triggers_seconds: Optional[float] = Field(
         None,
@@ -2595,21 +1550,52 @@ class JobsTriggerFileArrival(BaseModel):
 
 class JobsTrigger(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     file_arrival: Optional[JobsTriggerFileArrival] = None
     pause_status: Optional[str] = Field(
-        None, description='Whether this trigger is paused or not.'
+        None, description='Indicate whether this schedule is paused or not.'
     )
+
+
+class JobsWebhookNotificationsOnDurationWarningThresholdExceeded(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
+
+
+class JobsWebhookNotificationsOnFailure(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
+
+
+class JobsWebhookNotificationsOnStart(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
+
+
+class JobsWebhookNotificationsOnSuccess(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    id: Optional[str] = None
 
 
 class JobsWebhookNotifications(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     on_duration_warning_threshold_exceeded: Optional[
         List[JobsWebhookNotificationsOnDurationWarningThresholdExceeded]
-    ] = None
+    ] = Field(
+        None,
+        description='An optional list of system notification IDs to call when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. A maximum of 3 destinations can be specified for the `on_duration_warning_threshold_exceeded` property.',
+    )
     on_failure: Optional[List[JobsWebhookNotificationsOnFailure]] = Field(
         None,
         description='An optional list of system notification IDs to call when the run fails. A maximum of 3 destinations can be specified for the `on_failure` property.',
@@ -2626,13 +1612,22 @@ class JobsWebhookNotifications(BaseModel):
 
 class Jobs(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     compute: Optional[List[JobsCompute]] = Field(
         None,
         description='A list of compute requirements that can be referenced by tasks of this job.',
     )
     continuous: Optional[JobsContinuous] = None
+    deployment: Optional[JobsDeployment] = None
+    description: Optional[str] = Field(
+        None,
+        description='An optional description for the job. The maximum length is 1024 characters in UTF-8 encoding.',
+    )
+    edit_mode: Optional[str] = Field(
+        None,
+        description='Edit mode of the job.\n\n* `UI_LOCKED`: The job is in a locked UI state and cannot be modified.\n* `EDITABLE`: The job is in an editable state and can be modified.\n',
+    )
     email_notifications: Optional[JobsEmailNotifications] = None
     format: Optional[str] = Field(
         None,
@@ -2646,9 +1641,12 @@ class Jobs(BaseModel):
     )
     max_concurrent_runs: Optional[float] = Field(
         None,
-        description='An optional maximum allowed number of concurrent runs of the job.\n\nSet this value if you want to be able to execute multiple runs of the same job concurrently. This is useful for example if you trigger your job on a frequent schedule and want to allow consecutive runs to overlap with each other, or if you want to trigger multiple runs which differ by their input parameters.\n\nThis setting affects only new runs. For example, suppose the job’s concurrency is 4 and there are 4 concurrent active runs. Then setting the concurrency to 3 won’t kill any of the active runs. However, from then on, new runs are skipped unless there are fewer than 3 active runs.\n\nThis value cannot exceed 1000\\. Setting this value to 0 causes all new runs to be skipped. The default behavior is to allow only 1 concurrent run.',
+        description='An optional maximum allowed number of concurrent runs of the job.\n\nSet this value if you want to be able to execute multiple runs of the same job concurrently. This is useful for example if you trigger your job on a frequent schedule and want to allow consecutive runs to overlap with each other, or if you want to trigger multiple runs which differ by their input parameters.\n\nThis setting affects only new runs. For example, suppose the job’s concurrency is 4 and there are 4 concurrent active runs. Then setting the concurrency to 3 won’t kill any of the active runs. However, from then on, new runs are skipped unless there are fewer than 3 active runs.\n\nThis value cannot exceed 1000. Setting this value to `0` causes all new runs to be skipped.',
     )
-    name: Optional[str] = Field(None, description='An optional name for the job.')
+    name: Optional[str] = Field(
+        None,
+        description='An optional name for the job. The maximum length is 4096 bytes in UTF-8 encoding.',
+    )
     notification_settings: Optional[JobsNotificationSettings] = None
     parameters: Optional[List[JobsParameters]] = Field(
         None, description='Job-level parameter definitions'
@@ -2663,15 +1661,120 @@ class Jobs(BaseModel):
     )
     timeout_seconds: Optional[float] = Field(
         None,
-        description='An optional timeout applied to each run of this job. The default behavior is to have no timeout.',
+        description='An optional timeout applied to each run of this job. A value of `0` means no timeout.',
     )
     trigger: Optional[JobsTrigger] = None
     webhook_notifications: Optional[JobsWebhookNotifications] = None
 
 
+class ModelServingEndpointsConfigServedModels(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    environment_vars: Optional[Dict[str, str]] = None
+    instance_profile_arn: Optional[str] = Field(
+        None,
+        description='ARN of the instance profile that the served model will use to access AWS resources.',
+    )
+    model_name: str = Field(
+        ...,
+        description='The name of the model in Databricks Model Registry to be served or if the model resides in Unity Catalog, the full name of model, \nin the form of __catalog_name__.__schema_name__.__model_name__.\n',
+    )
+    model_version: str = Field(
+        ...,
+        description='The version of the model in Databricks Model Registry or Unity Catalog to be served.',
+    )
+    name: Optional[str] = Field(
+        None,
+        description='The name of a served model. It must be unique across an endpoint. If not specified, this field will default to <model-name>-<model-version>.\nA served model name can consist of alphanumeric characters, dashes, and underscores.\n',
+    )
+    scale_to_zero_enabled: bool = Field(
+        ...,
+        description='Whether the compute resources for the served model should scale down to zero.',
+    )
+    workload_size: str = Field(
+        ...,
+        description='The workload size of the served model. The workload size corresponds to a range of provisioned concurrency that the compute will autoscale between.\nA single unit of provisioned concurrency can process one request at a time.\nValid workload sizes are "Small" (4 - 4 provisioned concurrency), "Medium" (8 - 16 provisioned concurrency), and "Large" (16 - 64 provisioned concurrency).\nIf scale-to-zero is enabled, the lower bound of the provisioned concurrency for each workload size will be 0.\n',
+    )
+    workload_type: Optional[str] = Field(
+        None,
+        description='The workload type of the served model. The workload type selects which type of compute to use in the endpoint. The default value for this parameter is\n"CPU". For deep learning workloads, GPU acceleration is available by selecting workload types like GPU_SMALL and others. See documentation for all\noptions.\n',
+    )
+
+
+class ModelServingEndpointsConfigTrafficConfigRoutes(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    served_model_name: str = Field(
+        ...,
+        description='The name of the served model this route configures traffic for.',
+    )
+    traffic_percentage: float = Field(
+        ...,
+        description='The percentage of endpoint traffic to send to this route. It must be an integer between 0 and 100 inclusive.',
+    )
+
+
+class ModelServingEndpointsConfigTrafficConfig(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    routes: Optional[List[ModelServingEndpointsConfigTrafficConfigRoutes]] = Field(
+        None, description='The list of routes that define traffic to each served model.'
+    )
+
+
+class ModelServingEndpointsConfig(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    served_models: List[ModelServingEndpointsConfigServedModels] = Field(
+        ...,
+        description='A list of served models for the endpoint to serve. A serving endpoint can have up to 10 served models.',
+    )
+    traffic_config: Optional[ModelServingEndpointsConfigTrafficConfig] = None
+
+
+class ModelServingEndpointsPermissions(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    group_name: Optional[str] = None
+    level: str
+    service_principal_name: Optional[str] = None
+    user_name: Optional[str] = None
+
+
+class ModelServingEndpointsTags(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    key: str = Field(..., description='Key field for a serving endpoint tag.')
+    value: Optional[str] = Field(
+        None, description='Optional value field for a serving endpoint tag.'
+    )
+
+
+class ModelServingEndpoints(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    config: ModelServingEndpointsConfig
+    name: str = Field(
+        ...,
+        description='The name of the serving endpoint. This field is required and must be unique across a Databricks workspace.\nAn endpoint name can consist of alphanumeric characters, dashes, and underscores.\n',
+    )
+    permissions: Optional[List[ModelServingEndpointsPermissions]] = None
+    tags: Optional[List[ModelServingEndpointsTags]] = Field(
+        None,
+        description='Tags to be attached to the serving endpoint and automatically propagated to billing logs.',
+    )
+
+
 class ModelsLatestVersionsTags(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     key: Optional[str] = Field(None, description='The tag key.')
     value: Optional[str] = Field(None, description='The tag value.')
@@ -2679,7 +1782,7 @@ class ModelsLatestVersionsTags(BaseModel):
 
 class ModelsLatestVersions(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     creation_timestamp: Optional[float] = Field(
         None, description='Timestamp recorded when this `model_version` was created.'
@@ -2720,9 +1823,19 @@ class ModelsLatestVersions(BaseModel):
     version: Optional[str] = Field(None, description="Model's version number.")
 
 
+class ModelsPermissions(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    group_name: Optional[str] = None
+    level: str
+    service_principal_name: Optional[str] = None
+    user_name: Optional[str] = None
+
+
 class ModelsTags(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     key: Optional[str] = Field(None, description='The tag key.')
     value: Optional[str] = Field(None, description='The tag value.')
@@ -2730,7 +1843,7 @@ class ModelsTags(BaseModel):
 
 class Models(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     creation_timestamp: Optional[float] = Field(
         None, description='Timestamp recorded when this `registered_model` was created.'
@@ -2759,7 +1872,7 @@ class Models(BaseModel):
 
 class PipelinesClustersAutoscale(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     max_workers: float = Field(
         ...,
@@ -2773,7 +1886,7 @@ class PipelinesClustersAutoscale(BaseModel):
 
 class PipelinesClustersAwsAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     ebs_volume_count: Optional[float] = Field(
@@ -2803,13 +1916,13 @@ class PipelinesClustersAwsAttributes(BaseModel):
     )
     zone_id: Optional[str] = Field(
         None,
-        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nSee [[AutoAZHelper.scala]] for more details.\nThe list of available zones as well as the default value can be found by using the\n`List Zones`_ method.',
+        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nThe list of available zones as well as the default value can be found by using the\n`List Zones` method.',
     )
 
 
 class PipelinesClustersAzureAttributesLogAnalyticsInfo(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     log_analytics_primary_key: Optional[str] = Field(
         None, description='<needs content added>'
@@ -2821,7 +1934,7 @@ class PipelinesClustersAzureAttributesLogAnalyticsInfo(BaseModel):
 
 class PipelinesClustersAzureAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     first_on_demand: Optional[float] = Field(
@@ -2839,7 +1952,7 @@ class PipelinesClustersAzureAttributes(BaseModel):
 
 class PipelinesClustersClusterLogConfDbfs(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     destination: Optional[str] = Field(
         None, description='dbfs destination, e.g. `dbfs:/my/path`'
@@ -2848,7 +1961,7 @@ class PipelinesClustersClusterLogConfDbfs(BaseModel):
 
 class PipelinesClustersClusterLogConfS(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     canned_acl: Optional[str] = Field(
         None,
@@ -2882,7 +1995,7 @@ class PipelinesClustersClusterLogConfS(BaseModel):
 
 class PipelinesClustersClusterLogConf(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     dbfs: Optional[PipelinesClustersClusterLogConfDbfs] = None
     s3: Optional[PipelinesClustersClusterLogConfS] = None
@@ -2890,7 +2003,7 @@ class PipelinesClustersClusterLogConf(BaseModel):
 
 class PipelinesClustersGcpAttributes(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     availability: Optional[str] = None
     boot_disk_size: Optional[float] = Field(None, description='boot disk size in GB')
@@ -2906,7 +2019,7 @@ class PipelinesClustersGcpAttributes(BaseModel):
 
 class PipelinesClusters(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     apply_policy_default_values: Optional[bool] = Field(
         None,
@@ -2956,7 +2069,7 @@ class PipelinesClusters(BaseModel):
 
 class PipelinesFilters(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     exclude: Optional[List[str]] = Field(None, description='Paths to exclude.')
     include: Optional[List[str]] = Field(None, description='Paths to include.')
@@ -2964,14 +2077,14 @@ class PipelinesFilters(BaseModel):
 
 class PipelinesLibrariesFile(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     path: Optional[str] = Field(None, description='The absolute path of the file.')
 
 
 class PipelinesLibrariesMaven(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     coordinates: str = Field(
         ...,
@@ -2989,14 +2102,14 @@ class PipelinesLibrariesMaven(BaseModel):
 
 class PipelinesLibrariesNotebook(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     path: Optional[str] = Field(None, description='The absolute path of the notebook.')
 
 
 class PipelinesLibraries(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     file: Optional[PipelinesLibrariesFile] = None
     jar: Optional[str] = Field(
@@ -3007,9 +2120,49 @@ class PipelinesLibraries(BaseModel):
     notebook: Optional[PipelinesLibrariesNotebook] = None
 
 
+class PipelinesNotifications(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    alerts: Optional[List[str]] = Field(
+        None,
+        description='A list of alerts that trigger the sending of notifications to the configured\ndestinations. The supported alerts are:\n\n* `on-update-success`: A pipeline update completes successfully.\n* `on-update-failure`: Each time a pipeline update fails.\n* `on-update-fatal-failure`: A pipeline update fails with a non-retryable (fatal) error.\n* `on-flow-failure`: A single data flow fails.\n',
+    )
+    email_recipients: Optional[List[str]] = Field(
+        None,
+        description='A list of email addresses notified when a configured alert is triggered.\n',
+    )
+
+
+class PipelinesPermissions(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    group_name: Optional[str] = None
+    level: str
+    service_principal_name: Optional[str] = None
+    user_name: Optional[str] = None
+
+
+class PipelinesTriggerCron(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    quartz_cron_schedule: Optional[str] = None
+    timezone_id: Optional[str] = None
+
+
+class PipelinesTrigger(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    cron: Optional[PipelinesTriggerCron] = None
+    manual: Optional[Any] = None
+
+
 class Pipelines(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     catalog: Optional[str] = Field(
         None,
@@ -3039,7 +2192,9 @@ class Pipelines(BaseModel):
     name: Optional[str] = Field(
         None, description='Friendly identifier for this pipeline.'
     )
-    notifications: Optional[List[PipelinesNotifications]] = None
+    notifications: Optional[List[PipelinesNotifications]] = Field(
+        None, description='List of notification settings for this pipeline.'
+    )
     permissions: Optional[List[PipelinesPermissions]] = None
     photon: Optional[bool] = Field(
         None, description='Whether Photon is enabled for this pipeline.'
@@ -3057,2028 +2212,75 @@ class Pipelines(BaseModel):
     trigger: Optional[PipelinesTrigger] = None
 
 
+class RegisteredModelsGrants(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    principal: str
+    privileges: List[str]
+
+
+class RegisteredModels(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    catalog_name: str = Field(
+        ...,
+        description='The name of the catalog where the schema and the registered model reside',
+    )
+    comment: Optional[str] = Field(
+        None, description='The comment attached to the registered model'
+    )
+    grants: Optional[List[RegisteredModelsGrants]] = None
+    name: str = Field(..., description='The name of the registered model')
+    schema_name: str = Field(
+        ..., description='The name of the schema where the registered model resides'
+    )
+    storage_location: Optional[str] = Field(
+        None,
+        description='The storage location on the cloud under which model version data files are stored',
+    )
+
+
 class Resources(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     experiments: Optional[Dict[str, Experiments]] = None
     jobs: Optional[Dict[str, Jobs]] = None
     model_serving_endpoints: Optional[Dict[str, ModelServingEndpoints]] = None
     models: Optional[Dict[str, Models]] = None
     pipelines: Optional[Dict[str, Pipelines]] = None
+    registered_models: Optional[Dict[str, RegisteredModels]] = None
+
+
+class RunAs(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    service_principal_name: Optional[str] = None
+    user_name: Optional[str] = None
 
 
 class Sync(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     exclude: Optional[List[str]] = None
     include: Optional[List[str]] = None
 
 
-class TargetsFiles(BaseModel):
+class Variables(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
-    source: str
+    default: Optional[str] = None
+    description: Optional[str] = None
 
 
-class TargetsArtifacts(BaseModel):
+class Workspace(BaseModel):
     class Config:
-        extra = Extra.forbid
-
-    build: Optional[str] = None
-    files: Optional[List[TargetsFiles]] = None
-    path: Optional[str] = None
-    type: str
-
-
-class TargetsGit(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    branch: Optional[str] = None
-    origin_url: Optional[str] = None
-
-
-class TargetsBundle(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute_id: Optional[str] = None
-    git: Optional[TargetsGit] = None
-    name: str = Field(..., description='The name of the bundle.')
-
-
-class TargetsExperimentsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class TargetsExperimentsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Optional[str] = Field(None, description='The tag key.')
-    value: Optional[str] = Field(None, description='The tag value.')
-
-
-class TargetsExperiments(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    artifact_location: Optional[str] = Field(
-        None, description='Location where artifacts for the experiment are stored.'
-    )
-    creation_time: Optional[float] = Field(None, description='Creation time')
-    experiment_id: Optional[str] = Field(
-        None, description='Unique identifier for the experiment.'
-    )
-    last_update_time: Optional[float] = Field(None, description='Last update time')
-    lifecycle_stage: Optional[str] = Field(
-        None,
-        description='Current life cycle stage of the experiment: "active" or "deleted".\nDeleted experiments are not returned by APIs.',
-    )
-    name: Optional[str] = Field(
-        None, description='Human readable name that identifies the experiment.'
-    )
-    permissions: Optional[List[TargetsExperimentsPermissions]] = None
-    tags: Optional[List[TargetsExperimentsTags]] = Field(
-        None, description='Tags: Additional metadata key-value pairs.'
-    )
-
-
-class TargetsJobsComputeSpec(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    kind: Optional[str] = Field(
-        None, description='The kind of compute described by this compute specification.'
-    )
-
-
-class TargetsJobsCompute(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute_key: str = Field(
-        ...,
-        description='A unique name for the compute requirement. This field is required and must be unique within the job.\n`JobTaskSettings` may refer to this field to determine the compute requirements for the task execution.',
-    )
-    spec: TargetsJobsComputeSpec
-
-
-class TargetsJobsContinuous(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pause_status: Optional[str] = Field(
-        None, description='Whether this trigger is paused or not.'
-    )
-
-
-class TargetsJobsEmailNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    no_alert_for_skipped_runs: Optional[bool] = Field(
-        None,
-        description='If true, do not send email to recipients specified in `on_failure` if the run is skipped.',
-    )
-    on_duration_warning_threshold_exceeded: Optional[List[str]] = None
-    on_failure: Optional[List[str]] = Field(
-        None,
-        description='A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.',
-    )
-    on_start: Optional[List[str]] = Field(
-        None,
-        description='A list of email addresses to be notified when a run begins. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
-    )
-    on_success: Optional[List[str]] = Field(
-        None,
-        description='A list of email addresses to be notified when a run successfully completes. A run is considered to have completed successfully if it ends with a `TERMINATED` `life_cycle_state` and a `SUCCESS` result_state. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
-    )
-
-
-class TargetsJobsGitSourceGitSnapshot(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    used_commit: Optional[str] = Field(
-        None,
-        description='Commit that was used to execute the run. If git_branch was specified, this points to the HEAD of the branch at the time of the run; if git_tag was specified, this points to the commit the tag points to.',
-    )
-
-
-class TargetsJobsGitSourceJobSource(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dirty_state: Optional[str] = None
-    import_from_git_branch: str
-    job_config_path: str
-
-
-class TargetsJobsGitSource(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    git_branch: Optional[str] = Field(
-        None,
-        description='Name of the branch to be checked out and used by this job.\nThis field cannot be specified in conjunction with git_tag or git_commit.\n\nThe maximum length is 255 characters.\n',
-    )
-    git_commit: Optional[str] = Field(
-        None,
-        description='Commit to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_tag.\nThe maximum length is 64 characters.',
-    )
-    git_provider: str = Field(
-        ...,
-        description='Unique identifier of the service used to host the Git repository. The value is case insensitive.',
-    )
-    git_snapshot: Optional[TargetsJobsGitSourceGitSnapshot] = None
-    git_tag: Optional[str] = Field(
-        None,
-        description='Name of the tag to be checked out and used by this job.\nThis field cannot be specified in conjunction with git_branch or git_commit.\n\nThe maximum length is 255 characters.\n',
-    )
-    git_url: str = Field(
-        ...,
-        description='URL of the repository to be cloned by this job.\nThe maximum length is 300 characters.',
-    )
-    job_source: Optional[TargetsJobsGitSourceJobSource] = None
-
-
-class TargetsJobsHealthRules(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    metric: Optional[str] = None
-    op: Optional[str] = None
-    value: Optional[float] = None
-
-
-class TargetsJobsHealth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    rules: Optional[List[TargetsJobsHealthRules]] = None
-
-
-class TargetsJobsJobClustersNewClusterAutoscale(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    max_workers: float = Field(
-        ...,
-        description='The maximum number of workers to which the cluster can scale up when overloaded.\nNote that `max_workers` must be strictly greater than `min_workers`.',
-    )
-    min_workers: float = Field(
-        ...,
-        description='The minimum number of workers to which the cluster can scale down when underutilized.\nIt is also the initial number of workers the cluster will have after creation.',
-    )
-
-
-class TargetsJobsJobClustersNewClusterAwsAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    ebs_volume_count: Optional[float] = Field(
-        None,
-        description='The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.',
-    )
-    ebs_volume_iops: Optional[float] = Field(None, description='<needs content added>')
-    ebs_volume_size: Optional[float] = Field(
-        None,
-        description='The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.',
-    )
-    ebs_volume_throughput: Optional[float] = Field(
-        None, description='<needs content added>'
-    )
-    ebs_volume_type: Optional[str] = None
-    first_on_demand: Optional[float] = Field(
-        None,
-        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
-    )
-    instance_profile_arn: Optional[str] = Field(
-        None,
-        description='Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.',
-    )
-    spot_bid_price_percent: Optional[float] = Field(
-        None,
-        description="The bid price for AWS spot instances, as a percentage of the corresponding instance type's\non-demand price.\nFor example, if this field is set to 50, and the cluster needs a new `r3.xlarge` spot\ninstance, then the bid price is half of the price of\non-demand `r3.xlarge` instances. Similarly, if this field is set to 200, the bid price is twice\nthe price of on-demand `r3.xlarge` instances. If not specified, the default value is 100.\nWhen spot instances are requested for this cluster, only spot instances whose bid price\npercentage matches this field will be considered.\nNote that, for safety, we enforce this field to be no more than 10000.\n\nThe default value and documentation here should be kept consistent with\nCommonConf.defaultSpotBidPricePercent and CommonConf.maxSpotBidPricePercent.",
-    )
-    zone_id: Optional[str] = Field(
-        None,
-        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nSee [[AutoAZHelper.scala]] for more details.\nThe list of available zones as well as the default value can be found by using the\n`List Zones`_ method.',
-    )
-
-
-class TargetsJobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    log_analytics_primary_key: Optional[str] = Field(
-        None, description='<needs content added>'
-    )
-    log_analytics_workspace_id: Optional[str] = Field(
-        None, description='<needs content added>'
-    )
-
-
-class TargetsJobsJobClustersNewClusterAzureAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    first_on_demand: Optional[float] = Field(
-        None,
-        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
-    )
-    log_analytics_info: Optional[
-        TargetsJobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo
-    ] = None
-    spot_bid_max_price: Optional[float] = Field(
-        None,
-        description='The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.',
-    )
-
-
-class TargetsJobsJobClustersNewClusterClusterLogConfDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = Field(
-        None, description='dbfs destination, e.g. `dbfs:/my/path`'
-    )
-
-
-class TargetsJobsJobClustersNewClusterClusterLogConfS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = Field(
-        None,
-        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
-    )
-    destination: Optional[str] = Field(
-        None,
-        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
-    )
-    enable_encryption: Optional[bool] = Field(
-        None,
-        description='(Optional) Flag to enable server side encryption, `false` by default.',
-    )
-    encryption_type: Optional[str] = Field(
-        None,
-        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
-    )
-    endpoint: Optional[str] = Field(
-        None,
-        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
-    )
-    kms_key: Optional[str] = Field(
-        None,
-        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
-    )
-    region: Optional[str] = Field(
-        None,
-        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
-    )
-
-
-class TargetsJobsJobClustersNewClusterClusterLogConf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[TargetsJobsJobClustersNewClusterClusterLogConfDbfs] = None
-    s3: Optional[TargetsJobsJobClustersNewClusterClusterLogConfS] = None
-
-
-class TargetsJobsJobClustersNewClusterDockerImageBasicAuth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    password: Optional[str] = Field(None, description='Password of the user')
-    username: Optional[str] = Field(None, description='Name of the user')
-
-
-class TargetsJobsJobClustersNewClusterDockerImage(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    basic_auth: Optional[TargetsJobsJobClustersNewClusterDockerImageBasicAuth] = None
-    url: Optional[str] = Field(None, description='URL of the docker image.')
-
-
-class TargetsJobsJobClustersNewClusterGcpAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    boot_disk_size: Optional[float] = Field(None, description='boot disk size in GB')
-    google_service_account: Optional[str] = Field(
-        None,
-        description='If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.',
-    )
-    local_ssd_count: Optional[float] = Field(
-        None,
-        description='If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.',
-    )
-
-
-class TargetsJobsJobClustersNewClusterInitScriptsDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = Field(
-        None, description='dbfs destination, e.g. `dbfs:/my/path`'
-    )
-
-
-class TargetsJobsJobClustersNewClusterInitScriptsS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = Field(
-        None,
-        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
-    )
-    destination: Optional[str] = Field(
-        None,
-        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
-    )
-    enable_encryption: Optional[bool] = Field(
-        None,
-        description='(Optional) Flag to enable server side encryption, `false` by default.',
-    )
-    encryption_type: Optional[str] = Field(
-        None,
-        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
-    )
-    endpoint: Optional[str] = Field(
-        None,
-        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
-    )
-    kms_key: Optional[str] = Field(
-        None,
-        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
-    )
-    region: Optional[str] = Field(
-        None,
-        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
-    )
-
-
-class TargetsJobsJobClustersNewClusterInitScriptsVolumes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class TargetsJobsJobClustersNewClusterInitScriptsWorkspace(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = Field(
-        None,
-        description='workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`',
-    )
-
-
-class TargetsJobsJobClustersNewClusterInitScripts(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[TargetsJobsJobClustersNewClusterInitScriptsDbfs] = None
-    s3: Optional[TargetsJobsJobClustersNewClusterInitScriptsS] = None
-    volumes: Optional[TargetsJobsJobClustersNewClusterInitScriptsVolumes] = None
-    workspace: Optional[TargetsJobsJobClustersNewClusterInitScriptsWorkspace] = None
-
-
-class TargetsJobsJobClustersNewClusterWorkloadTypeClients(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    jobs: Optional[bool] = Field(
-        None, description='With jobs set, the cluster can be used for jobs'
-    )
-    notebooks: Optional[bool] = Field(
-        None, description='With notebooks set, this cluster can be used for notebooks'
-    )
-
-
-class TargetsJobsJobClustersNewClusterWorkloadType(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    clients: Optional[TargetsJobsJobClustersNewClusterWorkloadTypeClients] = None
-
-
-class TargetsJobsJobClustersNewCluster(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    autoscale: Optional[TargetsJobsJobClustersNewClusterAutoscale] = None
-    autotermination_minutes: Optional[float] = Field(
-        None,
-        description='Automatically terminates the cluster after it is inactive for this time in minutes. If not set,\nthis cluster will not be automatically terminated. If specified, the threshold must be between\n10 and 10000 minutes.\nUsers can also set this value to 0 to explicitly disable automatic termination.',
-    )
-    aws_attributes: Optional[TargetsJobsJobClustersNewClusterAwsAttributes] = None
-    azure_attributes: Optional[TargetsJobsJobClustersNewClusterAzureAttributes] = None
-    cluster_log_conf: Optional[TargetsJobsJobClustersNewClusterClusterLogConf] = None
-    cluster_name: Optional[str] = Field(
-        None,
-        description="Cluster name requested by the user. This doesn't have to be unique.\nIf not specified at creation, the cluster name will be an empty string.\n",
-    )
-    cluster_source: Optional[str] = None
-    custom_tags: Optional[Dict[str, str]] = None
-    data_security_mode: Optional[str] = None
-    docker_image: Optional[TargetsJobsJobClustersNewClusterDockerImage] = None
-    driver_instance_pool_id: Optional[str] = Field(
-        None,
-        description='The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.',
-    )
-    driver_node_type_id: Optional[str] = Field(
-        None,
-        description='The node type of the Spark driver. Note that this field is optional;\nif unset, the driver node type will be set as the same value\nas `node_type_id` defined above.\n',
-    )
-    enable_elastic_disk: Optional[bool] = Field(
-        None,
-        description='Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk\nspace when its Spark workers are running low on disk space. This feature requires specific AWS\npermissions to function correctly - refer to the User Guide for more details.',
-    )
-    enable_local_disk_encryption: Optional[bool] = Field(
-        None, description="Whether to enable LUKS on cluster VMs' local disks"
-    )
-    gcp_attributes: Optional[TargetsJobsJobClustersNewClusterGcpAttributes] = None
-    init_scripts: Optional[List[TargetsJobsJobClustersNewClusterInitScripts]] = Field(
-        None,
-        description='The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.',
-    )
-    instance_pool_id: Optional[str] = Field(
-        None,
-        description='The optional ID of the instance pool to which the cluster belongs.',
-    )
-    node_type_id: Optional[str] = Field(
-        None,
-        description='This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n',
-    )
-    num_workers: Optional[float] = Field(
-        None,
-        description='Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.',
-    )
-    policy_id: Optional[str] = Field(
-        None,
-        description='The ID of the cluster policy used to create the cluster if applicable.',
-    )
-    runtime_engine: Optional[str] = None
-    single_user_name: Optional[str] = Field(
-        None, description='Single user name if data_security_mode is `SINGLE_USER`'
-    )
-    spark_conf: Optional[Dict[str, str]] = None
-    spark_env_vars: Optional[Dict[str, str]] = None
-    spark_version: Optional[str] = Field(
-        None,
-        description='The Spark version of the cluster, e.g. `3.3.x-scala2.11`.\nA list of available Spark versions can be retrieved by using\nthe :method:clusters/sparkVersions API call.\n',
-    )
-    ssh_public_keys: Optional[List[str]] = Field(
-        None,
-        description='SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.',
-    )
-    workload_type: Optional[TargetsJobsJobClustersNewClusterWorkloadType] = None
-
-
-class TargetsJobsJobClusters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    job_cluster_key: str = Field(
-        ...,
-        description='A unique name for the job cluster. This field is required and must be unique within the job.\n`JobTaskSettings` may refer to this field to determine which cluster to launch for the task execution.',
-    )
-    new_cluster: Optional[TargetsJobsJobClustersNewCluster] = None
-
-
-class TargetsJobsNotificationSettings(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    no_alert_for_canceled_runs: Optional[bool] = Field(
-        None,
-        description='If true, do not send notifications to recipients specified in `on_failure` if the run is canceled.',
-    )
-    no_alert_for_skipped_runs: Optional[bool] = Field(
-        None,
-        description='If true, do not send notifications to recipients specified in `on_failure` if the run is skipped.',
-    )
-
-
-class TargetsJobsParameters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    default: str = Field(..., description='Default value of the parameter.')
-    name: str = Field(
-        ...,
-        description='The name of the defined parameter. May only contain alphanumeric characters, `_`, `-`, and `.`',
-    )
-
-
-class TargetsJobsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class TargetsJobsQueue(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    enabled: bool
-
-
-class TargetsJobsRunAs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    service_principal_name: Optional[str] = Field(
-        None,
-        description='Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role.',
-    )
-    user_name: Optional[str] = Field(
-        None,
-        description='The email of an active workspace user. Non-admin users can only set this field to their own email.',
-    )
-
-
-class TargetsJobsSchedule(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pause_status: Optional[str] = Field(
-        None, description='Whether this trigger is paused or not.'
-    )
-    quartz_cron_expression: str = Field(
-        ...,
-        description='A Cron expression using Quartz syntax that describes the schedule for a job.\nSee [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html)\nfor details. This field is required."\n',
-    )
-    timezone_id: str = Field(
-        ...,
-        description='A Java timezone ID. The schedule for a job is resolved with respect to this timezone.\nSee [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details.\nThis field is required.\n',
-    )
-
-
-class TargetsJobsTasksConditionTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    left: Optional[str] = Field(
-        None,
-        description='The left operand of the condition task. Can be either a string value or a job state or parameter reference.',
-    )
-    op: Optional[str] = Field(
-        None,
-        description='* `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.\n* `GREATER_THAN`, `GREATER_THAN_OR_EQUAL`, `LESS_THAN`, `LESS_THAN_OR_EQUAL` operators perform numeric comparison of their operands. `“12.0” >= “12”` will evaluate to `true`, `“10.0” >= “12”` will evaluate to `false`.\n\nThe boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.\n',
-    )
-    right: Optional[str] = Field(
-        None,
-        description='The right operand of the condition task. Can be either a string value or a job state or parameter reference.',
-    )
-
-
-class TargetsJobsTasksDbtTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    catalog: Optional[str] = Field(
-        None,
-        description='Optional name of the catalog to use. The value is the top level in the 3-level namespace of Unity Catalog (catalog / schema / relation). The catalog value can only be specified if a warehouse_id is specified. Requires dbt-databricks >= 1.1.1.',
-    )
-    commands: List[str] = Field(
-        ...,
-        description='A list of dbt commands to execute. All commands must start with `dbt`. This parameter must not be empty. A maximum of up to 10 commands can be provided.',
-    )
-    profiles_directory: Optional[str] = Field(
-        None,
-        description='Optional (relative) path to the profiles directory. Can only be specified if no warehouse_id is specified. If no warehouse_id is specified and this folder is unset, the root directory is used.',
-    )
-    project_directory: Optional[str] = Field(
-        None,
-        description='Optional (relative) path to the project directory, if no value is provided, the root of the git repository is used.',
-    )
-    schema_: Optional[str] = Field(
-        None,
-        alias='schema',
-        description='Optional schema to write to. This parameter is only used when a warehouse_id is also provided. If not provided, the `default` schema is used.',
-    )
-    warehouse_id: Optional[str] = Field(
-        None,
-        description='ID of the SQL warehouse to connect to. If provided, we automatically generate and provide the profile and connection details to dbt. It can be overridden on a per-command basis by using the `--profiles-dir` command line argument.',
-    )
-
-
-class TargetsJobsTasksDependsOn(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    outcome: Optional[str] = Field(
-        None,
-        description='Can only be specified on condition task dependencies. The outcome of the dependent task that must be met for this task to run.',
-    )
-    task_key: str = Field(..., description='The name of the task this task depends on.')
-
-
-class TargetsJobsTasksEmailNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    on_duration_warning_threshold_exceeded: Optional[List[str]] = None
-    on_failure: Optional[List[str]] = Field(
-        None,
-        description='A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.',
-    )
-    on_start: Optional[List[str]] = Field(
-        None,
-        description='A list of email addresses to be notified when a run begins. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
-    )
-    on_success: Optional[List[str]] = Field(
-        None,
-        description='A list of email addresses to be notified when a run successfully completes. A run is considered to have completed successfully if it ends with a `TERMINATED` `life_cycle_state` and a `SUCCESS` result_state. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
-    )
-
-
-class TargetsJobsTasksHealthRules(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    metric: Optional[str] = None
-    op: Optional[str] = None
-    value: Optional[float] = None
-
-
-class TargetsJobsTasksHealth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    rules: Optional[List[TargetsJobsTasksHealthRules]] = None
-
-
-class TargetsJobsTasksLibrariesCran(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    package: str = Field(..., description='The name of the CRAN package to install.')
-    repo: Optional[str] = Field(
-        None,
-        description='The repository where the package can be found. If not specified, the default CRAN repo is used.',
-    )
-
-
-class TargetsJobsTasksLibrariesMaven(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    coordinates: str = Field(
-        ...,
-        description='Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2".',
-    )
-    exclusions: Optional[List[str]] = Field(
-        None,
-        description='List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.\n\nMaven dependency exclusions:\nhttps://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.',
-    )
-    repo: Optional[str] = Field(
-        None,
-        description='Maven repo to install the Maven package from. If omitted, both Maven Central Repository\nand Spark Packages are searched.',
-    )
-
-
-class TargetsJobsTasksLibrariesPypi(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    package: str = Field(
-        ...,
-        description='The name of the pypi package to install. An optional exact version specification is also\nsupported. Examples: "simplejson" and "simplejson==3.8.0".',
-    )
-    repo: Optional[str] = Field(
-        None,
-        description='The repository where the package can be found. If not specified, the default pip index is\nused.',
-    )
-
-
-class TargetsJobsTasksLibraries(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    cran: Optional[TargetsJobsTasksLibrariesCran] = None
-    egg: Optional[str] = Field(
-        None,
-        description='URI of the egg to be installed. Currently only DBFS and S3 URIs are supported.\nFor example: `{ "egg": "dbfs:/my/egg" }` or\n`{ "egg": "s3://my-bucket/egg" }`.\nIf S3 is used, please make sure the cluster has read access on the library. You may need to\nlaunch the cluster with an IAM role to access the S3 URI.',
-    )
-    jar: Optional[str] = Field(
-        None,
-        description='URI of the jar to be installed. Currently only DBFS and S3 URIs are supported.\nFor example: `{ "jar": "dbfs:/mnt/databricks/library.jar" }` or\n`{ "jar": "s3://my-bucket/library.jar" }`.\nIf S3 is used, please make sure the cluster has read access on the library. You may need to\nlaunch the cluster with an IAM role to access the S3 URI.',
-    )
-    maven: Optional[TargetsJobsTasksLibrariesMaven] = None
-    pypi: Optional[TargetsJobsTasksLibrariesPypi] = None
-    whl: Optional[str] = Field(
-        None,
-        description='URI of the wheel to be installed.\nFor example: `{ "whl": "dbfs:/my/whl" }` or `{ "whl": "s3://my-bucket/whl" }`.\nIf S3 is used, please make sure the cluster has read access on the library. You may need to\nlaunch the cluster with an IAM role to access the S3 URI.',
-    )
-
-
-class TargetsJobsTasksNewClusterAutoscale(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    max_workers: float = Field(
-        ...,
-        description='The maximum number of workers to which the cluster can scale up when overloaded.\nNote that `max_workers` must be strictly greater than `min_workers`.',
-    )
-    min_workers: float = Field(
-        ...,
-        description='The minimum number of workers to which the cluster can scale down when underutilized.\nIt is also the initial number of workers the cluster will have after creation.',
-    )
-
-
-class TargetsJobsTasksNewClusterAwsAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    ebs_volume_count: Optional[float] = Field(
-        None,
-        description='The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.',
-    )
-    ebs_volume_iops: Optional[float] = Field(None, description='<needs content added>')
-    ebs_volume_size: Optional[float] = Field(
-        None,
-        description='The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.',
-    )
-    ebs_volume_throughput: Optional[float] = Field(
-        None, description='<needs content added>'
-    )
-    ebs_volume_type: Optional[str] = None
-    first_on_demand: Optional[float] = Field(
-        None,
-        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
-    )
-    instance_profile_arn: Optional[str] = Field(
-        None,
-        description='Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.',
-    )
-    spot_bid_price_percent: Optional[float] = Field(
-        None,
-        description="The bid price for AWS spot instances, as a percentage of the corresponding instance type's\non-demand price.\nFor example, if this field is set to 50, and the cluster needs a new `r3.xlarge` spot\ninstance, then the bid price is half of the price of\non-demand `r3.xlarge` instances. Similarly, if this field is set to 200, the bid price is twice\nthe price of on-demand `r3.xlarge` instances. If not specified, the default value is 100.\nWhen spot instances are requested for this cluster, only spot instances whose bid price\npercentage matches this field will be considered.\nNote that, for safety, we enforce this field to be no more than 10000.\n\nThe default value and documentation here should be kept consistent with\nCommonConf.defaultSpotBidPricePercent and CommonConf.maxSpotBidPricePercent.",
-    )
-    zone_id: Optional[str] = Field(
-        None,
-        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nSee [[AutoAZHelper.scala]] for more details.\nThe list of available zones as well as the default value can be found by using the\n`List Zones`_ method.',
-    )
-
-
-class TargetsJobsTasksNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    log_analytics_primary_key: Optional[str] = Field(
-        None, description='<needs content added>'
-    )
-    log_analytics_workspace_id: Optional[str] = Field(
-        None, description='<needs content added>'
-    )
-
-
-class TargetsJobsTasksNewClusterAzureAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    first_on_demand: Optional[float] = Field(
-        None,
-        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
-    )
-    log_analytics_info: Optional[
-        TargetsJobsTasksNewClusterAzureAttributesLogAnalyticsInfo
-    ] = None
-    spot_bid_max_price: Optional[float] = Field(
-        None,
-        description='The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.',
-    )
-
-
-class TargetsJobsTasksNewClusterClusterLogConfDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = Field(
-        None, description='dbfs destination, e.g. `dbfs:/my/path`'
-    )
-
-
-class TargetsJobsTasksNewClusterClusterLogConfS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = Field(
-        None,
-        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
-    )
-    destination: Optional[str] = Field(
-        None,
-        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
-    )
-    enable_encryption: Optional[bool] = Field(
-        None,
-        description='(Optional) Flag to enable server side encryption, `false` by default.',
-    )
-    encryption_type: Optional[str] = Field(
-        None,
-        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
-    )
-    endpoint: Optional[str] = Field(
-        None,
-        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
-    )
-    kms_key: Optional[str] = Field(
-        None,
-        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
-    )
-    region: Optional[str] = Field(
-        None,
-        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
-    )
-
-
-class TargetsJobsTasksNewClusterClusterLogConf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[TargetsJobsTasksNewClusterClusterLogConfDbfs] = None
-    s3: Optional[TargetsJobsTasksNewClusterClusterLogConfS] = None
-
-
-class TargetsJobsTasksNewClusterDockerImageBasicAuth(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    password: Optional[str] = Field(None, description='Password of the user')
-    username: Optional[str] = Field(None, description='Name of the user')
-
-
-class TargetsJobsTasksNewClusterDockerImage(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    basic_auth: Optional[TargetsJobsTasksNewClusterDockerImageBasicAuth] = None
-    url: Optional[str] = Field(None, description='URL of the docker image.')
-
-
-class TargetsJobsTasksNewClusterGcpAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    boot_disk_size: Optional[float] = Field(None, description='boot disk size in GB')
-    google_service_account: Optional[str] = Field(
-        None,
-        description='If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.',
-    )
-    local_ssd_count: Optional[float] = Field(
-        None,
-        description='If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.',
-    )
-
-
-class TargetsJobsTasksNewClusterInitScriptsDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = Field(
-        None, description='dbfs destination, e.g. `dbfs:/my/path`'
-    )
-
-
-class TargetsJobsTasksNewClusterInitScriptsS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = Field(
-        None,
-        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
-    )
-    destination: Optional[str] = Field(
-        None,
-        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
-    )
-    enable_encryption: Optional[bool] = Field(
-        None,
-        description='(Optional) Flag to enable server side encryption, `false` by default.',
-    )
-    encryption_type: Optional[str] = Field(
-        None,
-        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
-    )
-    endpoint: Optional[str] = Field(
-        None,
-        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
-    )
-    kms_key: Optional[str] = Field(
-        None,
-        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
-    )
-    region: Optional[str] = Field(
-        None,
-        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
-    )
-
-
-class TargetsJobsTasksNewClusterInitScriptsVolumes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = None
-
-
-class TargetsJobsTasksNewClusterInitScriptsWorkspace(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = Field(
-        None,
-        description='workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`',
-    )
-
-
-class TargetsJobsTasksNewClusterInitScripts(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[TargetsJobsTasksNewClusterInitScriptsDbfs] = None
-    s3: Optional[TargetsJobsTasksNewClusterInitScriptsS] = None
-    volumes: Optional[TargetsJobsTasksNewClusterInitScriptsVolumes] = None
-    workspace: Optional[TargetsJobsTasksNewClusterInitScriptsWorkspace] = None
-
-
-class TargetsJobsTasksNewClusterWorkloadTypeClients(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    jobs: Optional[bool] = Field(
-        None, description='With jobs set, the cluster can be used for jobs'
-    )
-    notebooks: Optional[bool] = Field(
-        None, description='With notebooks set, this cluster can be used for notebooks'
-    )
-
-
-class TargetsJobsTasksNewClusterWorkloadType(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    clients: Optional[TargetsJobsTasksNewClusterWorkloadTypeClients] = None
-
-
-class TargetsJobsTasksNewCluster(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    autoscale: Optional[TargetsJobsTasksNewClusterAutoscale] = None
-    autotermination_minutes: Optional[float] = Field(
-        None,
-        description='Automatically terminates the cluster after it is inactive for this time in minutes. If not set,\nthis cluster will not be automatically terminated. If specified, the threshold must be between\n10 and 10000 minutes.\nUsers can also set this value to 0 to explicitly disable automatic termination.',
-    )
-    aws_attributes: Optional[TargetsJobsTasksNewClusterAwsAttributes] = None
-    azure_attributes: Optional[TargetsJobsTasksNewClusterAzureAttributes] = None
-    cluster_log_conf: Optional[TargetsJobsTasksNewClusterClusterLogConf] = None
-    cluster_name: Optional[str] = Field(
-        None,
-        description="Cluster name requested by the user. This doesn't have to be unique.\nIf not specified at creation, the cluster name will be an empty string.\n",
-    )
-    cluster_source: Optional[str] = None
-    custom_tags: Optional[Dict[str, str]] = None
-    data_security_mode: Optional[str] = None
-    docker_image: Optional[TargetsJobsTasksNewClusterDockerImage] = None
-    driver_instance_pool_id: Optional[str] = Field(
-        None,
-        description='The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.',
-    )
-    driver_node_type_id: Optional[str] = Field(
-        None,
-        description='The node type of the Spark driver. Note that this field is optional;\nif unset, the driver node type will be set as the same value\nas `node_type_id` defined above.\n',
-    )
-    enable_elastic_disk: Optional[bool] = Field(
-        None,
-        description='Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk\nspace when its Spark workers are running low on disk space. This feature requires specific AWS\npermissions to function correctly - refer to the User Guide for more details.',
-    )
-    enable_local_disk_encryption: Optional[bool] = Field(
-        None, description="Whether to enable LUKS on cluster VMs' local disks"
-    )
-    gcp_attributes: Optional[TargetsJobsTasksNewClusterGcpAttributes] = None
-    init_scripts: Optional[List[TargetsJobsTasksNewClusterInitScripts]] = Field(
-        None,
-        description='The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.',
-    )
-    instance_pool_id: Optional[str] = Field(
-        None,
-        description='The optional ID of the instance pool to which the cluster belongs.',
-    )
-    node_type_id: Optional[str] = Field(
-        None,
-        description='This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n',
-    )
-    num_workers: Optional[float] = Field(
-        None,
-        description='Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.',
-    )
-    policy_id: Optional[str] = Field(
-        None,
-        description='The ID of the cluster policy used to create the cluster if applicable.',
-    )
-    runtime_engine: Optional[str] = None
-    single_user_name: Optional[str] = Field(
-        None, description='Single user name if data_security_mode is `SINGLE_USER`'
-    )
-    spark_conf: Optional[Dict[str, str]] = None
-    spark_env_vars: Optional[Dict[str, str]] = None
-    spark_version: Optional[str] = Field(
-        None,
-        description='The Spark version of the cluster, e.g. `3.3.x-scala2.11`.\nA list of available Spark versions can be retrieved by using\nthe :method:clusters/sparkVersions API call.\n',
-    )
-    ssh_public_keys: Optional[List[str]] = Field(
-        None,
-        description='SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.',
-    )
-    workload_type: Optional[TargetsJobsTasksNewClusterWorkloadType] = None
-
-
-class TargetsJobsTasksNotebookTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    base_parameters: Optional[Dict[str, str]] = None
-    notebook_path: str = Field(
-        ...,
-        description='The path of the notebook to be run in the Databricks workspace or remote repository.\nFor notebooks stored in the Databricks workspace, the path must be absolute and begin with a slash.\nFor notebooks stored in a remote repository, the path must be relative. This field is required.\n',
-    )
-    source: Optional[str] = Field(
-        None,
-        description='Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved\nfrom the local <Databricks> workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,\nthe Python file will be retrieved from a Git repository defined in `git_source`.\n\n* `WORKSPACE`: The Python file is located in a <Databricks> workspace or at a cloud filesystem URI.\n* `GIT`: The Python file is located in a remote Git repository.\n',
-    )
-
-
-class TargetsJobsTasksNotificationSettings(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alert_on_last_attempt: Optional[bool] = Field(
-        None,
-        description='If true, do not send notifications to recipients specified in `on_start` for the retried runs and do not send notifications to recipients specified in `on_failure` until the last retry of the run.',
-    )
-    no_alert_for_canceled_runs: Optional[bool] = Field(
-        None,
-        description='If true, do not send notifications to recipients specified in `on_failure` if the run is canceled.',
-    )
-    no_alert_for_skipped_runs: Optional[bool] = Field(
-        None,
-        description='If true, do not send notifications to recipients specified in `on_failure` if the run is skipped.',
-    )
-
-
-class TargetsJobsTasksPipelineTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    full_refresh: Optional[bool] = Field(
-        None,
-        description='If true, a full refresh will be triggered on the delta live table.',
-    )
-    pipeline_id: Optional[str] = Field(
-        None, description='The full name of the pipeline task to execute.'
-    )
-
-
-class TargetsJobsTasksPythonWheelTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    entry_point: Optional[str] = Field(
-        None,
-        description='Named entry point to use, if it does not exist in the metadata of the package it executes the function from the package directly using `$packageName.$entryPoint()`',
-    )
-    named_parameters: Optional[Dict[str, str]] = None
-    package_name: Optional[str] = Field(
-        None, description='Name of the package to execute'
-    )
-    parameters: Optional[List[str]] = Field(
-        None,
-        description='Command-line parameters passed to Python wheel task. Leave it empty if `named_parameters` is not null.',
-    )
-
-
-class TargetsJobsTasksRunJobTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    job_id: float
-    job_parameters: Optional[Any] = None
-
-
-class TargetsJobsTasksSparkJarTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    jar_uri: Optional[str] = Field(
-        None,
-        description='Deprecated since 04/2016. Provide a `jar` through the `libraries` field instead. For an example, see :method:jobs/create.\n',
-    )
-    main_class_name: Optional[str] = Field(
-        None,
-        description='The full name of the class containing the main method to be executed. This class must be contained in a JAR provided as a library.\n\nThe code must use `SparkContext.getOrCreate` to obtain a Spark context; otherwise, runs of the job fail.',
-    )
-    parameters: Optional[List[str]] = Field(
-        None,
-        description='Parameters passed to the main method.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.\n',
-    )
-
-
-class TargetsJobsTasksSparkPythonTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    parameters: Optional[List[str]] = Field(
-        None,
-        description='Command line parameters passed to the Python file.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.\n',
-    )
-    python_file: str = Field(
-        ...,
-        description='The Python file to be executed. Cloud file URIs (such as dbfs:/, s3:/, adls:/, gcs:/) and workspace paths are supported. For python files stored in the Databricks workspace, the path must be absolute and begin with `/`. For files stored in a remote repository, the path must be relative. This field is required.',
-    )
-    source: Optional[str] = Field(
-        None,
-        description='Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved\nfrom the local <Databricks> workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,\nthe Python file will be retrieved from a Git repository defined in `git_source`.\n\n* `WORKSPACE`: The Python file is located in a <Databricks> workspace or at a cloud filesystem URI.\n* `GIT`: The Python file is located in a remote Git repository.\n',
-    )
-
-
-class TargetsJobsTasksSparkSubmitTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    parameters: Optional[List[str]] = Field(
-        None,
-        description='Command-line parameters passed to spark submit.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.\n',
-    )
-
-
-class TargetsJobsTasksSqlTaskAlertSubscriptions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination_id: Optional[str] = Field(
-        None,
-        description='The canonical identifier of the destination to receive email notification.',
-    )
-    user_name: Optional[str] = Field(
-        None, description='The user name to receive the subscription email.'
-    )
-
-
-class TargetsJobsTasksSqlTaskAlert(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alert_id: str = Field(..., description='The canonical identifier of the SQL alert.')
-    pause_subscriptions: Optional[bool] = Field(
-        None,
-        description='If true, the alert notifications are not sent to subscribers.',
-    )
-    subscriptions: Optional[List[TargetsJobsTasksSqlTaskAlertSubscriptions]] = Field(
-        None, description='If specified, alert notifications are sent to subscribers.'
-    )
-
-
-class TargetsJobsTasksSqlTaskDashboardSubscriptions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination_id: Optional[str] = Field(
-        None,
-        description='The canonical identifier of the destination to receive email notification.',
-    )
-    user_name: Optional[str] = Field(
-        None, description='The user name to receive the subscription email.'
-    )
-
-
-class TargetsJobsTasksSqlTaskDashboard(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    custom_subject: Optional[str] = Field(
-        None, description='Subject of the email sent to subscribers of this task.'
-    )
-    dashboard_id: str = Field(
-        ..., description='The canonical identifier of the SQL dashboard.'
-    )
-    pause_subscriptions: Optional[bool] = Field(
-        None,
-        description='If true, the dashboard snapshot is not taken, and emails are not sent to subscribers.',
-    )
-    subscriptions: Optional[
-        List[TargetsJobsTasksSqlTaskDashboardSubscriptions]
-    ] = Field(
-        None, description='If specified, dashboard snapshots are sent to subscriptions.'
-    )
-
-
-class TargetsJobsTasksSqlTaskFile(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    path: str = Field(
-        ..., description='Relative path of the SQL file in the remote Git repository.'
-    )
-
-
-class TargetsJobsTasksSqlTaskQuery(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    query_id: str = Field(..., description='The canonical identifier of the SQL query.')
-
-
-class TargetsJobsTasksSqlTask(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alert: Optional[TargetsJobsTasksSqlTaskAlert] = None
-    dashboard: Optional[TargetsJobsTasksSqlTaskDashboard] = None
-    file: Optional[TargetsJobsTasksSqlTaskFile] = None
-    parameters: Optional[Dict[str, str]] = None
-    query: Optional[TargetsJobsTasksSqlTaskQuery] = None
-    warehouse_id: str = Field(
-        ...,
-        description='The canonical identifier of the SQL warehouse. Only serverless and pro SQL warehouses are supported.',
-    )
-
-
-class TargetsJobsTasks(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute_key: Optional[str] = Field(
-        None,
-        description='The key of the compute requirement, specified in `job.settings.compute`, to use for execution of this task.',
-    )
-    condition_task: Optional[TargetsJobsTasksConditionTask] = None
-    dbt_task: Optional[TargetsJobsTasksDbtTask] = None
-    depends_on: Optional[List[TargetsJobsTasksDependsOn]] = Field(
-        None,
-        description='An optional array of objects specifying the dependency graph of the task. All tasks specified in this field must complete successfully before executing this task.\nThe key is `task_key`, and the value is the name assigned to the dependent task.\n',
-    )
-    description: Optional[str] = Field(
-        None,
-        description='An optional description for this task.\nThe maximum length is 4096 bytes.',
-    )
-    email_notifications: Optional[TargetsJobsTasksEmailNotifications] = None
-    existing_cluster_id: Optional[str] = Field(
-        None,
-        description='If existing_cluster_id, the ID of an existing cluster that is used for all runs of this task. When running tasks on an existing cluster, you may need to manually restart the cluster if it stops responding. We suggest running jobs on new clusters for greater reliability.',
-    )
-    health: Optional[TargetsJobsTasksHealth] = None
-    job_cluster_key: Optional[str] = Field(
-        None,
-        description='If job_cluster_key, this task is executed reusing the cluster specified in `job.settings.job_clusters`.',
-    )
-    libraries: Optional[List[TargetsJobsTasksLibraries]] = Field(
-        None,
-        description='An optional list of libraries to be installed on the cluster that executes the task. The default value is an empty list.',
-    )
-    max_retries: Optional[float] = Field(
-        None,
-        description='An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value -1 means to retry indefinitely and the value 0 means to never retry. The default behavior is to never retry.',
-    )
-    min_retry_interval_millis: Optional[float] = Field(
-        None,
-        description='An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried.',
-    )
-    new_cluster: Optional[TargetsJobsTasksNewCluster] = None
-    notebook_task: Optional[TargetsJobsTasksNotebookTask] = None
-    notification_settings: Optional[TargetsJobsTasksNotificationSettings] = None
-    pipeline_task: Optional[TargetsJobsTasksPipelineTask] = None
-    python_wheel_task: Optional[TargetsJobsTasksPythonWheelTask] = None
-    retry_on_timeout: Optional[bool] = Field(
-        None,
-        description='An optional policy to specify whether to retry a task when it times out. The default behavior is to not retry on timeout.',
-    )
-    run_if: Optional[str] = Field(
-        None,
-        description='An optional value specifying the condition determining whether the task is run once its dependencies have been completed. When omitted, defaults to `ALL_SUCCESS`.\n\n* `ALL_SUCCESS`: All dependencies have executed and succeeded\n* `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded\n* `NONE_FAILED`: None of the dependencies have failed and at least one was executed\n* `ALL_DONE`: All dependencies completed and at least one was executed\n* `AT_LEAST_ONE_FAILED`: At least one dependency failed\n* `ALL_FAILED`: ALl dependencies have failed\n',
-    )
-    run_job_task: Optional[TargetsJobsTasksRunJobTask] = None
-    spark_jar_task: Optional[TargetsJobsTasksSparkJarTask] = None
-    spark_python_task: Optional[TargetsJobsTasksSparkPythonTask] = None
-    spark_submit_task: Optional[TargetsJobsTasksSparkSubmitTask] = None
-    sql_task: Optional[TargetsJobsTasksSqlTask] = None
-    task_key: str = Field(
-        ...,
-        description='A unique name for the task. This field is used to refer to this task from other tasks.\nThis field is required and must be unique within its parent job.\nOn Update or Reset, this field is used to reference the tasks to be updated or reset.\nThe maximum length is 100 characters.',
-    )
-    timeout_seconds: Optional[float] = Field(
-        None,
-        description='An optional timeout applied to each run of this job task. The default behavior is to have no timeout.',
-    )
-
-
-class TargetsJobsTriggerFileArrival(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    min_time_between_triggers_seconds: Optional[float] = Field(
-        None,
-        description='If set, the trigger starts a run only after the specified amount of time passed since\nthe last time the trigger fired. The minimum allowed value is 60 seconds\n',
-    )
-    url: Optional[str] = Field(
-        None,
-        description='URL to be monitored for file arrivals. The path must point to the root or a subpath of the external location.',
-    )
-    wait_after_last_change_seconds: Optional[float] = Field(
-        None,
-        description='If set, the trigger starts a run only after no file activity has occurred for the specified amount of time.\nThis makes it possible to wait for a batch of incoming files to arrive before triggering a run. The\nminimum allowed value is 60 seconds.\n',
-    )
-
-
-class TargetsJobsTrigger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    file_arrival: Optional[TargetsJobsTriggerFileArrival] = None
-    pause_status: Optional[str] = Field(
-        None, description='Whether this trigger is paused or not.'
-    )
-
-
-class TargetsJobsWebhookNotificationsOnDurationWarningThresholdExceeded(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class TargetsJobsWebhookNotificationsOnFailure(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class TargetsJobsWebhookNotificationsOnStart(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class TargetsJobsWebhookNotificationsOnSuccess(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    id: Optional[str] = None
-
-
-class TargetsJobsWebhookNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    on_duration_warning_threshold_exceeded: Optional[
-        List[TargetsJobsWebhookNotificationsOnDurationWarningThresholdExceeded]
-    ] = None
-    on_failure: Optional[List[TargetsJobsWebhookNotificationsOnFailure]] = Field(
-        None,
-        description='An optional list of system notification IDs to call when the run fails. A maximum of 3 destinations can be specified for the `on_failure` property.',
-    )
-    on_start: Optional[List[TargetsJobsWebhookNotificationsOnStart]] = Field(
-        None,
-        description='An optional list of system notification IDs to call when the run starts. A maximum of 3 destinations can be specified for the `on_start` property.',
-    )
-    on_success: Optional[List[TargetsJobsWebhookNotificationsOnSuccess]] = Field(
-        None,
-        description='An optional list of system notification IDs to call when the run completes successfully. A maximum of 3 destinations can be specified for the `on_success` property.',
-    )
-
-
-class TargetsJobs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    compute: Optional[List[TargetsJobsCompute]] = Field(
-        None,
-        description='A list of compute requirements that can be referenced by tasks of this job.',
-    )
-    continuous: Optional[TargetsJobsContinuous] = None
-    email_notifications: Optional[TargetsJobsEmailNotifications] = None
-    format: Optional[str] = Field(
-        None,
-        description='Used to tell what is the format of the job. This field is ignored in Create/Update/Reset calls. When using the Jobs API 2.1 this value is always set to `"MULTI_TASK"`.',
-    )
-    git_source: Optional[TargetsJobsGitSource] = None
-    health: Optional[TargetsJobsHealth] = None
-    job_clusters: Optional[List[TargetsJobsJobClusters]] = Field(
-        None,
-        description='A list of job cluster specifications that can be shared and reused by tasks of this job. Libraries cannot be declared in a shared job cluster. You must declare dependent libraries in task settings.',
-    )
-    max_concurrent_runs: Optional[float] = Field(
-        None,
-        description='An optional maximum allowed number of concurrent runs of the job.\n\nSet this value if you want to be able to execute multiple runs of the same job concurrently. This is useful for example if you trigger your job on a frequent schedule and want to allow consecutive runs to overlap with each other, or if you want to trigger multiple runs which differ by their input parameters.\n\nThis setting affects only new runs. For example, suppose the job’s concurrency is 4 and there are 4 concurrent active runs. Then setting the concurrency to 3 won’t kill any of the active runs. However, from then on, new runs are skipped unless there are fewer than 3 active runs.\n\nThis value cannot exceed 1000\\. Setting this value to 0 causes all new runs to be skipped. The default behavior is to allow only 1 concurrent run.',
-    )
-    name: Optional[str] = Field(None, description='An optional name for the job.')
-    notification_settings: Optional[TargetsJobsNotificationSettings] = None
-    parameters: Optional[List[TargetsJobsParameters]] = Field(
-        None, description='Job-level parameter definitions'
-    )
-    permissions: Optional[List[TargetsJobsPermissions]] = None
-    queue: Optional[TargetsJobsQueue] = None
-    run_as: Optional[TargetsJobsRunAs] = None
-    schedule: Optional[TargetsJobsSchedule] = None
-    tags: Optional[Dict[str, str]] = None
-    tasks: Optional[List[TargetsJobsTasks]] = Field(
-        None, description='A list of task specifications to be executed by this job.'
-    )
-    timeout_seconds: Optional[float] = Field(
-        None,
-        description='An optional timeout applied to each run of this job. The default behavior is to have no timeout.',
-    )
-    trigger: Optional[TargetsJobsTrigger] = None
-    webhook_notifications: Optional[TargetsJobsWebhookNotifications] = None
-
-
-class TargetsModelServingEndpointsConfigServedModels(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    environment_vars: Optional[Dict[str, str]] = None
-    instance_profile_arn: Optional[str] = None
-    model_name: str
-    model_version: str
-    name: Optional[str] = None
-    scale_to_zero_enabled: bool
-    workload_size: str
-
-
-class TargetsModelServingEndpointsConfigTrafficConfigRoutes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    served_model_name: str
-    traffic_percentage: float
-
-
-class TargetsModelServingEndpointsConfigTrafficConfig(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    routes: Optional[List[TargetsModelServingEndpointsConfigTrafficConfigRoutes]] = None
-
-
-class TargetsModelServingEndpointsConfig(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    served_models: List[TargetsModelServingEndpointsConfigServedModels]
-    traffic_config: Optional[TargetsModelServingEndpointsConfigTrafficConfig] = None
-
-
-class TargetsModelServingEndpointsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class TargetsModelServingEndpointsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: str
-    value: Optional[str] = None
-
-
-class TargetsModelServingEndpoints(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    config: TargetsModelServingEndpointsConfig
-    name: str
-    permissions: Optional[List[TargetsModelServingEndpointsPermissions]] = None
-    tags: Optional[List[TargetsModelServingEndpointsTags]] = None
-
-
-class TargetsModelsLatestVersionsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Optional[str] = Field(None, description='The tag key.')
-    value: Optional[str] = Field(None, description='The tag value.')
-
-
-class TargetsModelsLatestVersions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    creation_timestamp: Optional[float] = Field(
-        None, description='Timestamp recorded when this `model_version` was created.'
-    )
-    current_stage: Optional[str] = Field(
-        None, description='Current stage for this `model_version`.'
-    )
-    description: Optional[str] = Field(
-        None, description='Description of this `model_version`.'
-    )
-    last_updated_timestamp: Optional[float] = Field(
-        None,
-        description='Timestamp recorded when metadata for this `model_version` was last updated.',
-    )
-    name: Optional[str] = Field(None, description='Unique name of the model')
-    run_id: Optional[str] = Field(
-        None,
-        description='MLflow run ID used when creating `model_version`, if `source` was generated by an\nexperiment run stored in MLflow tracking server.',
-    )
-    run_link: Optional[str] = Field(
-        None, description='Run Link: Direct link to the run that generated this version'
-    )
-    source: Optional[str] = Field(
-        None,
-        description='URI indicating the location of the source model artifacts, used when creating `model_version`',
-    )
-    status: Optional[str] = Field(None, description='Current status of `model_version`')
-    status_message: Optional[str] = Field(
-        None, description='Details on current `status`, if it is pending or failed.'
-    )
-    tags: Optional[List[TargetsModelsLatestVersionsTags]] = Field(
-        None,
-        description='Tags: Additional metadata key-value pairs for this `model_version`.',
-    )
-    user_id: Optional[str] = Field(
-        None, description='User that created this `model_version`.'
-    )
-    version: Optional[str] = Field(None, description="Model's version number.")
-
-
-class TargetsModelsPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class TargetsModelsTags(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Optional[str] = Field(None, description='The tag key.')
-    value: Optional[str] = Field(None, description='The tag value.')
-
-
-class TargetsModels(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    creation_timestamp: Optional[float] = Field(
-        None, description='Timestamp recorded when this `registered_model` was created.'
-    )
-    description: Optional[str] = Field(
-        None, description='Description of this `registered_model`.'
-    )
-    last_updated_timestamp: Optional[float] = Field(
-        None,
-        description='Timestamp recorded when metadata for this `registered_model` was last updated.',
-    )
-    latest_versions: Optional[List[TargetsModelsLatestVersions]] = Field(
-        None,
-        description='Collection of latest model versions for each stage.\nOnly contains models with current `READY` status.',
-    )
-    name: Optional[str] = Field(None, description='Unique name for the model.')
-    permissions: Optional[List[TargetsModelsPermissions]] = None
-    tags: Optional[List[TargetsModelsTags]] = Field(
-        None,
-        description='Tags: Additional metadata key-value pairs for this `registered_model`.',
-    )
-    user_id: Optional[str] = Field(
-        None, description='User that created this `registered_model`'
-    )
-
-
-class TargetsPipelinesClustersAutoscale(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    max_workers: float = Field(
-        ...,
-        description='The maximum number of workers to which the cluster can scale up when overloaded.\nNote that `max_workers` must be strictly greater than `min_workers`.',
-    )
-    min_workers: float = Field(
-        ...,
-        description='The minimum number of workers to which the cluster can scale down when underutilized.\nIt is also the initial number of workers the cluster will have after creation.',
-    )
-
-
-class TargetsPipelinesClustersAwsAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    ebs_volume_count: Optional[float] = Field(
-        None,
-        description='The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.',
-    )
-    ebs_volume_iops: Optional[float] = Field(None, description='<needs content added>')
-    ebs_volume_size: Optional[float] = Field(
-        None,
-        description='The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.',
-    )
-    ebs_volume_throughput: Optional[float] = Field(
-        None, description='<needs content added>'
-    )
-    ebs_volume_type: Optional[str] = None
-    first_on_demand: Optional[float] = Field(
-        None,
-        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
-    )
-    instance_profile_arn: Optional[str] = Field(
-        None,
-        description='Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.',
-    )
-    spot_bid_price_percent: Optional[float] = Field(
-        None,
-        description="The bid price for AWS spot instances, as a percentage of the corresponding instance type's\non-demand price.\nFor example, if this field is set to 50, and the cluster needs a new `r3.xlarge` spot\ninstance, then the bid price is half of the price of\non-demand `r3.xlarge` instances. Similarly, if this field is set to 200, the bid price is twice\nthe price of on-demand `r3.xlarge` instances. If not specified, the default value is 100.\nWhen spot instances are requested for this cluster, only spot instances whose bid price\npercentage matches this field will be considered.\nNote that, for safety, we enforce this field to be no more than 10000.\n\nThe default value and documentation here should be kept consistent with\nCommonConf.defaultSpotBidPricePercent and CommonConf.maxSpotBidPricePercent.",
-    )
-    zone_id: Optional[str] = Field(
-        None,
-        description='Identifier for the availability zone/datacenter in which the cluster resides.\nThis string will be of a form like "us-west-2a". The provided availability\nzone must be in the same region as the Databricks deployment. For example, "us-west-2a"\nis not a valid zone id if the Databricks deployment resides in the "us-east-1" region.\nThis is an optional field at cluster creation, and if not specified, a default zone will be used.\nIf the zone specified is "auto", will try to place cluster in a zone with high availability,\nand will retry placement in a different AZ if there is not enough capacity.\nSee [[AutoAZHelper.scala]] for more details.\nThe list of available zones as well as the default value can be found by using the\n`List Zones`_ method.',
-    )
-
-
-class TargetsPipelinesClustersAzureAttributesLogAnalyticsInfo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    log_analytics_primary_key: Optional[str] = Field(
-        None, description='<needs content added>'
-    )
-    log_analytics_workspace_id: Optional[str] = Field(
-        None, description='<needs content added>'
-    )
-
-
-class TargetsPipelinesClustersAzureAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    first_on_demand: Optional[float] = Field(
-        None,
-        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
-    )
-    log_analytics_info: Optional[
-        TargetsPipelinesClustersAzureAttributesLogAnalyticsInfo
-    ] = None
-    spot_bid_max_price: Optional[float] = Field(
-        None,
-        description='The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.',
-    )
-
-
-class TargetsPipelinesClustersClusterLogConfDbfs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    destination: Optional[str] = Field(
-        None, description='dbfs destination, e.g. `dbfs:/my/path`'
-    )
-
-
-class TargetsPipelinesClustersClusterLogConfS(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    canned_acl: Optional[str] = Field(
-        None,
-        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
-    )
-    destination: Optional[str] = Field(
-        None,
-        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
-    )
-    enable_encryption: Optional[bool] = Field(
-        None,
-        description='(Optional) Flag to enable server side encryption, `false` by default.',
-    )
-    encryption_type: Optional[str] = Field(
-        None,
-        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
-    )
-    endpoint: Optional[str] = Field(
-        None,
-        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
-    )
-    kms_key: Optional[str] = Field(
-        None,
-        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
-    )
-    region: Optional[str] = Field(
-        None,
-        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
-    )
-
-
-class TargetsPipelinesClustersClusterLogConf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    dbfs: Optional[TargetsPipelinesClustersClusterLogConfDbfs] = None
-    s3: Optional[TargetsPipelinesClustersClusterLogConfS] = None
-
-
-class TargetsPipelinesClustersGcpAttributes(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    availability: Optional[str] = None
-    boot_disk_size: Optional[float] = Field(None, description='boot disk size in GB')
-    google_service_account: Optional[str] = Field(
-        None,
-        description='If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.',
-    )
-    local_ssd_count: Optional[float] = Field(
-        None,
-        description='If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.',
-    )
-
-
-class TargetsPipelinesClusters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    apply_policy_default_values: Optional[bool] = Field(
-        None,
-        description="Note: This field won't be persisted. Only API users will check this field.",
-    )
-    autoscale: Optional[TargetsPipelinesClustersAutoscale] = None
-    aws_attributes: Optional[TargetsPipelinesClustersAwsAttributes] = None
-    azure_attributes: Optional[TargetsPipelinesClustersAzureAttributes] = None
-    cluster_log_conf: Optional[TargetsPipelinesClustersClusterLogConf] = None
-    custom_tags: Optional[Dict[str, str]] = None
-    driver_instance_pool_id: Optional[str] = Field(
-        None,
-        description='The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.',
-    )
-    driver_node_type_id: Optional[str] = Field(
-        None,
-        description='The node type of the Spark driver.\nNote that this field is optional; if unset, the driver node type will be set as the same value\nas `node_type_id` defined above.',
-    )
-    gcp_attributes: Optional[TargetsPipelinesClustersGcpAttributes] = None
-    instance_pool_id: Optional[str] = Field(
-        None,
-        description='The optional ID of the instance pool to which the cluster belongs.',
-    )
-    label: Optional[str] = Field(
-        None,
-        description='A label for the cluster specification, either `default` to configure the default cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`.',
-    )
-    node_type_id: Optional[str] = Field(
-        None,
-        description='This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n',
-    )
-    num_workers: Optional[float] = Field(
-        None,
-        description='Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.',
-    )
-    policy_id: Optional[str] = Field(
-        None,
-        description='The ID of the cluster policy used to create the cluster if applicable.',
-    )
-    spark_conf: Optional[Dict[str, str]] = None
-    spark_env_vars: Optional[Dict[str, str]] = None
-    ssh_public_keys: Optional[List[str]] = Field(
-        None,
-        description='SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.',
-    )
-
-
-class TargetsPipelinesFilters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    exclude: Optional[List[str]] = Field(None, description='Paths to exclude.')
-    include: Optional[List[str]] = Field(None, description='Paths to include.')
-
-
-class TargetsPipelinesLibrariesFile(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    path: Optional[str] = Field(None, description='The absolute path of the file.')
-
-
-class TargetsPipelinesLibrariesMaven(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    coordinates: str = Field(
-        ...,
-        description='Gradle-style maven coordinates. For example: "org.jsoup:jsoup:1.7.2".',
-    )
-    exclusions: Optional[List[str]] = Field(
-        None,
-        description='List of dependences to exclude. For example: `["slf4j:slf4j", "*:hadoop-client"]`.\n\nMaven dependency exclusions:\nhttps://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html.',
-    )
-    repo: Optional[str] = Field(
-        None,
-        description='Maven repo to install the Maven package from. If omitted, both Maven Central Repository\nand Spark Packages are searched.',
-    )
-
-
-class TargetsPipelinesLibrariesNotebook(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    path: Optional[str] = Field(None, description='The absolute path of the notebook.')
-
-
-class TargetsPipelinesLibraries(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    file: Optional[TargetsPipelinesLibrariesFile] = None
-    jar: Optional[str] = Field(
-        None,
-        description='URI of the jar to be installed. Currently only DBFS is supported.\n',
-    )
-    maven: Optional[TargetsPipelinesLibrariesMaven] = None
-    notebook: Optional[TargetsPipelinesLibrariesNotebook] = None
-
-
-class TargetsPipelinesNotifications(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    alerts: Optional[List[str]] = None
-    email_recipients: Optional[List[str]] = None
-
-
-class TargetsPipelinesPermissions(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    group_name: Optional[str] = None
-    level: str
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class TargetsPipelinesTriggerCron(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    quartz_cron_schedule: Optional[str] = None
-    timezone_id: Optional[str] = None
-
-
-class TargetsPipelinesTrigger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    cron: Optional[TargetsPipelinesTriggerCron] = None
-    manual: Optional[Any] = None
-
-
-class TargetsPipelines(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    catalog: Optional[str] = Field(
-        None,
-        description='A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog.',
-    )
-    channel: Optional[str] = Field(
-        None, description='DLT Release Channel that specifies which version to use.'
-    )
-    clusters: Optional[List[TargetsPipelinesClusters]] = Field(
-        None, description='Cluster settings for this pipeline deployment.'
-    )
-    configuration: Optional[Dict[str, str]] = None
-    continuous: Optional[bool] = Field(
-        None,
-        description='Whether the pipeline is continuous or triggered. This replaces `trigger`.',
-    )
-    development: Optional[bool] = Field(
-        None,
-        description='Whether the pipeline is in Development mode. Defaults to false.',
-    )
-    edition: Optional[str] = Field(None, description='Pipeline product edition.')
-    filters: Optional[TargetsPipelinesFilters] = None
-    id: Optional[str] = Field(None, description='Unique identifier for this pipeline.')
-    libraries: Optional[List[TargetsPipelinesLibraries]] = Field(
-        None, description='Libraries or code needed by this deployment.'
-    )
-    name: Optional[str] = Field(
-        None, description='Friendly identifier for this pipeline.'
-    )
-    notifications: Optional[List[TargetsPipelinesNotifications]] = None
-    permissions: Optional[List[TargetsPipelinesPermissions]] = None
-    photon: Optional[bool] = Field(
-        None, description='Whether Photon is enabled for this pipeline.'
-    )
-    serverless: Optional[bool] = Field(
-        None, description='Whether serverless compute is enabled for this pipeline.'
-    )
-    storage: Optional[str] = Field(
-        None, description='DBFS root directory for storing checkpoints and tables.'
-    )
-    target: Optional[str] = Field(
-        None,
-        description='Target schema (database) to add tables in this pipeline to. If not specified, no data is published to the Hive metastore or Unity Catalog. To publish to Unity Catalog, also specify `catalog`.',
-    )
-    trigger: Optional[TargetsPipelinesTrigger] = None
-
-
-class TargetsResources(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    experiments: Optional[Dict[str, TargetsExperiments]] = None
-    jobs: Optional[Dict[str, TargetsJobs]] = None
-    model_serving_endpoints: Optional[Dict[str, TargetsModelServingEndpoints]] = None
-    models: Optional[Dict[str, TargetsModels]] = None
-    pipelines: Optional[Dict[str, TargetsPipelines]] = None
-
-
-class TargetsRunAs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    service_principal_name: Optional[str] = None
-    user_name: Optional[str] = None
-
-
-class TargetsWorkspace(BaseModel):
-    class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     artifact_path: Optional[str] = Field(
         None,
@@ -5120,82 +2322,34 @@ class TargetsWorkspace(BaseModel):
 
 class Targets(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
-    artifacts: Optional[Dict[str, TargetsArtifacts]] = None
-    bundle: Optional[TargetsBundle] = None
+    artifacts: Optional[Dict[str, Artifacts]] = None
+    bundle: Optional[Bundle] = None
     compute_id: Optional[str] = None
     default: Optional[bool] = None
-    git: Optional[TargetsGit] = None
+    git: Optional[Git] = None
     mode: Optional[str] = None
-    resources: Optional[TargetsResources] = None
-    run_as: Optional[TargetsRunAs] = None
-    variables: Optional[Dict[str, str]] = None
-    workspace: Optional[TargetsWorkspace] = None
-
-
-class Variables(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    default: Optional[str] = None
-    description: Optional[str] = None
-
-
-class Workspace(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    artifact_path: Optional[str] = Field(
-        None,
-        description='The remote path to synchronize build artifacts to. This defaults to `${workspace.root}/artifacts`',
-    )
-    auth_type: Optional[str] = None
-    azure_client_id: Optional[str] = None
-    azure_environment: Optional[str] = Field(
-        None, description='Azure environment, one of (Public, UsGov, China, Germany).'
-    )
-    azure_login_app_id: Optional[str] = Field(
-        None, description='Azure Login Application ID.'
-    )
-    azure_tenant_id: Optional[str] = None
-    azure_use_msi: Optional[bool] = None
-    azure_workspace_resource_id: Optional[str] = Field(
-        None, description='Azure Resource Manager ID for Azure Databricks workspace.'
-    )
-    client_id: Optional[str] = None
-    file_path: Optional[str] = Field(
-        None,
-        description='The remote path to synchronize local files artifacts to. This defaults to `${workspace.root}/files`',
-    )
-    google_service_account: Optional[str] = None
-    host: Optional[str] = Field(None, description='Host url of the workspace.')
-    profile: Optional[str] = Field(
-        None,
-        description='Connection profile to use. By default profiles are specified in ~/.databrickscfg.',
-    )
-    root_path: Optional[str] = Field(
-        None,
-        description='The base location for synchronizing files, artifacts and state. Defaults to `/Users/jane@doe.com/.bundle/${bundle.name}/${bundle.target}`',
-    )
-    state_path: Optional[str] = Field(
-        None,
-        description='The remote path to synchronize bundle state to. This defaults to `${workspace.root}/state`',
-    )
+    permissions: Optional[List[Permissions]] = None
+    resources: Optional[Resources] = None
+    run_as: Optional[RunAs] = None
+    sync: Optional[Sync] = None
+    variables: Optional[Dict[str, Variables]] = None
+    workspace: Optional[Workspace] = None
 
 
 class DatabricksAssetBundles(BaseModel):
     class Config:
-        extra = Extra.forbid
+        extra = "forbid"
 
     artifacts: Optional[Dict[str, Artifacts]] = None
     bundle: Optional[Bundle] = None
-    environments: Optional[Dict[str, Environments]] = None
     experimental: Optional[Experimental] = None
     include: Optional[List[str]] = Field(
         None,
         description='A list of glob patterns of files to load and merge into the this configuration. Defaults to no files being included.',
     )
+    permissions: Optional[List[Permissions]] = None
     resources: Optional[Resources] = None
     run_as: Optional[RunAs] = None
     sync: Optional[Sync] = None

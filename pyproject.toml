@@ -54,7 +54,7 @@ brickflow = "brickflow.cli:cli"
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
 coverage = "^7.2.5"
-datamodel-code-generator = "^0.22.1"
+datamodel-code-generator = "^0.25.2"
 deepdiff = "^6.3.0"
 mypy = "^1.3.0"
 pre-commit = "^3.3.1"

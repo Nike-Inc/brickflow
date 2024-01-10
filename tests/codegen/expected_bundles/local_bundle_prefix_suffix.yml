@@ -1,6 +1,6 @@
 bundle:
   name: test-project
-environments:
+targets:
   test-project-local:
     resources:
       jobs:

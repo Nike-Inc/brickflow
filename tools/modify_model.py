@@ -25,6 +25,10 @@ if __name__ == "__main__":
             ]
         )
 
+    def replace_class_config_extras(input_code: str) -> str:
+        pattern = r"extra\s*=\s*Extra\.forbid"
+        return re.sub(pattern, 'extra = "forbid"', input_code)
+
     with open(file_path, "r") as f:
         lines = f.readlines()
         for line in lines:
@@ -43,4 +47,6 @@ if __name__ == "__main__":
             for key, value in bad_class_names.items():
                 data = data.replace(key, value)
             data = remove_timestamp_line(data)
+            # remove extra config to remove deprecation warning
+            data = replace_class_config_extras(data)
             w.write(data)

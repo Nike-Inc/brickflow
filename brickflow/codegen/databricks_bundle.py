@@ -42,9 +42,9 @@ from brickflow.bundles.model import (
     Bundle,
     Pipelines,
     JobsRunAs,
-    Environments,
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
+    Targets,
 )
 from brickflow.codegen import (
     CodegenInterface,
@@ -635,7 +635,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         if bundle_suffix is not None:
             bundle_root_path = bundle_root_path / bundle_suffix
 
-        env_content = Environments(
+        env_content = Targets(
             workspace=Workspace(
                 root_path=str(bundle_root_path.as_posix()),
                 file_path=str((bundle_root_path / "files").as_posix()),
@@ -645,7 +645,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
 
         return DatabricksAssetBundles(
-            environments={
+            targets={
                 get_bundles_project_env(): env_content,
             },
             bundle=Bundle(name=self.project.name),

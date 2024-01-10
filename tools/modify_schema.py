@@ -1,11 +1,9 @@
 import json
 from dataclasses import dataclass
-from typing import Callable, Dict, Any
+from typing import Dict, Any
 
 
 # Generated using ChatGPT 3.5
-
-
 def get_name(path):
     new_path = path.replace("/", "_").lstrip("_")
     for remove_item in [
@@ -46,21 +44,41 @@ schema_patches = [
         patch_key="environments_properties_resources_pipelines_properties_clusters_items_autoscale",
         dot_path_location="properties.mode",
         value={
-            "type": "string",
+            "type": "enum",
             "enum": ["LEGACY", "ENHANCED"],
             "description": "The autoscaling mode to use. Valid values are LEGACY, ENHANCED.",
         },
     ),
-    SchemaPatch(
-        patch_key="environments_properties_resources_jobs_properties_job_clusters_items_new_cluster",
-        dot_path_location="properties.data_security_mode",
-        value={
-            "type": "string",
-            "default": "SINGLE_USER",
-            "enum": ["SINGLE_USER", "USER_ISOLATION", "NONE"],
-            "description": "The autoscaling mode to use. Valid values are LEGACY, ENHANCED.",
-        },
-    ),
+    # Update from ["SINGLE_USER", "USER_ISOLATION", "NONE"] to
+    # ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "SINGLE_USER", "USER_ISOLATION", "NONE"]
+    # Jan 8, 2024 no breaking changes as its adding new optional enums
+    *[
+        SchemaPatch(
+            patch_key=resource,
+            dot_path_location=f"properties.data_security_mode",
+            value={
+                "type": "enum",
+                "default": "SINGLE_USER",
+                "enum": [
+                    "LEGACY_TABLE_ACL",
+                    "LEGACY_PASSTHROUGH",
+                    "LEGACY_SINGLE_USER",
+                    "SINGLE_USER",
+                    "USER_ISOLATION",
+                    "NONE",
+                ],
+                "description": "The data security mode to use for clusters. Valid values are "
+                '["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", '
+                '"SINGLE_USER", "USER_ISOLATION", "NONE"].',
+            },
+        )
+        for resource in [
+            "resources_jobs_properties_job_clusters_items_new_cluster",
+            "resources_jobs_properties_tasks_items_new_cluster",
+            "targets_properties_resources_jobs_properties_job_clusters_items_new_cluster",
+            "targets_properties_resources_jobs_properties_tasks_items_new_cluster",
+        ]
+    ],
 ]
 
 
@@ -78,6 +96,20 @@ def apply_definition_patches(definitions):
     return definitions
 
 
+def handle_targets_properties_ref(ref) -> str:
+    # handle target and just reuse the same model build into the base without target
+    if ref.startswith("#/definitions/targets_properties_"):
+        return ref.replace("#/definitions/targets_properties_", "#/definitions/", 1)
+
+    return ref
+
+
+def remove_all_definitions_that_start_with(
+    definitions, start_with="targets_properties_"
+):
+    return {k: v for k, v in definitions.items() if not k.startswith(start_with)}
+
+
 def generate_definitions(schema):
     definitions = {}
     definition_lookup = {}
@@ -90,6 +122,7 @@ def generate_definitions(schema):
                 if value.get("type") == "object":
                     new_path = f"{path}/{key}"
                     definition_name = new_path.replace("/", "_").lstrip("_").lstrip("_")
+
                     # get_name(key, new_path)
                     definition_data = {}
                     if definition_name not in definitions:
@@ -117,10 +150,16 @@ def generate_definitions(schema):
                     if definition_data_json not in definition_lookup:
                         definitions[definition_name] = definition_data
                         definition_lookup[json.dumps(definition_data)] = definition_name
-                        obj[key] = {"$ref": f"#/definitions/{definition_name}"}
+                        obj[key] = {
+                            "$ref": handle_targets_properties_ref(
+                                f"#/definitions/{definition_name}"
+                            )
+                        }
                     else:
                         obj[key] = {
-                            "$ref": f"#/definitions/{definition_lookup[definition_data_json]}"
+                            "$ref": handle_targets_properties_ref(
+                                f"#/definitions/{definition_lookup[definition_data_json]}"
+                            )
                         }
                 else:
                     obj[key] = process_object(value, f"{path}/{key}")
@@ -129,6 +168,9 @@ def generate_definitions(schema):
     new_schema["properties"] = process_object(schema["properties"], "")
 
     new_schema["definitions"] = apply_definition_patches(definitions)
+    new_schema["definitions"] = remove_all_definitions_that_start_with(
+        new_schema["definitions"]
+    )
     new_schema["title"] = "databricks_asset_bundles"
     return new_schema
 
