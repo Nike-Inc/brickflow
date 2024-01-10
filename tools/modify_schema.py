@@ -51,6 +51,7 @@ schema_patches = [
     ),
     # Update from ["SINGLE_USER", "USER_ISOLATION", "NONE"] to
     # ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "SINGLE_USER", "USER_ISOLATION", "NONE"]
+    # LEGACY_SINGLE_USER_STANDARD is not documented but supported
     # Jan 8, 2024 no breaking changes as its adding new optional enums
     *[
         SchemaPatch(
@@ -63,12 +64,13 @@ schema_patches = [
                     "LEGACY_TABLE_ACL",
                     "LEGACY_PASSTHROUGH",
                     "LEGACY_SINGLE_USER",
+                    "LEGACY_SINGLE_USER_STANDARD",
                     "SINGLE_USER",
                     "USER_ISOLATION",
                     "NONE",
                 ],
                 "description": "The data security mode to use for clusters. Valid values are "
-                '["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", '
+                '["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "LEGACY_SINGLE_USER_STANDARD", '
                 '"SINGLE_USER", "USER_ISOLATION", "NONE"].',
             },
         )

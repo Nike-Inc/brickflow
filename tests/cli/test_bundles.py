@@ -19,14 +19,14 @@ class TestBundles:
         mock_exec_command.assert_called_with(
             bundle_cli,
             "bundle",
-            ["deploy", "-e", "local", "--force-lock"],
+            ["deploy", "-t", "local", "--force-lock"],
         )
         bundle_destroy(force_acquire_lock=True, workflows_dir="somedir")
         bundle_cli = os.environ[BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value]
         mock_exec_command.assert_called_with(
             bundle_cli,
             "bundle",
-            ["destroy", "-e", "local", "--force-lock"],
+            ["destroy", "-t", "local", "--force-lock"],
         )
 
     @patch("brickflow.cli.bundles.exec_command")
@@ -46,12 +46,12 @@ class TestBundles:
         mock_exec_command.assert_called_with(
             bundle_cli,
             "bundle",
-            ["deploy", "-e", "local", "--force"],
+            ["deploy", "-t", "local", "--force"],
         )
         bundle_destroy(force_acquire_lock=True, workflows_dir="somedir")
         bundle_cli = os.environ[BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value]
         mock_exec_command.assert_called_with(
             bundle_cli,
             "bundle",
-            ["destroy", "-e", "local", "--force"],
+            ["destroy", "-t", "local", "--force"],
         )

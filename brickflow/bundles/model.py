@@ -535,13 +535,14 @@ class JobsJobClustersNewCluster(BaseModel):
             'LEGACY_TABLE_ACL',
             'LEGACY_PASSTHROUGH',
             'LEGACY_SINGLE_USER',
+            'LEGACY_SINGLE_USER_STANDARD',
             'SINGLE_USER',
             'USER_ISOLATION',
             'NONE',
         ]
     ] = Field(
         'SINGLE_USER',
-        description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
+        description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "LEGACY_SINGLE_USER_STANDARD", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
     )
     docker_image: Optional[JobsJobClustersNewClusterDockerImage] = None
     driver_instance_pool_id: Optional[str] = Field(
@@ -1138,13 +1139,14 @@ class JobsTasksNewCluster(BaseModel):
             'LEGACY_TABLE_ACL',
             'LEGACY_PASSTHROUGH',
             'LEGACY_SINGLE_USER',
+            'LEGACY_SINGLE_USER_STANDARD',
             'SINGLE_USER',
             'USER_ISOLATION',
             'NONE',
         ]
     ] = Field(
         'SINGLE_USER',
-        description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
+        description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "LEGACY_SINGLE_USER_STANDARD", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
     )
     docker_image: Optional[JobsTasksNewClusterDockerImage] = None
     driver_instance_pool_id: Optional[str] = Field(
