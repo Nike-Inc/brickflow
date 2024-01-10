@@ -144,7 +144,7 @@ class ResourceReference(BaseModel):
 
 class ImportBlock(BaseModel):
     to: str
-    id_: str
+    id_: Union[str, int]
 
 
 class ResourceAlreadyUsedByOtherProjectError(Exception):
@@ -346,12 +346,7 @@ class DatabricksBundleResourceTransformer:
 
 class ImportManager:
     @staticmethod
-    def create_import_tf(env: str, import_blocks: List[ImportBlock]) -> None:
-        file_path = f".databricks/bundle/{env}/terraform/extra_imports.tf"
-        # Ensure directory structure exists
-        directory = os.path.dirname(file_path)
-        os.makedirs(directory, exist_ok=True)
-        # Create file
+    def create_import_str(import_blocks: List[ImportBlock]) -> str:
         import_statements = []
         for import_block in import_blocks:
             _ilog.info("Reusing import for %s - %s", import_block.to, import_block.id_)
@@ -361,10 +356,20 @@ class ImportManager:
                 f'  id = "{import_block.id_}" \n'
                 f"}}"
             )
+        return "\n\n".join(import_statements)
+
+    @staticmethod
+    def create_import_tf(env: str, import_blocks: List[ImportBlock]) -> None:
+        file_path = f".databricks/bundle/{env}/terraform/extra_imports.tf"
+        # Ensure directory structure exists
+        directory = os.path.dirname(file_path)
+        os.makedirs(directory, exist_ok=True)
+        import_content = ImportManager.create_import_str(import_blocks)
+        # Create file
         with open(file_path, "w", encoding="utf-8") as f:
             f.truncate()
             f.flush()
-            f.write("\n\n".join(import_statements))
+            f.write(import_content)
 
 
 class DatabricksBundleCodegen(CodegenInterface):
