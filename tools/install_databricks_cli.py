@@ -6,7 +6,7 @@ try:
     from brickflow.cli.bundles import get_valid_bundle_cli
     from brickflow.engine import _call
 except ImportError:
-    pass
+    raise ImportError("Please install brickflow to use this script")
 
 if __name__ == "__main__":
     cli_version = os.environ.get("BUNDLE_CODE_GEN_CLI_VERSION", None)

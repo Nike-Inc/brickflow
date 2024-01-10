@@ -22,6 +22,8 @@ from brickflow.cli.constants import BrickflowDeployMode
 from brickflow.cli.commands import exec_command
 from brickflow.cli.configure import get_entrypoint, log_important_versions
 
+ENV_FLAG = "-t"
+
 
 def pre_bundle_hook(f: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(f)
@@ -49,7 +51,7 @@ def bundle_validate(bundle_cli: Optional[str] = None, **_: Any) -> None:
     exec_command(
         get_valid_bundle_cli(bundle_cli),
         "bundle",
-        ["validate", "-e", brickflow_ctx.env],
+        ["validate", ENV_FLAG, brickflow_ctx.env],
     )
 
 
@@ -78,7 +80,7 @@ def bundle_sync(
     exec_command(
         get_valid_bundle_cli(bundle_cli),
         "bundle",
-        ["sync", "-e", get_bundles_project_env(), *additional_args],
+        ["sync", ENV_FLAG, get_bundles_project_env(), *additional_args],
     )
 
 
@@ -99,7 +101,7 @@ def bundle_deploy(
     bundle_cli: Optional[str] = None, force_acquire_lock: bool = False, **_: Any
 ) -> None:
     """CLI deploy the bundle."""
-    deploy_args = ["deploy", "-e", get_bundles_project_env()]
+    deploy_args = ["deploy", ENV_FLAG, get_bundles_project_env()]
     if force_acquire_lock is True:
         # fix/issue-32
         deploy_args.append(get_force_lock_flag())
@@ -114,7 +116,7 @@ def bundle_destroy(
     **_: Any,
 ) -> None:
     """CLI destroy the bundle."""
-    destroy_args = ["destroy", "-e", get_bundles_project_env()]
+    destroy_args = ["destroy", ENV_FLAG, get_bundles_project_env()]
     if auto_approve is True:
         destroy_args.append("--auto-approve")
     if force_acquire_lock is True:
