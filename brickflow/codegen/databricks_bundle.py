@@ -594,6 +594,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 permissions=self.workflow_obj_to_permissions(
                     workflow
                 ),  # will be none if not set
+                timeout_seconds=workflow.timeout_seconds,
                 email_notifications=workflow.email_notifications,
                 notification_settings=workflow.notification_settings,
                 webhook_notifications=workflow.webhook_notifications,

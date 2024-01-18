@@ -74,6 +74,7 @@ def task_function(*, test="var"):
 14. Define a workflow task and associate it to the workflow
 15. Define the schedule pause status. It is defaulted to "UNPAUSED"
 16. Define health check condition that triggers duration warning threshold exceeded notifications
+17. Define timeout_seconds check condition that triggers workflow failure if duration exceeds threshold
 
 ### Clusters
 
