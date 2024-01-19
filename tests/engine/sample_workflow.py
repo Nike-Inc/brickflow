@@ -24,7 +24,7 @@ wf = Workflow(
             {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200}
         ]
     },
-    timeout_seconds=42.5,
+    timeout_seconds=42,
 )
 
 

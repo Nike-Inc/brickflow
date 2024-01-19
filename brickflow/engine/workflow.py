@@ -31,7 +31,6 @@ from brickflow.engine.task import (
 from brickflow.engine.utils import wraps_keyerror
 
 
-
 class WorkflowConfigError(Exception):
     pass
 
@@ -120,7 +119,7 @@ class Workflow:
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
     health: Optional[List[JobsHealthRules]] = None
-    timeout_seconds: Optional[float] = None
+    timeout_seconds: Optional[int] = None
     default_task_settings: TaskSettings = TaskSettings()
     email_notifications: Optional[WorkflowEmailNotifications] = None
     webhook_notifications: Optional[WorkflowWebhookNotifications] = None
@@ -256,13 +255,13 @@ class Workflow:
 
     def task_exists(self, task_id: str) -> bool:
         return task_id in self.tasks
-    
-    def log_timeout_warning(self, task_settings: TaskSettings):
+
+    def log_timeout_warning(self, task_settings: TaskSettings) -> bool:
         if task_settings is not None and self.timeout_seconds is not None:
             if task_settings.timeout_seconds is not None:
-                if task_settings.timeout_seconds > self.timeout_seconds: 
+                if task_settings.timeout_seconds > self.timeout_seconds:
                     return True
-
+        return False
 
     def _set_active_task(self, task_id: str) -> None:
         self.active_task = task_id
@@ -310,9 +309,11 @@ class Workflow:
                 "Some how default cluster wasnt set please raise a github issue."
             )
 
-        if self.log_timeout_warning(task_settings):
-            logging.warning( "Task timeout_seconds: %s should not exceed workflow timeout_seconds: %s", {task_settings.timeout_seconds}, {self.timeout_seconds})        
-             
+        if self.log_timeout_warning(task_settings):  # type: ignore
+            logging.warning(
+                "Task timeout_seconds should not exceed workflow timeout_seconds",
+            )
+
         _libraries = libraries or [] + self.libraries
         _depends_on = (
             [depends_on]
