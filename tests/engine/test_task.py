@@ -97,9 +97,9 @@ class TestTask:
             "all_tasks3": "123",
             "test": "var",
         }
-
         wf.common_task_parameters = {}
         assert wf.get_task(task_function_nokwargs.__name__).custom_task_parameters == {}
+        
 
     def test_task_settings(self):
         assert wf.get_task(task_function.__name__).task_settings is None
@@ -322,6 +322,18 @@ class TestTask:
             "min_retry_interval_millis": default_int,
             "retry_on_timeout": default_bool,
         }
+        
+    def test_task_settings_timeout_warning(self):
+        timeout_ts = TaskSettings(
+            timeout_seconds=60,
+        )
+
+        ts = TaskSettings(
+            timeout_seconds=30,
+        )
+        assert wf.log_timeout_warning(timeout_ts)
+        assert not wf.log_timeout_warning(ts)
+
 
     def test_task_libraries(self):
         s3_path = "s3://somepath-in-s3"
