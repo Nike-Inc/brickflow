@@ -1,3 +1,4 @@
+import datetime
 from collections import namedtuple
 from unittest.mock import Mock, patch
 
@@ -97,7 +98,6 @@ class TestTask:
             "all_tasks3": "123",
             "test": "var",
         }
-
         wf.common_task_parameters = {}
         assert wf.get_task(task_function_nokwargs.__name__).custom_task_parameters == {}
 
@@ -322,6 +322,25 @@ class TestTask:
             "min_retry_interval_millis": default_int,
             "retry_on_timeout": default_bool,
         }
+
+    def test_task_settings_small_timeout(self):
+        small_to = TaskSettings(
+            timeout_seconds=30,
+        )
+        print(small_to.timeout_seconds)
+        assert not wf.log_timeout_warning(small_to)
+
+    def test_task_settings_big_timeout_warning(self):
+        big_to = TaskSettings(
+            timeout_seconds=datetime.timedelta(hours=0.5).seconds,
+        )
+        print(big_to.timeout_seconds)
+        assert wf.log_timeout_warning(big_to)
+
+    def test_task_settings_no_timeout_warning(self):
+        no_to = TaskSettings()
+        print(no_to.timeout_seconds)
+        assert not wf.log_timeout_warning(no_to)
 
     def test_task_libraries(self):
         s3_path = "s3://somepath-in-s3"

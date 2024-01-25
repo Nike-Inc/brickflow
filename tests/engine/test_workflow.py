@@ -189,6 +189,9 @@ class TestWorkflow:
             ]
         }
 
+    def test_timeout_seconds(self):
+        assert wf.timeout_seconds == 42
+
     def test_user(self):
         principal = "abc@abc.com"
         u = User(principal)

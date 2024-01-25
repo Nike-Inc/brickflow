@@ -1,4 +1,5 @@
 import abc
+import logging
 import functools
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional, Dict, Union, Iterator, Any
@@ -117,8 +118,8 @@ class Workflow:
     schedule_pause_status: str = "UNPAUSED"
     default_cluster: Optional[Cluster] = None
     clusters: List[Cluster] = field(default_factory=lambda: [])
-
     health: Optional[List[JobsHealthRules]] = None
+    timeout_seconds: Optional[int] = None
     default_task_settings: TaskSettings = TaskSettings()
     email_notifications: Optional[WorkflowEmailNotifications] = None
     webhook_notifications: Optional[WorkflowWebhookNotifications] = None
@@ -255,6 +256,13 @@ class Workflow:
     def task_exists(self, task_id: str) -> bool:
         return task_id in self.tasks
 
+    def log_timeout_warning(self, task_settings: TaskSettings) -> bool:
+        if task_settings is not None and self.timeout_seconds is not None:
+            if task_settings.timeout_seconds is not None:
+                if task_settings.timeout_seconds > self.timeout_seconds:
+                    return True
+        return False
+
     def _set_active_task(self, task_id: str) -> None:
         self.active_task = task_id
 
@@ -299,6 +307,11 @@ class Workflow:
         if self.default_cluster is None:
             raise RuntimeError(
                 "Some how default cluster wasnt set please raise a github issue."
+            )
+
+        if self.log_timeout_warning(task_settings):  # type: ignore
+            logging.warning(
+                "Task timeout_seconds should not exceed workflow timeout_seconds",
             )
 
         _libraries = libraries or [] + self.libraries

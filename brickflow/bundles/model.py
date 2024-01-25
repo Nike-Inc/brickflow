@@ -1525,7 +1525,7 @@ class JobsTasks(BaseModel):
         ...,
         description='A unique name for the task. This field is used to refer to this task from other tasks.\nThis field is required and must be unique within its parent job.\nOn Update or Reset, this field is used to reference the tasks to be updated or reset.',
     )
-    timeout_seconds: Optional[float] = Field(
+    timeout_seconds: Optional[int] = Field(
         None,
         description='An optional timeout applied to each run of this job task. A value of `0` means no timeout.',
     )
@@ -1661,7 +1661,7 @@ class Jobs(BaseModel):
     tasks: Optional[List[JobsTasks]] = Field(
         None, description='A list of task specifications to be executed by this job.'
     )
-    timeout_seconds: Optional[float] = Field(
+    timeout_seconds: Optional[int] = Field(
         None,
         description='An optional timeout applied to each run of this job. A value of `0` means no timeout.',
     )
