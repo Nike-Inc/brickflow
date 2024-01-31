@@ -12,6 +12,7 @@ from requests.packages.urllib3.util.retry import Retry
 from requests import HTTPError
 
 from datetime import datetime, timedelta
+from dateutil.parser import parse  # type: ignore[import-untyped]
 import time
 import pytz
 from brickflow_plugins import log
@@ -386,10 +387,7 @@ class AutosysSensor(BaseSensorOperator):
         else:
             status = response.json()["status"][:2].upper()
 
-            timestamp_format = "%Y-%m-%dT%H:%M:%SZ"
-            lastend = datetime.strptime(
-                response.json()["lastEndUTC"], timestamp_format
-            ).replace(tzinfo=pytz.UTC)
+            last_end_timestamp = parse(response.json()["lastEndUTC"]).replace(tzinfo=pytz.UTC)
 
             time_delta = (
                 self.time_delta
@@ -397,17 +395,15 @@ class AutosysSensor(BaseSensorOperator):
                 else timedelta(**self.time_delta)
             )
 
-            execution_date = datetime.strptime(
-                context["execution_date"], "%Y-%m-%dT%H:%M:%S.%f%z"
-            )
-            rundate = execution_date - time_delta
+            execution_timestamp = parse(str(context["execution_date"]))
+            run_timestamp = execution_timestamp - time_delta
 
-            if "SU" in status and lastend >= rundate:
-                print(f"Last End: {lastend}, Run Date: {rundate}")
-                print("Success criteria met. Exiting")
+            if "SU" in status and last_end_timestamp >= run_timestamp:
+                logging.info(f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}")
+                logging.info("Success criteria met. Exiting")
                 return True
             else:
-                print(f"Last End: {lastend}, Run Date: {rundate}")
+                logging.info(f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}")
                 time.sleep(self.poke_interval)
                 logging.info("Poking again")
                 AutosysSensor.poke(self, context)
