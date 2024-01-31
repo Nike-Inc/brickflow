@@ -345,7 +345,7 @@ class AutosysSensor(BaseSensorOperator):
         url: str,
         job_name: str,
         poke_interval: int,
-        airflow_cluster_auth: AirflowClusterAuth,
+        airflow_cluster_auth: AirflowClusterAuth = None,
         time_delta: Union[timedelta, dict] = {"days": 0},
         *args,
         **kwargs,
@@ -368,15 +368,20 @@ class AutosysSensor(BaseSensorOperator):
 
     def poke(self, context):
         logging.info("Poking: " + self.url)
-        token = self.airflow_auth.get_access_token()
+
+        headers = {
+            "Accept": "application/json",
+            "cache-control": "no-cache",
+        }
+        if self.airflow_auth:
+            token = self.airflow_auth.get_access_token()
+            headers["Authorization"] = f"Bearer {token}"
+
         response = requests.get(
             self.url,
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Accept": "application/json",
-                "cache-control": "no-cache",
-            },
-            verify=False,
+            headers=headers,
+            verify=False,  # nosec
+            timeout=10,
         )
 
         if response.status_code != 200:
