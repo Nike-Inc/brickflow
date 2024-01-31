@@ -387,7 +387,9 @@ class AutosysSensor(BaseSensorOperator):
         else:
             status = response.json()["status"][:2].upper()
 
-            last_end_timestamp = parse(response.json()["lastEndUTC"]).replace(tzinfo=pytz.UTC)
+            last_end_timestamp = parse(response.json()["lastEndUTC"]).replace(
+                tzinfo=pytz.UTC
+            )
 
             time_delta = (
                 self.time_delta
@@ -399,11 +401,15 @@ class AutosysSensor(BaseSensorOperator):
             run_timestamp = execution_timestamp - time_delta
 
             if "SU" in status and last_end_timestamp >= run_timestamp:
-                logging.info(f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}")
+                logging.info(
+                    f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}"
+                )
                 logging.info("Success criteria met. Exiting")
                 return True
             else:
-                logging.info(f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}")
+                logging.info(
+                    f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}"
+                )
                 time.sleep(self.poke_interval)
                 logging.info("Poking again")
                 AutosysSensor.poke(self, context)
