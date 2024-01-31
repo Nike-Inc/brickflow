@@ -22,6 +22,10 @@ from brickflow_plugins.airflow.operators.external_tasks import (
     AutosysSensor,
     AirflowProxyOktaClusterAuth,
 )
+from brickflow_plugins.airflow.operators.external_tasks_tableau import (
+    TableauRefreshDataSourceOperator,
+    TableauRefreshWorkBookOperator,
+)
 from brickflow_plugins.airflow.operators.native_operators import (
     BashOperator,
     BranchPythonOperator,
@@ -69,4 +73,6 @@ __all__: List[str] = [
     "UcToSnowflakeOperator",
     "load_plugins",
     "ensure_installation",
+    "TableauRefreshDataSourceOperator",
+    "TableauRefreshWorkBookOperator",
 ]
