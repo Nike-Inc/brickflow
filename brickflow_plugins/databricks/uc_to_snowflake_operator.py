@@ -264,7 +264,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     above code snippet expects the data as follows
     databricks_secrets_psc contains username, password, account, warehouse, database and role keys with snowflake values
-    parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_schema':'sample_schema',
+    parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
                       'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
                       'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
                       'sf_cluster_keys':''}
@@ -272,7 +272,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     in the parameters dictionary we have mandatory keys as follows
     load_type(required): incremental/full
     dbx_catalog (required): name of the catalog in unity
-    dbx_schema  (required): schema name within the catalog
+    dbx_database  (required): schema name within the catalog
     dbx_table   (required): name of the object in the schema
     sf_database (optional): database name in snowflake
     sf_schema   (required): snowflake schema in the database provided as part of scope
@@ -350,7 +350,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             mandatory_keys = (
                 "load_type",
                 "dbx_catalog",
-                "dbx_schema",
+                "dbx_database",
                 "dbx_table",
                 "sf_schema",
                 "sf_table",
@@ -426,7 +426,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         df = ctx.spark.sql(
             """select * from {}.{}.{} where {}""".format(
                 self.parameters["dbx_catalog"],
-                self.parameters["dbx_schema"],
+                self.parameters["dbx_database"],
                 self.parameters["dbx_table"],
                 self.dbx_data_filter,
             )
