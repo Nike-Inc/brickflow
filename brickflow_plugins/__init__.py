@@ -71,8 +71,8 @@ __all__: List[str] = [
     "WorkflowDependencySensor",
     "SnowflakeOperator",
     "UcToSnowflakeOperator",
-    "load_plugins",
-    "ensure_installation",
     "TableauRefreshDataSourceOperator",
     "TableauRefreshWorkBookOperator",
+    "load_plugins",
+    "ensure_installation",
 ]

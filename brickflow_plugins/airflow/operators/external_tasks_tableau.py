@@ -9,8 +9,8 @@ from airflow.operators.python import BaseOperator
 
 from brickflow_plugins import log
 
+
 # TODO: add tests
-# TODO: validate
 
 
 class TableauWrapper:
@@ -506,7 +506,7 @@ class TableauRefreshDataSourceOperator(TableauRefreshABCOperator):
         self.data_sources = data_sources
         self.__skip = skip
 
-    def execute(self, **kwargs):
+    def execute(self, context):
         """
         Refresh data source in Tableau.
         """
@@ -545,7 +545,7 @@ class TableauRefreshWorkBookOperator(TableauRefreshABCOperator):
         self.workbooks = workbooks
         self.__skip = skip
 
-    def execute(self, **kwargs):
+    def execute(self, context):
         """
         Refresh workbooks in Tableau
         """

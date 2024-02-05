@@ -300,7 +300,7 @@ def run_snowflake_queries(*args):
 
 @wf.task
 def tableau_refresh_datasource():
-    trd = TableauRefreshDataSourceOperator(
+    return TableauRefreshDataSourceOperator(
         server="https://my-tableau.com",
         username="foo",
         password="bar",
@@ -308,20 +308,18 @@ def tableau_refresh_datasource():
         project="project",
         data_sources=["datasource1", "datasource2"],
     )
-    trd.execute()
 
 
 @wf.task
 def tableau_refresh_workbook():
-    trw = TableauRefreshWorkBookOperator(
+    return TableauRefreshWorkBookOperator(
         server="https://my-tableau.com",
         username="foo",
         password="bar",
         site="site",
         project="project",
-        workbooks=["datasource1", "datasource2"],
+        workbooks=["workbook1", "workbook2"],
     )
-    trw.execute()
 
 
 @wf.task(depends_on=airflow_autosys_sensor)
