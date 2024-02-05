@@ -10,9 +10,6 @@ from airflow.operators.python import BaseOperator
 from brickflow_plugins import log
 
 
-# TODO: add tests
-
-
 class TableauWrapper:
     """
     Class facilitates interaction with Tableau server for the purpose of refreshing
