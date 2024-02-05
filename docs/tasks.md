@@ -453,3 +453,39 @@ def run_snowflake_queries(*args):
   )
   uc_to_sf_copy.execute()
 ```
+
+#### Tableau Refresh Operators
+Wait for a workflow to finish before kicking off the current workflow's tasks
+
+```python title="tableau_refresh_operators"
+from brickflow.context import ctx
+from brickflow_plugins import TableauRefreshDataSourceOperator, TableauRefreshWorkBookOperator
+
+wf = Workflow(...)
+
+
+@wf.task
+def tableau_refresh_datasource():
+    trd = TableauRefreshDataSourceOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        data_sources=["datasource1", "datasource2"],
+    )
+    trd.execute()
+
+
+@wf.task
+def tableau_refresh_workbook():
+    trw = TableauRefreshWorkBookOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        workbooks=["datasource1", "datasource2"],
+    )
+    trw.execute()
+```
