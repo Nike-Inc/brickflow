@@ -455,7 +455,7 @@ def run_snowflake_queries(*args):
 ```
 
 #### Tableau Refresh Operators
-Wait for a workflow to finish before kicking off the current workflow's tasks
+Connect to the Tableau server and trigger the refresh of the data sources or workbooks.
 
 ```python title="tableau_refresh_operators"
 from brickflow.context import ctx
