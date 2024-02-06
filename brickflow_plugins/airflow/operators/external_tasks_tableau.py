@@ -311,7 +311,7 @@ class TableauWrapper:
             )
             return lim_p[0]
 
-    def refresh_datasources(self, data_sources: list) -> list[dict]:
+    def refresh_datasources(self, data_sources: list) -> list:
         """
         Asynchronously refresh specified list of Tableau data sources.
 
@@ -339,7 +339,7 @@ class TableauWrapper:
 
             return results
 
-    def refresh_workbooks(self, work_books: list) -> list[dict]:
+    def refresh_workbooks(self, work_books: list) -> list:
         """
         Asynchronously refresh specified list of Tableau workbooks.
 
