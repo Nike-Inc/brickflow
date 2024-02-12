@@ -230,8 +230,7 @@ class TestTask:
         assert resp is task_function()
 
     @patch("brickflow.context.ctx.get_parameter")
-    @patch("brickflow.context.ctx._task_coms")
-    def test_execute_with_error(self, task_coms_mock: Mock, dbutils: Mock):
+    def test_execute_with_error(self, dbutils: Mock):
         dbutils.return_value = ""
         get_plugin_manager.cache_clear()
         get_brickflow_tasks_hook.cache_clear()

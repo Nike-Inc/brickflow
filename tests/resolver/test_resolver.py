@@ -20,7 +20,7 @@ def default_mocks(mocker):
     )
 
 
-def test_resolver_methods(default_mocks, mocker):
+def test_resolver_methods(default_mocks, mocker):  # noqa
     error_msg = "This is a test message"
 
     def make_exception_function(exc: Type[Exception]):
