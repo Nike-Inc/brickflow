@@ -84,6 +84,10 @@ class InvalidTaskLibraryError(Exception):
     pass
 
 
+class BrickflowUserCodeException(Exception):
+    pass
+
+
 class BrickflowTaskEnvVars(Enum):
     BRICKFLOW_SELECT_TASKS = "BRICKFLOW_SELECT_TASKS"
 
@@ -303,6 +307,8 @@ class TaskSettings:
 class TaskResponse:
     response: Any
     push_return_value: bool = True
+    user_code_error: Optional[Exception] = None
+    input_kwargs: Optional[Dict[str, Any]] = None
 
 
 @dataclass(frozen=True)
@@ -373,6 +379,8 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     @brickflow_task_plugin_impl
     def handle_results(resp: "TaskResponse", task: "Task", workflow: "Workflow") -> Any:
         _ilog.info("using default for handling results")
+
+        BrickflowTaskPluginSpec.handle_user_result_errors(resp)
         # by default don't do anything just return the response as is
         return resp
 
@@ -381,6 +389,7 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     def task_execute(task: "Task", workflow: "Workflow") -> TaskResponse:
         """default execute implementation method."""
         _ilog.info("using default plugin for handling task execute")
+
         if (
             task.task_type == TaskType.CUSTOM_PYTHON_TASK
             and task.custom_execute_callback is not None
@@ -388,10 +397,18 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
             _ilog.info("handling custom execute")
             return task.custom_execute_callback(task)
         else:
-            return TaskResponse(
-                task.task_func(**task.get_runtime_parameter_values()),
-                push_return_value=True,
-            )
+            kwargs = task.get_runtime_parameter_values()
+            try:
+                return TaskResponse(
+                    task.task_func(**kwargs),
+                    user_code_error=None,
+                    push_return_value=True,
+                    input_kwargs=kwargs,
+                )
+            except Exception as e:
+                return TaskResponse(
+                    None, push_return_value=True, user_code_error=e, input_kwargs=kwargs
+                )
 
 
 @functools.lru_cache
@@ -706,13 +723,14 @@ class Task:
         _ilog.info("Executing task... %s", self.name)
         _ilog.info("%s", pretty_print_function_source(self.name, self.task_func))
 
-        initial_resp: TaskResponse = get_brickflow_tasks_hook().task_execute(
+        brickflow_execution_hook = get_brickflow_tasks_hook()
+
+        initial_resp: TaskResponse = brickflow_execution_hook.task_execute(
             task=self, workflow=self.workflow
         )
-        resp: TaskResponse = get_brickflow_tasks_hook().handle_results(
+        resp: TaskResponse = brickflow_execution_hook.handle_results(
             resp=initial_resp, task=self, workflow=self.workflow
         )
-
         if resp.push_return_value is True:
             ctx.task_coms.put(self.name, RETURN_VALUE_KEY, resp.response)
         ctx._reset_current_task()

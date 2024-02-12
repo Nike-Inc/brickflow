@@ -27,6 +27,8 @@ from brickflow.engine.task import (
     TaskLibrary,
     get_brickflow_lib_version,
     get_brickflow_libraries,
+    get_plugin_manager,
+    get_brickflow_tasks_hook,
 )
 from tests.engine.sample_workflow import (
     wf,
@@ -36,6 +38,7 @@ from tests.engine.sample_workflow import (
     task_function_3,
     task_function_4,
     custom_python_task_push,
+    task_function_with_error,
 )
 
 
@@ -225,6 +228,17 @@ class TestTask:
         )
 
         assert resp is task_function()
+
+    @patch("brickflow.context.ctx.get_parameter")
+    def test_execute_with_error(self, dbutils: Mock):
+        dbutils.return_value = ""
+        get_plugin_manager.cache_clear()
+        get_brickflow_tasks_hook.cache_clear()
+        with pytest.raises(
+            ValueError,
+            match="BRICKFLOW_USER_OR_DBR_ERROR: This is an error thrown in user code.",
+        ):
+            wf.get_task(task_function_with_error.__name__).execute()
 
     @patch("brickflow.context.ctx.get_parameter")
     @patch("brickflow.context.ctx._task_coms")
