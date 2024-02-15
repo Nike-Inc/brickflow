@@ -821,6 +821,7 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
         return [
             bf_lib,
             PypiTaskLibrary("apache-airflow==2.6.3"),
+            PypiTaskLibrary("snowflake==0.5.1"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:
