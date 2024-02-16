@@ -345,7 +345,6 @@ class AutosysSensor(BaseSensorOperator):
         url: str,
         job_name: str,
         poke_interval: int,
-        airflow_cluster_auth: AirflowClusterAuth = None,
         time_delta: Union[timedelta, dict] = {"days": 0},
         *args,
         **kwargs,
@@ -354,7 +353,6 @@ class AutosysSensor(BaseSensorOperator):
         self.url = url
         self.job_name = job_name
         self.poke_interval = poke_interval
-        self.airflow_auth = airflow_cluster_auth
         self.time_delta = time_delta
         self.url = self.url + self.job_name
 
@@ -373,9 +371,6 @@ class AutosysSensor(BaseSensorOperator):
             "Accept": "application/json",
             "cache-control": "no-cache",
         }
-        if self.airflow_auth:
-            token = self.airflow_auth.get_access_token()
-            headers["Authorization"] = f"Bearer {token}"
 
         response = requests.get(
             self.url,
