@@ -471,3 +471,73 @@ def run_snowflake_queries(*args):
   )
   uc_to_sf_copy.execute()
 ```
+
+#### Tableau Refresh Operators
+Connect to the Tableau server and trigger the refresh of the data sources or workbooks.
+
+Tableau client uses object GUIDs  to identify objects on the server. At the same time the server does not
+enforce unique names for the objects across the server. This means that multiple objects, e.g. data sources, with the 
+same name can exist on the server. 
+
+To overcome this, operators are using the combination of `project` and `parent_project` parameters to uniquely
+identify the project that owns data source or workbook on the server. Successfull project resolution will be indicated
+in the logs as follows:
+```
+INFO - Querying all projects on site
+
+Parent project identified:
+	Name: My Parent Project
+	ID: 2e14e111-036f-409e-b536-fb515ee534b9
+Working project identified:
+	Name: My Project
+	ID: 2426e01f-c145-43fc-a7f6-1a7488aceec0
+```
+If project resolution is successful the refresh will be triggered and operator will poll the server for the refresh 
+status:
+```
+Triggering refresh of 'my-datasource' datasource...
+Query for information about job c3263ad0-1340-444d-8128-24ad742a943a
+Data source 'my-datasource' refresh status: 
+   { 
+      'job_id': 'c3263ad0-1340-444d-8128-24ad742a943a', 
+      'job_status': 'Success', 
+      'finish_code': 0, 
+      'started_at': '2024-02-05 20:36:03 UTC', 
+      'completed_at': '2024-02-05 20:41:32 UTC', 
+      'job_status_details': None
+   }!
+```
+If refresh fails, `job_status_details` will contain the error message retrieved from the server and the operator will
+fail. If fail behavior is not desired, `fail_operator = False` can be set in the operator parameters.
+
+```python title="tableau_refresh_operators"
+from brickflow.context import ctx
+from brickflow_plugins import TableauRefreshDataSourceOperator, TableauRefreshWorkBookOperator
+
+wf = Workflow(...)
+
+
+@wf.task
+def tableau_refresh_datasource():
+    return TableauRefreshDataSourceOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        data_sources=["datasource1", "datasource2"],
+    )
+
+
+@wf.task
+def tableau_refresh_workbook():
+    return TableauRefreshWorkBookOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        workbooks=["workbook1", "workbook2"],
+    )
+```
+Check operator logs for more details on the status of the connection and the refresh.

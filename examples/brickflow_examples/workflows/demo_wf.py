@@ -18,6 +18,8 @@ from brickflow_plugins import (
     AutosysSensor,
     SnowflakeOperator,
     UcToSnowflakeOperator,
+    TableauRefreshDataSourceOperator,
+    TableauRefreshWorkBookOperator,
 )
 from brickflow.engine.task import PypiTaskLibrary
 
@@ -297,6 +299,30 @@ def run_snowflake_queries(*args):
         parameters={"database": "sample_db"},
     )
     sf_query_run.execute()
+
+
+@wf.task
+def tableau_refresh_datasource():
+    return TableauRefreshDataSourceOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        data_sources=["datasource1", "datasource2"],
+    )
+
+
+@wf.task
+def tableau_refresh_workbook():
+    return TableauRefreshWorkBookOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        workbooks=["workbook1", "workbook2"],
+    )
 
 
 @wf.task(depends_on=airflow_autosys_sensor)
