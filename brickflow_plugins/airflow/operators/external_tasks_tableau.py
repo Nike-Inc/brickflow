@@ -3,11 +3,36 @@ import time
 from abc import abstractmethod
 from typing import Union
 
-import tableauserverclient as TSC
 import urllib3
 from airflow.operators.python import BaseOperator
 
 from brickflow_plugins import log
+
+try:
+    import tableauserverclient as TSC
+except (ImportError, ModuleNotFoundError):
+    raise ModuleNotFoundError(
+        """You must install tableauserverclient library to use Tableau plugins, please add - 'tableauserverclient' 
+        library either at project level in entrypoint or at workflow level or at task level.
+        
+        Entrypoint:
+            with Project(
+                ... 
+                libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+                ...
+            )
+        Workflow:
+            wf=Workflow(
+                ...
+                libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+                ...
+            )
+        Task:
+            @wf.task(Library=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+            def run_snowflake_queries(*args):
+                ...
+        """
+    )
 
 
 class TableauWrapper:
