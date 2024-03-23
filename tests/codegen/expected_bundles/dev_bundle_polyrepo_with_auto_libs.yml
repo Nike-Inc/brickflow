@@ -34,6 +34,9 @@ targets:
                 - pypi:
                     package: apache-airflow==2.7.3
                     repo: null
+                - pypi:
+                    package: snowflake==0.6.0
+                    repo: null
                 - maven:
                     coordinates: com.cronutils:cron-utils:9.2.0
                     exclusions: null

@@ -27,6 +27,8 @@ from brickflow.engine.task import (
     TaskLibrary,
     get_brickflow_lib_version,
     get_brickflow_libraries,
+    get_plugin_manager,
+    get_brickflow_tasks_hook,
 )
 from tests.engine.sample_workflow import (
     wf,
@@ -36,6 +38,7 @@ from tests.engine.sample_workflow import (
     task_function_3,
     task_function_4,
     custom_python_task_push,
+    task_function_with_error,
 )
 
 
@@ -227,6 +230,17 @@ class TestTask:
         assert resp is task_function()
 
     @patch("brickflow.context.ctx.get_parameter")
+    def test_execute_with_error(self, dbutils: Mock):
+        dbutils.return_value = ""
+        get_plugin_manager.cache_clear()
+        get_brickflow_tasks_hook.cache_clear()
+        with pytest.raises(
+            ValueError,
+            match="BRICKFLOW_USER_OR_DBR_ERROR: This is an error thrown in user code.",
+        ):
+            wf.get_task(task_function_with_error.__name__).execute()
+
+    @patch("brickflow.context.ctx.get_parameter")
     @patch("brickflow.context.ctx._task_coms")
     def test_execute_custom(self, task_coms_mock: Mock, dbutils: Mock):
         dbutils.return_value = ""
@@ -409,7 +423,7 @@ class TestTask:
     def test_get_brickflow_libraries(self):
         settings = BrickflowProjectDeploymentSettings()
         settings.brickflow_project_runtime_version = "1.0.0"
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 3
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -425,7 +439,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "1.0.1rc1234"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 3
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -441,7 +455,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "somebranch"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 3
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {

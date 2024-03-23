@@ -409,6 +409,11 @@ As databricks secrets is a key value store, code expects the secret scope to con
 &emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
 &emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
 
+SnowflakeOperator can accept the following as inputs 
+&emsp;&emsp;&emsp;&emsp;secret_scope (required): databricks secret scope identifier
+&emsp;&emsp;&emsp;&emsp;query_string (required): queries separated by semicolon
+&emsp;&emsp;&emsp;&emsp;parameters (optional) : dictionary with variables that can be used to substitute in queries
+
 ```python title="snowflake_operator"
 from brickflow_plugins import SnowflakeOperator
 
@@ -417,8 +422,9 @@ wf = Workflow(...)
 @wf.task
 def run_snowflake_queries(*args):
   sf_query_run = SnowflakeOperator(
-    secret_cope = "your_databricks secrets scope name",
-    input_params = {'query':"comma_seprated_list_of_queries"}
+    secret_scope = "your_databricks secrets scope name",
+    query_string ="select * from database.$schema.$table where $filter_condition1; select * from sample_schema.test_table",
+    parameters = {"schema":"test_schema","table":"sample_table","filter_condition":"col='something'"}
   )
   sf_query_run.execute()
 ```
@@ -436,6 +442,18 @@ As databricks secrets is a key value store, code expects the secret scope to con
 &emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
 &emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
 
+UcToSnowflakeOperator can expects the following as inputs to copy data in parameters  
+&emsp;&emsp;&emsp;&emsp;load_type (required): type of data load , acceptable values full or incremental
+&emsp;&emsp;&emsp;&emsp;dbx_catalog (required) : name of the databricks catalog in which object resides 
+&emsp;&emsp;&emsp;&emsp;dbx_database (required): name of the databricks schema in which object is available
+&emsp;&emsp;&emsp;&emsp;dbx_table (required) : name of the databricks object we want to copy to snowflake 
+&emsp;&emsp;&emsp;&emsp;sf_database (optional) : name of the snowflake database if different from the one in secret_scope 
+&emsp;&emsp;&emsp;&emsp;sf_schema (required): name of the snowflake schema in which we want to copy the data 
+&emsp;&emsp;&emsp;&emsp;sf_table (required) : name of the snowflake object to which we want to copy from databricks
+&emsp;&emsp;&emsp;&emsp;incremental_filter (required for incrmental mode) :  condition to manage data before writing to snowflake
+&emsp;&emsp;&emsp;&emsp;dbx_data_filter (optional): filter condition on databricks source for full or incremental (if different from inremental_filter)
+&emsp;&emsp;&emsp;&emsp;sf_grantee_roles (optional) : snowflake roles to which we want to grant select/read access 
+&emsp;&emsp;&emsp;&emsp;sf_cluster_keys (optional) : list of keys we want to cluster our snowflake table. 
 
 ```python title="uc_to_snowflake_operator"
 from brickflow_plugins import UcToSnowflakeOperator
@@ -445,11 +463,81 @@ wf = Workflow(...)
 @wf.task
 def run_snowflake_queries(*args):
   uc_to_sf_copy = UcToSnowflakeOperator(
-    secret_cope = "your_databricks secrets scope name",
-    uc_parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
+    secret_scope = "your_databricks secrets scope name",
+    parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
                       'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
                       'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
                       'sf_cluster_keys':''}
   )
   uc_to_sf_copy.execute()
 ```
+
+#### Tableau Refresh Operators
+Connect to the Tableau server and trigger the refresh of the data sources or workbooks.
+
+Tableau client uses object GUIDs  to identify objects on the server. At the same time the server does not
+enforce unique names for the objects across the server. This means that multiple objects, e.g. data sources, with the 
+same name can exist on the server. 
+
+To overcome this, operators are using the combination of `project` and `parent_project` parameters to uniquely
+identify the project that owns data source or workbook on the server. Successfull project resolution will be indicated
+in the logs as follows:
+```
+INFO - Querying all projects on site
+
+Parent project identified:
+	Name: My Parent Project
+	ID: 2e14e111-036f-409e-b536-fb515ee534b9
+Working project identified:
+	Name: My Project
+	ID: 2426e01f-c145-43fc-a7f6-1a7488aceec0
+```
+If project resolution is successful the refresh will be triggered and operator will poll the server for the refresh 
+status:
+```
+Triggering refresh of 'my-datasource' datasource...
+Query for information about job c3263ad0-1340-444d-8128-24ad742a943a
+Data source 'my-datasource' refresh status: 
+   { 
+      'job_id': 'c3263ad0-1340-444d-8128-24ad742a943a', 
+      'job_status': 'Success', 
+      'finish_code': 0, 
+      'started_at': '2024-02-05 20:36:03 UTC', 
+      'completed_at': '2024-02-05 20:41:32 UTC', 
+      'job_status_details': None
+   }!
+```
+If refresh fails, `job_status_details` will contain the error message retrieved from the server and the operator will
+fail. If fail behavior is not desired, `fail_operator = False` can be set in the operator parameters.
+
+```python title="tableau_refresh_operators"
+from brickflow.context import ctx
+from brickflow_plugins import TableauRefreshDataSourceOperator, TableauRefreshWorkBookOperator
+
+wf = Workflow(...)
+
+
+@wf.task
+def tableau_refresh_datasource():
+    return TableauRefreshDataSourceOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        data_sources=["datasource1", "datasource2"],
+    )
+
+
+@wf.task
+def tableau_refresh_workbook():
+    return TableauRefreshWorkBookOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        workbooks=["workbook1", "workbook2"],
+    )
+```
+Check operator logs for more details on the status of the connection and the refresh.

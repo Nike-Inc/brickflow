@@ -33,6 +33,11 @@ def task_function(*, test="var"):
     return test
 
 
+@wf.task()
+def task_function_with_error(*, test="var"):
+    raise ValueError("throwing random error")
+
+
 @wf.task
 def task_function_no_deco_args(*, test="var"):
     return "hello world"

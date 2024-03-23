@@ -117,6 +117,8 @@ class CatchAllOperatorModifier(OperatorModifier):
         "ShortCircuitOperator",
         "TaskDependencySensor",
         "AutosysSensor",
+        "TableauRefreshDataSourceOperator",
+        "TableauRefreshWorkBookOperator",
     ]
 
     def _validate_operators(self, operator: BaseOperator, task: Task) -> None:

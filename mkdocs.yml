@@ -146,6 +146,8 @@ nav:
           - SnowflakeOperator: api/uc_to_snowflake_operator.md
           - UcToSnowflakeOperator: api/uc_to_snowflake_operator.md
           - Secrets: api/secrets.md
+          - TableauRefreshDataSourceOperator: api/airflow_tableau_operators.md
+          - TableauRefreshWorkbookOperator: api/airflow_tableau_operators.md
 
 
 extra:

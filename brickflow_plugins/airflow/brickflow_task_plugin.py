@@ -36,7 +36,15 @@ class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     def handle_results(
         resp: "TaskResponse", task: "Task", workflow: "Workflow"
     ) -> "TaskResponse":
+        log.info(
+            "using AirflowOperatorBrickflowTaskPlugin for handling results for task: %s",
+            task.task_id,
+        )
+
+        BrickflowTaskPluginSpec.handle_user_result_errors(resp)
+
         _operator = resp.response
+
         if not isinstance(_operator, BaseOperator):
             return resp
 
@@ -55,10 +63,7 @@ class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
             epoch_to_pendulum_datetime(ctx.start_time(debug=None)),
             tz=workflow.timezone,
         )
-        log.info(
-            "using AirflowOperatorBrickflowTaskPlugin for handling results for task: %s",
-            task.task_id,
-        )
+
         env: Optional[Environment] = Environment()
         env.globals.update({"macros": macros, "ti": context})
         with BrickflowSecretsBackend():

@@ -155,7 +155,7 @@ class TestWorkflow:
             wf.task("hello world")
 
     def test_get_tasks(self):
-        assert len(wf.tasks) == 9
+        assert len(wf.tasks) == 10
 
     def test_task_iter(self):
         arr = []
@@ -163,7 +163,7 @@ class TestWorkflow:
             assert isinstance(t, Task)
             assert callable(t.task_func)
             arr.append(t)
-        assert len(arr) == 9, print([t.name for t in arr])
+        assert len(arr) == 10, print([t.name for t in arr])
 
     def test_permissions(self):
         assert wf.permissions.to_access_controls() == [
@@ -236,7 +236,7 @@ class TestWorkflow:
         from tests.engine.sample_workflow_2 import wf as wf1
 
         assert len(wf1.graph.nodes) == 2
-        assert len(wf.graph.nodes) == 10
+        assert len(wf.graph.nodes) == 11
 
     def test_schedule_run_status_workflow(self):
         this_wf = Workflow("test", clusters=[Cluster("name", "spark", "vm-node")])

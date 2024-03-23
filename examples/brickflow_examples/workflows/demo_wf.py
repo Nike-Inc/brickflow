@@ -18,6 +18,8 @@ from brickflow_plugins import (
     AutosysSensor,
     SnowflakeOperator,
     UcToSnowflakeOperator,
+    TableauRefreshDataSourceOperator,
+    TableauRefreshWorkBookOperator,
 )
 from brickflow.engine.task import PypiTaskLibrary
 
@@ -273,7 +275,7 @@ def airflow_autosys_sensor():
 def run_snowflake_queries(*args):
     uc_to_sf_copy = UcToSnowflakeOperator(
         secret_cope="sample_scope",
-        uc_parameters={
+        parameters={
             "load_type": "incremental",
             "dbx_catalog": "sample_catalog",
             "dbx_database": "sample_schema",
@@ -282,6 +284,7 @@ def run_snowflake_queries(*args):
             "sf_table": "SF_OPERATOR_1",
             "sf_grantee_roles": "downstream_read_role",
             "incremental_filter": "dt='2023-10-22'",
+            "dbx_data_filter": "run_dt='2023-10-21'",
             "sf_cluster_keys": "",
         },
     )
@@ -291,9 +294,35 @@ def run_snowflake_queries(*args):
 @wf.task
 def run_snowflake_queries(*args):
     sf_query_run = SnowflakeOperator(
-        secret_cope="sample_scope", input_params={"query": "select * from table"}
+        secret_cope="sample_scope",
+        query_string="select * from table; insert into table1 select * from $database.table2",
+        parameters={"database": "sample_db"},
     )
     sf_query_run.execute()
+
+
+@wf.task
+def tableau_refresh_datasource():
+    return TableauRefreshDataSourceOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        data_sources=["datasource1", "datasource2"],
+    )
+
+
+@wf.task
+def tableau_refresh_workbook():
+    return TableauRefreshWorkBookOperator(
+        server="https://my-tableau.com",
+        username="foo",
+        password="bar",
+        site="site",
+        project="project",
+        workbooks=["workbook1", "workbook2"],
+    )
 
 
 @wf.task(depends_on=airflow_autosys_sensor)
