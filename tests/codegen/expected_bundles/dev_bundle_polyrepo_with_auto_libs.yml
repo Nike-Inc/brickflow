@@ -32,7 +32,7 @@ targets:
                     package: brickflows==0.1.0
                     repo: null
                 - pypi:
-                    package: apache-airflow==2.6.3
+                    package: apache-airflow==2.7.3
                     repo: null
                 - maven:
                     coordinates: com.cronutils:cron-utils:9.2.0

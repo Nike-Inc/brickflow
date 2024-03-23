@@ -8,14 +8,14 @@ except ImportError:
          at project level in entrypoint or at workflow level or at task level. Examples shown below 
         entrypoint:
             with Project( ... 
-                          libraries=[PypiTaskLibrary(package="snowflake==0.5.1")]
+                          libraries=[PypiTaskLibrary(package="snowflake==0.6.0")]
                           ...)
         workflow:
             wf=Workflow( ...
-                         libraries=[PypiTaskLibrary(package="snowflake==0.5.1")]
+                         libraries=[PypiTaskLibrary(package="snowflake==0.6.0")]
                          ...)
         Task:
-            @wf.task(Library=[PypiTaskLibrary(package="snowflake==0.5.1")]
+            @wf.task(Library=[PypiTaskLibrary(package="snowflake==0.6.0")]
             def run_snowflake_queries(*args):
                 ...
         """
