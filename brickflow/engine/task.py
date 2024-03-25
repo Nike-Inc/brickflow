@@ -820,8 +820,8 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
         return [
             bf_lib,
-            PypiTaskLibrary("apache-airflow==2.6.3"),
-            PypiTaskLibrary("snowflake==0.5.1"),
+            PypiTaskLibrary("apache-airflow==2.7.3"),
+            PypiTaskLibrary("snowflake==0.6.0"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:

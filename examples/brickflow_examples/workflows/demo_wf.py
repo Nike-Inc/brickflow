@@ -43,7 +43,7 @@ wf = Workflow(
         can_view=[User("def@gmail.com")],
         can_manage=[User("ghi@gmail.com")],
     ),
-    libraries=[PypiTaskLibrary(package="snowflake==0.5.1")],
+    libraries=[PypiTaskLibrary(package="snowflake==0.6.0")],
     # replace <emails> with existing users' email on databricks
     default_task_settings=TaskSettings(
         email_notifications=EmailNotifications(
