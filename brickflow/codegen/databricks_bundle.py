@@ -666,5 +666,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         if self.env == BrickflowDefaultEnvs.LOCAL.value:
             # it should use the bundles project env field as that is the folder bundles makes
             ImportManager.create_import_tf(get_bundles_project_env(), self.imports)
+
+        def quoted_presenter(dumper, data):  # type: ignore[no-untyped-def]
+            return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
+
+        yaml.add_representer(str, quoted_presenter)
+
         with open("bundle.yml", "w", encoding="utf-8") as f:
             f.write(yaml.dump(bundle.dict(exclude_unset=True)))
