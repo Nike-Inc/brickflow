@@ -94,7 +94,7 @@ class WorkflowDependencySensor:
         session.mount("http://", HTTPAdapter(max_retries=retries))
         return session
 
-    def get_execution_start_time_unix_miliseconds(self) -> int:
+    def get_execution_start_time_unix_milliseconds(self) -> int:
         session = self.get_http_session()
         url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/get"
         headers = {
@@ -110,7 +110,7 @@ class WorkflowDependencySensor:
         params = {"run_id": run_id}
         resp = session.get(url, params=params, headers=headers).json()
 
-        # Convert Unix timestamp in miliseconds to datetime object to easily incorporate the delta
+        # Convert Unix timestamp in milliseconds to datetime object to easily incorporate the delta
         start_time = datetime.fromtimestamp(resp["start_time"] / 1000)
         execution_start_time = start_time - self.delta
 
@@ -138,7 +138,7 @@ class WorkflowDependencySensor:
         params = {
             "limit": 25,
             "job_id": self.dependency_job_id,
-            "start_time_from": self.get_execution_start_time_unix_miliseconds(),
+            "start_time_from": self.get_execution_start_time_unix_milliseconds(),
         }
 
         while True:
@@ -170,4 +170,93 @@ class WorkflowDependencySensor:
                 raise WorkflowDependencySensorTimeOutException(f"The job has timed out")
 
             self.log.info(f"sleeping for: {self.poke_interval}")
+            time.sleep(self.poke_interval)
+
+
+class WorkflowTaskDependencySensor(WorkflowDependencySensor):
+    """
+    This is used to have dependencies on the specific task within a databricks workflow
+
+    Example Usage in your brickflow task:
+        service_principle_pat = ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "service_principle_id")
+        WorkflowDependencySensor(
+            databricks_host=https://your_workspace_url.cloud.databricks.com,
+            databricks_token=service_principle_pat,
+            dependency_job_id=job_id,
+            dependency_task_name="foo",
+            poke_interval=20,
+            timeout=60,
+            delta=timedelta(days=1)
+        )
+        In the above snippet Databricks secrets are used as a secure service to store the databricks token.
+        If you get your token from another secret management service, like AWS Secrets Manager, GCP Secret Manager
+        or Azure Key Vault, just pass it in the databricks_token argument.
+    """
+
+    def __init__(
+        self,
+        dependency_task_name: str,
+    ):
+        super().__init__(
+            databricks_host=ctx.databricks_host,
+            databricks_token=ctx.databricks_token,
+            dependency_job_id=ctx.dependency_job_id,
+            delta=ctx.delta,
+            timeout_seconds=ctx.timeout_seconds,
+            poke_interval_seconds=ctx.poke_interval_seconds,
+        )
+
+        self.dependency_task_name = dependency_task_name
+
+    def execute(self):
+        session = self.get_http_session()
+        url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/list"
+        headers = {
+            "Authorization": f"Bearer {self.databricks_token.get_secret_value()}",
+            "Content-Type": "application/json",
+        }
+        params = {
+            "limit": 25,
+            "job_id": self.dependency_job_id,
+            "start_time_from": self.get_execution_start_time_unix_milliseconds(),
+            "expand_tasks": True,
+        }
+
+        while True:
+            page_index = 0
+            has_more = True
+            while has_more is True:
+                resp = session.get(url, params=params, headers=headers).json()
+                for run in resp.get("runs", []):
+                    for task in run.get("tasks", []):
+                        if task.get("task_key") == self.dependency_task_name:
+                            task_state = task.get("state", {}).get("result_state", None)
+                            self.log.info(
+                                f"Found the run_id '{run['run_id']}' and '{self.dependency_task_name}' "
+                                f"task with state: {task_state}"
+                            )
+                            if task_state == "SUCCESS":
+                                self.log.info(
+                                    f"Found a successful run: {run['run_id']}"
+                                )
+                                return
+
+                has_more = resp.get("has_more", False)
+                if has_more:
+                    params["page_token"] = resp["next_page_token"]
+                self.log.info(
+                    f"This is page_index: {page_index}, this is has_more: {has_more}"
+                )
+                page_index += 1
+
+            self.log.info("Didn't find a successful task run yet...")
+            if (
+                self.timeout is not None
+                and (time.time() - self.start_time) > self.timeout
+            ):
+                raise WorkflowDependencySensorTimeOutException(
+                    f"The job has timed out..."
+                )
+
+            self.log.info(f"Sleeping for: {self.poke_interval}")
             time.sleep(self.poke_interval)
