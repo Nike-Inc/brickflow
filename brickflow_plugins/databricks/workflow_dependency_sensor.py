@@ -225,7 +225,7 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
             "limit": 25,
             "job_id": self.dependency_job_id,
             "start_time_from": self.get_execution_start_time_unix_milliseconds(),
-            "expand_tasks": True,
+            "expand_tasks": "true",
         }
 
         while True:
