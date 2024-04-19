@@ -195,15 +195,21 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
 
     def __init__(
         self,
+        databricks_host: str,
+        databricks_token: Union[str, SecretStr],
+        dependency_job_id: int,
         dependency_task_name: str,
+        delta: timedelta,
+        timeout_seconds: int,
+        poke_interval_seconds: int = 60,
     ):
         super().__init__(
-            databricks_host=ctx.databricks_host,
-            databricks_token=ctx.databricks_token,
-            dependency_job_id=ctx.dependency_job_id,
-            delta=ctx.delta,
-            timeout_seconds=ctx.timeout_seconds,
-            poke_interval_seconds=ctx.poke_interval_seconds,
+            databricks_host=databricks_host,
+            databricks_token=databricks_token,
+            dependency_job_id=dependency_job_id,
+            delta=delta,
+            timeout_seconds=timeout_seconds,
+            poke_interval_seconds=poke_interval_seconds,
         )
 
         self.dependency_task_name = dependency_task_name
