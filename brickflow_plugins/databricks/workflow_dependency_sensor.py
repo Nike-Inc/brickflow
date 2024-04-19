@@ -178,7 +178,7 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
     This is used to have dependencies on the specific task within a databricks workflow
 
     Example Usage in your brickflow task:
-        service_principle_pat = ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "service_principle_id")
+        service_principle_pat = ctx.dbutils.secrets.get("scope", "service_principle_id")
         WorkflowDependencySensor(
             databricks_host=https://your_workspace_url.cloud.databricks.com,
             databricks_token=service_principle_pat,
