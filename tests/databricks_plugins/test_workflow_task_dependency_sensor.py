@@ -10,7 +10,7 @@ from brickflow_plugins.databricks.workflow_dependency_sensor import (
 
 
 class TestWorkflowTaskDependencySensor:
-    workspace_url = "https://42.cloud.databricks.com"
+    workspace_url = "https://42.cloud.databricks.com/"
     endpoint_url = f"{workspace_url}/api/2.1/jobs/runs/list"
     response = {
         "runs": [
@@ -49,6 +49,13 @@ class TestWorkflowTaskDependencySensor:
             return_value=1704063600000,
         )
 
+    @pytest.fixture(autouse=True)
+    def mock_get_job_id(self, mocker):
+        mocker.patch(
+            "brickflow_plugins.databricks.workflow_dependency_sensor.get_job_id",
+            return_value=1,
+        )
+
     @pytest.fixture(autouse=True, name="api")
     def mock_api(self):
         rm = RequestsMocker()
@@ -60,7 +67,7 @@ class TestWorkflowTaskDependencySensor:
             sensor = WorkflowTaskDependencySensor(
                 databricks_host=self.workspace_url,
                 databricks_token="token",
-                dependency_job_id=1,
+                dependency_job_name="job",
                 dependency_task_name="foo",
                 delta=timedelta(seconds=1),
                 timeout_seconds=1,
@@ -79,7 +86,7 @@ class TestWorkflowTaskDependencySensor:
             sensor = WorkflowTaskDependencySensor(
                 databricks_host=self.workspace_url,
                 databricks_token="token",
-                dependency_job_id=1,
+                dependency_job_name="job",
                 dependency_task_name="bar",
                 delta=timedelta(seconds=1),
                 timeout_seconds=1,

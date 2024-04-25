@@ -1,15 +1,17 @@
 import functools
 import logging
 import os
+import time
 from datetime import datetime, timedelta
 from typing import Union
+from warnings import warn
 
 import requests
-import time
 from pydantic import SecretStr
 from requests.adapters import HTTPAdapter
 
 from brickflow.context import ctx
+from brickflow.engine.utils import get_job_id
 
 
 class WorkflowDependencySensorException(Exception):
@@ -43,13 +45,13 @@ class WorkflowDependencySensor:
         self,
         databricks_host: str,
         databricks_token: Union[str, SecretStr],
-        dependency_job_id: int,
         delta: timedelta,
         timeout_seconds: int,
+        dependency_job_id: int = None,
+        dependency_job_name: str = None,
         poke_interval_seconds: int = 60,
     ):
         self.databricks_host = databricks_host
-        self.dependency_job_id = dependency_job_id
         self.databricks_token = (
             databricks_token
             if isinstance(databricks_token, SecretStr)
@@ -60,6 +62,21 @@ class WorkflowDependencySensor:
         self.delta = delta
         self.log = logging
         self.start_time = time.time()
+
+        if dependency_job_id:
+            warn(
+                "Please use 'dependency_job_name' instead of 'dependency_job_id'",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        if not dependency_job_id and not dependency_job_name:
+            raise WorkflowDependencySensorException(
+                "Either dependency_job_id or dependency_job_name should be provided"
+            )
+
+        self.dependency_job_id = dependency_job_id
+        self.dependency_job_name = dependency_job_name
 
     def get_retry_class(self, max_retries):
         from urllib3 import Retry
@@ -128,7 +145,18 @@ class WorkflowDependencySensor:
         )
         return execution_start_time_unix_miliseconds
 
+    @property
+    def _get_job_id(self):
+        return get_job_id(
+            workspace_url=self.databricks_host,
+            api_token=self.databricks_token,
+            job_name=self.dependency_job_name,
+        )
+
     def execute(self):
+        if not self.dependency_job_id:
+            self.dependency_job_id = self._get_job_id
+
         session = self.get_http_session()
         url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/list"
         headers = {
@@ -197,7 +225,7 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
         self,
         databricks_host: str,
         databricks_token: Union[str, SecretStr],
-        dependency_job_id: int,
+        dependency_job_name: str,
         dependency_task_name: str,
         delta: timedelta,
         timeout_seconds: int,
@@ -206,7 +234,7 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
         super().__init__(
             databricks_host=databricks_host,
             databricks_token=databricks_token,
-            dependency_job_id=dependency_job_id,
+            dependency_job_name=dependency_job_name,
             delta=delta,
             timeout_seconds=timeout_seconds,
             poke_interval_seconds=poke_interval_seconds,
@@ -215,6 +243,8 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
         self.dependency_task_name = dependency_task_name
 
     def execute(self):
+        self.dependency_job_id = self._get_job_id
+
         session = self.get_http_session()
         url = f"{self.databricks_host.rstrip('/')}/api/2.1/jobs/runs/list"
         headers = {
