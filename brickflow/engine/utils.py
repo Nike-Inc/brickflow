@@ -1,6 +1,10 @@
 import functools
-from typing import Callable, Type, List, Iterator
+from typing import Callable, Type, List, Iterator, Union
 
+from pydantic import SecretStr
+from databricks.sdk import WorkspaceClient
+
+from brickflow.context import ctx
 from brickflow.hints import propagate_hint
 
 
@@ -28,3 +32,46 @@ def get_properties(some_obj: Type) -> List[str]:
                 yield k
 
     return list(_property_iter())
+
+
+def get_job_id(
+    job_name: str, host: Union[str, None] = None, token: Union[str, SecretStr] = None
+) -> Union[str, None]:
+    """
+    Get the job id from the specified Databricks workspace for a given job name.
+
+    Parameters
+    ----------
+    job_name: str
+        Job name (case-insensitive)
+    host: str
+        Databricks workspace URL
+    token: str
+        Databricks API token
+
+    Returns
+    -------
+    str
+        Databricks job id
+    """
+    ctx.log.info("Searching job id for job name: %s", job_name)
+
+    if host:
+        host = host.rstrip("/")
+    token = token.get_secret_value() if isinstance(token, SecretStr) else token
+
+    workspace_obj = WorkspaceClient(host=host, token=token)
+    jobs_list = workspace_obj.jobs.list(name=job_name)
+
+    try:
+        for job in jobs_list:
+            ctx.log.info("Job id for job '%s' is %s", job_name, job.job_id)
+            return job.job_id
+        else:  # pylint: disable=useless-else-on-loop
+            raise ValueError
+    except ValueError:
+        raise ValueError(f"No job found with name {job_name}")
+    except Exception as e:
+        ctx.log.info("An error occurred: %s", e)
+
+    return None

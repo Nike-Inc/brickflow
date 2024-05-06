@@ -397,6 +397,32 @@ def wait_on_workflow(*args):
    sensor.execute()
 ```
 
+#### Workflow Task Dependency Sensor
+
+Wait for a specific task in a workflow to finish before kicking off the current workflow's tasks
+
+```python title="workflow_dependency_sensor"
+from brickflow.context import ctx
+from brickflow_plugins import WorkflowTaskDependencySensor
+
+wf = Workflow(...)
+
+
+@wf.task
+def wait_on_workflow(*args):
+   api_token_key = ctx.dbutils.secrets.get("scope", "api_token_key")
+   sensor = WorkflowTaskDependencySensor(
+      databricks_host="https://your_workspace_url.cloud.databricks.com",
+      databricks_token=api_token_key,
+      dependency_job_id=job_id,
+      dependency_task_name="foo",
+      poke_interval=20,
+      timeout=60,
+      delta=timedelta(days=1)
+   )
+   sensor.execute()
+```
+
 #### Snowflake Operator
 
 run snowflake queries from the databricks environment 
