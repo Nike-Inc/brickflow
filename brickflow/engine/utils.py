@@ -1,8 +1,8 @@
 import functools
 from typing import Callable, Type, List, Iterator, Union
 
-import requests
 from pydantic import SecretStr
+from databricks.sdk import WorkspaceClient
 
 from brickflow.context import ctx
 from brickflow.hints import propagate_hint
@@ -35,7 +35,7 @@ def get_properties(some_obj: Type) -> List[str]:
 
 
 def get_job_id(
-    job_name: str, workspace_url: str, api_token: Union[str, SecretStr]
+    job_name: str, host: Union[str, None] = None, token: Union[str, SecretStr] = None
 ) -> Union[str, None]:
     """
     Get the job id from the specified Databricks workspace for a given job name.
@@ -44,10 +44,11 @@ def get_job_id(
     ----------
     job_name: str
         Job name (case-insensitive)
-    workspace_url: str
+    host: str
         Databricks workspace URL
-    api_token: str
+    token: str
         Databricks API token
+
     Returns
     -------
     str
@@ -55,28 +56,22 @@ def get_job_id(
     """
     ctx.log.info("Searching job id for job name: %s", job_name)
 
-    api_token = (
-        api_token.get_secret_value() if isinstance(api_token, SecretStr) else api_token
-    )
+    if host:
+        host = host.rstrip("/")
+    token = token.get_secret_value() if isinstance(token, SecretStr) else token
 
-    workspace_url = workspace_url.rstrip("/")
-    response = requests.get(
-        url=f"{workspace_url}/api/2.1/jobs/list",
-        headers={"Authorization": f"Bearer {api_token}"},
-        params={"name": job_name},
-        timeout=10,
-    )
+    workspace_obj = WorkspaceClient(host=host, token=token)
+    jobs_list = workspace_obj.jobs.list(name=job_name)
 
-    data = response.json()
-    if response.status_code == 200:
-        if "jobs" in data:
-            job_id = data["jobs"][0].get("job_id")
-            ctx.log.info("Job id for job '%s' is %s", job_name, job_id)
-            return job_id
-        else:
-            raise ValueError(f"No job found with name '{job_name}'")
-    else:
-        ctx.log.info(
-            "Request returned a %s code, with data '%s'", response.status_code, data
-        )
-        return None
+    try:
+        for job in jobs_list:
+            ctx.log.info("Job id for job '%s' is %s", job_name, job.job_id)
+            return job.job_id
+        else:  # pylint: disable=useless-else-on-loop
+            raise ValueError
+    except ValueError:
+        raise ValueError(f"No job found with name {job_name}")
+    except Exception as e:
+        ctx.log.info("An error occurred: %s", e)
+
+    return None

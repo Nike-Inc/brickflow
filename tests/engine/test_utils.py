@@ -39,21 +39,17 @@ class TestUtils:
         with api:
             job_id = get_job_id(
                 job_name="foo",
-                workspace_url=self.workspace_url,
-                api_token=SecretStr("token"),
+                host=self.workspace_url,
+                token=SecretStr("token"),
             )
         assert job_id == 1234
 
     def test_get_job_id_failure(self, api):
         with pytest.raises(ValueError):
             with api:
-                get_job_id(
-                    job_name="bar", workspace_url=self.workspace_url, api_token="token"
-                )
+                get_job_id(job_name="bar", host=self.workspace_url, token="token")
 
     def test_get_job_id_non_200(self, caplog, api):
         with api:
-            get_job_id(
-                job_name="buz", workspace_url=self.workspace_url, api_token="token"
-            )
-        assert "Request returned a 404 code, with data '{}'" in caplog.text
+            get_job_id(job_name="buz", host=self.workspace_url, token="token")
+        assert "An error occurred: request failed" in caplog.text
