@@ -387,9 +387,9 @@ class AutosysSensor(BaseSensorOperator):
         else:
             status = response.json()["status"][:2].upper()
 
-            last_end_timestamp = parse(response.json()["lastEndUTC"]).replace(
-                tzinfo=pytz.UTC
-            )
+            last_end_timestamp = None
+            if last_end_utc := response.json().get("lastEndUTC"):
+                last_end_timestamp = parse(last_end_utc).replace(tzinfo=pytz.UTC)
 
             time_delta = (
                 self.time_delta
@@ -397,10 +397,14 @@ class AutosysSensor(BaseSensorOperator):
                 else timedelta(**self.time_delta)
             )
 
-            execution_timestamp = parse(str(context["execution_date"]))
+            execution_timestamp = parse(context["execution_date"])
             run_timestamp = execution_timestamp - time_delta
 
-            if "SU" in status and last_end_timestamp >= run_timestamp:
+            if (
+                "SU" in status
+                and last_end_timestamp
+                and last_end_timestamp >= run_timestamp
+            ):
                 logging.info(
                     f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}"
                 )
