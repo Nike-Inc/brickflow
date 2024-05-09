@@ -8,7 +8,7 @@ targets:
           email_notifications: null
           notification_settings: null
           webhook_notifications: null
-          timeout_seconds: 42
+          timeout_seconds: null
           health: 
             rules:
               - metric: "RUN_DURATION_SECONDS"

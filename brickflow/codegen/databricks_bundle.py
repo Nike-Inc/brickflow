@@ -569,7 +569,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                         task_name, task, task_libraries, task_settings, depends_on
                     )
                 )
-            elif task.task_type == TaskType.RUN_JOB_TASk:
+            elif task.task_type == TaskType.RUN_JOB_TASK:
                 # native run job task
                 tasks.append(
                     self._build_native_run_job_task(

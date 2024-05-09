@@ -69,7 +69,7 @@ def spark_jar_task_a():
     depends_on=notebook_task_a,
 )
 def run_job_task_a():
-    return RunJobTask(job_id="12345678901234")  # type: ignore
+    return RunJobTask(job_name="dev_object_raw_to_cleansed")  # type: ignore
 
 
 @wf.dlt_task

@@ -410,7 +410,7 @@ class Workflow:
         return self.task(
             task_func,
             name,
-            task_type=TaskType.RUN_JOB_TASk,
+            task_type=TaskType.RUN_JOB_TASK,
             task_settings=task_settings,
             depends_on=depends_on,
         )

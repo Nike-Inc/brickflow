@@ -1,9 +1,11 @@
 import datetime
 from collections import namedtuple
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 
+from pydantic import SecretStr
 import pytest
 from deepdiff import DeepDiff
+from brickflow.engine.utils import get_job_id
 
 from brickflow import BrickflowProjectDeploymentSettings
 from brickflow.context import (
@@ -466,3 +468,34 @@ class TestTask:
         }
         diff = DeepDiff(expected, lib)
         assert not diff, diff
+
+    @patch("brickflow.engine.utils.WorkspaceClient")
+    def test_get_job_id(self, mock_workspace_client) -> None:
+        # Arrange
+        mock_workspace_client.return_value.jobs.list.return_value = [
+            MagicMock(job_id=123)
+        ]
+        job_name = "test_job"
+        host = "https://databricks-instance"
+        token = SecretStr("token")
+
+        # Act
+        result = get_job_id(job_name, host, token)
+
+        # Assert
+        assert result == 123
+
+    @patch("brickflow.engine.utils.WorkspaceClient")
+    def test_get_job_id_no_job_found(self, mock_workspace_client) -> None:
+        # Arrange
+        mock_workspace_client.return_value.jobs.list.return_value = []
+        job_name = "test_job"
+        host = "https://databricks-instance"
+        token = SecretStr("token")
+
+        # Act and Assert
+        try:
+            get_job_id(job_name, host, token)
+            assert False, "Expected ValueError"
+        except ValueError:
+            pass

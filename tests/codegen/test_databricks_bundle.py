@@ -75,6 +75,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -83,11 +84,13 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
+        get_job_id_mock.return_value = 12345678901234.0
         # get caller part breaks here
         with Project(
             "test-project",
@@ -124,6 +127,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_WORKFLOW_SUFFIX.value: "_suffix",
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -132,11 +136,13 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
+        get_job_id_mock.return_value = 12345678901234.0
         # get caller part breaks here
         with Project(
             "test-project",
@@ -171,6 +177,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -179,6 +186,7 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         git_ref_b = b"a"
@@ -186,6 +194,7 @@ class TestBundleCodegen:
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
+        get_job_id_mock.return_value = 12345678901234.0
 
         workspace_client = get_workspace_client_mock()
 
@@ -225,6 +234,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_PROJECT_RUNTIME_VERSION.value: "0.1.0",
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -233,6 +243,7 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         git_ref_b = b"a"
@@ -240,6 +251,7 @@ class TestBundleCodegen:
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
+        get_job_id_mock.return_value = 12345678901234.0
 
         workspace_client = get_workspace_client_mock()
 
@@ -291,6 +303,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT.value: "some/path/to/root",
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -299,6 +312,7 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         git_ref_b = b"a"
@@ -306,6 +320,7 @@ class TestBundleCodegen:
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
+        get_job_id_mock.return_value = 12345678901234.0
 
         workspace_client = get_workspace_client_mock()
 

@@ -51,6 +51,7 @@ from brickflow.context import (
 from brickflow.engine import ROOT_NODE, with_brickflow_logger
 from brickflow.engine.compute import Cluster
 from brickflow.engine.hooks import BRICKFLOW_TASK_PLUGINS, BrickflowTaskPluginSpec
+from brickflow.engine.utils import get_job_id
 
 if TYPE_CHECKING:
     from brickflow.engine.workflow import Workflow  # pragma: no cover
@@ -106,7 +107,7 @@ class TaskType(Enum):
     CUSTOM_PYTHON_TASK = "custom_python_task"
     NOTEBOOK_TASK = "notebook_task"
     SPARK_JAR_TASK = "spark_jar_task"
-    RUN_JOB_TASk = "run_job_task"
+    RUN_JOB_TASK = "run_job_task"
 
 
 class TaskRunCondition(Enum):
@@ -383,7 +384,14 @@ class SparkJarTask(JobsTasksSparkJarTask):
 
 
 class RunJobTask(JobsTasksRunJobTask):
-    pass
+    job_name: str
+    job_id: Optional[float] = None
+    host: Optional[str] = None
+    token: Optional[str] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.job_id = get_job_id(self.job_name, self.host, self.token)
 
 
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
