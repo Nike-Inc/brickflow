@@ -4,6 +4,7 @@ import base64
 import dataclasses
 import functools
 import inspect
+import json
 import logging
 import textwrap
 from dataclasses import dataclass, field
@@ -701,7 +702,26 @@ class Task:
         )
         if selected_tasks is None or selected_tasks == "":
             return False, None
-        selected_task_list = selected_tasks.split(",")
+
+        if selected_tasks.startswith("[") and selected_tasks.endswith("]"):
+            try:
+                selected_task_list = json.loads(selected_tasks)
+            except json.JSONDecodeError:
+                selected_task_list = []
+                _ilog.info(
+                    "Invalid JSON list in `brickflow_internal_only_run_tasks` parameter. Nothing will be skipped."
+                )
+            except Exception as e:
+                selected_task_list = []
+                _ilog.info(
+                    "Error parsing `brickflow_internal_only_run_tasks` parameter as JSON, nothing to skip. Error: %s",
+                    str(e),
+                )
+        else:
+            selected_task_list = selected_tasks.split(",")
+
+        selected_task_list = [task.strip() for task in selected_task_list]
+
         if self.name not in selected_task_list:
             return (
                 True,

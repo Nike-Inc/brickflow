@@ -33,6 +33,7 @@ from brickflow_plugins.airflow.operators.native_operators import (
 )
 from brickflow_plugins.databricks.workflow_dependency_sensor import (
     WorkflowDependencySensor,
+    WorkflowTaskDependencySensor,
 )
 from brickflow_plugins.databricks.uc_to_snowflake_operator import (
     SnowflakeOperator,
@@ -69,6 +70,7 @@ __all__: List[str] = [
     "BranchPythonOperator",
     "ShortCircuitOperator",
     "WorkflowDependencySensor",
+    "WorkflowTaskDependencySensor",
     "SnowflakeOperator",
     "UcToSnowflakeOperator",
     "TableauRefreshDataSourceOperator",

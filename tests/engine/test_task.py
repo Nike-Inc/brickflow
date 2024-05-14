@@ -176,9 +176,16 @@ class TestTask:
         assert reason is None
         ctx._configure()
 
+    @pytest.mark.parametrize(
+        "tasks",
+        [
+            "somethingelse",  # other task
+            f"[{task_function_4.__name__}]",  # invalid JSON list defaults to no skip
+        ],
+    )
     @patch("brickflow.context.ctx.get_parameter")
-    def test_skip_not_selected_task(self, dbutils):
-        dbutils.value = "sometihngelse"
+    def test_skip_not_selected_task(self, dbutils, tasks):
+        dbutils.return_value = tasks
         skip, reason = wf.get_task(
             task_function_4.__name__
         )._skip_because_not_selected()
@@ -191,9 +198,18 @@ class TestTask:
         )
         assert wf.get_task(task_function_4.__name__).execute() is None
 
+    @pytest.mark.parametrize(
+        "tasks",
+        [
+            task_function_4.__name__,  # clean string
+            f'["{task_function_4.__name__}"]',  # clean JSON list
+            f'["  {task_function_4.__name__}  "]',  # spaced JSON list
+            f"  {task_function_4.__name__}  ",  # spaced string
+        ],
+    )
     @patch("brickflow.context.ctx.get_parameter")
-    def test_no_skip_selected_task(self, dbutils: Mock):
-        dbutils.return_value = task_function_4.__name__
+    def test_no_skip_selected_task(self, dbutils, tasks):
+        dbutils.return_value = tasks
         skip, reason = wf.get_task(
             task_function_4.__name__
         )._skip_because_not_selected()
