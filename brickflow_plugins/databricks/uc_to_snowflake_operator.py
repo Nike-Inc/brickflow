@@ -83,7 +83,7 @@ class SnowflakeOperator:
         self.query = query_string
         self.parameters = parameters
         self.sql_file = sql_file
-        
+
         if query_string is not None and sql_file is not None:
             raise ValueError("Cannot specify both sql_file and query_string !")
         if not self.secret_scope:
@@ -454,7 +454,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             self.submit_job_snowflake(self.sf_post_grants_sql)
 
     def extract_source(self):
-        if self.dbx_sql is not None or len(self.dbx_sql) > 0:
+        if self.dbx_sql is not None:
             df = ctx.spark.sql(self.dbx_sql)
             return df
         else:
