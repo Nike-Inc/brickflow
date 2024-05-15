@@ -83,9 +83,7 @@ class SnowflakeOperator:
         self.query = query_string
         self.parameters = parameters
         self.sql_file = sql_file
-
-        if query_string is None and sql_file is None:
-            raise ValueError("Must provide one of query_string or sql_file !")
+        
         if query_string is not None and sql_file is not None:
             raise ValueError("Cannot specify both sql_file and query_string !")
         if not self.secret_scope:
