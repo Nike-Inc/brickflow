@@ -255,13 +255,13 @@ class SnowflakeOperator:
         """
         logic that triggers the flow of events
         """
+        if self.sql_file is not None:
+            self.read_sql_file()
         self.log.info("Executing SQL Query: " + str(self.query))
         self.get_cursor()
         query_string = str(self.query).strip()
         # Run the query against SnowFlake
         try:
-            if self.sql_file is not None:
-                self.read_sql_file()
             self.snowflake_query_exec(self.cur, self.database, self.query)
         except:
             self.log.error("failed to execute")
