@@ -84,9 +84,9 @@ class SnowflakeOperator:
         self.parameters = parameters
         self.sql_file = sql_file
 
-        if self.query is None and self.sql_file is None:
+        if query_string is None and sql_file is None:
             raise ValueError("Must provide one of query_string or sql_file !")
-        if self.query is not None and self.sql_file is not None:
+        if query_string is not None and sql_file is not None:
             raise ValueError("Cannot specify both sql_file and query_string !")
         if not self.secret_scope:
             raise ValueError(
@@ -456,7 +456,6 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     def extract_source(self):
         if self.dbx_sql is not None or len(self.dbx_sql) > 0:
-            self.log.info(f"Executing Custom Query in Unity Catalog: {self.dbx_sql}")
             df = ctx.spark.sql(self.dbx_sql)
             return df
         else:
@@ -468,7 +467,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
                 )
             else:
                 self.dbx_data_filter = self.parameters.get("dbx_data_filter") or "1=1"
-                
+
             df = ctx.spark.sql(
                 """select * from {}.{}.{} where {}""".format(
                     self.parameters["dbx_catalog"],
