@@ -286,6 +286,7 @@ def run_snowflake_queries(*args):
             "incremental_filter": "dt='2023-10-22'",
             "dbx_data_filter": "run_dt='2023-10-21'",
             "sf_cluster_keys": "",
+            "dbx_sql":"" #Custom sql in place of dbx_catalog, database, table 
         },
     )
     uc_to_sf_copy.execute()
@@ -296,6 +297,7 @@ def run_snowflake_queries(*args):
     sf_query_run = SnowflakeOperator(
         secret_cope="sample_scope",
         query_string="select * from table; insert into table1 select * from $database.table2",
+        #sql_file= "Path to the sql file",
         parameters={"database": "sample_db"},
     )
     sf_query_run.execute()
