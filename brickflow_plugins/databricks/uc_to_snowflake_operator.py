@@ -1,4 +1,5 @@
 import logging as log
+from pathlib import Path
 
 try:
     import snowflake.connector
@@ -60,18 +61,33 @@ class SnowflakeOperator:
 
     above code snippet expects the data as follows
     databricks_secrets_psc contains username, password, account, warehouse, database and role keys with snowflake values
-    query_string : required parameter with queries separeted by semicolon(;)
+    query_string : Optional parameter with queries separeted by semicolon(;)
+    sql_file : Optional parameter with file path to .sql file
     parameters: optional parameter dictionary with key value pairs to substitute in the query
     """
 
-    def __init__(self, secret_scope, query_string, parameters={}, *args, **kwargs):
+    def __init__(
+        self,
+        secret_scope,
+        query_string=None,
+        sql_file=None,
+        parameters={},
+        *args,
+        **kwargs,
+    ):
         self.cur = None
         self.query = None
+        self.sql_file = None
         self.secret_scope = secret_scope
         self.log = log
         self.query = query_string
         self.parameters = parameters
+        self.sql_file = sql_file
 
+        if self.query is None and self.sql_file is None:
+            raise ValueError("Must provide one of query_string or sql_file !")
+        if self.query is not None and self.sql_file is not None:
+            raise ValueError("Cannot specify both sql_file and query_string !")
         if not self.secret_scope:
             raise ValueError(
                 "Must provide reference to Snowflake connection in databricks secretes !"
@@ -152,6 +168,26 @@ class SnowflakeOperator:
 
         return con
 
+    def read_sql_file(self):
+        """
+        logic to read the sql file and return the query string
+        """
+        try:
+            if self.sql_file is not None:
+                sql_path = Path(self.sql_file)
+                if not sql_path.exists():
+                    raise FileNotFoundError(
+                        f"Unable to locate specified {sql_path.as_posix()}"
+                    )
+                self.query = sql_path.read_text(encoding="utf-8")
+                return self
+            if self.query is None or len(self.query) == 0:
+                raise ValueError("SQL Query is empty")
+            return self
+        except Exception as e:
+            self.log.error("Failed to read the sql file")
+            raise ValueError("Failed to read the sql file")
+
     def get_cursor(self):
         """
         logic to create a cursor for a successful snowflake connection to execute queries
@@ -224,7 +260,9 @@ class SnowflakeOperator:
         query_string = str(self.query).strip()
         # Run the query against SnowFlake
         try:
-            self.snowflake_query_exec(self.cur, self.database, query_string)
+            if self.sql_file is not None:
+                self.read_sql_file()
+            self.snowflake_query_exec(self.cur, self.database, self.query)
         except:
             self.log.error("failed to execute")
         finally:
