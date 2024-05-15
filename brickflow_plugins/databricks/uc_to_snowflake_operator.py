@@ -323,7 +323,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     """
 
-    def __init__(self, write_mode=None, secret_scope, parameters={}, *args, **kwargs):
+    def __init__(self, secret_scope, parameters={}, write_mode=None, *args, **kwargs):
         super().__init__(secret_scope, *args, **kwargs)
         self.parameters = parameters
         self.dbx_data_filter = self.parameters.get("dbx_data_filter") or None
