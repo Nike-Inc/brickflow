@@ -270,6 +270,7 @@ def airflow_autosys_sensor():
         time_delta={"days": 0},
     )
 
+
 @wf.task
 def run_snowflake_queries(*args):
     uc_to_sf_table_copy = UcToSnowflakeOperator(
@@ -289,7 +290,9 @@ def run_snowflake_queries(*args):
     )
     uc_to_sf_table_copy.execute()
 
-#Operator usage to run custom sql, to extract data from Unity Catalog
+
+# Operator usage to run custom sql, to extract data from Unity Catalog
+
 
 @wf.task
 def copy_uc_to_snowflake(*args):
@@ -304,10 +307,11 @@ def copy_uc_to_snowflake(*args):
             "incremental_filter": "dt='2023-10-22'",
             "dbx_data_filter": "run_dt='2023-10-21'",
             "sf_cluster_keys": "",
-            "dbx_sql":"select cola, colb, colc from catalog.schema.table where some condition"
+            "dbx_sql": "select cola, colb, colc from catalog.schema.table where some condition",
         },
     )
     uc_to_sf_query_copy.execute()
+
 
 @wf.task
 def run_snowflake_queries(*args):
@@ -326,6 +330,7 @@ def run_snowflake_queries(*args):
     )
     uc_to_sf_copy.execute()
 
+
 @wf.task
 def run_snowflake_queries(*args):
     sf_query_run = SnowflakeOperator(
@@ -334,6 +339,7 @@ def run_snowflake_queries(*args):
         parameters={"database": "sample_db"},
     )
     sf_query_run.execute()
+
 
 def get_bf_project_root() -> pathlib.Path:
     find_file = ".brickflow-project-root.yml"
@@ -346,7 +352,9 @@ def get_bf_project_root() -> pathlib.Path:
 
     return pathlib.Path(__file__)
 
+
 brickflow_project_root = get_bf_project_root()
+
 
 @wf.task
 def run_snowflake_files(*args):
@@ -356,6 +364,7 @@ def run_snowflake_files(*args):
         parameters={"database": "sample_db"},
     )
     sf_file_run.execute()
+
 
 @wf.task
 def tableau_refresh_datasource():
