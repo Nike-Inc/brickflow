@@ -282,7 +282,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     Example Usage in your brickflow task
     UcToSnowflakeOperator(
-    secret_scope=databricks_secrets_psc
+    secret_scope=databricks_secrets_psc, 
     parameters= uc_parameters
     )
 
@@ -318,14 +318,17 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     dbx_data_filter (optional): parameter to filter databricks table if different from snowflake filter
     sf_cluster_keys (optional): list of keys to cluster the data in snowflake
     dbx_sql (optional): sql query to extract data from unity catalog
+
+    If custom sql is mentioned in db_sql, for incremental process make sure to include to write_mode or adjust incremental filter in the Operator if not, there could be duplicates in Snowflake table
+
     """
 
-    def __init__(self, secret_scope, parameters={}, *args, **kwargs):
+    def __init__(self, write_mode=None, secret_scope, parameters={}, *args, **kwargs):
         super().__init__(secret_scope, *args, **kwargs)
         self.parameters = parameters
         self.dbx_data_filter = self.parameters.get("dbx_data_filter") or None
         self.dbx_sql = self.parameters.get("dbx_sql") or None
-        self.write_mode = None
+        self.write_mode = write_mode
         """
         self.authenticator = None
         try:
@@ -455,6 +458,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     def extract_source(self):
         if self.dbx_sql is not None:
+            self.log.info(f"Executing Custom sql to extract data from Unity catalog. Query -: {self.dbx_sql}")
             df = ctx.spark.sql(self.dbx_sql)
             return df
         else:
@@ -524,9 +528,10 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             else self.parameters["sf_table"]
         )
         source_data = self.extract_source()
-        self.write_mode = (
-            "Overwrite" if self.parameters["load_type"] == "full" else "Append"
-        )
+        if self.write_mode is None:
+            self.write_mode = (
+                "Overwrite" if self.parameters["load_type"] == "full" else "Append"
+            )
         self.sf_cluster_keys = (
             []
             if "sf_cluster_keys" not in self.parameters.keys()
