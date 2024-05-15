@@ -62,7 +62,7 @@ class SnowflakeOperator:
     above code snippet expects the data as follows
     databricks_secrets_psc contains username, password, account, warehouse, database and role keys with snowflake values
     query_string : Optional parameter with queries separeted by semicolon(;)
-    sql_file : Optional parameter with file path to .sql file
+    sql_file : Optional parameter with file path (relative to brickflow project root) to .sql file
     parameters: optional parameter dictionary with key value pairs to substitute in the query
     """
 

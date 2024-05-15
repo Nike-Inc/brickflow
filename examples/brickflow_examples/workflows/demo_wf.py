@@ -270,10 +270,9 @@ def airflow_autosys_sensor():
         time_delta={"days": 0},
     )
 
-
 @wf.task
 def run_snowflake_queries(*args):
-    uc_to_sf_copy = UcToSnowflakeOperator(
+    uc_to_sf_table_copy = UcToSnowflakeOperator(
         secret_cope="sample_scope",
         parameters={
             "load_type": "incremental",
@@ -286,22 +285,77 @@ def run_snowflake_queries(*args):
             "incremental_filter": "dt='2023-10-22'",
             "dbx_data_filter": "run_dt='2023-10-21'",
             "sf_cluster_keys": "",
-            "dbx_sql":"" #Custom sql in place of dbx_catalog, database, table 
+        },
+    )
+    uc_to_sf_table_copy.execute()
+
+#Operator usage to run custom sql, to extract data from Unity Catalog
+
+@wf.task
+def copy_uc_to_snowflake(*args):
+    uc_to_sf_query_copy = UcToSnowflakeOperator(
+        secret_scope="sample_scope",
+        write_mode="overwrite",
+        parameters={
+            "load_type": "incremental",
+            "sf_schema": "stage",
+            "sf_table": "SF_OPERATOR_1",
+            "sf_grantee_roles": "downstream_read_role",
+            "incremental_filter": "dt='2023-10-22'",
+            "dbx_data_filter": "run_dt='2023-10-21'",
+            "sf_cluster_keys": "",
+            "dbx_sql":"select cola, colb, colc from catalog.schema.table where some condition"
+        },
+    )
+    uc_to_sf_query_copy.execute()
+
+@wf.task
+def run_snowflake_queries(*args):
+    uc_to_sf_full_copy = UcToSnowflakeOperator(
+        secret_cope="sample_scope",
+        parameters={
+            "load_type": "full",
+            "dbx_catalog": "sample_catalog",
+            "dbx_database": "sample_schema",
+            "dbx_table": "sf_operator_1",
+            "sf_schema": "stage",
+            "sf_table": "SF_OPERATOR_1",
+            "sf_grantee_roles": "downstream_read_role",
+            "sf_cluster_keys": "",
         },
     )
     uc_to_sf_copy.execute()
-
 
 @wf.task
 def run_snowflake_queries(*args):
     sf_query_run = SnowflakeOperator(
         secret_cope="sample_scope",
         query_string="select * from table; insert into table1 select * from $database.table2",
-        #sql_file= "Path to the sql file",
         parameters={"database": "sample_db"},
     )
     sf_query_run.execute()
 
+def get_bf_project_root() -> pathlib.Path:
+    find_file = ".brickflow-project-root.yml"
+    for parent in pathlib.Path(__file__).parents:
+        for dir_path, dir_names, files in os.walk(
+            parent
+        ):  # pylint: disable=unused-variable #noqa
+            if find_file in files:
+                return parent
+
+    return pathlib.Path(__file__)
+
+brickflow_project_root = get_bf_project_root()
+
+@wf.task
+def run_snowflake_files(*args):
+    sf_file_run = SnowflakeOperator(
+        secret_cope="sample_scope",
+        sql_file=f"{brickflow_project_root}/src/sql/sample.sql",
+        parameters={"database": "sample_db"},
+    )
+    sf_file_run.execute()
 
 @wf.task
 def tableau_refresh_datasource():
