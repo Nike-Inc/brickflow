@@ -282,7 +282,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     Example Usage in your brickflow task
     UcToSnowflakeOperator(
-    secret_scope=databricks_secrets_psc, 
+    secret_scope=databricks_secrets_psc,
     parameters= uc_parameters
     )
 
@@ -319,7 +319,9 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     sf_cluster_keys (optional): list of keys to cluster the data in snowflake
     dbx_sql (optional): sql query to extract data from unity catalog
 
-    If custom sql is mentioned in db_sql, for incremental process make sure to include to write_mode or adjust incremental filter in the Operator if not, there could be duplicates in Snowflake table
+    One of dbx_sql or dbx_catalog, dbx_database, dbx_table should be provided
+    If custom sql is mentioned in db_sql, for incremental process make sure to include to write_mode or adjust incremental filter in the Operator to align with custom sql
+    if not, there could be duplicates in Snowflake table
 
     """
 
@@ -392,12 +394,17 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             # Setup the mandatory params for snowflake load
             mandatory_keys = (
                 "load_type",
-                "dbx_catalog",
-                "dbx_database",
-                "dbx_table",
                 "sf_schema",
                 "sf_table",
             )
+            if self.dbx_sql is not None:
+                mandatory_keys = mandatory_keys + ("dbx_sql",)
+            else:
+                mandatory_keys = mandatory_keys + (
+                    "dbx_catalog",
+                    "dbx_database",
+                    "dbx_table",
+                )
             if not all(key in self.parameters for key in mandatory_keys):
                 self.log.info(
                     "Mandatory keys for UcToSnowflakeOperator(parameters): %s\n"
@@ -458,7 +465,9 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     def extract_source(self):
         if self.dbx_sql is not None:
-            self.log.info(f"Executing Custom sql to extract data from Unity catalog. Query -: {self.dbx_sql}")
+            self.log.info(
+                f"Executing Custom sql to extract data from Unity catalog. Query -: {self.dbx_sql}"
+            )
             df = ctx.spark.sql(self.dbx_sql)
             return df
         else:
