@@ -305,7 +305,8 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
                       'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
                       'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
-                      'sf_cluster_keys':''}
+                      'sf_cluster_keys':''
+                      'dbx_sql':'select * from sample_catalog.sample_schema.sf_operator_1 where dt='2023-10-22'}
 
     in the parameters dictionary we have mandatory keys as follows
     load_type(required): incremental/full
@@ -318,11 +319,13 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     incremental_filter (optional): mandatory parameter for incremental load type to delete existing data in snowflake table
     dbx_data_filter (optional): parameter to filter databricks table if different from snowflake filter
     sf_cluster_keys (optional): list of keys to cluster the data in snowflake
+    dbx_sql (optional): sql query to extract data from unity catalog
     """
 
     def __init__(self, secret_scope, parameters={}, *args, **kwargs):
         SnowflakeOperator.__init__(self, secret_scope, "", parameters)
         self.dbx_data_filter = self.parameters.get("dbx_data_filter") or None
+        self.dbx_sql = self.parameters.get("dbx_sql") or None
         self.write_mode = None
         """
         self.authenticator = None
@@ -452,24 +455,29 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             self.submit_job_snowflake(self.sf_post_grants_sql)
 
     def extract_source(self):
-        if self.parameters["load_type"] == "incremental":
-            self.dbx_data_filter = (
-                self.parameters.get("dbx_data_filter")
-                or self.parameters.get("incremental_filter")
-                or "1=1"
-            )
+        if self.dbx_sql is not None or len(self.dbx_sql) > 0:
+            self.log.info(f"Executing Custom Query in Unity Catalog: {self.dbx_sql}")
+            df = ctx.spark.sql(self.dbx_sql)
+            return df
         else:
-            self.dbx_data_filter = self.parameters.get("dbx_data_filter") or "1=1"
-
-        df = ctx.spark.sql(
-            """select * from {}.{}.{} where {}""".format(
-                self.parameters["dbx_catalog"],
-                self.parameters["dbx_database"],
-                self.parameters["dbx_table"],
-                self.dbx_data_filter,
+            if self.parameters["load_type"] == "incremental":
+                self.dbx_data_filter = (
+                    self.parameters.get("dbx_data_filter")
+                    or self.parameters.get("incremental_filter")
+                    or "1=1"
+                )
+            else:
+                self.dbx_data_filter = self.parameters.get("dbx_data_filter") or "1=1"
+                
+            df = ctx.spark.sql(
+                """select * from {}.{}.{} where {}""".format(
+                    self.parameters["dbx_catalog"],
+                    self.parameters["dbx_database"],
+                    self.parameters["dbx_table"],
+                    self.dbx_data_filter,
+                )
             )
-        )
-        return df
+            return df
 
     def load_snowflake(self, source_df, target_table):
         sf_package = "net.snowflake.spark.snowflake"
