@@ -381,7 +381,15 @@ class NotebookTask(JobsTasksNotebookTask):
 
 
 class SparkJarTask(JobsTasksSparkJarTask):
-    pass
+    main_class_name: Optional[str]
+    jar_uri: Optional[str]
+    parameters: Optional[List[str]] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.main_class_name = kwargs.get("main_class_name", "")
+        self.jar_uri = kwargs.get("jar_uri", "")
+        self.parameters = kwargs.get("parameters", [])
 
 
 class RunJobTask(JobsTasksRunJobTask):
@@ -862,6 +870,7 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
             bf_lib,
             PypiTaskLibrary("apache-airflow==2.7.3"),
             PypiTaskLibrary("snowflake==0.6.0"),
+            PypiTaskLibrary("tableauserverclient==0.25"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:

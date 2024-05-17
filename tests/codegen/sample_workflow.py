@@ -62,7 +62,11 @@ def notebook_task_a(*, test="var"):
     depends_on=notebook_task_a,
 )
 def spark_jar_task_a():
-    return SparkJarTask(main_class_name="com.example.Main")  # type: ignore
+    return SparkJarTask(
+        jar_uri="dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar",
+        main_class_name="PrintArgs",
+        parameters=["Hello", "World!"],
+    )  # type: ignore
 
 
 @wf.run_job_task(

@@ -227,7 +227,82 @@ def dlt_task():
 1. Provide the task type that is to be used for this task. Default is a notebook task
 2. Trigger rule can be attached. It can be ALL_SUCCESS or NONE_FAILED. In this case, this task will be triggered, if all
    the upstream tasks are at-least run and completed.
+#### Notebook Task
 
+The `Notebook Task` is used as a decorator in conjunction with the `notebook_task` method of a `Workflow` instance. This method registers the task within the workflow.
+
+Here's an example of how to use the `Notebook` Task type:
+
+```python
+@wf.task
+def notebook_task():
+   pass
+
+@wf.notebook_task
+# this task runs a databricks notebook
+def example_notebook():
+    return NotebookTask(
+        notebook_path="notebooks/example_notebook.py",
+        base_parameters={
+            "some_parameter": "some_value",  # in the notebook access these via dbutils.widgets.get("some_parameter")
+        },
+    )
+
+```
+NotebookTask class can accept the following as inputs:<br />
+&emsp;<b>base_parameters</b>: Optional[Dict[str, str]] = parameters to pass to notebook and can be accessed through dbutils widgets<br>
+   &emsp; <b>notebook_path</b>:'The path of the notebook to be run in the Databricks workspace or remote repository.For notebooks stored in the Databricks workspace, the path must be absolute and begin with a slash.<br>For notebooks stored in a remote repository, the path must be relative.,
+    <br>
+  &emsp;  <b>source: Optional[str]</b> :'Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved from the local <Databricks> workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,the Python file will be retrieved from a Git repository defined in `git_source`.* `WORKSPACE`: The Python file is located in a <Databricks> workspace or at a cloud filesystem URI.* `GIT`: The Python file is located in a remote Git repository.',
+
+#### Run Job Task
+
+The `Run Job Task` is used as a decorator in conjunction with the `run_job_task` method of a `Workflow` instance. This method registers the task within the workflow.
+
+Here's an example of how to use the `Run Job` Task type:
+
+```python
+from brickflow import RunJobTask
+
+@wf.run_job_task
+def run_job_task_a():
+    return RunJobTask(job_name="run_job_task")
+
+# we can also pass task type as parameter
+@wf.task(task_type=TaskType.RUN_JOB_TASK)
+def run_job_task_a():
+    return RunJobTask(job_name="run_job_task")
+```
+
+RunJobTask class can accept the following as inputs:<br />
+
+&emsp; <b>job_name</b>: The name of the job (case-insensitive).<br />
+&emsp;<b>host [Optional]</b>: The URL of the Databricks workspace.<br />
+&emsp;<b>token [Optional]</b>: The Databricks API token.
+
+
+#### JAR Task
+
+The `JAR Task` is used as a decorator in conjunction with the `spark_jar_task` method of a `Workflow` instance. This method registers the task within the workflow.
+
+Here's an example of how to use the `JAR` Task type:
+
+```python
+@wf.spark_jar_task
+def run_job_task_a():
+    return SparkJarTask(job_name="spark_jar_job")
+
+# we can also pass task type as parameter
+@wf.task(task_type=TaskType.SPARK_JAR_TASK)
+def run_job_task_a():
+    return SparkJarTask(job_name="spark_jar_job")
+```
+
+SparkJarTask class can accept the following as inputs:<br />
+
+&emsp; <b>main_class_name</b>: The full name of the class containing the main method to be executed.<br />
+&emsp;<b>jar_uri</b>Provide absolute path of the JAR file located.<br />
+&emsp;<b>parameters [Optional]</b>: Parameters passed to the main method..
 
 ### Trigger rules
 

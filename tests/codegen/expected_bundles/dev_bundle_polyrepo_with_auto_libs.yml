@@ -37,6 +37,9 @@ targets:
                 - pypi:
                     package: snowflake==0.6.0
                     repo: null
+                - pypi:
+                    package: tableauserverclient==0.25
+                    repo: null
                 - maven:
                     coordinates: com.cronutils:cron-utils:9.2.0
                     exclusions: null
@@ -172,9 +175,9 @@ targets:
               max_retries: null
               min_retry_interval_millis: null
               spark_jar_task:
-                main_class_name: com.example.Main
-                parameters: null
-                jar_uri: null
+                main_class_name: PrintArgs
+                parameters: ['Hello', 'World!']
+                jar_uri: dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar
               retry_on_timeout: null
               task_key: spark_jar_task_a
               timeout_seconds: null

@@ -40,7 +40,9 @@ DEFAULT_BRICKFLOW_VERSION_MODE = "auto"
 class BrickflowProject(BaseModel):
     name: str
     path_from_repo_root_to_project_root: str = "."  # used for mono repo
-    path_project_root_to_workflows_dir: str  # used for repos with multiple batches of workflows
+    path_project_root_to_workflows_dir: (
+        str  # used for repos with multiple batches of workflows
+    )
     deployment_mode: str = BrickflowDeployMode.BUNDLE.value
     brickflow_version: str = DEFAULT_BRICKFLOW_VERSION_MODE
     enable_plugins: bool = False

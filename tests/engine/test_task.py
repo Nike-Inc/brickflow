@@ -6,8 +6,7 @@ from pydantic import SecretStr
 import pytest
 from deepdiff import DeepDiff
 from brickflow.engine.utils import get_job_id
-
-from brickflow import BrickflowProjectDeploymentSettings
+from brickflow import BrickflowProjectDeploymentSettings, SparkJarTask
 from brickflow.context import (
     ctx,
     BRANCH_SKIP_EXCEPT,
@@ -441,7 +440,7 @@ class TestTask:
     def test_get_brickflow_libraries(self):
         settings = BrickflowProjectDeploymentSettings()
         settings.brickflow_project_runtime_version = "1.0.0"
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -457,7 +456,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "1.0.1rc1234"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -473,7 +472,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "somebranch"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -515,3 +514,19 @@ class TestTask:
             assert False, "Expected ValueError"
         except ValueError:
             pass
+
+    def test_init_spark_jar(self):
+        task = SparkJarTask(
+            main_class_name="MainClass",
+            jar_uri="test_uri",
+            parameters=["param1", "param2"],
+        )
+        assert task.main_class_name == "MainClass"
+        assert task.jar_uri == "test_uri"
+        assert task.parameters == ["param1", "param2"]
+
+    def test_without_params_spark_jar(self):
+        task = SparkJarTask(main_class_name="MainClass", jar_uri="test_uri")
+        assert task.main_class_name == "MainClass"
+        assert task.jar_uri == "test_uri"
+        assert task.parameters == []
