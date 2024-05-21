@@ -443,7 +443,7 @@ SnowflakeOperator can accept the following as inputs
 &emsp;&emsp;&emsp;&emsp;parameters (optional) : dictionary with variables that can be used to substitute in queries
 
 Operator only takes one of either query_string or sql_file needs to be passed
-```python title="snowflake_operator"
+```python title="snowflake_operator using sql queries "
 from brickflow_plugins import SnowflakeOperator
 
 wf = Workflow(...)
@@ -453,12 +453,37 @@ def run_snowflake_queries(*args):
   sf_query_run = SnowflakeOperator(
     secret_scope = "your_databricks secrets scope name",
     query_string ="select * from database.$schema.$table where $filter_condition1; select * from sample_schema.test_table",
-    sql_file ="Path relative to brickflow project root .sql", #Provide one of query_string or sql_file 
     parameters = {"schema":"test_schema","table":"sample_table","filter_condition":"col='something'"}
   )
   sf_query_run.execute()
+
 ```
 
+```python title="snowflake_operator_using_sql_files"
+def get_bf_project_root() -> pathlib.Path:
+    find_file = ".brickflow-project-root.yml"
+    for parent in pathlib.Path(__file__).parents:
+        for dir_path, dir_names, files in os.walk(
+            parent
+        ):  # pylint: disable=unused-variable #noqa
+            if find_file in files:
+                return parent
+
+    return pathlib.Path(__file__)
+
+
+brickflow_project_root = get_bf_project_root()
+
+
+@wf.task
+def run_snowflake_files(*args):
+    sf_file_run = SnowflakeOperator(
+        secret_cope="sample_scope",
+        sql_file=f"{brickflow_project_root}/src/sql/sample.sql",
+        parameters={"database": "sample_db"},
+    )
+    sf_file_run.execute()
+```
 
 #### UC to Snowflake Operator
 
