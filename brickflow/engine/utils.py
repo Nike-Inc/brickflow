@@ -85,7 +85,7 @@ def get_bf_project_root(file_name:str) -> pathlib.Path:
         pathlib.Path: root directory of the brickflow project
     """
     try:
-        _project_root= pathlib.Path(file_name).resolve().parents[0]
+        _project_root= pathlib.Path(file_name).resolve().parents[1]
         ctx.log.info(f"Setting Brickflow project root as {_project_root}")
         return _project_root
     except Exception as e:
