@@ -1,9 +1,10 @@
+import pathlib
 import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
 
 from pydantic import SecretStr
 
-from brickflow.engine.utils import get_job_id, ctx
+from brickflow.engine.utils import get_job_id, ctx, get_bf_project_root
 
 
 class TestUtils:
@@ -53,3 +54,11 @@ class TestUtils:
         with api:
             get_job_id(job_name="buz", host=self.workspace_url, token="token")
         assert "An error occurred: request failed" in caplog.text
+
+    def test_get_bf_project_root(self):
+        # Set up
+        expected_root = pathlib.Path("/home/desktop/personal_repo/brickflow")
+        # Execute the function
+        actual_root = get_bf_project_root()
+        # Assert the result
+        assert actual_root == expected_root

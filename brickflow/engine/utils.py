@@ -1,5 +1,7 @@
 import functools
 from typing import Callable, Type, List, Iterator, Union
+import os
+import pathlib
 
 from pydantic import SecretStr
 from databricks.sdk import WorkspaceClient
@@ -75,3 +77,26 @@ def get_job_id(
         ctx.log.info("An error occurred: %s", e)
 
     return None
+
+
+def get_bf_project_root() -> pathlib.Path:
+    """returns the root directory of the brickflow project
+
+    Returns:
+        pathlib.Path: root directory of the brickflow project
+    """
+    try:
+        find_file = ".brickflow-project-root.yml"
+        for parent in pathlib.Path(__file__).parents:
+            for _dir_path, _dir_names, files in os.walk(parent):
+                if find_file in files:
+                    return parent
+
+        ctx.log.info(
+            "No .brickflow-project-root.yml file found, returning pwd: %s",
+            pathlib.Path(__file__),
+        )
+        return pathlib.Path(__file__)
+    except Exception as e:
+        ctx.log.info("An error occurred: %s", e)
+        raise e
