@@ -86,17 +86,9 @@ def get_bf_project_root() -> pathlib.Path:
         pathlib.Path: root directory of the brickflow project
     """
     try:
-        find_file = ".brickflow-project-root.yml"
-        for parent in pathlib.Path(__file__).parents:
-            for _dir_path, _dir_names, files in os.walk(parent):
-                if find_file in files:
-                    return parent
-
-        ctx.log.info(
-            "No .brickflow-project-root.yml file found, returning pwd: %s",
-            pathlib.Path(__file__),
-        )
-        return pathlib.Path(__file__)
+        _project_root= _pathlib.Path(__file__).resolve().parents[0]
+        ctx.log.info(f"Setting Brickflow project root as {_project_root}")
+        return _project_root
     except Exception as e:
         ctx.log.info("An error occurred: %s", e)
         raise e
