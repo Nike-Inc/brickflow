@@ -503,14 +503,14 @@ class SqlTask(JobsTasksSqlTask):
         Below are the different ways in which the SqlTask class can be used inside workflow (sql_task).:
             For SQL query: SqlTask(query_id= "YOUR_QUERY_ID", warehouse_id="YOUR_WAREHOUSE_ID")
             For SQL file: SqlTask(file_path="/Workspace/Users/YOUR_USERNAME/raju_sql_test_brickflow.sql",
-              warehouse_id="044a6f42ad7d914a")
-            For Sql alerts: SqlTask(alert_id="41ca5e33-21c2-40a2-8f77-183351d2b566", pause_subscriptions=False,
-                subscriptions={"usernames":["raju.gujjalapati@nike.com", 'Mohanasilpa.Palla@nike.com']}
-                ,warehouse_id="044a6f42ad7d914a")
-            For SQL dashboards: SqlTask(dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+              warehouse_id="your_warehouse_id")
+            For Sql alerts: SqlTask(alert_id="Your_Alert_ID", pause_subscriptions=False,
+                subscriptions={"usernames":["YOUR_USERNAME", 'YOUR_USERNAME']}
+                ,warehouse_id="your_warehouse_id")
+            For SQL dashboards: SqlTask(dashboard_id="Your_Dashboard_ID",
                 dashboard_custom_subject="Raju Legacy Dashboard Test", pause_subscriptions=True,
-                subscriptions={"usernames":["raju.gujjalapati@nike.com", 'Mohanasilpa.Palla@nike.com'],
-                "destination_id":["434354545"]},warehouse_id="044a6f42ad7d914a")
+                subscriptions={"usernames":["YOUR_USERNAME", 'YOUR_USERNAME'],
+                "destination_id":["434354545"]},warehouse_id="your_warehouse_id")
     """
 
     dashboard_id: Optional[str] = None

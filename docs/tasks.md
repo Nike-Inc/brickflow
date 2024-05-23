@@ -348,52 +348,52 @@ Here's an example of how to use the `SQL` Task type:
 @wf.sql_task
 def sample_sql_task_query():
     return SqlTask(
-        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad", warehouse_id="044a6f42ad7d914a"
+        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad", warehouse_id="your_warehouse_id"
     )
 
 
 @wf.sql_task
 def sample_sql_task_file() -> any:
-    return SqlTask(file_path="products/brickflow_test/src/sql/sql_task_file_test.sql", warehouse_id="044a6f42ad7d914a")
+    return SqlTask(file_path="products/brickflow_test/src/sql/sql_task_file_test.sql", warehouse_id="your_warehouse_id")
 
 
 @wf.sql_task
 def sample_sql_alert() -> any:
     return SqlTask(
-        alert_id="41ca5e33-21c2-40a2-8f77-183351d2b566",
+        alert_id="Your_Alert_ID",
         pause_subscriptions=False,
         subscriptions={
-            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"]
+            "usernames": ["YOUR_USERNAME", "YOUR_USERNAME"]
         },
-        warehouse_id="044a6f42ad7d914a",
+        warehouse_id="your_warehouse_id",
     )
 
 
 @wf.sql_task
 def sample_sql_dashboard() -> any:
     return SqlTask(
-        dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+        dashboard_id="Your_Dashboard_ID",
         dashboard_custom_subject="Raju Legacy Dashboard Test",
         pause_subscriptions=True,
         subscriptions={
-            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"],
+            "usernames": ["YOUR_USERNAME", "YOUR_USERNAME"],
             "destination_id": ["434354545"],
         },
-        warehouse_id="044a6f42ad7d914a",
+        warehouse_id="your_warehouse_id",
     )
 
 # we can also pass task type as parameter
 @wf.task(task_type=TaskType.SQL)
 def sample_sql_dashboard_task() -> any:
     return SqlTask(
-        dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+        dashboard_id="Your_Dashboard_ID",
         dashboard_custom_subject="Raju Legacy Dashboard Test",
         pause_subscriptions=True,
         subscriptions={
-            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"],
+            "usernames": ["YOUR_USERNAME", "YOUR_USERNAME"],
             "destination_id": ["434354545"],
         },
-        warehouse_id="044a6f42ad7d914a",
+        warehouse_id="your_warehouse_id",
     )
 
 ```

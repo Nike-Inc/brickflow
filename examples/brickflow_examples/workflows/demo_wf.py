@@ -357,7 +357,8 @@ def sample_sql_task_query() -> any:
         SqlTask: A SqlTask object with a query_id and warehouse_id.
     """
     return SqlTask(
-        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad", warehouse_id="044a6f42ad7d914a"
+        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad",
+        warehouse_id="your_warehouse_id",
     )
 
 
@@ -373,7 +374,7 @@ def sample_sql_task_file() -> any:
         my_path = "src/sql/sql_task_file_test.sql"
     else:
         my_path = "products/brickflow_test/src/sql/sql_task_file_test.sql"
-    return SqlTask(file_path=my_path, warehouse_id="044a6f42ad7d914a")
+    return SqlTask(file_path=my_path, warehouse_id="your_warehouse_id")
 
 
 @wf.sql_task(depends_on=start)
@@ -385,12 +386,10 @@ def sample_sql_alert() -> any:
         SqlTask: A SqlTask object with an alert_id, pause_subscriptions, subscriptions, and warehouse_id.
     """
     return SqlTask(
-        alert_id="41ca5e33-21c2-40a2-8f77-183351d2b566",
+        alert_id="Your_Alert_ID",
         pause_subscriptions=False,
-        subscriptions={
-            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"]
-        },
-        warehouse_id="044a6f42ad7d914a",
+        subscriptions={"usernames": ["YOUR_USERNAME", "YOUR_USERNAME"]},
+        warehouse_id="your_warehouse_id",
     )
 
 
@@ -403,14 +402,14 @@ def sample_sql_dashboard() -> any:
         SqlTask: A SqlTask object with a dashboard_id, dashboard_custom_subject, pause_subscriptions, subscriptions, and warehouse_id.
     """
     return SqlTask(
-        dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+        dashboard_id="Your_Dashboard_ID",
         dashboard_custom_subject="Raju Legacy Dashboard Test",
         pause_subscriptions=True,
         subscriptions={
-            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"],
+            "usernames": ["YOUR_USERNAME", "YOUR_USERNAME"],
             "destination_id": ["434354545"],
         },
-        warehouse_id="044a6f42ad7d914a",
+        warehouse_id="your_warehouse_id",
     )
 
 
