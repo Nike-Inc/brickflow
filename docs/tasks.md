@@ -436,11 +436,14 @@ As databricks secrets is a key value store, code expects the secret scope to con
 &emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
 
 SnowflakeOperator can accept the following as inputs 
-&emsp;&emsp;&emsp;&emsp;secret_scope (required): databricks secret scope identifier
-&emsp;&emsp;&emsp;&emsp;query_string (required): queries separated by semicolon
+
+&emsp;&emsp;&emsp;&emsp;secret_scope (required) : databricks secret scope identifier
+&emsp;&emsp;&emsp;&emsp;query_string (required) : queries separated by semicolon
+&emsp;&emsp;&emsp;&emsp;sql_file (optional) : path to the sql file
 &emsp;&emsp;&emsp;&emsp;parameters (optional) : dictionary with variables that can be used to substitute in queries
 
-```python title="snowflake_operator"
+Operator only takes one of either query_string or sql_file needs to be passed
+```python title="snowflake_operator using sql queries "
 from brickflow_plugins import SnowflakeOperator
 
 wf = Workflow(...)
@@ -453,8 +456,20 @@ def run_snowflake_queries(*args):
     parameters = {"schema":"test_schema","table":"sample_table","filter_condition":"col='something'"}
   )
   sf_query_run.execute()
+
 ```
 
+```python title="snowflake_operator_using_sql_files"
+#Sql file path is relative from the brickflow project root (Ex: root/products/{product_name})
+@wf.task
+def run_snowflake_files(*args):
+    sf_file_run = SnowflakeOperator(
+        secret_cope="sample_scope",
+        sql_file=f"src/sql/sample.sql",
+        parameters={"database": "sample_db"},
+    )
+    sf_file_run.execute()
+```
 
 #### UC to Snowflake Operator
 
@@ -469,10 +484,12 @@ As databricks secrets is a key value store, code expects the secret scope to con
 &emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
 
 UcToSnowflakeOperator can expects the following as inputs to copy data in parameters  
+one of Either dbx_sql or (dbx_catalog, dbx_database, dbx_table ) needs to be provided 
 &emsp;&emsp;&emsp;&emsp;load_type (required): type of data load , acceptable values full or incremental
-&emsp;&emsp;&emsp;&emsp;dbx_catalog (required) : name of the databricks catalog in which object resides 
-&emsp;&emsp;&emsp;&emsp;dbx_database (required): name of the databricks schema in which object is available
-&emsp;&emsp;&emsp;&emsp;dbx_table (required) : name of the databricks object we want to copy to snowflake 
+&emsp;&emsp;&emsp;&emsp;dbx_catalog (optional) : name of the databricks catalog in which object resides 
+&emsp;&emsp;&emsp;&emsp;dbx_database (optional): name of the databricks schema in which object is available
+&emsp;&emsp;&emsp;&emsp;dbx_table (optional) : name of the databricks object we want to copy to snowflake 
+&emsp;&emsp;&emsp;&emsp;dbx_sql (optional) : Custom sql to extract data from databricks Unity Catalog
 &emsp;&emsp;&emsp;&emsp;sf_database (optional) : name of the snowflake database if different from the one in secret_scope 
 &emsp;&emsp;&emsp;&emsp;sf_schema (required): name of the snowflake schema in which we want to copy the data 
 &emsp;&emsp;&emsp;&emsp;sf_table (required) : name of the snowflake object to which we want to copy from databricks
@@ -480,7 +497,7 @@ UcToSnowflakeOperator can expects the following as inputs to copy data in parame
 &emsp;&emsp;&emsp;&emsp;dbx_data_filter (optional): filter condition on databricks source for full or incremental (if different from inremental_filter)
 &emsp;&emsp;&emsp;&emsp;sf_grantee_roles (optional) : snowflake roles to which we want to grant select/read access 
 &emsp;&emsp;&emsp;&emsp;sf_cluster_keys (optional) : list of keys we want to cluster our snowflake table. 
-
+&emsp;&emsp;&emsp;&emsp;write_mode (optional) : write mode to write into snowflake table ( overwrite, append etc) 
 ```python title="uc_to_snowflake_operator"
 from brickflow_plugins import UcToSnowflakeOperator
 
@@ -490,10 +507,11 @@ wf = Workflow(...)
 def run_snowflake_queries(*args):
   uc_to_sf_copy = UcToSnowflakeOperator(
     secret_scope = "your_databricks secrets scope name",
+    write_mode ="overwrite",
     parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
                       'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
                       'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
-                      'sf_cluster_keys':''}
+                      'sf_cluster_keys':'', 'dbx_sql':'Custom sql query to read data from UC'}
   )
   uc_to_sf_copy.execute()
 ```
