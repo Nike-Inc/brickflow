@@ -57,7 +57,9 @@ class TestUtils:
 
     def test_get_bf_project_root(self):
         # Set up
-        expected_root = pathlib.Path("/home/desktop/personal_repo/brickflow")
+        expected_root = pathlib.Path(
+            "/Users/bsang2/Desktop/personal_repo/brickflow/tests"
+        )
         # Execute the function
         actual_root = get_bf_project_root()
         # Assert the result

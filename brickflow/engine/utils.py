@@ -1,5 +1,6 @@
 import functools
 from typing import Callable, Type, List, Iterator, Union
+import inspect
 import pathlib
 
 from pydantic import SecretStr
@@ -78,15 +79,15 @@ def get_job_id(
     return None
 
 
-def get_bf_project_root(file_name:str) -> pathlib.Path:
+def get_bf_project_root() -> pathlib.Path:
     """returns the root directory of the brickflow project
-
     Returns:
         pathlib.Path: root directory of the brickflow project
     """
     try:
-        _project_root= pathlib.Path(file_name).resolve().parents[1]
-        ctx.log.info(f"Setting Brickflow project root as {_project_root}")
+        _file_name = inspect.stack()[-1].filename
+        _project_root = pathlib.Path(_file_name).resolve().parents[0]
+        ctx.log.info("Setting Brickflow project root as %s", _project_root)
         return _project_root
     except Exception as e:
         ctx.log.info("An error occurred: %s", e)
