@@ -348,7 +348,7 @@ Here's an example of how to use the `SQL` Task type:
 @wf.sql_task
 def sample_sql_task_query():
     return SqlTask(
-        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad", warehouse_id="your_warehouse_id"
+        query_id="your_sql_query_id", warehouse_id="your_warehouse_id"
     )
 
 
@@ -377,7 +377,7 @@ def sample_sql_dashboard() -> any:
         pause_subscriptions=True,
         subscriptions={
             "usernames": ["YOUR_USERNAME", "YOUR_USERNAME"],
-            "destination_id": ["434354545"],
+            "destination_id": ["your_destination_id"],
         },
         warehouse_id="your_warehouse_id",
     )
@@ -391,7 +391,7 @@ def sample_sql_dashboard_task() -> any:
         pause_subscriptions=True,
         subscriptions={
             "usernames": ["YOUR_USERNAME", "YOUR_USERNAME"],
-            "destination_id": ["434354545"],
+            "destination_id": ["your_destination_id"],
         },
         warehouse_id="your_warehouse_id",
     )

@@ -510,7 +510,7 @@ class SqlTask(JobsTasksSqlTask):
             For SQL dashboards: SqlTask(dashboard_id="Your_Dashboard_ID",
                 dashboard_custom_subject="Raju Legacy Dashboard Test", pause_subscriptions=True,
                 subscriptions={"usernames":["YOUR_USERNAME", 'YOUR_USERNAME'],
-                "destination_id":["434354545"]},warehouse_id="your_warehouse_id")
+                "destination_id":["your_destination_id"]},warehouse_id="your_warehouse_id")
     """
 
     dashboard_id: Optional[str] = None
