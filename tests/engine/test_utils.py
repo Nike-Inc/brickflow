@@ -56,8 +56,8 @@ class TestUtils:
         assert "An error occurred: request failed" in caplog.text
 
     def test_get_bf_project_root(self):
-        # Set up
-        expected_root = pathlib.Path("/")
+        # Set up expected path which is the root of the repo
+        expected_root = pathlib.Path("/__w/brickflow")
         # Execute the function
         actual_root = get_bf_project_root()
         # Assert the result
