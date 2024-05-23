@@ -2,6 +2,7 @@ import functools
 from typing import Callable, Type, List, Iterator, Union
 import inspect
 import pathlib
+import os
 
 from pydantic import SecretStr
 from databricks.sdk import WorkspaceClient
@@ -79,7 +80,7 @@ def get_job_id(
     return None
 
 
-def get_bf_project_root(file_name: str) -> pathlib.Path:
+def get_bf_project_root() -> pathlib.Path:
     """Returns the root directory of the current Brickflow project
 
     Parameters:
@@ -89,7 +90,8 @@ def get_bf_project_root(file_name: str) -> pathlib.Path:
         pathlib.Path: Brickflow project root directory
     """
     try:
-        _project_root = pathlib.Path(file_name).resolve().parents[1]
+        _file_name = os.getcwd()
+        _project_root = pathlib.Path(_file_name).resolve().parents[1]
         ctx.log.info("Setting Brickflow project root as %s", _project_root)
         return _project_root
     except Exception as e:

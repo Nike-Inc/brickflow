@@ -235,9 +235,7 @@ def get_brickflow_root(current_path: Optional[Path] = None) -> Path:
         current_dir
         / BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value
     )
-    if not potential_config_file_path.exists():
-        return Path(current_dir).resolve().parents[1]
-    elif potential_config_file_path.exists():
+    if potential_config_file_path.exists():
         return potential_config_file_path
     elif current_dir.parent == current_dir:
         # Reached the filesystem root, return just raw file value
