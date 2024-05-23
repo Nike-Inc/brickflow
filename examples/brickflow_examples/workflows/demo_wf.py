@@ -341,7 +341,6 @@ def run_snowflake_queries(*args):
     sf_query_run.execute()
 
 
-
 @wf.task
 def run_snowflake_files(*args):
     sf_file_run = SnowflakeOperator(
