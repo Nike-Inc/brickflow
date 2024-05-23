@@ -502,7 +502,7 @@ class SqlTask(JobsTasksSqlTask):
     Examples:
         Below are the different ways in which the SqlTask class can be used inside workflow (sql_task).:
             For SQL query: SqlTask(query_id= "YOUR_QUERY_ID", warehouse_id="YOUR_WAREHOUSE_ID")
-            For SQL file: SqlTask(file_path="/Workspace/Users/raju.gujjalapati@nike.com/raju_sql_test_brickflow.sql",
+            For SQL file: SqlTask(file_path="/Workspace/Users/YOUR_USERNAME/raju_sql_test_brickflow.sql",
               warehouse_id="044a6f42ad7d914a")
             For Sql alerts: SqlTask(alert_id="41ca5e33-21c2-40a2-8f77-183351d2b566", pause_subscriptions=False,
                 subscriptions={"usernames":["raju.gujjalapati@nike.com", 'Mohanasilpa.Palla@nike.com']}
