@@ -1,6 +1,7 @@
 import logging as log
 from pathlib import Path
 from brickflow.engine.utils import get_bf_project_root
+
 try:
     import snowflake.connector
 except ImportError:
@@ -174,7 +175,7 @@ class SnowflakeOperator:
         try:
             if self.sql_file is not None:
                 sql_loc = Path(self.sql_file)
-                sql_path = self.brickflow_root/sql_loc
+                sql_path = self.brickflow_root / sql_loc
                 if not sql_path.exists():
                     raise FileNotFoundError(
                         f"Unable to locate specified {sql_path.as_posix()}"

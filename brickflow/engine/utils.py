@@ -1,6 +1,5 @@
 import functools
 from typing import Callable, Type, List, Iterator, Union
-import inspect
 import pathlib
 import os
 
@@ -97,4 +96,3 @@ def get_bf_project_root() -> pathlib.Path:
     except Exception as e:
         ctx.log.info("An error occurred: %s", e)
         raise e
-
