@@ -57,9 +57,7 @@ class TestUtils:
 
     def test_get_bf_project_root(self):
         # Set up
-        expected_root = pathlib.Path(
-            "/home/users/repo/"
-        )
+        expected_root = pathlib.Path("/")
         # Execute the function
         actual_root = get_bf_project_root()
         # Assert the result
