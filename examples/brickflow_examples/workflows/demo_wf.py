@@ -11,6 +11,10 @@ from brickflow import (
     WorkflowPermissions,
     User,
     NotebookTask,
+    SqlTask,
+    RunJobTask,
+    SparkJarTask,
+    JarTaskLibrary,
 )
 from brickflow_plugins import (
     TaskDependencySensor,
@@ -322,6 +326,91 @@ def tableau_refresh_workbook():
         site="site",
         project="project",
         workbooks=["workbook1", "workbook2"],
+    )
+
+
+@wf.run_job_task
+def run_job_task_a():
+    return RunJobTask(job_name="raju_gujjalapati_example_workflow")
+
+
+@wf.spark_jar_task(
+    libraries=[
+        JarTaskLibrary(
+            jar="dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar"
+        )
+    ]
+)
+def spark_jar_task_a():
+    return SparkJarTask(
+        main_class_name="PrintArgs",
+        parameters=["Hello", "World!"],
+    )  # type: ignore
+
+
+@wf.sql_task(depends_on=start)
+def sample_sql_task_query() -> any:
+    """
+    This function creates a SqlTask with a query_id and warehouse_id.
+
+    Returns:
+        SqlTask: A SqlTask object with a query_id and warehouse_id.
+    """
+    return SqlTask(
+        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad", warehouse_id="044a6f42ad7d914a"
+    )
+
+
+@wf.sql_task(depends_on=start)
+def sample_sql_task_file() -> any:
+    """
+    This function creates a SqlTask with a file_path and warehouse_id.
+
+    Returns:
+        SqlTask: A SqlTask object with a file_path and warehouse_id.
+    """
+    if ctx.env == "local":
+        my_path = "src/sql/sql_task_file_test.sql"
+    else:
+        my_path = "products/brickflow_test/src/sql/sql_task_file_test.sql"
+    return SqlTask(file_path=my_path, warehouse_id="044a6f42ad7d914a")
+
+
+@wf.sql_task(depends_on=start)
+def sample_sql_alert() -> any:
+    """
+    This function creates a SqlTask with an alert_id, pause_subscriptions, subscriptions, and warehouse_id.
+
+    Returns:
+        SqlTask: A SqlTask object with an alert_id, pause_subscriptions, subscriptions, and warehouse_id.
+    """
+    return SqlTask(
+        alert_id="41ca5e33-21c2-40a2-8f77-183351d2b566",
+        pause_subscriptions=False,
+        subscriptions={
+            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"]
+        },
+        warehouse_id="044a6f42ad7d914a",
+    )
+
+
+@wf.sql_task(depends_on=start)
+def sample_sql_dashboard() -> any:
+    """
+    This function creates a SqlTask with a dashboard_id, dashboard_custom_subject, pause_subscriptions, subscriptions, and warehouse_id.
+
+    Returns:
+        SqlTask: A SqlTask object with a dashboard_id, dashboard_custom_subject, pause_subscriptions, subscriptions, and warehouse_id.
+    """
+    return SqlTask(
+        dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+        dashboard_custom_subject="Raju Legacy Dashboard Test",
+        pause_subscriptions=True,
+        subscriptions={
+            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"],
+            "destination_id": ["434354545"],
+        },
+        warehouse_id="044a6f42ad7d914a",
     )
 
 

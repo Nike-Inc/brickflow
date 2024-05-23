@@ -415,6 +415,21 @@ class Workflow:
             depends_on=depends_on,
         )
 
+    def sql_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            task_type=TaskType.SQL,
+            task_settings=task_settings,
+            depends_on=depends_on,
+        )
+
     def task(
         self,
         task_func: Optional[Callable] = None,

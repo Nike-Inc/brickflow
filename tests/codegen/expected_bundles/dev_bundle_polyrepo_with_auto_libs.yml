@@ -170,14 +170,14 @@ targets:
                     package: brickflows==0.1.0
                     repo: null
                   jar: null
-                - jar: dbfs:/kafka-jars/databricks-shaded-strimzi-kafka-oauth-client-1.1.jar
+                - jar: dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar
                   pypi: null
               max_retries: null
               min_retry_interval_millis: null
               spark_jar_task:
                 main_class_name: PrintArgs
                 parameters: ['Hello', 'World!']
-                jar_uri: dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar
+                jar_uri: null
               retry_on_timeout: null
               task_key: spark_jar_task_a
               timeout_seconds: null
@@ -415,6 +415,61 @@ targets:
                 source: GIT
               retry_on_timeout: null
               task_key: task_function_nokwargs
+              timeout_seconds: null
+            - depends_on:
+              - task_key: "notebook_task_a"
+              email_notifications: {}
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              sql_task:
+                alert:
+                  alert_id: "41ca5e33-21c2-40a2-8f77-183351d2b566"
+                  pause_subscriptions: false
+                  subscriptions:
+                  - user_name: "raju.gujjalapati@nike.com"
+                  - user_name: "Mohanasilpa.Palla@nike.com"
+                warehouse_id: "044a6f42ad7d914a"
+              task_key: "sample_sql_alert"
+              timeout_seconds: null
+            - depends_on: []
+              email_notifications: {}
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              sql_task:
+                dashboard:
+                  custom_subject: "Raju Legacy Dashboard Test"
+                  dashboard_id: "f57447ca-e8d4-4dad-a66c-f524464e52a8"
+                  pause_subscriptions: true
+                  subscriptions:
+                  - user_name: "raju.gujjalapati@nike.com"
+                  - user_name: "Mohanasilpa.Palla@nike.com"
+                  - destination_id: "434354545"
+                warehouse_id: "044a6f42ad7d914a"
+              task_key: "sample_sql_dashboard"
+              timeout_seconds: null
+            - depends_on: []
+              email_notifications: {}
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              sql_task:
+                file:
+                  path: "products/brickflow_test/src/sql/sql_task_file_test.sql"
+                warehouse_id: "044a6f42ad7d914a"
+              task_key: "sample_sql_task_file"
+              timeout_seconds: null
+            - depends_on: []
+              email_notifications: {}
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              sql_task:
+                query:
+                  query_id: "4e16dc24-e30d-4683-96d7-cf7da4e263ad"
+                warehouse_id: "044a6f42ad7d914a"
+              task_key: "sample_sql_task_query"
               timeout_seconds: null
       pipelines:
         test_hello_world:

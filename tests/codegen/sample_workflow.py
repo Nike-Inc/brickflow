@@ -3,6 +3,7 @@ from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
     BrickflowTriggerRule,
     RunJobTask,
+    SqlTask,
     TaskType,
     TaskResponse,
     DLTPipeline,
@@ -56,14 +57,13 @@ def notebook_task_a(*, test="var"):
 @wf.spark_jar_task(
     libraries=[
         JarTaskLibrary(
-            jar="dbfs:/kafka-jars/databricks-shaded-strimzi-kafka-oauth-client-1.1.jar"
+            jar="dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar"
         )
     ],
     depends_on=notebook_task_a,
 )
 def spark_jar_task_a():
     return SparkJarTask(
-        jar_uri="dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar",
         main_class_name="PrintArgs",
         parameters=["Hello", "World!"],
     )  # type: ignore
@@ -74,6 +74,50 @@ def spark_jar_task_a():
 )
 def run_job_task_a():
     return RunJobTask(job_name="dev_object_raw_to_cleansed")  # type: ignore
+
+
+@wf.sql_task
+def sample_sql_task_query() -> any:
+    return SqlTask(
+        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad", warehouse_id="044a6f42ad7d914a"
+    )
+
+
+@wf.sql_task
+def sample_sql_task_file() -> any:
+    return SqlTask(
+        file_path="products/brickflow_test/src/sql/sql_task_file_test.sql",
+        warehouse_id="044a6f42ad7d914a",
+    )
+
+
+@wf.sql_task(depends_on=notebook_task_a)
+def sample_sql_alert() -> any:
+    # we need to create kind of dict format for subscriptions to accept usenames and one destination_id..
+    # we can either send username or destination_id (not both)
+    # it automatically validates user emails
+    return SqlTask(
+        alert_id="41ca5e33-21c2-40a2-8f77-183351d2b566",
+        pause_subscriptions=False,
+        subscriptions={
+            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"]
+        },
+        warehouse_id="044a6f42ad7d914a",
+    )
+
+
+@wf.sql_task
+def sample_sql_dashboard() -> any:
+    return SqlTask(
+        dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+        dashboard_custom_subject="Raju Legacy Dashboard Test",
+        pause_subscriptions=True,
+        subscriptions={
+            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"],
+            "destination_id": ["434354545"],
+        },
+        warehouse_id="044a6f42ad7d914a",
+    )
 
 
 @wf.dlt_task

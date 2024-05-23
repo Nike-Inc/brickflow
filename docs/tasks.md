@@ -250,7 +250,7 @@ def example_notebook():
 
 ```
 NotebookTask class can accept the following as inputs:<br />
-&emsp;<b>base_parameters</b>: Optional[Dict[str, str]] = parameters to pass to notebook and can be accessed through dbutils widgets<br>
+&emsp;<b>base_parameters: Optional[Dict[str, str]]</b> = parameters to pass to notebook and can be accessed through dbutils widgets<br>
    &emsp; <b>notebook_path</b>:'The path of the notebook to be run in the Databricks workspace or remote repository.For notebooks stored in the Databricks workspace, the path must be absolute and begin with a slash.<br>For notebooks stored in a remote repository, the path must be relative.,
     <br>
   &emsp;  <b>source: Optional[str]</b> :'Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved from the local <Databricks> workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,the Python file will be retrieved from a Git repository defined in `git_source`.* `WORKSPACE`: The Python file is located in a <Databricks> workspace or at a cloud filesystem URI.* `GIT`: The Python file is located in a remote Git repository.',
@@ -276,33 +276,127 @@ def run_job_task_a():
 
 RunJobTask class can accept the following as inputs:<br />
 
-&emsp; <b>job_name</b>: The name of the job (case-insensitive).<br />
+&emsp;<b>job_name</b>: The name of the job (case-insensitive).<br />
 &emsp;<b>host [Optional]</b>: The URL of the Databricks workspace.<br />
 &emsp;<b>token [Optional]</b>: The Databricks API token.
 
 
 #### JAR Task
 
-The `JAR Task` is used as a decorator in conjunction with the `spark_jar_task` method of a `Workflow` instance. This method registers the task within the workflow.
-
+The `JAR Task` is used as a decorator in conjunction with the `spark_jar_task` method of a `Workflow` instance. This method registers the task within the workflow.<br>
+Make sure to upload `JAR` file into `dbfs` (or) `S3` paths and provide relative path of the uploaded jar.<br>
 Here's an example of how to use the `JAR` Task type:
 
 ```python
-@wf.spark_jar_task
-def run_job_task_a():
-    return SparkJarTask(job_name="spark_jar_job")
-
+# Example:1
+@wf.spark_jar_task(
+    libraries=[
+        JarTaskLibrary(
+            jar="dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar"
+        )
+    ]
+)
+def spark_jar_task_a():
+    return SparkJarTask(
+        main_class_name="PrintArgs",
+        parameters=["Hello", "World!"],
+    ) 
+# Example: 2
+@wf.spark_jar_task(
+    libraries=[
+        JarTaskLibrary(
+            jar="s3:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar"
+        )
+    ]
+)
+def spark_jar_task_test():
+    return SparkJarTask(
+        main_class_name="PrintArgs",
+    )
+# Example: 3
 # we can also pass task type as parameter
-@wf.task(task_type=TaskType.SPARK_JAR_TASK)
+@wf.task(task_type=TaskType.SPARK_JAR_TASK, libraries=[
+        JarTaskLibrary(
+            jar="dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar"
+        )])
 def run_job_task_a():
-    return SparkJarTask(job_name="spark_jar_job")
+    return SparkJarTask(main_class_name="MainClass")
 ```
 
-SparkJarTask class can accept the following as inputs:<br />
+JarTask class can accept the following as inputs:<br />
 
-&emsp; <b>main_class_name</b>: The full name of the class containing the main method to be executed.<br />
-&emsp;<b>jar_uri</b>Provide absolute path of the JAR file located.<br />
-&emsp;<b>parameters [Optional]</b>: Parameters passed to the main method..
+&emsp;<b>main_class_name</b>: The full name of the class containing the main method to be executed.<br />
+&emsp;<b>parameters [Optional]</b>: Parameters passed to the main method.
+
+#### SQL Task
+The SqlTask class is used to create SQL tasks in the workflow. It can be used to create tasks with a query ID, file path, alert ID, and dashboard ID.<br>
+The `SQL Task` is used as a decorator in conjunction with the `sql_task` method of a `Workflow` instance.
+This method registers the task within the workflow. 
+
+SQLTask class can accept the following as inputs:<br />
+&emsp; <b>query_id[Optional]</b>: A string representing the ID of the query.<br>
+&emsp; <b>file_path[Optional]</b>: A string representing the path to the SQL file.<br>
+&emsp; <b>alert_id[Optional]</b>: A string representing the ID of the alert.<br>
+&emsp; <b>pause_subscriptions[Optional]</b>: A boolean indicating whether to pause subscriptions or not.<br>
+&emsp; <b>subscriptions[Optional]</b>:<span class="nowrap"> A dictionary containing usernames and destination IDs for subscriptions.</span><br>
+&emsp; <b>dashboard_id[Optional]</b>: A string representing the ID of the dashboard.<br>
+&emsp; <b>dashboard_custom_subject[Optional]</b>: A string representing the custom subject of the dashboard.&nbsp;<br>
+&emsp; <b>warehouse_id</b>: A string representing the ID of the warehouse.<br>
+
+Here's an example of how to use the `SQL` Task type:
+```python
+@wf.sql_task
+def sample_sql_task_query():
+    return SqlTask(
+        query_id="4e16dc24-e30d-4683-96d7-cf7da4e263ad", warehouse_id="044a6f42ad7d914a"
+    )
+
+
+@wf.sql_task
+def sample_sql_task_file() -> any:
+    return SqlTask(file_path="products/brickflow_test/src/sql/sql_task_file_test.sql", warehouse_id="044a6f42ad7d914a")
+
+
+@wf.sql_task
+def sample_sql_alert() -> any:
+    return SqlTask(
+        alert_id="41ca5e33-21c2-40a2-8f77-183351d2b566",
+        pause_subscriptions=False,
+        subscriptions={
+            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"]
+        },
+        warehouse_id="044a6f42ad7d914a",
+    )
+
+
+@wf.sql_task
+def sample_sql_dashboard() -> any:
+    return SqlTask(
+        dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+        dashboard_custom_subject="Raju Legacy Dashboard Test",
+        pause_subscriptions=True,
+        subscriptions={
+            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"],
+            "destination_id": ["434354545"],
+        },
+        warehouse_id="044a6f42ad7d914a",
+    )
+
+# we can also pass task type as parameter
+@wf.task(task_type=TaskType.SQL)
+def sample_sql_dashboard_task() -> any:
+    return SqlTask(
+        dashboard_id="f57447ca-e8d4-4dad-a66c-f524464e52a8",
+        dashboard_custom_subject="Raju Legacy Dashboard Test",
+        pause_subscriptions=True,
+        subscriptions={
+            "usernames": ["raju.gujjalapati@nike.com", "Mohanasilpa.Palla@nike.com"],
+            "destination_id": ["434354545"],
+        },
+        warehouse_id="044a6f42ad7d914a",
+    )
+
+```
 
 ### Trigger rules
 

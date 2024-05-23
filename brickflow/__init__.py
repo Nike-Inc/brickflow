@@ -276,6 +276,7 @@ from brickflow.engine.task import (
     NotebookTask,
     SparkJarTask,
     RunJobTask,
+    SqlTask,
 )
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
@@ -323,6 +324,7 @@ __all__: List[str] = [
     "Cluster",
     "Runtimes",
     "Project",
+    "SqlTask",
     "_ilog",
     "log",
     "BrickflowEnvVars",

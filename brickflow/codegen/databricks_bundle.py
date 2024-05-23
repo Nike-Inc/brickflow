@@ -39,6 +39,7 @@ from brickflow.bundles.model import (
     JobsTasksNotebookTask,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
+    JobsTasksSqlTask,
     Resources,
     Workspace,
     Bundle,
@@ -508,6 +509,28 @@ class DatabricksBundleCodegen(CodegenInterface):
             task_key=task_name,
         )
 
+    def _build_native_sql_file_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+    ) -> JobsTasks:
+        try:
+            sql_task: JobsTasksSqlTask = task.task_func()
+        except Exception as e:
+            print(e)
+            raise ValueError(
+                f"Error while building sql file task {task_name}. "
+                f"Make sure {task_name} returns a JobsTasksSqlTask object."
+            ) from e
+        return JobsTasks(
+            **task_settings.to_tf_dict(),  # type: ignore
+            sql_task=sql_task,
+            depends_on=depends_on,
+            task_key=task_name,
+        )
+
     def _build_dlt_task(
         self,
         task_name: str,
@@ -573,6 +596,13 @@ class DatabricksBundleCodegen(CodegenInterface):
                 # native run job task
                 tasks.append(
                     self._build_native_run_job_task(
+                        task_name, task, task_settings, depends_on
+                    )
+                )
+            elif task.task_type == TaskType.SQL:
+                # native run job task
+                tasks.append(
+                    self._build_native_sql_file_task(
                         task_name, task, task_settings, depends_on
                     )
                 )
