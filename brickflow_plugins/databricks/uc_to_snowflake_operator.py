@@ -1,6 +1,6 @@
 import logging as log
 from pathlib import Path
-
+from brickflow.cli.projects import get_brickflow_root
 try:
     import snowflake.connector
 except ImportError:
@@ -83,6 +83,7 @@ class SnowflakeOperator:
         self.query = query_string
         self.parameters = parameters
         self.sql_file = sql_file
+        self.brickflow_root = get_brickflow_root()
 
         if query_string is not None and sql_file is not None:
             raise ValueError("Cannot specify both sql_file and query_string !")
@@ -172,7 +173,8 @@ class SnowflakeOperator:
         """
         try:
             if self.sql_file is not None:
-                sql_path = Path(self.sql_file)
+                sql_loc = Path(self.sql_file)
+                sql_path = self.brickflow_root/sql_loc
                 if not sql_path.exists():
                     raise FileNotFoundError(
                         f"Unable to locate specified {sql_path.as_posix()}"
