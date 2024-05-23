@@ -22,7 +22,6 @@ from brickflow_plugins import (
     TableauRefreshWorkBookOperator,
 )
 from brickflow.engine.task import PypiTaskLibrary
-from brickflow.engine.utils import get_bf_project_root
 
 wf = Workflow(
     "brickflow-demo",
@@ -342,15 +341,13 @@ def run_snowflake_queries(*args):
     sf_query_run.execute()
 
 
-brickflow_project_root = get_bf_project_root()
-
 
 @wf.task
 def run_snowflake_files(*args):
     sf_file_run = SnowflakeOperator(
         secret_cope="sample_scope",
-        sql_file=f"{brickflow_project_root}/examples/brickflow_examples/src/sql/sample.sql",
-        # adjust sql file path relative to your path_from_repo_root_to_project_root mentioned in brickflow-project-root.yml
+        sql_file="src/sql/sample.sql",
+        # adjust sql file path relative to your brickflow project path (Ex:examples/brickflow_examples/)
         parameters={"database": "sample_db"},
     )
     sf_file_run.execute()

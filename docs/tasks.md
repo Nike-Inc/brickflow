@@ -460,26 +460,12 @@ def run_snowflake_queries(*args):
 ```
 
 ```python title="snowflake_operator_using_sql_files"
-def get_bf_project_root() -> pathlib.Path:
-    find_file = ".brickflow-project-root.yml"
-    for parent in pathlib.Path(__file__).parents:
-        for dir_path, dir_names, files in os.walk(
-            parent
-        ):  # pylint: disable=unused-variable #noqa
-            if find_file in files:
-                return parent
-
-    return pathlib.Path(__file__)
-
-
-brickflow_project_root = get_bf_project_root()
-
-
+#Sql file path is relative from the brickflow project root (Ex: root/products/{product_name})
 @wf.task
 def run_snowflake_files(*args):
     sf_file_run = SnowflakeOperator(
         secret_cope="sample_scope",
-        sql_file=f"{brickflow_project_root}/src/sql/sample.sql",
+        sql_file=f"src/sql/sample.sql",
         parameters={"database": "sample_db"},
     )
     sf_file_run.execute()
