@@ -456,7 +456,7 @@ class RunJobTask(JobsTasksRunJobTask):
 
     Examples:
         Below are the different ways in which the RunJobTask class can be used inside workflow (run_job_task).:
-            1. RunJobTask(job_name="dev_object_raw_to_cleansed", host="https://nike.cloud.databricks.com",
+            1. RunJobTask(job_name="dev_object_raw_to_cleansed", host="YOUR_WORKSPACE_URL",
             token="***********",job_parameters={"param1": "value1", "param2": "value2"})
 
             2. RunJobTask(job_name="dev_object_raw_to_cleansed",
