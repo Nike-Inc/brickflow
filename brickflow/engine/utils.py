@@ -79,16 +79,20 @@ def get_job_id(
     return None
 
 
-def get_bf_project_root() -> pathlib.Path:
-    """returns the root directory of the brickflow project
+def get_bf_project_root(file_name: str) -> pathlib.Path:
+    """Returns the root directory of the current Brickflow project
+
+    Parameters:
+        _file (str): file path where the function is called
+
     Returns:
-        pathlib.Path: root directory of the brickflow project
+        pathlib.Path: Brickflow project root directory
     """
     try:
-        _file_name = inspect.stack()[-1].filename
-        _project_root = pathlib.Path(_file_name).resolve().parents[0]
+        _project_root = pathlib.Path(file_name).resolve().parents[0]
         ctx.log.info("Setting Brickflow project root as %s", _project_root)
         return _project_root
     except Exception as e:
         ctx.log.info("An error occurred: %s", e)
         raise e
+
