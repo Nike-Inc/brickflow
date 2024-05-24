@@ -256,13 +256,19 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
                 for task in run.tasks:
                     if task.task_key == self.dependency_task_name:
                         task_state = task.state.result_state
-                        self.log.info(
-                            f"Found the run_id '{run.run_id}' and '{self.dependency_task_name}' "
-                            f"task with state: {task_state.value}"
-                        )
-                        if task_state.value == "SUCCESS":
-                            self.log.info(f"Found a successful run: {run.run_id}")
-                            return
+                        if task_state:
+                            self.log.info(
+                                f"Found the run_id '{run.run_id}' and '{self.dependency_task_name}' "
+                                f"task with state: {task_state.value}"
+                            )
+                            if task_state.value == "SUCCESS":
+                                self.log.info(f"Found a successful run: {run.run_id}")
+                                return
+                        else:
+                            self.log.info(
+                                f"Found the run_id '{run.run_id}' and '{self.dependency_task_name}' "
+                                f"but the task has not started yet..."
+                            )
 
             self.log.info("Didn't find a successful task run yet...")
 

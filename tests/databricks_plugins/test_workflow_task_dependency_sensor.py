@@ -36,6 +36,11 @@ class TestWorkflowTaskDependencySensor:
                             "result_state": "FAILED",
                         },
                     },
+                    {
+                        "run_id": 300,
+                        "task_key": "baz",
+                        "state": {},
+                    },
                 ],
             }
         ]
@@ -95,9 +100,30 @@ class TestWorkflowTaskDependencySensor:
 
             with pytest.raises(WorkflowDependencySensorTimeOutException):
                 sensor.execute()
-                assert "The job has timed out..." in caplog.text
-                assert "Didn't find a successful task run yet..." in caplog.text
-                assert (
-                    "Found the run_id '1' and 'bar' task with state: FAILED"
-                    in caplog.text
-                )
+
+            assert (
+                "Found the run_id '1' and 'bar' task with state: FAILED"
+                in caplog.messages
+            )
+            assert "Didn't find a successful task run yet..." in caplog.messages
+
+    def test_sensor_no_state(self, caplog, api):
+        with api:
+            sensor = WorkflowTaskDependencySensor(
+                databricks_host=self.workspace_url,
+                databricks_token="token",
+                dependency_job_name="job",
+                dependency_task_name="baz",
+                delta=timedelta(seconds=1),
+                timeout_seconds=1,
+                poke_interval_seconds=1,
+            )
+
+            with pytest.raises(WorkflowDependencySensorTimeOutException):
+                sensor.execute()
+
+            assert (
+                "Found the run_id '1' and 'baz' but the task has not started yet..."
+                in caplog.messages
+            )
+            assert "Didn't find a successful task run yet..." in caplog.messages
