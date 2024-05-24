@@ -1,4 +1,6 @@
 import logging as log
+from pathlib import Path
+from brickflow.engine.utils import get_bf_project_root
 
 try:
     import snowflake.connector
@@ -60,18 +62,32 @@ class SnowflakeOperator:
 
     above code snippet expects the data as follows
     databricks_secrets_psc contains username, password, account, warehouse, database and role keys with snowflake values
-    query_string : required parameter with queries separeted by semicolon(;)
+    query_string : Optional parameter with queries separeted by semicolon(;)
+    sql_file : Optional parameter with file path (relative to brickflow project root) to .sql file
     parameters: optional parameter dictionary with key value pairs to substitute in the query
     """
 
-    def __init__(self, secret_scope, query_string, parameters={}, *args, **kwargs):
+    def __init__(
+        self,
+        secret_scope,
+        query_string=None,
+        sql_file=None,
+        parameters={},
+        *args,
+        **kwargs,
+    ):
         self.cur = None
         self.query = None
+        self.sql_file = None
         self.secret_scope = secret_scope
         self.log = log
         self.query = query_string
         self.parameters = parameters
+        self.sql_file = sql_file
+        self.brickflow_root = get_bf_project_root()
 
+        if query_string is not None and sql_file is not None:
+            raise ValueError("Cannot specify both sql_file and query_string !")
         if not self.secret_scope:
             raise ValueError(
                 "Must provide reference to Snowflake connection in databricks secretes !"
@@ -152,6 +168,27 @@ class SnowflakeOperator:
 
         return con
 
+    def read_sql_file(self):
+        """
+        logic to read the sql file and return the query string
+        """
+        try:
+            if self.sql_file is not None:
+                sql_loc = Path(self.sql_file)
+                sql_path = self.brickflow_root / sql_loc
+                if not sql_path.exists():
+                    raise FileNotFoundError(
+                        f"Unable to locate specified {sql_path.as_posix()}"
+                    )
+                self.query = sql_path.read_text(encoding="utf-8")
+                return self
+            if self.query is None or len(self.query) == 0:
+                raise ValueError("SQL Query is empty")
+            return self
+        except Exception as e:
+            self.log.error("Failed to read the sql file")
+            raise ValueError("Failed to read the sql file")
+
     def get_cursor(self):
         """
         logic to create a cursor for a successful snowflake connection to execute queries
@@ -219,12 +256,14 @@ class SnowflakeOperator:
         """
         logic that triggers the flow of events
         """
+        if self.sql_file is not None:
+            self.read_sql_file()
         self.log.info("Executing SQL Query: " + str(self.query))
         self.get_cursor()
         query_string = str(self.query).strip()
         # Run the query against SnowFlake
         try:
-            self.snowflake_query_exec(self.cur, self.database, query_string)
+            self.snowflake_query_exec(self.cur, self.database, self.query)
         except:
             self.log.error("failed to execute")
         finally:
@@ -246,7 +285,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     Example Usage in your brickflow task
     UcToSnowflakeOperator(
-    secret_scope=databricks_secrets_psc
+    secret_scope=databricks_secrets_psc,
     parameters= uc_parameters
     )
 
@@ -267,7 +306,8 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
                       'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
                       'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
-                      'sf_cluster_keys':''}
+                      'sf_cluster_keys':''
+                      'dbx_sql':'select * from sample_catalog.sample_schema.sf_operator_1 where dt='2023-10-22'}
 
     in the parameters dictionary we have mandatory keys as follows
     load_type(required): incremental/full
@@ -280,12 +320,20 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     incremental_filter (optional): mandatory parameter for incremental load type to delete existing data in snowflake table
     dbx_data_filter (optional): parameter to filter databricks table if different from snowflake filter
     sf_cluster_keys (optional): list of keys to cluster the data in snowflake
+    dbx_sql (optional): sql query to extract data from unity catalog
+
+    One of dbx_sql or dbx_catalog, dbx_database, dbx_table should be provided
+    If custom sql is mentioned in db_sql, for incremental process make sure to include to write_mode or adjust incremental filter in the Operator to align with custom sql
+    if not, there could be duplicates in Snowflake table
+
     """
 
-    def __init__(self, secret_scope, parameters={}, *args, **kwargs):
-        SnowflakeOperator.__init__(self, secret_scope, "", parameters)
+    def __init__(self, secret_scope, parameters={}, write_mode=None, *args, **kwargs):
+        super().__init__(secret_scope, *args, **kwargs)
+        self.parameters = parameters
         self.dbx_data_filter = self.parameters.get("dbx_data_filter") or None
-        self.write_mode = None
+        self.dbx_sql = self.parameters.get("dbx_sql") or None
+        self.write_mode = write_mode
         """
         self.authenticator = None
         try:
@@ -349,12 +397,17 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             # Setup the mandatory params for snowflake load
             mandatory_keys = (
                 "load_type",
-                "dbx_catalog",
-                "dbx_database",
-                "dbx_table",
                 "sf_schema",
                 "sf_table",
             )
+            if self.dbx_sql is not None:
+                mandatory_keys = mandatory_keys + ("dbx_sql",)
+            else:
+                mandatory_keys = mandatory_keys + (
+                    "dbx_catalog",
+                    "dbx_database",
+                    "dbx_table",
+                )
             if not all(key in self.parameters for key in mandatory_keys):
                 self.log.info(
                     "Mandatory keys for UcToSnowflakeOperator(parameters): %s\n"
@@ -414,24 +467,31 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             self.submit_job_snowflake(self.sf_post_grants_sql)
 
     def extract_source(self):
-        if self.parameters["load_type"] == "incremental":
-            self.dbx_data_filter = (
-                self.parameters.get("dbx_data_filter")
-                or self.parameters.get("incremental_filter")
-                or "1=1"
+        if self.dbx_sql is not None:
+            self.log.info(
+                f"Executing Custom sql to extract data from Unity catalog. Query -: {self.dbx_sql}"
             )
+            df = ctx.spark.sql(self.dbx_sql)
+            return df
         else:
-            self.dbx_data_filter = self.parameters.get("dbx_data_filter") or "1=1"
+            if self.parameters["load_type"] == "incremental":
+                self.dbx_data_filter = (
+                    self.parameters.get("dbx_data_filter")
+                    or self.parameters.get("incremental_filter")
+                    or "1=1"
+                )
+            else:
+                self.dbx_data_filter = self.parameters.get("dbx_data_filter") or "1=1"
 
-        df = ctx.spark.sql(
-            """select * from {}.{}.{} where {}""".format(
-                self.parameters["dbx_catalog"],
-                self.parameters["dbx_database"],
-                self.parameters["dbx_table"],
-                self.dbx_data_filter,
+            df = ctx.spark.sql(
+                """select * from {}.{}.{} where {}""".format(
+                    self.parameters["dbx_catalog"],
+                    self.parameters["dbx_database"],
+                    self.parameters["dbx_table"],
+                    self.dbx_data_filter,
+                )
             )
-        )
-        return df
+            return df
 
     def load_snowflake(self, source_df, target_table):
         sf_package = "net.snowflake.spark.snowflake"
@@ -480,9 +540,10 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             else self.parameters["sf_table"]
         )
         source_data = self.extract_source()
-        self.write_mode = (
-            "Overwrite" if self.parameters["load_type"] == "full" else "Append"
-        )
+        if self.write_mode is None:
+            self.write_mode = (
+                "Overwrite" if self.parameters["load_type"] == "full" else "Append"
+            )
         self.sf_cluster_keys = (
             []
             if "sf_cluster_keys" not in self.parameters.keys()

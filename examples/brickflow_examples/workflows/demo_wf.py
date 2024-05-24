@@ -277,7 +277,7 @@ def airflow_autosys_sensor():
 
 @wf.task
 def run_snowflake_queries(*args):
-    uc_to_sf_copy = UcToSnowflakeOperator(
+    uc_to_sf_table_copy = UcToSnowflakeOperator(
         secret_cope="sample_scope",
         parameters={
             "load_type": "incremental",
@@ -292,6 +292,46 @@ def run_snowflake_queries(*args):
             "sf_cluster_keys": "",
         },
     )
+    uc_to_sf_table_copy.execute()
+
+
+# Operator usage to run custom sql, to extract data from Unity Catalog
+
+
+@wf.task
+def copy_uc_to_snowflake(*args):
+    uc_to_sf_query_copy = UcToSnowflakeOperator(
+        secret_scope="sample_scope",
+        write_mode="overwrite",
+        parameters={
+            "load_type": "incremental",
+            "sf_schema": "stage",
+            "sf_table": "SF_OPERATOR_1",
+            "sf_grantee_roles": "downstream_read_role",
+            "incremental_filter": "dt='2023-10-22'",
+            "dbx_data_filter": "run_dt='2023-10-21'",
+            "sf_cluster_keys": "",
+            "dbx_sql": "select cola, colb, colc from catalog.schema.table where some condition",
+        },
+    )
+    uc_to_sf_query_copy.execute()
+
+
+@wf.task
+def run_snowflake_queries(*args):
+    uc_to_sf_full_copy = UcToSnowflakeOperator(
+        secret_cope="sample_scope",
+        parameters={
+            "load_type": "full",
+            "dbx_catalog": "sample_catalog",
+            "dbx_database": "sample_schema",
+            "dbx_table": "sf_operator_1",
+            "sf_schema": "stage",
+            "sf_table": "SF_OPERATOR_1",
+            "sf_grantee_roles": "downstream_read_role",
+            "sf_cluster_keys": "",
+        },
+    )
     uc_to_sf_copy.execute()
 
 
@@ -303,6 +343,17 @@ def run_snowflake_queries(*args):
         parameters={"database": "sample_db"},
     )
     sf_query_run.execute()
+
+
+@wf.task
+def run_snowflake_files(*args):
+    sf_file_run = SnowflakeOperator(
+        secret_cope="sample_scope",
+        sql_file="src/sql/sample.sql",
+        # adjust sql file path relative to your brickflow project path (Ex:examples/brickflow_examples/)
+        parameters={"database": "sample_db"},
+    )
+    sf_file_run.execute()
 
 
 @wf.task

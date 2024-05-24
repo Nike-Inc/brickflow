@@ -1,5 +1,7 @@
 import functools
 from typing import Callable, Type, List, Iterator, Union
+import pathlib
+import os
 
 from pydantic import SecretStr
 from databricks.sdk import WorkspaceClient
@@ -75,3 +77,22 @@ def get_job_id(
         ctx.log.info("An error occurred: %s", e)
 
     return None
+
+
+def get_bf_project_root() -> pathlib.Path:
+    """Returns the root directory of the current Brickflow project
+
+    Parameters:
+        _file (str): file path where the function is called
+
+    Returns:
+        pathlib.Path: Brickflow project root directory
+    """
+    try:
+        _file_name = os.getcwd()
+        _project_root = pathlib.Path(_file_name).resolve().parents[0]
+        ctx.log.info("Setting Brickflow project root as %s", _project_root)
+        return _project_root
+    except Exception as e:
+        ctx.log.info("An error occurred: %s", e)
+        raise e
