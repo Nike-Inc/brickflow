@@ -1,11 +1,12 @@
 import datetime
 from collections import namedtuple
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 
+from pydantic import SecretStr
 import pytest
 from deepdiff import DeepDiff
-
-from brickflow import BrickflowProjectDeploymentSettings
+from brickflow.engine.utils import get_job_id
+from brickflow import BrickflowProjectDeploymentSettings, SparkJarTask
 from brickflow.context import (
     ctx,
     BRANCH_SKIP_EXCEPT,
@@ -439,7 +440,7 @@ class TestTask:
     def test_get_brickflow_libraries(self):
         settings = BrickflowProjectDeploymentSettings()
         settings.brickflow_project_runtime_version = "1.0.0"
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -455,7 +456,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "1.0.1rc1234"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -471,7 +472,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "somebranch"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 4
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -482,3 +483,120 @@ class TestTask:
         }
         diff = DeepDiff(expected, lib)
         assert not diff, diff
+
+    @patch("brickflow.engine.utils.WorkspaceClient")
+    def test_get_job_id(self, mock_workspace_client) -> None:
+        # Arrange
+        mock_workspace_client.return_value.jobs.list.return_value = [
+            MagicMock(job_id=123)
+        ]
+        job_name = "test_job"
+        host = "https://databricks-instance"
+        token = SecretStr("token")
+
+        # Act
+        result = get_job_id(job_name, host, token)
+
+        # Assert
+        assert result == 123
+
+    @patch("brickflow.engine.utils.WorkspaceClient")
+    def test_get_job_id_no_job_found(self, mock_workspace_client) -> None:
+        # Arrange
+        mock_workspace_client.return_value.jobs.list.return_value = []
+        job_name = "test_job"
+        host = "https://databricks-instance"
+        token = SecretStr("token")
+
+        # Act and Assert
+        try:
+            get_job_id(job_name, host, token)
+            assert False, "Expected ValueError"
+        except ValueError:
+            pass
+
+    def test_init_spark_jar(self):
+        task = SparkJarTask(
+            main_class_name="MainClass",
+            jar_uri="test_uri",
+            parameters=["param1", "param2"],
+        )
+        assert task.main_class_name == "MainClass"
+        assert task.jar_uri == "test_uri"
+        assert task.parameters == ["param1", "param2"]
+
+    def test_without_params_spark_jar(self):
+        task = SparkJarTask(main_class_name="MainClass", jar_uri="test_uri")
+        assert task.main_class_name == "MainClass"
+        assert task.jar_uri == "test_uri"
+        assert task.parameters is None
+
+    @patch("brickflow.bundles.model.JobsTasksSqlTaskAlert")
+    @patch("brickflow.engine.task.SqlTask")
+    def test_alert_creation(self, mock_sql_task, mock_alert):
+        mock_alert_instance = MagicMock()
+        mock_alert_instance.alert_id = "alert1"
+        mock_alert_instance.pause_subscriptions = False
+        mock_alert_instance.subscriptions = {
+            "usernames": ["user1", "user2"],
+            "destination_id": ["dest1", "dest2"],
+        }
+        mock_alert.return_value = mock_alert_instance
+
+        mock_sql_task_instance = MagicMock()
+        mock_sql_task_instance.alert = mock_alert_instance
+        mock_sql_task.return_value = mock_sql_task_instance
+
+        sql_task = mock_sql_task(
+            query_id="query1",
+            file_path="path/to/file",  # sample test file
+            alert_id="alert1",
+            pause_subscriptions=False,
+            subscriptions={
+                "usernames": ["user1", "user2"],
+                "destination_id": ["dest1", "dest2"],
+            },
+            dashboard_id="dashboard1",
+            dashboard_custom_subject="custom subject",
+            warehouse_id="warehouse1",
+        )
+        assert isinstance(sql_task.alert, MagicMock)
+        assert sql_task.alert.alert_id == "alert1"
+        assert sql_task.alert.pause_subscriptions is False
+        assert len(sql_task.alert.subscriptions) == 2
+
+    @patch("brickflow.bundles.model.JobsTasksSqlTaskDashboard")
+    @patch("brickflow.engine.task.SqlTask")
+    def test_dashboard_creation(self, mock_sql_task, mock_dashboard):
+        mock_dashboard_instance = MagicMock()
+        mock_dashboard_instance.dashboard_id = "dashboard1"
+        mock_dashboard_instance.custom_subject = "custom subject"
+        mock_dashboard_instance.pause_subscriptions = False
+        mock_dashboard_instance.subscriptions = {
+            "usernames": ["user1", "user2"],
+            "destination_id": ["dest1", "dest2"],
+        }
+        mock_dashboard.return_value = mock_dashboard_instance
+
+        mock_sql_task_instance = MagicMock()
+        mock_sql_task_instance.dashboard = mock_dashboard_instance
+        mock_sql_task.return_value = mock_sql_task_instance
+
+        sql_task = mock_sql_task(
+            query_id="query1",
+            file_path="path/to/file",
+            alert_id="alert1",
+            pause_subscriptions=False,
+            subscriptions={
+                "usernames": ["user1", "user2"],
+                "destination_id": ["dest1", "dest2"],
+            },
+            dashboard_id="dashboard1",
+            dashboard_custom_subject="custom subject",
+            warehouse_id="warehouse1",
+        )
+        assert isinstance(sql_task.dashboard, MagicMock)
+        assert sql_task.dashboard.dashboard_id == "dashboard1"
+        assert sql_task.dashboard.custom_subject == "custom subject"
+        assert sql_task.dashboard.pause_subscriptions is False
+        assert len(sql_task.dashboard.subscriptions) == 2

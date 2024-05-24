@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 from __future__ import annotations
 
 import base64
@@ -37,6 +38,15 @@ from brickflow.bundles.model import (
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
     JobsTasksHealthRules,
+    JobsTasksRunJobTask,
+    JobsTasksSparkJarTask,
+    JobsTasksSqlTask,
+    JobsTasksSqlTaskAlert,
+    JobsTasksSqlTaskAlertSubscriptions,
+    JobsTasksSqlTaskDashboardSubscriptions,
+    JobsTasksSqlTaskDashboard,
+    JobsTasksSqlTaskFile,
+    JobsTasksSqlTaskQuery,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -50,6 +60,7 @@ from brickflow.context import (
 from brickflow.engine import ROOT_NODE, with_brickflow_logger
 from brickflow.engine.compute import Cluster
 from brickflow.engine.hooks import BRICKFLOW_TASK_PLUGINS, BrickflowTaskPluginSpec
+from brickflow.engine.utils import get_job_id
 
 if TYPE_CHECKING:
     from brickflow.engine.workflow import Workflow  # pragma: no cover
@@ -104,6 +115,8 @@ class TaskType(Enum):
     DLT = "pipeline_task"
     CUSTOM_PYTHON_TASK = "custom_python_task"
     NOTEBOOK_TASK = "notebook_task"
+    SPARK_JAR_TASK = "spark_jar_task"
+    RUN_JOB_TASK = "run_job_task"
 
 
 class TaskRunCondition(Enum):
@@ -373,6 +386,203 @@ class DLTPipeline:
 
 class NotebookTask(JobsTasksNotebookTask):
     pass
+
+
+class SparkJarTask(JobsTasksSparkJarTask):
+    """
+    The SparkJarTask class  is designed to handle the execution of a Spark job which had JAR dependencies in a
+    Databricks workspace.One has to make sure that the JAR file(s) are uploaded to the dbfs (or) s3 and provide
+    the absolute path in library.An instance of SparkJarTask represents a Spark job that is identified by its main
+    class name and optionally by its parameters.
+
+    Attributes:
+        main_class_name (str, optional): The main class name of the Spark job to be run.
+        parameters (List[str], optional): The parameters for the Spark job. If not provided, default
+        parameters are used.
+
+    Examples:
+        Below are the different ways in which the SparkJarTask class can be used:
+        @wf.spark_jar_task(
+                    libraries=[
+                        JarTaskLibrary(
+                            jar="dbfs:/Volumes/development/global_sustainability_dev/spark_jar_test/PrintArgs.jar"
+                        )
+                    ]
+                )
+            def spark_jar_task_a():
+                return SparkJarTask(
+                    main_class_name="PrintArgs",
+                    parameters=["Hello", "World!"],
+                )
+         -------------------------------------------------------------------------------
+        @wf.spark_jar_task(
+                    libraries=[
+                        JarTaskLibrary(
+                            jar="s3:/Volumes/development/global_sustainability_dev/spark_jar_test/PrintArgs.jar"
+                        )
+                    ]
+                )
+            def spark_jar_task_a():
+                return SparkJarTask(
+                    main_class_name="PrintArgs",
+                    parameters=["Hello", "World!"],
+                )
+    """
+
+    main_class_name: Optional[str]
+    parameters: Optional[List[str]] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.main_class_name = kwargs.get("main_class_name", None)
+        self.parameters = kwargs.get("parameters", None)
+
+
+class RunJobTask(JobsTasksRunJobTask):
+    """
+    The RunJobTask class is designed to handle the execution of a specific job in a Databricks workspace.
+
+    An instance of RunJobTask represents a job that is identified by its name. The job can also be executed on a
+    specific host, which is authenticated using a token. The job can also be provided with parameters.
+
+    The RunJobTask class provides additional functionality for retrieving the job ID based on the job name, host,
+    and token.
+
+    Attributes:
+        job_name (str): The name of the job to be run.
+        host (str, optional): The host on which the job is to be run. If not provided, a default host is used.
+        token (str, optional): The token used for authentication. If not provided, a default token is used.
+        job_parameters (Any, optional): The parameters for the job. If not provided, default parameters are used.
+
+    Examples:
+        Below are the different ways in which the RunJobTask class can be used inside workflow (run_job_task).:
+            1. RunJobTask(job_name="dev_object_raw_to_cleansed", host="YOUR_WORKSPACE_URL",
+            token="***********",job_parameters={"param1": "value1", "param2": "value2"})
+
+            2. RunJobTask(job_name="dev_object_raw_to_cleansed",
+            job_parameters={"param1": "value1", "param2": "value2"})
+
+            3. RunJobTask(job_name="dev_object_raw_to_cleansed")
+    """
+
+    job_name: str
+    job_id: Optional[float] = None
+    host: Optional[str] = None
+    token: Optional[str] = None
+    job_parameters: Optional[Any] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.job_id = get_job_id(self.job_name, self.host, self.token)
+        self.job_parameters = kwargs.get("job_parameters", None)
+
+
+class SqlTask(JobsTasksSqlTask):
+    """
+    The SqlTask class is designed to handle SQL tasks in a more specific context.
+
+    An instance of SqlTask represents a SQL task that can be associated with either a SQL query, a file path, an alert,
+    or a dashboard. Each of these associations is represented by a unique identifier (ID).
+    The SqlTask class ensures that only one of these associations is present for any given instance.
+
+    The SqlTask class also provides additional functionality for handling subscriptions. Subscriptions can be paused,
+    and custom subjects can be set for dashboard-related tasks.
+
+    Attributes:
+        dashboard_id (str, optional): The ID of the dashboard.
+        dashboard_custom_subject (str, optional): The custom subject of the dashboard.
+        file_path (str, optional): The path of the SQL file.
+        alert_id (str, optional): The ID of the alert.
+        pause_subscriptions (bool, optional): If true, the alert notifications are not sent to subscribers.
+        subscriptions (dict, optional): The subscriptions for the alert or dashboard.
+        parameters (dict, optional): The parameters for the SQL task.
+        query_id (str, optional): The ID of the SQL query.
+        warehouse_id (str): The ID of the warehouse.
+
+    Examples:
+        Below are the different ways in which the SqlTask class can be used inside workflow (sql_task).:
+            For SQL query: SqlTask(query_id= "YOUR_QUERY_ID", warehouse_id="YOUR_WAREHOUSE_ID")
+            For SQL file: SqlTask(file_path="/Workspace/Users/YOUR_USERNAME/raju_sql_test_brickflow.sql",
+              warehouse_id="your_warehouse_id")
+            For Sql alerts: SqlTask(alert_id="Your_Alert_ID", pause_subscriptions=False,
+                subscriptions={"usernames":["YOUR_USERNAME", 'YOUR_USERNAME']}
+                ,warehouse_id="your_warehouse_id")
+            For SQL dashboards: SqlTask(dashboard_id="Your_Dashboard_ID",
+                dashboard_custom_subject="Raju Legacy Dashboard Test", pause_subscriptions=True,
+                subscriptions={"usernames":["YOUR_USERNAME", 'YOUR_USERNAME'],
+                "destination_id":["your_destination_id"]},warehouse_id="your_warehouse_id")
+    """
+
+    dashboard_id: Optional[str] = None
+    dashboard_custom_subject: Optional[str] = None
+    file_path: Optional[str] = None
+    alert_id: Optional[str] = None
+    pause_subscriptions: Optional[bool] = None
+    subscriptions: Optional[Dict[str, List[str]]] = None
+    parameters: Optional[Dict[str, str]] = None
+    query_id: Optional[str] = None
+    warehouse_id: str
+
+    def __init__(self, *args: Any, **kwds: Any):
+        super().__init__(*args, **kwds)
+        # logging and handling conditions
+        if (
+            sum(
+                [
+                    self.query_id is not None,
+                    self.file_path is not None,
+                    self.alert_id is not None,
+                    self.dashboard_id is not None,
+                ]
+            )
+            != 1
+        ):
+            ctx.log.warning(
+                "SqlTask must have exactly one of query_id or file_path or alert or dashboard.\
+                  Find more examples on how to use SqlTask in the documentation."
+            )
+        else:
+            if self.query_id:
+                self.query = JobsTasksSqlTaskQuery(query_id=self.query_id)
+            if self.file_path:
+                self.file = JobsTasksSqlTaskFile(path=self.file_path)
+            if self.alert_id:
+                if self.subscriptions:
+                    self.alert = JobsTasksSqlTaskAlert(
+                        alert_id=self.alert_id,
+                        pause_subscriptions=self.pause_subscriptions,
+                        subscriptions=[
+                            JobsTasksSqlTaskAlertSubscriptions(user_name=username)
+                            for username in self.subscriptions.get("usernames", "")
+                        ]
+                        + [
+                            JobsTasksSqlTaskAlertSubscriptions(
+                                destination_id=destination_id
+                            )
+                            for destination_id in self.subscriptions.get(
+                                "destination_id", ""
+                            )
+                        ],
+                    )
+            if self.dashboard_id:
+                if self.subscriptions:
+                    self.dashboard = JobsTasksSqlTaskDashboard(
+                        dashboard_id=self.dashboard_id,
+                        custom_subject=self.dashboard_custom_subject,
+                        pause_subscriptions=self.pause_subscriptions,
+                        subscriptions=[
+                            JobsTasksSqlTaskDashboardSubscriptions(user_name=username)
+                            for username in self.subscriptions.get("usernames", "")
+                        ]
+                        + [
+                            JobsTasksSqlTaskDashboardSubscriptions(
+                                destination_id=destination_id
+                            )
+                            for destination_id in self.subscriptions.get(
+                                "destination_id", ""
+                            )
+                        ],
+                    )
 
 
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
@@ -842,6 +1052,7 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
             bf_lib,
             PypiTaskLibrary("apache-airflow==2.7.3"),
             PypiTaskLibrary("snowflake==0.6.0"),
+            PypiTaskLibrary("tableauserverclient==0.25"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:

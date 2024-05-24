@@ -36,7 +36,7 @@ def get_properties(some_obj: Type) -> List[str]:
 
 def get_job_id(
     job_name: str, host: Union[str, None] = None, token: Union[str, SecretStr] = None
-) -> Union[str, None]:
+) -> Union[float, None]:
     """
     Get the job id from the specified Databricks workspace for a given job name.
 

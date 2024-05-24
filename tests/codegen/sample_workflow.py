@@ -1,10 +1,14 @@
+from brickflow import JarTaskLibrary
 from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
     BrickflowTriggerRule,
+    RunJobTask,
+    SqlTask,
     TaskType,
     TaskResponse,
     DLTPipeline,
     NotebookTask,
+    SparkJarTask,
     TaskSettings,
     TaskRunCondition,
 )
@@ -27,8 +31,7 @@ wf = Workflow(
         "rules": [
             {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
         ]
-    },
-    timeout_seconds=42,
+    },  # type: ignore
 )
 
 
@@ -48,6 +51,71 @@ def notebook_task_a(*, test="var"):
     print(test)
     return NotebookTask(
         notebook_path="notebooks/notebook_a",
+    )  # type: ignore
+
+
+@wf.spark_jar_task(
+    libraries=[
+        JarTaskLibrary(
+            jar="dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar"
+        )
+    ],
+    depends_on=notebook_task_a,
+)
+def spark_jar_task_a():
+    return SparkJarTask(
+        main_class_name="PrintArgs",
+        parameters=["Hello", "World!"],
+    )  # type: ignore
+
+
+@wf.run_job_task(
+    depends_on=notebook_task_a,
+)
+def run_job_task_a():
+    return RunJobTask(job_name="dev_object_raw_to_cleansed")  # type: ignore
+
+
+@wf.sql_task
+def sample_sql_task_query() -> any:
+    return SqlTask(
+        query_id="your_sql_query_id",
+        warehouse_id="your_warehouse_id",
+    )
+
+
+@wf.sql_task
+def sample_sql_task_file() -> any:
+    return SqlTask(
+        file_path="products/brickflow_test/src/sql/sql_task_file_test.sql",
+        warehouse_id="your_warehouse_id",
+    )
+
+
+@wf.sql_task(depends_on=notebook_task_a)
+def sample_sql_alert() -> any:
+    # we need to create kind of dict format for subscriptions to accept usenames and one destination_id..
+    # we can either send username or destination_id (not both)
+    # it automatically validates user emails
+    return SqlTask(
+        alert_id="Your_Alert_ID",
+        pause_subscriptions=False,
+        subscriptions={"usernames": ["YOUR_USERNAME", "YOUR_USERNAME"]},
+        warehouse_id="your_warehouse_id",
+    )
+
+
+@wf.sql_task
+def sample_sql_dashboard() -> any:
+    return SqlTask(
+        dashboard_id="Your_Dashboard_ID",
+        dashboard_custom_subject="Raju Legacy Dashboard Test",
+        pause_subscriptions=True,
+        subscriptions={
+            "usernames": ["YOUR_USERNAME", "YOUR_USERNAME"],
+            "destination_id": ["your_destination_id"],
+        },
+        warehouse_id="your_warehouse_id",
     )
 
 

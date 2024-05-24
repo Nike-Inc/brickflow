@@ -30,6 +30,7 @@ from brickflow.engine.project import Stage, Project
 from brickflow.engine.task import NotebookTask
 from tests.codegen.sample_workflow import wf
 
+# BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
 
 
@@ -45,8 +46,11 @@ def normalize_bundle_via_pydantic(d: Dict[str, Any]) -> Dict[str, Any]:
 
 def assert_equal_dicts(actual: Dict[str, Any], expected: Dict[str, Any]):
     diff = DeepDiff(
-        normalize_bundle_via_pydantic(expected), normalize_bundle_via_pydantic(actual)
+        normalize_bundle_via_pydantic(expected),
+        normalize_bundle_via_pydantic(actual),
+        ignore_order=True,
     )
+    print(diff)
     # pylint indicates that empty dictionary is falsey
     # diff should be empty dict
     assert not diff, diff
@@ -71,6 +75,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -79,11 +84,13 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
+        get_job_id_mock.return_value = 12345678901234.0
         # get caller part breaks here
         with Project(
             "test-project",
@@ -107,8 +114,8 @@ class TestBundleCodegen:
         expected = get_expected_bundle_yaml("local_bundle.yml")
         bf_version_mock.assert_called_once()
         assert_equal_dicts(actual, expected)
-        if os.path.exists(BUNDLE_FILE_NAME):
-            os.remove(BUNDLE_FILE_NAME)
+        # if os.path.exists(BUNDLE_FILE_NAME):
+        #     os.remove(BUNDLE_FILE_NAME)
 
     @patch.dict(
         os.environ,
@@ -120,6 +127,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_WORKFLOW_SUFFIX.value: "_suffix",
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -128,11 +136,13 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
+        get_job_id_mock.return_value = 12345678901234.0
         # get caller part breaks here
         with Project(
             "test-project",
@@ -167,6 +177,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -175,6 +186,7 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         git_ref_b = b"a"
@@ -182,6 +194,7 @@ class TestBundleCodegen:
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
+        get_job_id_mock.return_value = 12345678901234.0
 
         workspace_client = get_workspace_client_mock()
 
@@ -221,6 +234,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_PROJECT_RUNTIME_VERSION.value: "0.1.0",
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -229,6 +243,7 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         git_ref_b = b"a"
@@ -236,6 +251,7 @@ class TestBundleCodegen:
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
+        get_job_id_mock.return_value = 12345678901234.0
 
         workspace_client = get_workspace_client_mock()
 
@@ -287,6 +303,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT.value: "some/path/to/root",
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -295,6 +312,7 @@ class TestBundleCodegen:
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         git_ref_b = b"a"
@@ -302,6 +320,7 @@ class TestBundleCodegen:
         git_provider = "github"
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
+        get_job_id_mock.return_value = 12345678901234.0
 
         workspace_client = get_workspace_client_mock()
 

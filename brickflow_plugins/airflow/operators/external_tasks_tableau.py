@@ -192,9 +192,11 @@ class TableauWrapper:
                 if response and response.completed_at
                 else None
             ),
-            "job_status_details": response.notes
-            if response and response.notes and finish_code == 1
-            else None,
+            "job_status_details": (
+                response.notes
+                if response and response.notes and finish_code == 1
+                else None
+            ),
         }
 
     def _refresh_datasource(self, ds: TSC.DatasourceItem) -> dict:
