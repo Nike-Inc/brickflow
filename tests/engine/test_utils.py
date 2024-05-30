@@ -57,7 +57,7 @@ class TestUtils:
 
     def test_get_bf_project_root(self):
         # Set up expected path which is the root of the repo
-        expected_root = pathlib.Path("/__w/brickflow")
+        expected_root = pathlib.Path.cwd().parents[0]
         # Execute the function
         actual_root = get_bf_project_root()
         # Assert the result
