@@ -10,7 +10,6 @@ from airflow.sensors.base import BaseSensorOperator
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests import HTTPError
-
 from datetime import datetime, timedelta
 from dateutil.parser import parse  # type: ignore[import-untyped]
 import time
@@ -217,8 +216,8 @@ class TaskDependencySensor(BaseSensorOperator):
         self.latest = latest
         self.poke_interval = poke_interval
         self._poke_count = 0
-
-    def get_execution_stats(self):
+       
+    def get_execution_stats(self,execution_window_tz):
         """Function to get the execution stats for task_id within a execution delta window
 
         Returns:
@@ -231,9 +230,7 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (datetime.now() + execution_delta).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
+        execution_window_tz = execution_window_tz
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
@@ -299,11 +296,11 @@ class TaskDependencySensor(BaseSensorOperator):
         task_state = task_response.json()["state"]
         return task_state
 
-    def poke(self, context):
+    def poke(self, context,execution_window_tz):
         log.info(f"executing poke.. {self._poke_count}")
         self._poke_count = self._poke_count + 1
         logging.info("Poking.. {0} round".format(str(self._poke_count)))
-        task_status = self.get_execution_stats()
+        task_status = self.get_execution_stats(execution_window_tz)
         log.info(f"task_status= {task_status}")
         return task_status
 
@@ -329,7 +326,7 @@ class TaskDependencySensor(BaseSensorOperator):
         )
         status = ""
         while status not in allowed_states:
-            status = self.poke(context)
+            status = self.poke(context,execution_window_tz)
             if status == "failed":
                 log.error(
                     f"Upstream dag {external_dag_id} failed at {external_task_id} task "
