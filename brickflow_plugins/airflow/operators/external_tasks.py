@@ -187,10 +187,6 @@ class AirflowScheduleHelper(DagSchedule):
         return o_task_status
 
 
-class TaskDependencySensorTimeOutException(TimeoutError):
-    pass
-
-
 class TaskDependencySensor(BaseSensorOperator):
     def __init__(
         self,
@@ -202,7 +198,6 @@ class TaskDependencySensor(BaseSensorOperator):
         execution_delta_json=None,
         latest=False,
         poke_interval=60,
-        timeout_seconds=3600,  # default: 1 hour
         *args,
         **kwargs,
     ):
@@ -221,9 +216,7 @@ class TaskDependencySensor(BaseSensorOperator):
         self.execution_delta_json = execution_delta_json
         self.latest = latest
         self.poke_interval = poke_interval
-        self.timeout_seconds = timeout_seconds
         self._poke_count = 0
-        self._start_time = time.time()
 
     def get_execution_stats(self, execution_date: datetime):
         """Function to get the execution stats for task_id within a execution delta window
@@ -352,9 +345,6 @@ class TaskDependencySensor(BaseSensorOperator):
                 time.sleep(self.poke_interval)
             elif status != "success":
                 time.sleep(self.poke_interval)
-
-            if (time.time() - self._start_time) > self.timeout_seconds:
-                raise TaskDependencySensorTimeOutException("The job has timed out")
         log.info(f"Upstream Dag {external_dag_id} is successful")
 
 
