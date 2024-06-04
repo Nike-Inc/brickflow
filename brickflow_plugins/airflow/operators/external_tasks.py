@@ -7,6 +7,7 @@ from typing import Callable, Union
 import requests
 from airflow.models import Connection
 from airflow.sensors.base import BaseSensorOperator
+from airflow.exceptions import AirflowSensorTimeout
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests import HTTPError
@@ -217,6 +218,7 @@ class TaskDependencySensor(BaseSensorOperator):
         self.latest = latest
         self.poke_interval = poke_interval
         self._poke_count = 0
+        self._start_time = time.time()
 
     def get_execution_stats(self, execution_date: datetime):
         """Function to get the execution stats for task_id within a execution delta window
@@ -307,6 +309,9 @@ class TaskDependencySensor(BaseSensorOperator):
         self._poke_count = self._poke_count + 1
         log.info("Poking.. {0} round".format(str(self._poke_count)))
 
+        # Execution date is extracted from context and will be based on the task schedule, e.g.
+        # 0 0 1 ? * MON-SAT * -> 2024-01-01T01:00:00.000000+00:00
+        # This means that the relative delta between workflow execution and target Airflow DAG always stays the same.
         execution_date = parse(context["execution_date"])
         log.info(f"Execution date derived from context: {execution_date}")
 
@@ -345,6 +350,9 @@ class TaskDependencySensor(BaseSensorOperator):
                 time.sleep(self.poke_interval)
             elif status != "success":
                 time.sleep(self.poke_interval)
+
+            if (time.time() - self._start_time) > self.timeout:
+                raise AirflowSensorTimeout("The job has timed out")
         log.info(f"Upstream Dag {external_dag_id} is successful")
 
 
