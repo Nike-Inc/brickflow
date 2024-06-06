@@ -9,11 +9,15 @@ targets:
           notification_settings: null
           webhook_notifications: null
           timeout_seconds: null
-          health: 
+          health:
             rules:
               - metric: "RUN_DURATION_SECONDS"
                 op: "GREATER_THAN"
                 value: 7200.0
+          trigger:
+            pause_status: UNPAUSED
+            file_arrival:
+              url: <my_url>
           git_source: null
           job_clusters: []
           max_concurrent_runs: 1.0

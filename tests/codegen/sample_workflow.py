@@ -32,6 +32,10 @@ wf = Workflow(
             {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
         ]
     },  # type: ignore
+    trigger={
+        "file_arrival": {"url": "<my_url>"},
+        "pause_status": "UNPAUSED",
+    },  # type: ignore
 )
 
 

@@ -7,6 +7,7 @@ targets:
         some_wf:
           email_notifications: null
           health: null
+          trigger: null
           git_source:
             git_commit: a
             git_provider: github
@@ -76,6 +77,10 @@ targets:
               - metric: "RUN_DURATION_SECONDS"
                 op: "GREATER_THAN"
                 value: 7200.0
+          trigger:
+            pause_status: UNPAUSED
+            file_arrival:
+              url: <my_url>
           git_source:
             git_commit: a
             git_provider: github
