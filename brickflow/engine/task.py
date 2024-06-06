@@ -742,8 +742,18 @@ class Task:
 
     @property
     def builtin_notebook_params(self) -> Dict[str, str]:
-        # 2 braces to escape for 1
-        return {i.value: f"{{{{{i.name}}}}}" for i in BrickflowBuiltInTaskVariables}
+        mapping = {
+            "brickflow_job_id": "{{job.id}}",
+            "brickflow_run_id": "{{task.run_id}}",
+            "brickflow_start_date": "{{job.trigger.time.iso_date}}",
+            "brickflow_start_time": "{{job.trigger.time.iso_datetime}}",
+            "brickflow_task_retry_count": "{{task.execution_count}}",
+            "brickflow_parent_run_id": "{{job.run_id}}",
+            "brickflow_task_key": "{{task.name}}",
+        }
+        # Generate the new dictionary based on the mapping
+        return {i.value: mapping[i.value] for i in BrickflowBuiltInTaskVariables}
+
 
     @property
     def name(self) -> str:
