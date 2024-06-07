@@ -398,7 +398,7 @@ def sample_sql_dashboard_task() -> any:
 
 ```
 
-#### IfElseConditionTask
+#### If/Else Task
 The `IfElseConditionTask` class is used to create conditional tasks in the workflow. It can be used to create tasks with a left operand, a right operand, and an operator.
 
 The `IfElseConditionTask` is used as a decorator in conjunction with the `if_else_condition_task` method of a `Workflow` instance. This method registers the task within the workflow.
@@ -441,7 +441,6 @@ def sample_condition_false():
 # Ex: if_else_outcome={"task1":"false", "task2":"true"}
 ```
 
-In this example, the `IfElseConditionTask` is used to create a task that checks if "value1" is equal to "value2". If the condition is true, the task will return `True`; otherwise, it will return `False`.
 
 
 ### Trigger rules
