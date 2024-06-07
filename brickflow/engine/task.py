@@ -754,7 +754,6 @@ class Task:
         # Generate the new dictionary based on the mapping
         return {i.value: mapping[i.value] for i in BrickflowBuiltInTaskVariables}
 
-
     @property
     def name(self) -> str:
         return self.task_id
