@@ -471,6 +471,18 @@ targets:
                 warehouse_id: "your_warehouse_id"
               task_key: "sample_sql_task_query"
               timeout_seconds: null
+            - depends_on:
+              - task_key: "sample_sql_task_query"
+              email_notifications: {}
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              condition_task:
+                left: "1"
+                op: "EQUAL_TO"
+                right: "2"
+              task_key: "condtion_task_test"
+              timeout_seconds: null
       pipelines:
         test_hello_world:
           catalog: null

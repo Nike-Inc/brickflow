@@ -277,6 +277,7 @@ from brickflow.engine.task import (
     SparkJarTask,
     RunJobTask,
     SqlTask,
+    IfElseConditionTask,
 )
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
@@ -323,6 +324,7 @@ __all__: List[str] = [
     "DLTChannels",
     "Cluster",
     "Runtimes",
+    "IfElseConditionTask",
     "Project",
     "SqlTask",
     "_ilog",

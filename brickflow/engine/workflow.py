@@ -298,6 +298,7 @@ class Workflow:
         custom_execute_callback: Optional[Callable] = None,
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -339,6 +340,7 @@ class Workflow:
             task_settings=task_settings,
             custom_execute_callback=custom_execute_callback,
             ensure_brickflow_plugins=ensure_plugins,
+            if_else_outcome=if_else_outcome,
         )
 
         # attempt to create task object before adding to graph
@@ -353,6 +355,7 @@ class Workflow:
         name: Optional[str] = None,
         task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
     ) -> Callable:
         return self.task(
             task_func,
@@ -360,6 +363,7 @@ class Workflow:
             task_type=TaskType.DLT,
             task_settings=task_settings,
             depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
         )
 
     def notebook_task(
@@ -370,6 +374,7 @@ class Workflow:
         libraries: Optional[List[TaskLibrary]] = None,
         task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
     ) -> Callable:
         return self.task(
             task_func,
@@ -379,6 +384,7 @@ class Workflow:
             task_type=TaskType.NOTEBOOK_TASK,
             task_settings=task_settings,
             depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
         )
 
     def spark_jar_task(
@@ -389,6 +395,7 @@ class Workflow:
         libraries: Optional[List[TaskLibrary]] = None,
         task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
     ) -> Callable:
         return self.task(
             task_func,
@@ -398,6 +405,7 @@ class Workflow:
             task_type=TaskType.SPARK_JAR_TASK,
             task_settings=task_settings,
             depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
         )
 
     def run_job_task(
@@ -406,6 +414,7 @@ class Workflow:
         name: Optional[str] = None,
         task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
     ) -> Callable:
         return self.task(
             task_func,
@@ -413,6 +422,7 @@ class Workflow:
             task_type=TaskType.RUN_JOB_TASK,
             task_settings=task_settings,
             depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
         )
 
     def sql_task(
@@ -421,6 +431,7 @@ class Workflow:
         name: Optional[str] = None,
         task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
     ) -> Callable:
         return self.task(
             task_func,
@@ -428,6 +439,24 @@ class Workflow:
             task_type=TaskType.SQL,
             task_settings=task_settings,
             depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
+        )
+
+    def condition_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            task_type=TaskType.IF_ELSE_CONDITION_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
         )
 
     def task(
@@ -442,6 +471,7 @@ class Workflow:
         custom_execute_callback: Optional[Callable] = None,
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -464,6 +494,7 @@ class Workflow:
                 custom_execute_callback=custom_execute_callback,
                 task_settings=task_settings,
                 ensure_brickflow_plugins=ensure_brickflow_plugins,
+                if_else_outcome=if_else_outcome,
             )
 
             @functools.wraps(f)

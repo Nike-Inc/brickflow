@@ -40,6 +40,7 @@ from brickflow.bundles.model import (
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
     JobsTasksSqlTask,
+    JobsTasksConditionTask,
     Resources,
     Workspace,
     Bundle,
@@ -531,6 +532,28 @@ class DatabricksBundleCodegen(CodegenInterface):
             task_key=task_name,
         )
 
+    def _build_native_condition_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+    ) -> JobsTasks:
+        try:
+            condition_task: JobsTasksConditionTask = task.task_func()
+        except Exception as e:
+            print(e)
+            raise ValueError(
+                f"Error while building If/else task {task_name}. "
+                f"Make sure {task_name} returns a JobsTasksConditionTask object."
+            ) from e
+        return JobsTasks(
+            **task_settings.to_tf_dict(),  # type: ignore
+            condition_task=condition_task,
+            depends_on=depends_on,
+            task_key=task_name,
+        )
+
     def _build_dlt_task(
         self,
         task_name: str,
@@ -559,7 +582,14 @@ class DatabricksBundleCodegen(CodegenInterface):
         for task_name, task in workflow.tasks.items():
             # TODO: DLT
             # pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
-            depends_on = [JobsTasksDependsOn(task_key=f) for f in task.depends_on_names]  # type: ignore
+            if task.depends_on_names:
+                depends_on = [
+                    JobsTasksDependsOn(task_key=depends_key, outcome=expected_outcome)
+                    for i in task.depends_on_names
+                    for depends_key, expected_outcome in i.items()
+                ]  # type: ignore
+            else:
+                depends_on = []
             libraries = TaskLibrary.unique_libraries(
                 task.libraries + (self.project.libraries or [])
             )
@@ -603,6 +633,13 @@ class DatabricksBundleCodegen(CodegenInterface):
                 # native run job task
                 tasks.append(
                     self._build_native_sql_file_task(
+                        task_name, task, task_settings, depends_on
+                    )
+                )
+            elif task.task_type == TaskType.IF_ELSE_CONDITION_TASK:
+                # native run job task
+                tasks.append(
+                    self._build_native_condition_task(
                         task_name, task, task_settings, depends_on
                     )
                 )

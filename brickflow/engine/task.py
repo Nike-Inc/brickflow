@@ -47,6 +47,7 @@ from brickflow.bundles.model import (
     JobsTasksSqlTaskDashboard,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
+    JobsTasksConditionTask,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -117,6 +118,7 @@ class TaskType(Enum):
     NOTEBOOK_TASK = "notebook_task"
     SPARK_JAR_TASK = "spark_jar_task"
     RUN_JOB_TASK = "run_job_task"
+    IF_ELSE_CONDITION_TASK = "condition_task"
 
 
 class TaskRunCondition(Enum):
@@ -585,6 +587,32 @@ class SqlTask(JobsTasksSqlTask):
                     )
 
 
+class IfElseConditionTask(JobsTasksConditionTask):
+    left: Optional[str] = None
+    right: Optional[str] = None
+    operator: Optional[str] = None
+    op: Optional[str] = None
+
+    def __init__(self, *args: Any, **kwds: Any):
+        super().__init__(*args, **kwds)
+        self.left = kwds["left"]
+        self.right = kwds["right"]
+        if self.operator == "==":
+            self.op = "EQUAL_TO"
+        elif self.operator == "!=":
+            self.op = "NOT_EQUAL"
+        elif self.operator == ">":
+            self.op = "GREATER_THAN"
+        elif self.operator == "<":
+            self.op = "LESS_THAN"
+        elif self.operator == ">=":
+            self.op = "GREATER_THAN_OR_EQUAL"
+        elif self.operator == "<=":
+            self.op = "LESS_THAN_OR_EQUAL"
+        else:
+            self.op = self.operator
+
+
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     @staticmethod
     @brickflow_task_plugin_impl
@@ -712,6 +740,7 @@ class Task:
     custom_execute_callback: Optional[Callable] = None
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
+    if_else_outcome: Optional[Dict[Union[str, str], str]] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
@@ -725,12 +754,17 @@ class Task:
         return list(self.workflow.parents(self.task_id))
 
     @property
-    def depends_on_names(self) -> Iterator[str]:
+    def depends_on_names(self) -> Iterator[Dict[str, Optional[str]]]:
         for i in self.depends_on:
-            if callable(i) and hasattr(i, "__name__"):
-                yield i.__name__
+            if self.if_else_outcome:
+                outcome = list(self.if_else_outcome.values())[0]
             else:
-                yield str(i)
+                outcome = None
+
+            if callable(i) and hasattr(i, "__name__"):
+                yield {i.__name__: outcome}
+            else:
+                yield {str(i): outcome}
 
     @property
     def databricks_task_type_str(self) -> str:
