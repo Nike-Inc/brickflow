@@ -398,6 +398,52 @@ def sample_sql_dashboard_task() -> any:
 
 ```
 
+#### IfElseConditionTask
+The `IfElseConditionTask` class is used to create conditional tasks in the workflow. It can be used to create tasks with a left operand, a right operand, and an operator.
+
+The `IfElseConditionTask` is used as a decorator in conjunction with the `if_else_condition_task` method of a `Workflow` instance. This method registers the task within the workflow.
+
+`IfElseConditionTask` class can accept the following as inputs:
+- **left[Optional]**: A string representing the left operand in the condition.
+- **right[Optional]**: A string representing the right operand in the condition.
+- **operator[Optional]**: A string representing the operator used in the condition. It can be one of the following: "==", "!=", ">", "<", ">=", "<=".
+
+Here's an example of how to use the `IfElseConditionTask` type:
+
+```python
+@wf.if_else_condition_task
+def sample_if_else_condition_task():
+    return IfElseConditionTask(
+        left="value1", right="value2", operator="=="
+    )
+# Let me walk you through how we can make use of if/else condition task. we created a task with name `sample_if_else_condition_task` and it will return either true ot false. Now based on the returned bool, now we're going to decide which task to run. check the below examples.
+
+@wf.if_else_condition_task(depends_on="sample_if_else_condition_task", name="new_conditon_task", if_else_outcome={"sample_if_else_condition_task":"true"})
+def sample_condition_true():
+    return IfElseConditionTask(
+        left='{{job.id}}',
+        operator="==",
+        right='{{job.id}}')
+
+'''
+ Now i created on more condition task (you can create any task type), since my new task named `new_conditon_task` is dependent on `sample_if_else_condition_task` (if/else task). Now, If my parent tasks runs sucessfully (returns true) then only this task will trigger, cz i mentioned 
+if_else_outcome={"sample_if_else_condition_task":"true"}, to seee the false case see the example below.
+'''
+# this task will trigger only when parent task fails (returns false).
+@wf.if_else_condition_task(depends_on="sample_if_else_condition_task", name="new_conditon_task", if_else_outcome={"sample_if_else_condition_task":"false"})
+def sample_condition_false():
+    return IfElseConditionTask(
+        left='{{job.id}}',
+        operator="==",
+        right='{{job.id}}')
+
+# Note: As we can have multiple deps same way we can keep multiple deps for if_else_outcome:
+# Ex: if_else_outcome={"task1":"false", "task2":"true"}
+```
+
+In this example, the `IfElseConditionTask` is used to create a task that checks if "value1" is equal to "value2". If the condition is true, the task will return `True`; otherwise, it will return `False`.
+
+
 ### Trigger rules
 
 There are two types of trigger rules that can be applied on a task. It can be either ALL_SUCCESS or NONE_FAILED
