@@ -588,6 +588,34 @@ class SqlTask(JobsTasksSqlTask):
 
 
 class IfElseConditionTask(JobsTasksConditionTask):
+    """
+    The IfElseConditionTask class is designed to handle conditional tasks in a workflow.
+    An instance of IfElseConditionTask represents a conditional task that compares two values (left and right)
+    using a specified operator. The operator can be one of the following: "==", "!=", ">", "<", ">=", "<=".
+
+    The IfElseConditionTask class provides additional functionality for
+    mapping the provided operator to a specific operation. For example,
+    the operator "==" is mapped to "EQUAL_TO", and the operator "!=" is mapped to "NOT_EQUAL".
+
+    Attributes:
+        left (str, optional): The left operand in the condition.
+        right (str, optional): The right operand in the condition.
+        operator (str, optional): The operator used in the condition.
+        It can be one of the following: "==", "!=", ">", "<", ">=", "<=".
+        op (str, optional): The operation corresponding to the operator.
+        It is determined based on the operator.
+
+    Examples:
+        Below are the different ways in which the IfElseConditionTask class
+        can be used inside a workflow (if_else_condition_task).:
+            1. IfElseConditionTask(left="value1", right="value2", operator="==")
+            2. IfElseConditionTask(left="value1", right="value2", operator="!=")
+            3. IfElseConditionTask(left="value1", right="value2", operator=">")
+            4. IfElseConditionTask(left="value1", right="value2", operator="<")
+            5. IfElseConditionTask(left="value1", right="value2", operator=">=")
+            6. IfElseConditionTask(left="value1", right="value2", operator="<=")
+    """
+
     left: Optional[str] = None
     right: Optional[str] = None
     operator: Optional[str] = None

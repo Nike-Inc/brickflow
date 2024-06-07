@@ -442,7 +442,7 @@ class Workflow:
             if_else_outcome=if_else_outcome,
         )
 
-    def condition_task(
+    def if_else_condition_task(
         self,
         task_func: Optional[Callable] = None,
         name: Optional[str] = None,

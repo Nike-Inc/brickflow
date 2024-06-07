@@ -120,7 +120,7 @@ def sample_sql_dashboard() -> any:
     )
 
 
-@wf.condition_task(depends_on=[sample_sql_task_query])
+@wf.if_else_condition_task(depends_on=[sample_sql_task_query])
 def condtion_task_test() -> any:
     return IfElseConditionTask(
         left="1",
