@@ -13,6 +13,7 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Dmitrii Grigorev](https://www.linkedin.com/in/dmitrii-grigorev-074739135/)
 * [Chanukya Konuganti](https://www.linkedin.com/in/chanukyakonuganti/)
 * [Maxim Mityutko](https://www.linkedin.com/in/mityutko/)
+* [Raju Gujjalapati](https://in.linkedin.com/in/raju-gujjalapati-470a88171)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project
