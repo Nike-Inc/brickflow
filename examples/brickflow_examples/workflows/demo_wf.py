@@ -467,7 +467,7 @@ def sample_sql_dashboard() -> any:
 
 @wf.if_else_condition_task(depends_on=sample_sql_dashboard)
 def sample_condition_task1():
-    return IfElseConditionTask(left="1", operator="==", right="2")
+    return IfElseConditionTask(left="1", op="==", right="2")
 
 
 @wf.if_else_condition_task(
@@ -476,7 +476,7 @@ def sample_condition_task1():
     if_else_outcome={"sample_condition_task1": "true"},
 )
 def sample_condition_task2():
-    return IfElseConditionTask(left="{{job.id}}", operator="==", right="{{job.id}}")
+    return IfElseConditionTask(left="{{job.id}}", op="==", right="{{job.id}}")
 
 
 @wf.if_else_condition_task(
@@ -485,7 +485,7 @@ def sample_condition_task2():
     if_else_outcome={"sample_condition_task1": "false", "new_conditon_tasl": "true"},
 )
 def sample_condition_task4():
-    return IfElseConditionTask(left="2", operator="==", right="4")
+    return IfElseConditionTask(left="2", op="==", right="4")
 
 
 @wf.if_else_condition_task(
@@ -494,7 +494,7 @@ def sample_condition_task4():
     if_else_outcome={"sample_condition_task1": "true", "new_conditon_tasl": "true"},
 )
 def sample_condition_task5():
-    return IfElseConditionTask(left="2", operator="==", right="4")
+    return IfElseConditionTask(left="2", op="==", right="4")
 
 
 @wf.task(

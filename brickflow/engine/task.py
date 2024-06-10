@@ -130,6 +130,15 @@ class TaskRunCondition(Enum):
     ALL_FAILED = "ALL_FAILED"
 
 
+class Operator(Enum):
+    EQUAL_TO = "=="
+    NOT_EQUAL = "!="
+    GREATER_THAN = ">"
+    LESS_THAN = "<"
+    GREATER_THAN_OR_EQUAL = ">="
+    LESS_THAN_OR_EQUAL = "<="
+
+
 @dataclass(frozen=True)
 class TaskLibrary:
     @staticmethod
@@ -598,47 +607,32 @@ class IfElseConditionTask(JobsTasksConditionTask):
     the operator "==" is mapped to "EQUAL_TO", and the operator "!=" is mapped to "NOT_EQUAL".
 
     Attributes:
-        left (str, optional): The left operand in the condition.
-        right (str, optional): The right operand in the condition.
-        operator (str, optional): The operator used in the condition.
+        left (str): The left operand in the condition.
+        right (str): The right operand in the condition.
         It can be one of the following: "==", "!=", ">", "<", ">=", "<=".
-        op (str, optional): The operation corresponding to the operator.
+        op (Operator): The operation corresponding to the operator.
         It is determined based on the operator.
 
     Examples:
         Below are the different ways in which the IfElseConditionTask class
         can be used inside a workflow (if_else_condition_task).:
-            1. IfElseConditionTask(left="value1", right="value2", operator="==")
-            2. IfElseConditionTask(left="value1", right="value2", operator="!=")
-            3. IfElseConditionTask(left="value1", right="value2", operator=">")
-            4. IfElseConditionTask(left="value1", right="value2", operator="<")
-            5. IfElseConditionTask(left="value1", right="value2", operator=">=")
-            6. IfElseConditionTask(left="value1", right="value2", operator="<=")
+            1. IfElseConditionTask(left="value1", right="value2", op="==")
+            2. IfElseConditionTask(left="value1", right="value2", op="!=")
+            3. IfElseConditionTask(left="value1", right="value2", op=">")
+            4. IfElseConditionTask(left="value1", right="value2", op="<")
+            5. IfElseConditionTask(left="value1", right="value2", op=">=")
+            6. IfElseConditionTask(left="value1", right="value2", op="<=")
     """
 
-    left: Optional[str] = None
-    right: Optional[str] = None
-    operator: Optional[str] = None
-    op: Optional[str] = None
+    left: str
+    right: str
+    op: str = str(Operator)
 
     def __init__(self, *args: Any, **kwds: Any):
         super().__init__(*args, **kwds)
         self.left = kwds["left"]
         self.right = kwds["right"]
-        if self.operator == "==":
-            self.op = "EQUAL_TO"
-        elif self.operator == "!=":
-            self.op = "NOT_EQUAL"
-        elif self.operator == ">":
-            self.op = "GREATER_THAN"
-        elif self.operator == "<":
-            self.op = "LESS_THAN"
-        elif self.operator == ">=":
-            self.op = "GREATER_THAN_OR_EQUAL"
-        elif self.operator == "<=":
-            self.op = "LESS_THAN_OR_EQUAL"
-        else:
-            self.op = self.operator
+        self.op = str(Operator(self.op).name)
 
 
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):

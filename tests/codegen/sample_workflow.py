@@ -124,7 +124,7 @@ def sample_sql_dashboard() -> any:
 def condtion_task_test() -> any:
     return IfElseConditionTask(
         left="1",
-        operator="==",
+        op="==",
         right="2",
     )
 

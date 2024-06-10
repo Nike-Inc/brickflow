@@ -537,9 +537,7 @@ class TestTask:
 
     def if_else_condition_task(self):
         # Test the __init__ method
-        instance = IfElseConditionTask(
-            left="left_value", right="right_value", operator="=="
-        )
+        instance = IfElseConditionTask(left="left_value", right="right_value", op="==")
         assert instance.left == "left_value"
         assert instance.right == "right_value"
         assert instance.op == "=="
