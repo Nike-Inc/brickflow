@@ -45,13 +45,13 @@ from tests.engine.sample_workflow import (
 
 class TestTask:
     builtin_task_params = {
-        "brickflow_job_id": "{{job_id}}",
-        "brickflow_run_id": "{{run_id}}",
-        "brickflow_start_date": "{{start_date}}",
-        "brickflow_start_time": "{{start_time}}",
-        "brickflow_task_retry_count": "{{task_retry_count}}",
-        "brickflow_parent_run_id": "{{parent_run_id}}",
-        "brickflow_task_key": "{{task_key}}",
+        "brickflow_job_id": "{{job.id}}",
+        "brickflow_run_id": "{{task.run_id}}",
+        "brickflow_start_date": "{{job.trigger.time.iso_date}}",
+        "brickflow_start_time": "{{job.trigger.time.iso_datetime}}",
+        "brickflow_task_retry_count": "{{task.execution_count}}",
+        "brickflow_parent_run_id": "{{job.run_id}}",
+        "brickflow_task_key": "{{task.name}}",
     }
 
     def test_builtin_notebook_params(self):
