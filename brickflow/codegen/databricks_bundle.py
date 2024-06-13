@@ -630,14 +630,14 @@ class DatabricksBundleCodegen(CodegenInterface):
                     )
                 )
             elif task.task_type == TaskType.SQL:
-                # native run job task
+                # native SQL task
                 tasks.append(
                     self._build_native_sql_file_task(
                         task_name, task, task_settings, depends_on
                     )
                 )
             elif task.task_type == TaskType.IF_ELSE_CONDITION_TASK:
-                # native run job task
+                # native If/Else task
                 tasks.append(
                     self._build_native_condition_task(
                         task_name, task, task_settings, depends_on
