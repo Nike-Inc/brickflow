@@ -6,7 +6,11 @@ from pydantic import SecretStr
 import pytest
 from deepdiff import DeepDiff
 from brickflow.engine.utils import get_job_id
-from brickflow import BrickflowProjectDeploymentSettings, SparkJarTask
+from brickflow import (
+    BrickflowProjectDeploymentSettings,
+    SparkJarTask,
+    IfElseConditionTask,
+)
 from brickflow.context import (
     ctx,
     BRANCH_SKIP_EXCEPT,
@@ -530,6 +534,13 @@ class TestTask:
         assert task.main_class_name == "MainClass"
         assert task.jar_uri == "test_uri"
         assert task.parameters is None
+
+    def if_else_condition_task(self):
+        # Test the __init__ method
+        instance = IfElseConditionTask(left="left_value", right="right_value", op="==")
+        assert instance.left == "left_value"
+        assert instance.right == "right_value"
+        assert instance.op == "=="
 
     @patch("brickflow.bundles.model.JobsTasksSqlTaskAlert")
     @patch("brickflow.engine.task.SqlTask")

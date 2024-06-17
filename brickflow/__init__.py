@@ -260,6 +260,7 @@ from brickflow.engine.task import (
     TaskResponse,
     BrickflowTriggerRule,
     TaskRunCondition,
+    Operator,
     BrickflowTaskEnvVars,
     StorageBasedTaskLibrary,
     JarTaskLibrary,
@@ -277,6 +278,7 @@ from brickflow.engine.task import (
     SparkJarTask,
     RunJobTask,
     SqlTask,
+    IfElseConditionTask,
 )
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
@@ -306,6 +308,7 @@ __all__: List[str] = [
     "TaskResponse",
     "BrickflowTriggerRule",
     "TaskRunCondition",
+    "Operator",
     "BrickflowTaskEnvVars",
     "StorageBasedTaskLibrary",
     "JarTaskLibrary",
@@ -323,6 +326,7 @@ __all__: List[str] = [
     "DLTChannels",
     "Cluster",
     "Runtimes",
+    "IfElseConditionTask",
     "Project",
     "SqlTask",
     "_ilog",

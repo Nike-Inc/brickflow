@@ -11,6 +11,7 @@ from brickflow.engine.task import (
     SparkJarTask,
     TaskSettings,
     TaskRunCondition,
+    IfElseConditionTask,
 )
 from brickflow.engine.workflow import Workflow, WorkflowPermissions, User
 
@@ -120,6 +121,15 @@ def sample_sql_dashboard() -> any:
             "destination_id": ["your_destination_id"],
         },
         warehouse_id="your_warehouse_id",
+    )
+
+
+@wf.if_else_condition_task(depends_on=[sample_sql_task_query])
+def condtion_task_test() -> any:
+    return IfElseConditionTask(
+        left="1",
+        op="==",
+        right="2",
     )
 
 

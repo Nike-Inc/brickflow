@@ -15,6 +15,7 @@ from brickflow import (
     RunJobTask,
     SparkJarTask,
     JarTaskLibrary,
+    IfElseConditionTask,
 )
 from brickflow_plugins import (
     TaskDependencySensor,
@@ -464,7 +465,42 @@ def sample_sql_dashboard() -> any:
     )
 
 
-@wf.task(depends_on=airflow_autosys_sensor)
+@wf.if_else_condition_task(depends_on=sample_sql_dashboard)
+def sample_condition_task1():
+    return IfElseConditionTask(left="1", op="==", right="2")
+
+
+@wf.if_else_condition_task(
+    depends_on=sample_condition_task1,
+    name="new_conditon_tasl",
+    if_else_outcome={"sample_condition_task1": "true"},
+)
+def sample_condition_task2():
+    return IfElseConditionTask(left="{{job.id}}", op="==", right="{{job.id}}")
+
+
+@wf.if_else_condition_task(
+    depends_on=["sample_condition_task1", "new_conditon_tasl"],
+    name="new_conditon_taslq",
+    if_else_outcome={"sample_condition_task1": "false", "new_conditon_tasl": "true"},
+)
+def sample_condition_task4():
+    return IfElseConditionTask(left="2", op="==", right="4")
+
+
+@wf.if_else_condition_task(
+    depends_on=["sample_condition_task1", "new_conditon_tasl"],
+    name="new_conditon_tasly",
+    if_else_outcome={"sample_condition_task1": "true", "new_conditon_tasl": "true"},
+)
+def sample_condition_task5():
+    return IfElseConditionTask(left="2", op="==", right="4")
+
+
+@wf.task(
+    depends_on=sample_condition_task5,
+    if_else_outcome={"sample_condition_task5": "true"},
+)
 def end():
     pass
 

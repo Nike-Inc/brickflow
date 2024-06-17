@@ -47,6 +47,7 @@ from brickflow.bundles.model import (
     JobsTasksSqlTaskDashboard,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
+    JobsTasksConditionTask,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -117,6 +118,7 @@ class TaskType(Enum):
     NOTEBOOK_TASK = "notebook_task"
     SPARK_JAR_TASK = "spark_jar_task"
     RUN_JOB_TASK = "run_job_task"
+    IF_ELSE_CONDITION_TASK = "condition_task"
 
 
 class TaskRunCondition(Enum):
@@ -126,6 +128,15 @@ class TaskRunCondition(Enum):
     ALL_DONE = "ALL_DONE"
     AT_LEAST_ONE_FAILED = "AT_LEAST_ONE_FAILED"
     ALL_FAILED = "ALL_FAILED"
+
+
+class Operator(Enum):
+    EQUAL_TO = "=="
+    NOT_EQUAL = "!="
+    GREATER_THAN = ">"
+    LESS_THAN = "<"
+    GREATER_THAN_OR_EQUAL = ">="
+    LESS_THAN_OR_EQUAL = "<="
 
 
 @dataclass(frozen=True)
@@ -585,6 +596,45 @@ class SqlTask(JobsTasksSqlTask):
                     )
 
 
+class IfElseConditionTask(JobsTasksConditionTask):
+    """
+    The IfElseConditionTask class is designed to handle conditional tasks in a workflow.
+    An instance of IfElseConditionTask represents a conditional task that compares two values (left and right)
+    using a specified operator. The operator can be one of the following: "==", "!=", ">", "<", ">=", "<=".
+
+    The IfElseConditionTask class provides additional functionality for
+    mapping the provided operator to a specific operation. For example,
+    the operator "==" is mapped to "EQUAL_TO", and the operator "!=" is mapped to "NOT_EQUAL".
+
+    Attributes:
+        left (str): The left operand in the condition.
+        right (str): The right operand in the condition.
+        It can be one of the following: "==", "!=", ">", "<", ">=", "<=".
+        op (Operator): The operation corresponding to the operator.
+        It is determined based on the operator.
+
+    Examples:
+        Below are the different ways in which the IfElseConditionTask class
+        can be used inside a workflow (if_else_condition_task).:
+            1. IfElseConditionTask(left="value1", right="value2", op="==")
+            2. IfElseConditionTask(left="value1", right="value2", op="!=")
+            3. IfElseConditionTask(left="value1", right="value2", op=">")
+            4. IfElseConditionTask(left="value1", right="value2", op="<")
+            5. IfElseConditionTask(left="value1", right="value2", op=">=")
+            6. IfElseConditionTask(left="value1", right="value2", op="<=")
+    """
+
+    left: str
+    right: str
+    op: str
+
+    def __init__(self, *args: Any, **kwds: Any):
+        super().__init__(*args, **kwds)
+        self.left = kwds["left"]
+        self.right = kwds["right"]
+        self.op = str(Operator(self.op).name)
+
+
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     @staticmethod
     @brickflow_task_plugin_impl
@@ -712,6 +762,7 @@ class Task:
     custom_execute_callback: Optional[Callable] = None
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
+    if_else_outcome: Optional[Dict[Union[str, str], str]] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
@@ -725,12 +776,17 @@ class Task:
         return list(self.workflow.parents(self.task_id))
 
     @property
-    def depends_on_names(self) -> Iterator[str]:
+    def depends_on_names(self) -> Iterator[Dict[str, Optional[str]]]:
         for i in self.depends_on:
-            if callable(i) and hasattr(i, "__name__"):
-                yield i.__name__
+            if self.if_else_outcome:
+                outcome = list(self.if_else_outcome.values())[0]
             else:
-                yield str(i)
+                outcome = None
+
+            if callable(i) and hasattr(i, "__name__"):
+                yield {i.__name__: outcome}
+            else:
+                yield {str(i): outcome}
 
     @property
     def databricks_task_type_str(self) -> str:
