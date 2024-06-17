@@ -626,7 +626,7 @@ class IfElseConditionTask(JobsTasksConditionTask):
 
     left: str
     right: str
-    op: str = str(Operator)
+    op: str
 
     def __init__(self, *args: Any, **kwds: Any):
         super().__init__(*args, **kwds)
