@@ -944,28 +944,28 @@
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.__enter__" class="md-nav__link">
-    __enter__()
+    __enter__
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.__exit__" class="md-nav__link">
-    __exit__()
+    __exit__
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.__post_init__" class="md-nav__link">
-    __post_init__()
+    __post_init__
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.get_git_ref" class="md-nav__link">
-    get_git_ref()
+    get_git_ref
   </a>
   
 </li>
@@ -1091,6 +1091,14 @@
         
           
         
+          
+        
+          
+        
+          
+        
+          
+        
       
       
         <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
@@ -1153,8 +1161,64 @@
   
   
     <li class="md-nav__item">
+      <a href="../uc_to_snowflake_operator/" class="md-nav__link">
+        SnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uc_to_snowflake_operator/" class="md-nav__link">
+        UcToSnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../secrets/" class="md-nav__link">
         Secrets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshDataSourceOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshWorkbookOperator
       </a>
     </li>
   
@@ -1336,28 +1400,28 @@
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.__enter__" class="md-nav__link">
-    __enter__()
+    __enter__
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.__exit__" class="md-nav__link">
-    __exit__()
+    __exit__
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.__post_init__" class="md-nav__link">
-    __post_init__()
+    __post_init__
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#brickflow.engine.project.Project.get_git_ref" class="md-nav__link">
-    get_git_ref()
+    get_git_ref
   </a>
   
 </li>
@@ -1394,6 +1458,7 @@
 
 
 
+
   <div class="doc doc-contents first">
 
   
@@ -1412,8 +1477,7 @@
 
 
 <h2 id="brickflow.engine.project.Project" class="doc doc-heading">
-          <code>brickflow.engine.project.Project</code>
-
+            <code class="highlight language-python"><span class="n">brickflow</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">Project</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">debug_execute_workflow</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">debug_execute_task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">git_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;github&#39;</span><span class="p">,</span> <span class="n">libraries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">TaskLibrary</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">git_reference</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">entry_point_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">codegen_mechanism</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">CodegenInterface</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">codegen_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bundle_obj_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bundle_base_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_plugins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
@@ -1441,7 +1505,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.batch" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">batch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></code>
+          <code class="highlight language-python"><span class="n">batch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1461,7 +1525,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.bundle_base_path" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">bundle_base_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">bundle_base_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1481,7 +1545,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.bundle_obj_name" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">bundle_obj_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">bundle_obj_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1501,7 +1565,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.codegen_kwargs" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">codegen_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">codegen_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1521,7 +1585,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.codegen_mechanism" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">codegen_mechanism</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">CodegenInterface</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">codegen_mechanism</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">CodegenInterface</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1541,7 +1605,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.debug_execute_task" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">debug_execute_task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">debug_execute_task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1561,7 +1625,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.debug_execute_workflow" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">debug_execute_workflow</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">debug_execute_workflow</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1581,7 +1645,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.enable_plugins" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">enable_plugins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+          <code class="highlight language-python"><span class="n">enable_plugins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1601,7 +1665,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.entry_point_path" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">entry_point_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">entry_point_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1621,7 +1685,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.git_reference" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">git_reference</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">git_reference</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1641,7 +1705,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.git_repo" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">git_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">git_repo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1661,7 +1725,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.libraries" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">libraries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">TaskLibrary</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">libraries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">TaskLibrary</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1681,7 +1745,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.mode" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1701,7 +1765,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.name" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span></code>
+          <code class="highlight language-python"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -1720,7 +1784,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.provider" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;github&#39;</span></code>
+          <code class="highlight language-python"><span class="n">provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;github&#39;</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1743,7 +1807,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.__enter__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__enter__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">_Project</span></code>
+          <code class="highlight language-python"><span class="fm">__enter__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">_Project</span></code>
 
 <a href="#brickflow.engine.project.Project.__enter__" class="headerlink" title="Permanent link">&para;</a></h4>
 
@@ -1789,7 +1853,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.__exit__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__exit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="fm">__exit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
 
 <a href="#brickflow.engine.project.Project.__exit__" class="headerlink" title="Permanent link">&para;</a></h4>
 
@@ -1905,7 +1969,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.__post_init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">__post_init__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
+          <code class="highlight language-python"><span class="n">__post_init__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span></code>
 
 <a href="#brickflow.engine.project.Project.__post_init__" class="headerlink" title="Permanent link">&para;</a></h4>
 
@@ -2059,7 +2123,7 @@
 
 
 <h4 id="brickflow.engine.project.Project.get_git_ref" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_git_ref</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+          <code class="highlight language-python"><span class="n">get_git_ref</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
 
 <a href="#brickflow.engine.project.Project.get_git_ref" class="headerlink" title="Permanent link">&para;</a></h4>
 
@@ -2106,6 +2170,7 @@
   </div>
 
   </div>
+
 
 </div>
 

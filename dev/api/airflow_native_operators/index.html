@@ -885,6 +885,14 @@
         
           
         
+          
+        
+          
+        
+          
+        
+          
+        
       
       
         <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
@@ -957,8 +965,64 @@
   
   
     <li class="md-nav__item">
+      <a href="../uc_to_snowflake_operator/" class="md-nav__link">
+        SnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uc_to_snowflake_operator/" class="md-nav__link">
+        UcToSnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../secrets/" class="md-nav__link">
         Secrets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshDataSourceOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshWorkbookOperator
       </a>
     </li>
   
@@ -1018,6 +1082,7 @@
 
 
 
+
   <div class="doc doc-contents first">
 
   
@@ -1036,8 +1101,7 @@
 
 
 <h2 id="brickflow_plugins.airflow.operators.native_operators.BashOperatorModifier" class="doc doc-heading">
-          <code>brickflow_plugins.airflow.operators.native_operators.BashOperatorModifier</code>
-
+            <code class="highlight language-python"><span class="n">brickflow_plugins</span><span class="o">.</span><span class="n">airflow</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">native_operators</span><span class="o">.</span><span class="n">BashOperatorModifier</span><span class="p">()</span></code>
 
 <a href="#brickflow_plugins.airflow.operators.native_operators.BashOperatorModifier" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -1047,6 +1111,13 @@
             Bases: <code><span title="brickflow_plugins.airflow.operators.OperatorModifier">OperatorModifier</span></code></p>
 
 
+                <details class="quote">
+                  <summary>Source code in <code>brickflow_plugins/airflow/operators/__init__.py</code></summary>
+                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_next_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractOperatorModifier</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+                </details>
 
   
 
@@ -1066,7 +1137,7 @@
 
 
 <h4 id="brickflow_plugins.airflow.operators.native_operators.BashOperatorModifier.modify" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">modify</span><span class="p">(</span><span class="n">operator</span><span class="p">:</span> <span class="n">BashOperator</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">workflow</span><span class="p">:</span> <span class="n">Workflow</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BashOperator</span><span class="p">]</span></code>
+          <code class="highlight language-python"><span class="n">modify</span><span class="p">(</span><span class="n">operator</span><span class="p">:</span> <span class="n">BashOperator</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">workflow</span><span class="p">:</span> <span class="n">Workflow</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BashOperator</span><span class="p">]</span></code>
 
 <a href="#brickflow_plugins.airflow.operators.native_operators.BashOperatorModifier.modify" class="headerlink" title="Permanent link">&para;</a></h4>
 
@@ -1102,6 +1173,7 @@
 
   </div>
 
+
 </div>
 
 <div class="doc doc-object doc-class">
@@ -1109,8 +1181,7 @@
 
 
 <h2 id="brickflow_plugins.airflow.operators.native_operators.BranchPythonOperatorModifier" class="doc doc-heading">
-          <code>brickflow_plugins.airflow.operators.native_operators.BranchPythonOperatorModifier</code>
-
+            <code class="highlight language-python"><span class="n">brickflow_plugins</span><span class="o">.</span><span class="n">airflow</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">native_operators</span><span class="o">.</span><span class="n">BranchPythonOperatorModifier</span><span class="p">()</span></code>
 
 <a href="#brickflow_plugins.airflow.operators.native_operators.BranchPythonOperatorModifier" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -1120,6 +1191,13 @@
             Bases: <code><span title="brickflow_plugins.airflow.operators.OperatorModifier">OperatorModifier</span></code></p>
 
 
+                <details class="quote">
+                  <summary>Source code in <code>brickflow_plugins/airflow/operators/__init__.py</code></summary>
+                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_next_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractOperatorModifier</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+                </details>
 
   
 
@@ -1139,7 +1217,7 @@
 
 
 <h4 id="brickflow_plugins.airflow.operators.native_operators.BranchPythonOperatorModifier.modify" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">modify</span><span class="p">(</span><span class="n">operator</span><span class="p">:</span> <span class="n">BranchPythonOperator</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">workflow</span><span class="p">:</span> <span class="n">Workflow</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BranchPythonOperator</span><span class="p">]</span></code>
+          <code class="highlight language-python"><span class="n">modify</span><span class="p">(</span><span class="n">operator</span><span class="p">:</span> <span class="n">BranchPythonOperator</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">workflow</span><span class="p">:</span> <span class="n">Workflow</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BranchPythonOperator</span><span class="p">]</span></code>
 
 <a href="#brickflow_plugins.airflow.operators.native_operators.BranchPythonOperatorModifier.modify" class="headerlink" title="Permanent link">&para;</a></h4>
 
@@ -1173,6 +1251,7 @@
 
   </div>
 
+
 </div>
 
 <div class="doc doc-object doc-class">
@@ -1180,8 +1259,7 @@
 
 
 <h2 id="brickflow_plugins.airflow.operators.native_operators.ShortCircuitOperatorModifier" class="doc doc-heading">
-          <code>brickflow_plugins.airflow.operators.native_operators.ShortCircuitOperatorModifier</code>
-
+            <code class="highlight language-python"><span class="n">brickflow_plugins</span><span class="o">.</span><span class="n">airflow</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">native_operators</span><span class="o">.</span><span class="n">ShortCircuitOperatorModifier</span><span class="p">()</span></code>
 
 <a href="#brickflow_plugins.airflow.operators.native_operators.ShortCircuitOperatorModifier" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -1191,6 +1269,13 @@
             Bases: <code><span title="brickflow_plugins.airflow.operators.OperatorModifier">OperatorModifier</span></code></p>
 
 
+                <details class="quote">
+                  <summary>Source code in <code>brickflow_plugins/airflow/operators/__init__.py</code></summary>
+                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_next_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractOperatorModifier</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+                </details>
 
   
 
@@ -1210,7 +1295,7 @@
 
 
 <h4 id="brickflow_plugins.airflow.operators.native_operators.ShortCircuitOperatorModifier.modify" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">modify</span><span class="p">(</span><span class="n">operator</span><span class="p">:</span> <span class="n">ShortCircuitOperator</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">workflow</span><span class="p">:</span> <span class="n">Workflow</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ShortCircuitOperator</span><span class="p">]</span></code>
+          <code class="highlight language-python"><span class="n">modify</span><span class="p">(</span><span class="n">operator</span><span class="p">:</span> <span class="n">ShortCircuitOperator</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">workflow</span><span class="p">:</span> <span class="n">Workflow</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ShortCircuitOperator</span><span class="p">]</span></code>
 
 <a href="#brickflow_plugins.airflow.operators.native_operators.ShortCircuitOperatorModifier.modify" class="headerlink" title="Permanent link">&para;</a></h4>
 
@@ -1243,6 +1328,7 @@
   </div>
 
   </div>
+
 
 </div>
 <h1 id="brickflow_plugins.airflow.operators.native_operators-functions">Functions<a href="#brickflow_plugins.airflow.operators.native_operators-functions" class="headerlink" title="Permanent link">&para;</a></h1>
