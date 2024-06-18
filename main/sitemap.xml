@@ -2,117 +2,117 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/bundles-quickstart/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/environment-variables/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/highlevel/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://brickflow.readthedocs.io/en/latest/main/limitations/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <loc>https://brickflow.readthedocs.io/en/latest/main/how-imports-work/</loc>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/projects/</loc>
-         <lastmod>2023-08-11</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://brickflow.readthedocs.io/en/latest/main/quickstart/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/tasks/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/workflows/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/airflow_external_task_dependency/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/airflow_native_operators/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://brickflow.readthedocs.io/en/latest/main/api/airflow_tableau_operators/</loc>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/cli/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/compute/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/context/</loc>
-         <lastmod>2023-08-11</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://brickflow.readthedocs.io/en/latest/main/api/misc/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/project/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/secrets/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/task/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://brickflow.readthedocs.io/en/latest/main/api/uc_to_snowflake_operator/</loc>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/workflow/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/api/workflow_dependency_sensor/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/cli/reference/</loc>
-         <lastmod>2023-08-11</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://brickflow.readthedocs.io/en/latest/main/faq/airflow-operator-rfc/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://brickflow.readthedocs.io/en/latest/main/faq/faq/</loc>
-         <lastmod>2023-08-11</lastmod>
+         <lastmod>2024-06-18</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://brickflow.readthedocs.io/en/latest/main/upgrades/upgrade-pre-0-10-0-to-0-10-0/</loc>
+         <lastmod>2024-06-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
