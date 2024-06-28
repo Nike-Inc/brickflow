@@ -1,13 +1,47 @@
 import os
-import sys
 import logging
-from boxsdk import Client, JWTAuth, BoxAPIException
-from brickflow import ctx
+
+try:
+    from boxsdk import Client, JWTAuth, BoxAPIException
+except ImportError:
+    raise ImportError(
+        """You must install boxsdk library to use run boxsdk plugins, please add - 'boxsdk' library either
+         at project level in entrypoint or at workflow level or at task level. Examples shown below 
+        entrypoint:
+            with Project( ... 
+                          libraries=[PypiTaskLibrary(package="boxsdk==3.9.2")]
+                          ...)
+        workflow:
+            wf=Workflow( ...
+                         libraries=[PypiTaskLibrary(package="boxsdk==3.9.2")]
+                         ...)
+        Task:
+            @wf.task(Library=[PypiTaskLibrary(package="boxsdk==3.9.2")]
+            def BoxOperator(*args):
+                ...
+        """
+    )
+
+try:
+    from brickflow import ctx
+except ImportError:
+    raise ImportError(
+        "plugin requires brickflow context , please install library at cluster/workflow/task level"
+    )
+
 
 # Set up logging
 logger = logging.getLogger("Box Operator")
 logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
+# Clear existing handlers
+if logger.hasHandlers():
+    logger.handlers.clear()
+# Add stream handler
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
 
 
 class BoxOperatorException(Exception):
@@ -28,7 +62,7 @@ class BoxAuthenticator:
     """
 
     def __init__(self, **kwargs):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger
         self.secrets_scope = kwargs.get("secrets_scope")
         self.cerberus_client_url = kwargs.get("cerberus_client_url")
         if not self.secrets_scope:
@@ -57,7 +91,6 @@ class BoxAuthenticator:
         :return: returns username and password from the provided Cerberus key.
         Logs details of the credential retrieval process.
         """
-        print("Reading Cerberus credentials")
         self.logger.info("Reading Cerberus credentials")
         from cerberus.client import CerberusClient
 
@@ -78,7 +111,6 @@ class BoxAuthenticator:
         Logs details of the credential retrieval process.
         """
         self.logger.info("Reading Box dbutils credentials")
-        print("Reading Box dbutils credentials")
         if secret_scope.startswith("app/"):
             secret_scope = secret_scope.replace("app/", "", 1)
         elif secret_scope.startswith("shared/"):
@@ -111,7 +143,6 @@ class BoxAuthenticator:
         Logs details of the credential retrieval process.
         """
         self.logger.info("Reading Box Cerberus credentials")
-        print("Reading Box Cerberus credentials")
         try:
             box_creds = self.get_cerberus_dtl(secret_scope, cerberus_client_url)
             auth_options = {
@@ -124,7 +155,6 @@ class BoxAuthenticator:
                 "rsa_private_key_passphrase": box_creds["rsa_private_key_passphrase"],
                 "enterprise_id": box_creds["enterprise_id"],
             }
-            print("Box credentials read successfully from Cerberus")
             self.logger.info("Successfully retrieved credentials from Cerberus.")
             return auth_options
         except Exception as e:
@@ -244,12 +274,10 @@ class BoxToVolumesOperator(BoxAuthenticator):
         Logs details of the file download process.
         """
         self.logger.info(f"Downloading file {item.name} to {volume_path}")
-        print(f"Downloading file {item.name} to {volume_path}")
         try:
             with open(os.path.join(volume_path, item.name), "wb") as output_file:
                 self.client.file(item.id).download_to(output_file)
             self.logger.info(f"{item.name} successfully downloaded to {volume_path}")
-            print(f"{item.name} successfully downloaded to {volume_path}")
         except BoxAPIException as e:
             self.logger.error(f"Box API error during file download: {e}")
             raise
@@ -317,35 +345,57 @@ class VolumesToBoxOperator(BoxAuthenticator):
         self.logger.info(
             f"Checking if file {file_name} exists in Box folder ID {folder_id}"
         )
-        print(f"Checking if file {file_name} exists in Box folder ID {folder_id}")
         try:
             items = self.client.folder(folder_id).get_items()
             for item in items:
-                if item.name == file_name:
+                if item.name == file_name and item.type == "file":
                     self.logger.info(f"File {file_name} found with ID {item.id}")
                     return item.id
             self.logger.info(f"File {file_name} not found in Box folder ID {folder_id}")
-            print(f"File {file_name} not found in Box folder ID {folder_id}")
             return None
         except BoxAPIException as e:
             self.logger.error(f"Box API error while checking for existing file: {e}")
             raise
 
-    def upload_file(self, folder_id, file_path):
-        if os.path.isdir(file_path):
-            self.logger.error(
-                f"Provided path {file_path} is a directory, expected a file path."
+    def get_existing_folder_id(self, parent_folder_id, folder_name):
+        """
+        Get the ID of an existing folder in a Box folder.
+        Args:
+            parent_folder_id (str): The ID of the parent Box folder.
+            folder_name (str): The name of the folder.
+        Returns:
+            str or None: The ID of the existing folder, or None if the folder does not exist.
+        Logs details of the folder ID retrieval process.
+        """
+        self.logger.info(
+            f"Checking if folder {folder_name} exists in Box folder ID {parent_folder_id}"
+        )
+        try:
+            items = self.client.folder(parent_folder_id).get_items()
+            for item in items:
+                if item.name == folder_name and item.type == "folder":
+                    self.logger.info(f"Folder {folder_name} found with ID {item.id}")
+                    return item.id
+            self.logger.info(
+                f"Folder {folder_name} not found in Box folder ID {parent_folder_id}"
             )
-            return
+            return None
+        except BoxAPIException as e:
+            self.logger.error(f"Box API error while checking for existing folder: {e}")
+            raise
+
+    def upload_file(self, folder_id, file_path):
         file_name = os.path.basename(file_path)
         self.logger.info(f"Uploading file {file_name} to Box folder ID {folder_id}")
-        print(f"Uploading file {file_name} to Box folder ID {folder_id}")
         try:
-            self.client.folder(folder_id).upload(file_path)
+            existing_file_id = self.get_existing_file_id(folder_id, file_name)
+            if existing_file_id:
+                self.update_file(existing_file_id, file_path)
+            else:
+                self.client.folder(folder_id).upload(file_path)
             self.logger.info(
                 f"Successfully uploaded {file_name} to Box folder ID {folder_id}"
             )
-            print(f"Successfully uploaded {file_name} to Box folder ID {folder_id}")
         except BoxAPIException as e:
             self.logger.error(f"Box API error during file upload: {e}")
             raise
@@ -367,20 +417,61 @@ class VolumesToBoxOperator(BoxAuthenticator):
 
         file_name = os.path.basename(file_path)
         self.logger.info(f"Updating file {file_name} in Box with ID {file_id}")
-        print(f"Updating file {file_name} in Box with ID {file_id}")
         try:
             with open(file_path, "rb") as file_stream:
                 self.client.file(file_id).update_contents_with_stream(file_stream)
             self.logger.info(
                 f"Successfully updated {file_name} in Box with ID {file_id}"
             )
-            print(f"Successfully updated {file_name} in Box with ID {file_id}")
         except BoxAPIException as e:
             self.logger.error(f"Box API error during file update: {e}")
             raise
         except IOError as e:
             self.logger.error(f"File IO error during update: {e}")
             raise
+
+    def create_folder(self, parent_folder_id, folder_name):
+        """
+        Create a folder in Box.
+        Args:
+            parent_folder_id (str): The ID of the parent Box folder.
+            folder_name (str): The name of the new folder.
+        Returns:
+            str: The ID of the created folder.
+        """
+        self.logger.info(
+            f"Creating folder {folder_name} in Box parent folder ID {parent_folder_id}"
+        )
+        try:
+            folder = self.client.folder(parent_folder_id).create_subfolder(folder_name)
+            self.logger.info(
+                f"Successfully created folder {folder_name} with ID {folder.id}"
+            )
+            return folder.id
+        except BoxAPIException as e:
+            self.logger.error(f"Box API error during folder creation: {e}")
+            raise
+
+    def upload_folder(self, parent_folder_id, local_folder_path):
+        """
+        Upload the contents of a local folder to a Box folder recursively.
+        Args:
+            parent_folder_id (str): The ID of the Box folder where the contents will be uploaded.
+            local_folder_path (str): The path to the local folder.
+        """
+        folder_name = os.path.basename(local_folder_path)
+        existing_folder_id = self.get_existing_folder_id(parent_folder_id, folder_name)
+        if existing_folder_id:
+            new_folder_id = existing_folder_id
+        else:
+            new_folder_id = self.create_folder(parent_folder_id, folder_name)
+
+        for item in os.listdir(local_folder_path):
+            item_path = os.path.join(local_folder_path, item)
+            if os.path.isdir(item_path):
+                self.upload_folder(new_folder_id, item_path)
+            else:
+                self.upload_file(new_folder_id, item_path)
 
     def execute(self):
         """
@@ -392,26 +483,22 @@ class VolumesToBoxOperator(BoxAuthenticator):
         self.logger.info(
             f"Starting upload to Box folder ID {self.folder_id} from {self.volume_path}"
         )
-        print(
-            f"Starting upload to Box folder ID {self.folder_id} from {self.volume_path}"
-        )
         try:
-            # List all files in the volume_path
-            all_files = os.listdir(self.volume_path)
+            # Determine which files and folders to upload
+            items_to_upload = (
+                self.file_names if self.file_names else os.listdir(self.volume_path)
+            )
 
-            # Determine which files to upload
-            files_to_upload = self.file_names if self.file_names else all_files
-
-            for file in files_to_upload:
-                if file in all_files:  # Check if the file exists in the volume
-                    existing_file_id = self.get_existing_file_id(self.folder_id, file)
-                    file_path = os.path.join(self.volume_path, file)
-                    if existing_file_id is None:
-                        self.upload_file(self.folder_id, file_path)
-                    else:
-                        self.update_file(existing_file_id, file_path)
+            for item in items_to_upload:
+                item_path = os.path.join(self.volume_path, item)
+                if os.path.isdir(item_path):
+                    self.upload_folder(self.folder_id, item_path)
+                elif os.path.isfile(item_path):
+                    self.upload_file(self.folder_id, item_path)
                 else:
-                    self.logger.warning(f"File {file} not found in {self.volume_path}")
+                    self.logger.warning(
+                        f"Path {item_path} is neither a file nor a directory."
+                    )
         except BoxAPIException as e:
             self.logger.error(f"Box API error during upload: {e}")
             raise
