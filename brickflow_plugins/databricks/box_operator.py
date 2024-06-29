@@ -63,10 +63,10 @@ class BoxAuthenticator:
 
     def __init__(self, **kwargs):
         self.logger = logger
-        self.secrets_scope = kwargs.get("secrets_scope")
+        self.secret_scope = kwargs.get("secret_scope")
         self.cerberus_client_url = kwargs.get("cerberus_client_url")
-        if not self.secrets_scope:
-            raise ValueError("secrets_scope is required")
+        if not self.secret_scope:
+            raise ValueError("secret_scope is required")
         self.client = self.box_authentication()
 
     def box_authentication(self):
@@ -76,7 +76,7 @@ class BoxAuthenticator:
         """
         try:
             auth_options = self.get_box_connection(
-                self.secrets_scope, self.cerberus_client_url
+                self.secret_scope, self.cerberus_client_url
             )
             auth = JWTAuth(**auth_options)
             self.logger.info("Successfully authenticated with Box using JWT.")
@@ -539,7 +539,7 @@ class BoxOperator(BoxAuthenticator):
                 f"Downloading files {self.file_names} from Box folder {self.folder_id} to volume {self.volume_path}"
             )
             downloader = BoxToVolumesOperator(
-                secrets_scope=self.secrets_scope,
+                secret_scope=self.secret_scope,
                 cerberus_client_url=self.cerberus_client_url,
                 folder_id=self.folder_id,
                 volume_path=self.volume_path,
@@ -552,7 +552,7 @@ class BoxOperator(BoxAuthenticator):
                 f"Uploading files {self.file_names} to Box folder {self.folder_id} from volume {self.volume_path}"
             )
             uploader = VolumesToBoxOperator(
-                secrets_scope=self.secrets_scope,
+                secret_scope=self.secret_scope,
                 cerberus_client_url=self.cerberus_client_url,
                 folder_id=self.folder_id,
                 volume_path=self.volume_path,

@@ -39,6 +39,11 @@ from brickflow_plugins.databricks.uc_to_snowflake_operator import (
     SnowflakeOperator,
     UcToSnowflakeOperator,
 )
+from brickflow_plugins.databricks.box_operator import (
+    BoxToVolumesOperator,
+    VolumesToBoxOperator,
+    BoxOperator,
+)
 
 
 def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
@@ -75,6 +80,9 @@ __all__: List[str] = [
     "UcToSnowflakeOperator",
     "TableauRefreshDataSourceOperator",
     "TableauRefreshWorkBookOperator",
+    "BoxToVolumesOperator",
+    "VolumesToBoxOperator",
+    "BoxOperator",
     "load_plugins",
     "ensure_installation",
 ]
