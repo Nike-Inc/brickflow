@@ -65,7 +65,7 @@
               "notebook_path": "test_databricks_bundle.py"
               "source": "WORKSPACE"
             "retry_on_timeout": null
-            "task_key": "task_function"
+            "task_key": "task_function2"
             "timeout_seconds": null
           "timeout_seconds": null
           "trigger": null
