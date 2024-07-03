@@ -734,6 +734,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 notification_settings=workflow.notification_settings,
                 webhook_notifications=workflow.webhook_notifications,
                 trigger=workflow.trigger,
+                continuous=workflow.continuous_trigger,
             )
             jobs[workflow_name] = job
 

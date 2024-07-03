@@ -13,6 +13,7 @@ from brickflow.bundles.model import (
     JobsNotificationSettings,
     JobsTrigger,
     JobsHealthRules,
+    JobsContinuous,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -125,6 +126,7 @@ class Workflow:
     webhook_notifications: Optional[WorkflowWebhookNotifications] = None
     notification_settings: Optional[WorkflowNotificationSettings] = None
     trigger: Optional[Trigger] = None
+    continuous_trigger: Optional[JobsContinuous] = None
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     tags: Optional[Dict[str, str]] = None
     max_concurrent_runs: int = 1

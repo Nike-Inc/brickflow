@@ -202,6 +202,9 @@ scripts
 __pycache__
 integration_workflows
 
+# python
+.python-version
+
 *venv
 
 # VScode

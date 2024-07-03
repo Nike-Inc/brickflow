@@ -1,5 +1,6 @@
 from brickflow import JarTaskLibrary
 from brickflow.engine.compute import Cluster
+from brickflow.bundles.model import JobsContinuous
 from brickflow.engine.task import (
     BrickflowTriggerRule,
     RunJobTask,
@@ -19,6 +20,7 @@ wf = Workflow(
     "test",
     default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),
     schedule_quartz_expression="* * * * *",
+    continuous_trigger=JobsContinuous(pause_status="PAUSED"),
     permissions=WorkflowPermissions(
         owner=User("abc@abc.com"),
         can_manage_run=[User("abc@abc.com")],
