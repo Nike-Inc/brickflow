@@ -28,7 +28,8 @@ from brickflow.codegen.databricks_bundle import (
 )
 from brickflow.engine.project import Stage, Project
 from brickflow.engine.task import NotebookTask
-from tests.codegen.sample_workflow import wf
+from tests.codegen.sample_workflows import wf
+from tests.codegen.sample_workflows import wf2
 
 # BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
@@ -114,8 +115,8 @@ class TestBundleCodegen:
         expected = get_expected_bundle_yaml("local_bundle.yml")
         bf_version_mock.assert_called_once()
         assert_equal_dicts(actual, expected)
-        # if os.path.exists(BUNDLE_FILE_NAME):
-        #     os.remove(BUNDLE_FILE_NAME)
+        if os.path.exists(BUNDLE_FILE_NAME):
+            os.remove(BUNDLE_FILE_NAME)
 
     @patch.dict(
         os.environ,
@@ -448,3 +449,53 @@ import {
         assert (
             ImportManager.create_import_str(blocks).strip() == expected_output.strip()
         ), "Import blocks are not equal"
+
+    @patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
+            BrickflowEnvVars.BRICKFLOW_ENV.value: "local",
+            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
+        },
+    )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
+    @patch("subprocess.check_output")
+    @patch("brickflow.context.ctx.get_parameter")
+    @patch("importlib.metadata.version")
+    def test_schedule_continuous(
+        self,
+        bf_version_mock: Mock,
+        dbutils: Mock,
+        sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
+    ):
+        dbutils.return_value = None
+        sub_proc_mock.return_value = b""
+        bf_version_mock.return_value = "1.0.0"
+        workspace_client = get_workspace_client_mock()
+        get_job_id_mock.return_value = 12345678901234.0
+        # get caller part breaks here
+        with Project(
+            "test-project",
+            entry_point_path="test_databricks_bundle.py",
+            codegen_kwargs={
+                "mutators": [
+                    DatabricksBundleTagsAndNameMutator(
+                        databricks_client=workspace_client
+                    )
+                ]
+            },  # dont test import mutator
+        ) as f:
+            f.add_workflow(wf2)
+
+        with open(BUNDLE_FILE_NAME, "r", encoding="utf-8") as bundle:
+            bundle_content = bundle.read()
+            assert bundle_content is not None
+            assert len(bundle_content) > 0
+
+        actual = read_yaml_file(BUNDLE_FILE_NAME)
+        expected = get_expected_bundle_yaml("local_bundle_continuous_schedule.yml")
+        bf_version_mock.assert_called_once()
+        assert_equal_dicts(actual, expected)
+        if os.path.exists(BUNDLE_FILE_NAME):
+            os.remove(BUNDLE_FILE_NAME)
