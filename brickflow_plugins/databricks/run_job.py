@@ -50,5 +50,6 @@ class RunJobInRemoteWorkspace:
             job_name=self.job_name,
         )
         # TODO: add support for passing parameters to the remote job
+        # TODO: wait for the job to finish
         run = self._workspace_obj.jobs.run_now(job_id)
         ctx.log.info("Job run status: %s", run.response)
