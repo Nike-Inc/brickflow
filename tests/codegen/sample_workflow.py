@@ -81,6 +81,13 @@ def run_job_task_a():
     return RunJobTask(job_name="dev_object_raw_to_cleansed")  # type: ignore
 
 
+@wf.run_job_task(
+    depends_on=notebook_task_a,
+)
+def run_job_task_b():
+    return RunJobTask(job_name="dev_object_raw_to_cleansed", host="https://foo.cloud.databricks.com")  # type: ignore
+
+
 @wf.sql_task
 def sample_sql_task_query() -> any:
     return SqlTask(
