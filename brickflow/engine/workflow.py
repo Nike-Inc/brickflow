@@ -327,6 +327,15 @@ class Workflow:
         else:
             ensure_plugins = ensure_brickflow_plugins
 
+        # NOTE: This is a temporary override for the RunJobTask because Databricks does not natively support
+        # triggering the job run in the remote workspace. By default, Databricks SDK derives the workspace URL
+        # from the runtime, and hence it is not required by the RunJobTask. The assumption is that if `host` parameter
+        # is set, user wants to trigger a remote job, in this case we set the task type to BRICKFLOW_TASK to
+        # enforce notebook type execution.
+        if task_type == TaskType.RUN_JOB_TASK:
+            if f().host:
+                task_type = TaskType.BRICKFLOW_TASK
+
         self.tasks[task_id] = Task(
             task_id=task_id,
             task_func=f,
