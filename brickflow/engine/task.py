@@ -763,7 +763,6 @@ class Task:
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
-    _run_job_override: bool = False  # NOTE: REMOTE WORKSPACE RUN JOB OVERRIDE
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
@@ -1009,19 +1008,6 @@ class Task:
 
         _ilog.info("Executing task... %s", self.name)
         _ilog.info("%s", pretty_print_function_source(self.name, self.task_func))
-
-        # NOTE: REMOTE WORKSPACE RUN JOB OVERRIDE
-        # See `brickflow.engine.workflow.Workflow._add_task` for more details
-        if self.task_type == TaskType.BRICKFLOW_TASK and self._run_job_override is True:
-            from brickflow_plugins.databricks.run_job import RunJobInRemoteWorkspace
-
-            tf = self.task_func()
-            RunJobInRemoteWorkspace(
-                databricks_host=tf.host,
-                databricks_token=tf.token,
-                job_name=tf.job_name,
-            ).execute()  # TODO: this does not work yet
-        # NOTE: END REMOTE WORKSPACE RUN JOB OVERRIDE
 
         brickflow_execution_hook = get_brickflow_tasks_hook()
 
