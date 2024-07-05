@@ -1,3 +1,4 @@
+import re
 import pathlib
 import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
@@ -9,7 +10,7 @@ from brickflow.engine.utils import get_job_id, ctx, get_bf_project_root
 
 class TestUtils:
     workspace_url = "https://42.cloud.databricks.com"
-    endpoint_url = f"{workspace_url}/api/2.1/jobs/list"
+    endpoint_url = f"{workspace_url}/api/.*/jobs/list"
 
     ctx.log.propagate = True
 
@@ -18,7 +19,7 @@ class TestUtils:
         rm = RequestsMocker()
         rm.register_uri(
             method="GET",
-            url=self.endpoint_url,
+            url=re.compile(self.endpoint_url),
             response_list=[
                 {
                     "json": {"jobs": [{"job_id": 1234, "settings": {"name": "foo"}}]},
