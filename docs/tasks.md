@@ -280,6 +280,12 @@ RunJobTask class can accept the following as inputs:<br />
 &emsp;<b>host [Optional]</b>: The URL of the Databricks workspace.<br />
 &emsp;<b>token [Optional]</b>: The Databricks API token.
 
+!!! important
+
+    Databricks does not natively support triggering the job run in the remote workspace. Only set `host` and `token`
+    parameters when remote trigger is required, it will envoke RunJobInRemoteWorkspace plugin which will transparently 
+    substitute the native execution. No extra action will be required from the user.
+
 
 #### JAR Task
 

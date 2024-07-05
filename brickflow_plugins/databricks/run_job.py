@@ -49,5 +49,6 @@ class RunJobInRemoteWorkspace:
             token=self.databricks_token,
             job_name=self.job_name,
         )
+        # TODO: add support for passing parameters to the remote job
         run = self._workspace_obj.jobs.run_now(job_id)
         ctx.log.info("Job run status: %s", run.response)
