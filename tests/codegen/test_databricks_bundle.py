@@ -28,7 +28,10 @@ from brickflow.codegen.databricks_bundle import (
 )
 from brickflow.engine.project import Stage, Project
 from brickflow.engine.task import NotebookTask
-from tests.codegen.sample_workflow import wf
+
+# `get_job_id` is being called during workflow init, hence the patch
+with patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0) as p:
+    from tests.codegen.sample_workflow import wf
 
 # BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
