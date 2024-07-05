@@ -204,7 +204,7 @@ def custom_python_task_push():
 
 
 wf2 = Workflow(
-    "test",
+    "wf-test-2",
     default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),
     schedule_continuous=JobsContinuous(pause_status="PAUSED"),
     permissions=WorkflowPermissions(
