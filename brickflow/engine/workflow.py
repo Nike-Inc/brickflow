@@ -327,13 +327,18 @@ class Workflow:
         else:
             ensure_plugins = ensure_brickflow_plugins
 
-        # NOTE: This is a temporary override for the RunJobTask because Databricks does not natively support
+        # NOTE: REMOTE WORKSPACE RUN JOB OVERRIDE
+        # This is a temporary override for the RunJobTask because Databricks does not natively support
         # triggering the job run in the remote workspace. By default, Databricks SDK derives the workspace URL
         # from the runtime, and hence it is not required by the RunJobTask. The assumption is that if `host` parameter
         # is set, user wants to trigger a remote job, in this case we set the task type to BRICKFLOW_TASK to
-        # enforce notebook type execution.
+        # enforce notebook type execution and `run_job_override`  to override the class that will be executed in
+        # brickflow.engine.task.Task.execute
+        run_job_override = False
         if task_type == TaskType.RUN_JOB_TASK and f().host:
             task_type = TaskType.BRICKFLOW_TASK
+            run_job_override = True
+        # NOTE: END REMOTE WORKSPACE RUN JOB OVERRIDE
 
         self.tasks[task_id] = Task(
             task_id=task_id,
@@ -349,6 +354,7 @@ class Workflow:
             custom_execute_callback=custom_execute_callback,
             ensure_brickflow_plugins=ensure_plugins,
             if_else_outcome=if_else_outcome,
+            _run_job_override=run_job_override,  # NOTE: REMOTE WORKSPACE RUN JOB OVERRIDE
         )
 
         # attempt to create task object before adding to graph
