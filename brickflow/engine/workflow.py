@@ -13,6 +13,7 @@ from brickflow.bundles.model import (
     JobsNotificationSettings,
     JobsTrigger,
     JobsHealthRules,
+    JobsContinuous,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -114,6 +115,7 @@ class Workflow:
     # name should be immutable and not modified after being set
     _name: str
     schedule_quartz_expression: Optional[str] = None
+    schedule_continuous: Optional[JobsContinuous] = None
     timezone: str = "UTC"
     schedule_pause_status: str = "UNPAUSED"
     default_cluster: Optional[Cluster] = None
@@ -164,12 +166,7 @@ class Workflow:
             # the default cluster is set to the first cluster if it is not configured
             self.default_cluster = self.clusters[0]
 
-        self.schedule_pause_status = self.schedule_pause_status.upper()
-        allowed_scheduled_pause_statuses = ["PAUSED", "UNPAUSED"]
-        if self.schedule_pause_status not in allowed_scheduled_pause_statuses:
-            raise WorkflowConfigError(
-                f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}"
-            )
+        self.validate_schedule_configs()
 
     # def __hash__(self) -> int:
     #     import json
@@ -220,6 +217,40 @@ class Workflow:
                 f"Found duplicate cluster definitions in your workflow: {self.name}, "
                 f"with names: {duplicate_list}"
             )
+
+    def validate_schedule_configs(self) -> None:
+        allowed_scheduled_pause_statuses = ["PAUSED", "UNPAUSED"]
+        self.schedule_pause_status = self.schedule_pause_status.upper()
+        if self.schedule_pause_status not in allowed_scheduled_pause_statuses:
+            raise WorkflowConfigError(
+                f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}"
+            )
+
+        if (
+            self.schedule_quartz_expression is not None
+            and self.schedule_continuous is not None
+        ):
+            raise WorkflowConfigError(
+                "Please configure either schedule_quartz_expression or schedule_continuous for workflow"
+            )
+
+        if self.trigger is not None and self.schedule_continuous is not None:
+            raise WorkflowConfigError(
+                "Please configure either trigger or schedule_continuous for workflow"
+            )
+
+        if self.schedule_continuous is not None:
+            self.schedule_continuous.pause_status = (
+                self.schedule_continuous.pause_status.upper()
+            )
+
+            if (
+                self.schedule_continuous.pause_status
+                not in allowed_scheduled_pause_statuses
+            ):
+                raise WorkflowConfigError(
+                    "Please configure either PAUSED or UNPAUSED for schedule_continuous.pause_status"
+                )
 
     @property
     def bfs_layers(self) -> List[str]:

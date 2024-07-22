@@ -1,5 +1,6 @@
 from brickflow import JarTaskLibrary
 from brickflow.engine.compute import Cluster
+from brickflow.bundles.model import JobsContinuous
 from brickflow.engine.task import (
     BrickflowTriggerRule,
     RunJobTask,
@@ -200,3 +201,29 @@ def task_function_5():
 )
 def custom_python_task_push():
     pass
+
+
+wf2 = Workflow(
+    "wf-test-2",
+    default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),
+    schedule_continuous=JobsContinuous(pause_status="PAUSED"),
+    permissions=WorkflowPermissions(
+        owner=User("abc@abc.com"),
+        can_manage_run=[User("abc@abc.com")],
+        can_view=[User("abc@abc.com")],
+        can_manage=[User("abc@abc.com")],
+    ),
+    run_as_user="abc@abc.com",
+    tags={"test": "test2"},
+    common_task_parameters={"all_tasks1": "test", "all_tasks3": "123"},  # type: ignore
+    health={
+        "rules": [
+            {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
+        ]
+    },  # type: ignore
+)
+
+
+@wf2.task()
+def task_function2(*, test="var"):
+    return test
