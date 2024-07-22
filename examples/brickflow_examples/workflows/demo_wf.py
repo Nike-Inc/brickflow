@@ -395,6 +395,8 @@ def box_to_volume():
         folder_id="12345",
         volume_path="/path/to/local/volume",
         file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
     )
     box_to_volume_copy.execute()
 
@@ -406,6 +408,7 @@ def volume_to_box():
         folder_id="12345",
         volume_path="/path/to/local/volume",
         file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
     )
     volumes_to_box_copy.execute()
 
@@ -416,8 +419,10 @@ def download_box_to_volume():
         secret_scope="my_secret_scope",
         folder_id="12345",
         volume_path="/path/to/local/volume",
-        operation="download",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
         file_id="678910",
+        operation="download",
     )
     download_box_to_volume_copy.execute()
 
@@ -429,6 +434,8 @@ def upload_volume_to_box():
         cerberus_client_url="https://cerberus-url.com",
         folder_id="12345",
         volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
         operation="upload",
     )
     upload_volumes_to_box_copy.execute()
