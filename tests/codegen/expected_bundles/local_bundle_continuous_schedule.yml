@@ -4,7 +4,7 @@
   "test-project-local":
     "resources":
       "jobs":
-        "test":
+        "wf-test-2":
           "continuous":
             "pause_status": "PAUSED"
           "email_notifications": null
@@ -16,7 +16,7 @@
               "value": 7200.0
           "job_clusters": []
           "max_concurrent_runs": 1.0
-          "name": "test_user_test"
+          "name": "test_user_wf-test-2"
           "notification_settings": null
           "permissions":
           - "level": "IS_OWNER"
@@ -51,7 +51,7 @@
                 "brickflow_env": "local"
                 "brickflow_internal_only_run_tasks": ""
                 "brickflow_internal_task_name": "{{task_key}}"
-                "brickflow_internal_workflow_name": "test"
+                "brickflow_internal_workflow_name": "wf-test-2"
                 "brickflow_internal_workflow_prefix": ""
                 "brickflow_internal_workflow_suffix": ""
                 "brickflow_job_id": "{{job_id}}"
