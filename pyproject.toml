@@ -69,6 +69,7 @@ apache-airflow = "^2.7.3"
 snowflake = "^0.6.0"
 tableauserverclient = "^0.25"
 boxsdk = "^3.9.2"
+cerberus-python-client = "^2.5.4"
 watchdog = "<4.0.0"
 requests-mock = "1.12.1"
 

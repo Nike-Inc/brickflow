@@ -134,6 +134,7 @@ def copy_from_box_to_volumnes(*args):
     folder_id="12345",
     volume_path="/path/to/local/volume",
     file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
     file_id = "box_file_id",
   )
   box_to_volumnes_copy.execute()
@@ -154,6 +155,7 @@ def copy_from_volumnes_to_box(*args):
     folder_id="12345",
     volume_path="/path/to/local/volume",
     file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
   )
   volumnes_to_box_copy.execute()
 ```
@@ -172,8 +174,9 @@ def copy_from_box_to_volumnes(*args):
     cerberus_client_url="https://my-cerberus-url.com",
     folder_id="12345",
     volume_path="/path/to/local/volume",
-    operation="download",
     file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
+    operation="download",
   )
   box_to_volumnes_copy.execute()
 
@@ -184,8 +187,9 @@ def copy_from_volumnes_to_box(*args):
     cerberus_client_url="https://my-cerberus-url.com",
     folder_id="12345",
     volume_path="/path/to/local/volume",
-    operation="upload",
     file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
+    operation="upload",
   )
   volumnes_to_box_copy.execute()
 ```

@@ -839,6 +839,7 @@ The `BoxOperator` manages the high-level operations for interacting with Box (do
 - `folder_id`: (required) The ID of the Box folder from which files will be downloaded.
 - `volume_path`: (required) The local path to the volume where files will be downloaded.
 - `file_names`: (optional) A list of specific file names to be downloaded. If not specified, all files in the folder will be downloaded.
+- `file_pattern`: (optional) The pattern to match file names to be downloaded or uploaded.
 - `file_id`: (optional for BoxToVolumesOperator) The ID of a specific file to be downloaded. If specified, only this file will be downloaded. This parameter is not used in VolumesToBoxOperator.
 - `operation`: (required only for BoxOperator) Specifies the operation to be performed: `"download"` or `"upload"`.
 
@@ -859,6 +860,8 @@ def box_to_volume():
         folder_id="12345",
         volume_path="/path/to/local/volume",
         file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
     )
     box_to_volume_copy.execute()
 
@@ -870,6 +873,7 @@ def volume_to_box():
         folder_id="12345",
         volume_path="/path/to/local/volume",
         file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
     )
     volumes_to_box_copy.execute()
 
@@ -880,8 +884,10 @@ def download_box_to_volume():
         secret_scope="my_secret_scope",
         folder_id="12345",
         volume_path="/path/to/local/volume",
-        operation="download",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
         file_id="678910",
+        operation="download",
     )
     download_box_to_volume_copy.execute()
 
@@ -893,6 +899,8 @@ def upload_volume_to_box():
         cerberus_client_url="https://cerberus-url.com",
         folder_id="12345",
         volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
         operation="upload",
     )
     upload_volumes_to_box_copy.execute()
