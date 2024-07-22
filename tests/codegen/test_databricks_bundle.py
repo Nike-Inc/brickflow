@@ -506,6 +506,7 @@ import {
             BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
             BrickflowEnvVars.BRICKFLOW_ENV.value: "local",
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
+            BrickflowEnvVars.BRICKFLOW_WORKFLOW_LIST.value: "wf-test-2",
         },
     )
     @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
@@ -536,7 +537,7 @@ import {
                 ]
             },  # dont test import mutator
         ) as f:
-            # f.add_workflow(wf)
+            f.add_workflow(wf)
             f.add_workflow(wf2)
 
         with open(BUNDLE_FILE_NAME, "r", encoding="utf-8") as bundle:

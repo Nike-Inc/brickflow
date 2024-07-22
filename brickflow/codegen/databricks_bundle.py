@@ -698,6 +698,12 @@ class DatabricksBundleCodegen(CodegenInterface):
         jobs = {}
         pipelines = {}  # noqa
         for workflow_name, workflow in self.project.workflows.items():
+            if self.env == BrickflowDefaultEnvs.LOCAL.value:
+                selected_workflows = os.getenv(
+                    BrickflowEnvVars.BRICKFLOW_WORKFLOW_LIST.value
+                )
+                if selected_workflows and selected_workflows != workflow_name:
+                    continue
             git_ref = self.project.git_reference or ""
             ref_type = git_ref.split("/", maxsplit=1)[0]
             ref_type = (
