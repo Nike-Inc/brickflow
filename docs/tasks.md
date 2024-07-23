@@ -839,7 +839,7 @@ The `BoxOperator` manages the high-level operations for interacting with Box (do
 - `folder_id`: (required) The ID of the Box folder from which files will be downloaded.
 - `volume_path`: (required) The local path to the volume where files will be downloaded.
 - `file_names`: (optional) A list of specific file names to be downloaded. If not specified, all files in the folder will be downloaded.
-- `file_pattern`: (optional) The pattern to match file names to be downloaded or uploaded.
+- `file_pattern`: (optional) The pattern to match file names starting with or ending with the given file pattern to be downloaded or uploaded.
 - `file_id`: (optional for BoxToVolumesOperator) The ID of a specific file to be downloaded. If specified, only this file will be downloaded. This parameter is not used in VolumesToBoxOperator.
 - `operation`: (required only for BoxOperator) Specifies the operation to be performed: `"download"` or `"upload"`.
 
