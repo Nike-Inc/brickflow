@@ -452,41 +452,41 @@ class VolumesToBoxOperator(BoxAuthenticator):
         try:
             items_to_upload = set(self.file_names) if self.file_names else set()
             all_items = os.listdir(self.volume_path)
-
-            for item in all_items:
-                item_path = os.path.join(self.volume_path, item)
-                self.logger.debug(f"Checking item: {item_path}")
-                if os.path.isfile(item_path):
-                    self.logger.debug(f"Item is a file: {item_path}")
-                    if self.file_pattern:
+            if self.file_names:
+                for item in self.file_names:
+                    item_path = os.path.join(self.volume_path, item)
+                    if os.path.isfile(item_path):
+                        items_to_upload.add(item)
+                    else:
+                        self.logger.warning(
+                            f"File {item} specified in file_names does not exist in volume path."
+                        )
+            if self.file_pattern:
+                for item in all_items:
+                    if os.path.isfile(os.path.join(self.volume_path, item)):
                         if item.startswith(self.file_pattern) or item.endswith(
                             self.file_pattern
                         ):
                             items_to_upload.add(item)
-                    else:
+            if not self.file_names and not self.file_pattern:
+                for item in all_items:
+                    item_path = os.path.join(self.volume_path, item)
+                    if os.path.isfile(item_path):
                         items_to_upload.add(item)
-                elif os.path.isdir(item_path) and not self.file_pattern:
-                    self.upload_folder(self.folder_id, item_path)
-                elif os.path.isdir(item_path):
-                    self.logger.info(
-                        f"Skipping folder {item} due to pattern restriction."
-                    )
-
+                    elif os.path.isdir(item_path):
+                        self.upload_folder(self.folder_id, item_path)
             for item in items_to_upload:
                 item_path = os.path.join(self.volume_path, item)
-                self.logger.debug(f"Uploading item: {item_path}")
                 if os.path.isfile(item_path):
                     self.upload_file(self.folder_id, item_path)
                 else:
                     self.logger.warning(
                         f"Path {item_path} is not a file and will be skipped."
                     )
-
             if not self.uploaded_files:
                 self.logger.info("No files were uploaded.")
             else:
                 self.logger.info(f"Uploaded files: {self.uploaded_files}")
-
         except BoxAPIException as e:
             self.logger.error(f"Box API error during upload: {e}")
             raise BoxOperatorException(f"Box API error during upload: {e}")
