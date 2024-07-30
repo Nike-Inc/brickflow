@@ -814,7 +814,7 @@ def tableau_refresh_workbook():
     )
 ```
 
-### Box Operators
+#### Box Operators
 The Box Operator provides a comprehensive solution for authenticating with Box and efficiently managing file transfers 
 between Box and Databricks Unity Catalog (UC) volumes.  It includes classes for downloading and uploading files, 
 leveraging JWT authentication via BoxAuthenticator.
@@ -822,7 +822,7 @@ leveraging JWT authentication via BoxAuthenticator.
 To properly authenticate with Box using JWT within the Databricks or Cerberus environments, 
 ensure that your secrets scope contains the following exact keys:
 
-###### Dbutils or Cerberus
+`Dbutils or Cerberus`
 The secrets scope should contain the following keys for Box authentication:
 
 - `client_id`: `your_client_id` The client ID for the Box application.
@@ -839,7 +839,8 @@ The `VolumesToBoxOperator` uploads files from a Databricks Unity Catalog (UC) vo
 
 The `BoxOperator` manages the high-level operations for interacting with Box (download/upload).
 
-###### BoxToVolumesOperator, VolumesToBoxOperator and BoxOperator Parameters:
+`BoxToVolumesOperator, VolumesToBoxOperator and BoxOperator Parameters:`
+
 - `secret_scope`: (required) The scope within Databricks or Cerberus where the secrets are stored.
 - `cerberus_client_url`: (optional) The URL for the Cerberus client, used to retrieve secrets if not found in the secret_scope.
 - `folder_id`: (required) The ID of the Box folder from which files will be downloaded.
@@ -849,8 +850,6 @@ The `BoxOperator` manages the high-level operations for interacting with Box (do
 - `file_id`: (optional for BoxToVolumesOperator) The ID of a specific file to be downloaded. If specified, only this file will be downloaded. This parameter is not used in VolumesToBoxOperator.
 - `operation`: (required only for BoxOperator) Specifies the operation to be performed: `"download"` or `"upload"`.
 
-
-###### Example Usage
 
 ```python title="box_operators"
 from brickflow.context import ctx

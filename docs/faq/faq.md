@@ -17,6 +17,7 @@ Supported Operators:
 * BashOperator
 * ShortCircuitOperator
 * TaskDependencySensor
+* BoxOperator
 
 To enable the usage of airflow operators, you need to set the `enable_plugins` flag to `True` in the `Project`
 constructor.
