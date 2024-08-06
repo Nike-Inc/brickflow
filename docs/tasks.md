@@ -813,4 +813,104 @@ def tableau_refresh_workbook():
         workbooks=["workbook1", "workbook2"],
     )
 ```
+
+#### Box Operators
+The Box Operator provides a comprehensive solution for authenticating with Box and efficiently managing file transfers 
+between Box and Databricks Unity Catalog (UC) volumes.  It includes classes for downloading and uploading files, 
+leveraging JWT authentication via BoxAuthenticator.
+
+To properly authenticate with Box using JWT within the Databricks or Cerberus environments, 
+ensure that your secrets scope contains the following exact keys:
+
+`Dbutils or Cerberus`
+The secrets scope should contain the following keys for Box authentication:
+
+- `client_id`: `your_client_id` The client ID for the Box application.
+- `client_secret`: `your_client_secret` The client secret for the Box application.
+- `jwt_key_id`: `your_jwt_key_id` The JWT key ID for the Box application.
+- `rsa_private_key_data`: `your_rsa_private_key_data` The RSA private key data for the Box application. This is encoded in UTF-8.
+- `rsa_private_key_passphrase`: `your_rsa_private_key_passphrase` The passphrase for the RSA private key.
+- `enterprise_id`: `your_enterprise_id` The enterprise ID for the Box application.
+
+
+The `BoxToVolumesOperator` downloads files from Box to Databricks Unity Catalog (UC) volume.
+
+The `VolumesToBoxOperator` uploads files from a Databricks Unity Catalog (UC) volume to a Box folder.
+
+The `BoxOperator` manages the high-level operations for interacting with Box (download/upload).
+
+`BoxToVolumesOperator, VolumesToBoxOperator and BoxOperator Parameters:`
+
+- `secret_scope`: (required) The scope within Databricks or Cerberus where the secrets are stored.
+- `cerberus_client_url`: (optional) The URL for the Cerberus client, used to retrieve secrets if not found in the secret_scope.
+- `folder_id`: (required) The ID of the Box folder from which files will be downloaded.
+- `volume_path`: (required) The local path to the volume where files will be downloaded.
+- `file_names`: (optional) A list of specific file names to be downloaded. If not specified, all files in the folder will be downloaded.
+- `file_pattern`: (optional) The pattern to match file names starting with or ending with the given file pattern to be downloaded or uploaded.
+- `file_id`: (optional for BoxToVolumesOperator) The ID of a specific file to be downloaded. If specified, only this file will be downloaded. This parameter is not used in VolumesToBoxOperator.
+- `operation`: (required only for BoxOperator) Specifies the operation to be performed: `"download"` or `"upload"`.
+
+
+```python title="box_operators"
+from brickflow.context import ctx
+from brickflow_plugins import BoxToVolumesOperator, VolumeToBoxOperator, BoxOperator
+
+wf = Workflow(...)
+
+@wf.task
+def box_to_volume():
+    box_to_volume_copy = BoxToVolumesOperator(
+        secret_scope="my_secret_scope",
+        cerberus_client_url="https://cerberus-url.com",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
+    )
+    box_to_volume_copy.execute()
+
+
+@wf.task
+def volume_to_box():
+    volumes_to_box_copy = VolumesToBoxOperator(
+        secret_scope="my_secret_scope",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+    )
+    volumes_to_box_copy.execute()
+
+
+@wf.task
+def download_box_to_volume():
+    download_box_to_volume_copy = BoxOperator(
+        secret_scope="my_secret_scope",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
+        operation="download",
+    )
+    download_box_to_volume_copy.execute()
+
+
+@wf.task
+def upload_volume_to_box():
+    upload_volumes_to_box_copy = BoxOperator(
+        secret_scope="my_secret_scope",
+        cerberus_client_url="https://cerberus-url.com",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        operation="upload",
+    )
+    upload_volumes_to_box_copy.execute()
+```
+
+
+
 Check operator logs for more details on the status of the connection and the refresh.

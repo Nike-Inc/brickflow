@@ -1109,6 +1109,8 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
             PypiTaskLibrary("apache-airflow==2.7.3"),
             PypiTaskLibrary("snowflake==0.6.0"),
             PypiTaskLibrary("tableauserverclient==0.25"),
+            PypiTaskLibrary("boxsdk==3.9.2"),
+            PypiTaskLibrary("cerberus-python-client==2.5.4"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:
