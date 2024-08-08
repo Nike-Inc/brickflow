@@ -105,21 +105,16 @@ def bundle_env_set_options(f: Callable) -> Callable:
         ctx: click.Context, param: str, value: Any
     ) -> None:  # noqa
         # pylint: disable=unused-argument
-        if value:
-            for file in value:
-                if file[-3:] != ".py":
-                    raise ClickException("Should pass only python files as workflows")
-            _ilog.info("Brickflow will only deploy workflows: %s", ", ".join(value))
-            if (
-                click.confirm(
-                    "This can delete all of your other workflows that are already deployed? Are you sure?"
-                )
-                is False
-            ):
-                ctx.exit(0)
-            os.environ[
-                BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
-            ] = ",".join(value)
+        if (
+            click.confirm(
+                "This can delete all of your other workflows that are already deployed? Are you sure?"
+            )
+            is False
+        ):
+            ctx.exit(0)
+        os.environ[BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value] = ",".join(
+            value
+        )
 
     def set_up_bundle_for_workflow_dir(
         ctx: click.Context, param: str, value: Any  # pylint: disable=unused-argument
@@ -149,7 +144,7 @@ def bundle_env_set_options(f: Callable) -> Callable:
             type=str,
             multiple=True,
             callback=deploy_only_workflows,
-            help="""Provide the workflow file names which you want to deploy, each file name separated by space!
+            help="""Provide the workflow names (local mode only) to deploy, each workflow separated by space!
                     Example: bf deploy -p DEFAULT -l -w wf1.py -w wf2.py""",
         ),
         click.option(

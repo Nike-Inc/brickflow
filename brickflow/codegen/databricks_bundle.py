@@ -698,6 +698,20 @@ class DatabricksBundleCodegen(CodegenInterface):
         jobs = {}
         pipelines = {}  # noqa
         for workflow_name, workflow in self.project.workflows.items():
+            if (
+                self.env == BrickflowDefaultEnvs.LOCAL.value
+                and BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value in os.environ
+            ):
+                selected_workflows = os.getenv(  # type: ignore
+                    BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
+                ).split(",")
+                if workflow_name not in selected_workflows:
+                    _ilog.info(
+                        "Skipping workflow %s as it is not in the selected workflows %s",
+                        workflow_name,
+                        selected_workflows,
+                    )
+                    continue
             git_ref = self.project.git_reference or ""
             ref_type = git_ref.split("/", maxsplit=1)[0]
             ref_type = (
