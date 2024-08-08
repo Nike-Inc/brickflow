@@ -145,7 +145,7 @@ def bundle_env_set_options(f: Callable) -> Callable:
             type=str,
             multiple=True,
             callback=deploy_only_workflows,
-            help="""Provide the workflow names (bundle mode) which you want to deploy, each workflow separated by space!
+            help="""Provide the workflow names (local mode only) to deploy, each workflow separated by space!
                     Example: bf deploy -p DEFAULT -l -w wf1 -w wf2""",
         ),
         click.option(
