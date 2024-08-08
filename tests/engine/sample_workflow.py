@@ -40,7 +40,7 @@ def task_function_with_error(*, test="var"):
 
 
 @wf.task
-def task_function_no_deco_args(*, test="var"):
+def task_function_no_deco_args():
     return "hello world"
 
 

@@ -2,6 +2,7 @@ from unittest.mock import patch
 import pytest
 
 import brickflow_plugins.databricks.run_job
+from brickflow.bundles.model import JobsContinuous
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
     Task,
@@ -269,6 +270,45 @@ class TestWorkflow:
             )
         assert "schedule_pause_status must be one of ['PAUSED', 'UNPAUSED']" == str(
             excinfo.value
+        )
+
+    def test_schedule_continous_workflow(self):
+        with pytest.raises(WorkflowConfigError) as excinfo:
+            Workflow(
+                "test",
+                clusters=[Cluster("name", "spark", "vm-node")],
+                schedule_continuous=JobsContinuous(pause_status="PAUSED"),
+                schedule_quartz_expression="* * * * *",
+            )
+        assert (
+            "Please configure either schedule_quartz_expression or schedule_continuous for workflow"
+            == str(excinfo.value)
+        )
+
+        with pytest.raises(WorkflowConfigError) as excinfo:
+            Workflow(
+                "test",
+                clusters=[Cluster("name", "spark", "vm-node")],
+                schedule_continuous=JobsContinuous(pause_status="PAUSED"),
+                trigger={
+                    "file_arrival": {"url": "<my_url>"},
+                    "pause_status": "UNPAUSED",
+                },
+            )
+        assert (
+            "Please configure either trigger or schedule_continuous for workflow"
+            == str(excinfo.value)
+        )
+
+        with pytest.raises(WorkflowConfigError) as excinfo:
+            Workflow(
+                "test",
+                clusters=[Cluster("name", "spark", "vm-node")],
+                schedule_continuous=JobsContinuous(pause_status="INVALID_STATUS"),
+            )
+        assert (
+            "Please configure either PAUSED or UNPAUSED for schedule_continuous.pause_status"
+            == str(excinfo.value)
         )
 
     def test_add_task_for_run_job_task(self, mocker):
