@@ -7,6 +7,7 @@ import functools
 import inspect
 import json
 import logging
+import os
 import textwrap
 from dataclasses import dataclass, field
 from enum import Enum
@@ -33,6 +34,7 @@ from brickflow import (
     BrickflowDefaultEnvs,
     BrickflowProjectDeploymentSettings,
     get_brickflow_version,
+    BrickflowEnvVars,
 )
 from brickflow.bundles.model import (
     JobsTasksNotebookTask,
@@ -890,6 +892,20 @@ class Task:
         final_task_parameters.update(
             {k: str(v) for k, v in spec.kwonlydefaults.items()}
         )
+
+        if spec.kwonlydefaults:
+            # convert numbers into strings for base parameters
+            final_task_parameters.update(
+                {k: str(v) for k, v in spec.kwonlydefaults.items()}
+            )
+
+        if (
+            BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value in os.environ
+            and os.environ.get(BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value)
+        ):
+            final_task_parameters["brickflow_project_params"] = str(
+                os.environ[BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value]
+            )
         return final_task_parameters
 
     # @property

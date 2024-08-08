@@ -1,4 +1,6 @@
 import base64
+import json
+
 import binascii
 import copy
 import functools
@@ -369,6 +371,20 @@ class Context:
     def get_parameter(self, key: str, debug: Optional[str] = None) -> Optional[str]:
         try:
             return self.dbutils.widgets.get(key)
+        except Exception:
+            # todo: log error
+            _ilog.debug("Unable to get parameter: %s from dbutils", key)
+            return debug
+
+    def get_project_parameter(
+        self, key: str, debug: Optional[str] = None
+    ) -> Optional[str]:
+        try:
+            project_param = self.get_parameter(
+                BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value.lower(), debug="{}"
+            )
+            project_param_dict = json.loads(str(project_param))
+            return project_param_dict.get(key, debug)
         except Exception:
             # todo: log error
             _ilog.debug("Unable to get parameter: %s from dbutils", key)
