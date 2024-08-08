@@ -17,6 +17,7 @@ Supported Operators:
 * BashOperator
 * ShortCircuitOperator
 * TaskDependencySensor
+* BoxOperator
 
 To enable the usage of airflow operators, you need to set the `enable_plugins` flag to `True` in the `Project`
 constructor.
@@ -117,4 +118,79 @@ def copy_from_uc_sf(*args):
                       'sf_cluster_keys':''}
   )
   uc_to_sf_copy.execute()
+```
+
+## How do I copy files or folders from Box to UC Volumes?
+```python
+
+from brickflow_plugins import BoxToVolumesOperator
+
+wf = Workflow(...)
+
+@wf.task
+def copy_from_box_to_volumnes(*args):
+  box_to_volumnes_copy = BoxToVolumesOperator(
+    secret_scope="my_secret_scope",
+    cerberus_client_url="https://my-cerberus-url.com",
+    folder_id="12345",
+    volume_path="/path/to/local/volume",
+    file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
+    file_id = "box_file_id",
+  )
+  box_to_volumnes_copy.execute()
+```
+
+## How do I copy files or folders from UC Volumes to Box?
+```python
+
+from brickflow_plugins import VolumesToBoxOperator
+
+wf = Workflow(...)
+
+@wf.task
+def copy_from_volumnes_to_box(*args):
+  volumnes_to_box_copy = VolumesToBoxOperator(
+    secret_scope="my_secret_scope",
+    cerberus_client_url="https://my-cerberus-url.com",
+    folder_id="12345",
+    volume_path="/path/to/local/volume",
+    file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
+  )
+  volumnes_to_box_copy.execute()
+```
+
+## How do I copy files or folders from Box to UC Volumes and UC Volumes to Box?
+```python
+
+from brickflow_plugins import BoxOperator
+
+wf = Workflow(...)
+
+@wf.task
+def copy_from_box_to_volumnes(*args):
+  box_to_volumnes_copy = BoxOperator(
+    secret_scope="my_secret_scope",
+    cerberus_client_url="https://my-cerberus-url.com",
+    folder_id="12345",
+    volume_path="/path/to/local/volume",
+    file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
+    operation="download",
+  )
+  box_to_volumnes_copy.execute()
+
+@wf.task
+def copy_from_volumnes_to_box(*args):
+  volumnes_to_box_copy = BoxOperator(
+    secret_scope="my_secret_scope",
+    cerberus_client_url="https://my-cerberus-url.com",
+    folder_id="12345",
+    volume_path="/path/to/local/volume",
+    file_names=["file1.txt", "file2.txt"],
+    file_pattern=".txt",
+    operation="upload",
+  )
+  volumnes_to_box_copy.execute()
 ```

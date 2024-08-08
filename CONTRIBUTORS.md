@@ -14,6 +14,8 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Chanukya Konuganti](https://www.linkedin.com/in/chanukyakonuganti/)
 * [Maxim Mityutko](https://www.linkedin.com/in/mityutko/)
 * [Raju Gujjalapati](https://in.linkedin.com/in/raju-gujjalapati-470a88171)
+* [Madhusudan Koukutla](https://www.linkedin.com/in/madhusudan-reddy/)
+* [Surya Teja Jagatha](https://www.linkedin.com/in/surya-teja-jagatha/)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project

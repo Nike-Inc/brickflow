@@ -25,6 +25,9 @@ from brickflow_plugins import (
     UcToSnowflakeOperator,
     TableauRefreshDataSourceOperator,
     TableauRefreshWorkBookOperator,
+    BoxToVolumesOperator,
+    VolumesToBoxOperator,
+    BoxOperator,
 )
 from brickflow.engine.task import PypiTaskLibrary
 
@@ -48,7 +51,10 @@ wf = Workflow(
         can_view=[User("def@gmail.com")],
         can_manage=[User("ghi@gmail.com")],
     ),
-    libraries=[PypiTaskLibrary(package="snowflake==0.6.0")],
+    libraries=[
+        PypiTaskLibrary(package="snowflake==0.6.0"),
+        PypiTaskLibrary(package="boxsdk==3.9.2"),
+    ],
     # replace <emails> with existing users' email on databricks
     default_task_settings=TaskSettings(
         email_notifications=EmailNotifications(
@@ -379,6 +385,60 @@ def tableau_refresh_workbook():
         project="project",
         workbooks=["workbook1", "workbook2"],
     )
+
+
+@wf.task
+def box_to_volume():
+    box_to_volume_copy = BoxToVolumesOperator(
+        secret_scope="my_secret_scope",
+        cerberus_client_url="https://cerberus-url.com",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
+    )
+    box_to_volume_copy.execute()
+
+
+@wf.task
+def volume_to_box():
+    volumes_to_box_copy = VolumesToBoxOperator(
+        secret_scope="my_secret_scope",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+    )
+    volumes_to_box_copy.execute()
+
+
+@wf.task
+def download_box_to_volume():
+    download_box_to_volume_copy = BoxOperator(
+        secret_scope="my_secret_scope",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
+        operation="download",
+    )
+    download_box_to_volume_copy.execute()
+
+
+@wf.task
+def upload_volume_to_box():
+    upload_volumes_to_box_copy = BoxOperator(
+        secret_scope="my_secret_scope",
+        cerberus_client_url="https://cerberus-url.com",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        operation="upload",
+    )
+    upload_volumes_to_box_copy.execute()
 
 
 @wf.run_job_task

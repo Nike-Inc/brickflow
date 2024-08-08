@@ -1,5 +1,7 @@
+from unittest.mock import patch
 import pytest
 
+import brickflow_plugins.databricks.run_job
 from brickflow.bundles.model import JobsContinuous
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
@@ -19,7 +21,10 @@ from brickflow.engine.workflow import (
     NoWorkflowComputeError,
     WorkflowConfigError,
 )
-from tests.engine.sample_workflow import wf, task_function
+
+# `get_job_id` is being called during workflow init, hence the patch
+with patch("brickflow.engine.task.get_job_id", return_value=12345678901234):
+    from tests.engine.sample_workflow import wf, task_function, run_job_task
 
 
 class TestWorkflow:
@@ -156,7 +161,7 @@ class TestWorkflow:
             wf.task("hello world")
 
     def test_get_tasks(self):
-        assert len(wf.tasks) == 10
+        assert len(wf.tasks) == 11
 
     def test_task_iter(self):
         arr = []
@@ -164,7 +169,7 @@ class TestWorkflow:
             assert isinstance(t, Task)
             assert callable(t.task_func)
             arr.append(t)
-        assert len(arr) == 10, print([t.name for t in arr])
+        assert len(arr) == 11, print([t.name for t in arr])
 
     def test_permissions(self):
         assert wf.permissions.to_access_controls() == [
@@ -237,7 +242,7 @@ class TestWorkflow:
         from tests.engine.sample_workflow_2 import wf as wf1
 
         assert len(wf1.graph.nodes) == 2
-        assert len(wf.graph.nodes) == 11
+        assert len(wf.graph.nodes) == 12
 
     def test_schedule_run_status_workflow(self):
         this_wf = Workflow("test", clusters=[Cluster("name", "spark", "vm-node")])
@@ -305,3 +310,15 @@ class TestWorkflow:
             "Please configure either PAUSED or UNPAUSED for schedule_continuous.pause_status"
             == str(excinfo.value)
         )
+
+    def test_add_task_for_run_job_task(self, mocker):
+        with mocker.patch("brickflow_plugins.databricks.run_job.WorkspaceClient"):
+            with mocker.patch.object(
+                brickflow_plugins.databricks.run_job.RunJobInRemoteWorkspace,
+                "execute",
+                return_value="success",
+            ):
+                t = wf.get_task(run_job_task.__name__)
+                assert t.name == run_job_task.__name__
+                assert t.task_func.__name__ == "run_job_func"
+                assert t.task_func() == "success"

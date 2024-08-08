@@ -15,7 +15,9 @@ from brickflow.engine.project import (
     ExecuteError,
 )
 from brickflow.engine.workflow import Workflow
-from tests.engine.sample_workflow import wf, task_function
+
+with patch("brickflow.engine.task.get_job_id", return_value=12345678901234):
+    from tests.engine.sample_workflow import wf, task_function
 
 
 def side_effect(a, _):  # noqa
