@@ -41,6 +41,12 @@ targets:
                 - pypi:
                     package: tableauserverclient==0.25
                     repo: null
+                - pypi:
+                    package: boxsdk==3.9.2
+                    repo: null
+                - pypi:
+                    package: cerberus-python-client==2.5.4
+                    repo: null
                 - maven:
                     coordinates: com.cronutils:cron-utils:9.2.0
                     exclusions: null
@@ -197,6 +203,39 @@ targets:
               retry_on_timeout: null
               task_key: run_job_task_a
               timeout_seconds: null
+            - "depends_on":
+              - "outcome": null
+                "task_key": "notebook_task_a"
+              "email_notifications": {}
+              "existing_cluster_id": "existing_cluster_id"
+              "libraries":
+              - "pypi":
+                  "package": "brickflows==0.1.0"
+                  "repo": null
+              "max_retries": null
+              "min_retry_interval_millis": null
+              "notebook_task":
+                "base_parameters":
+                  "all_tasks1": "test"
+                  "all_tasks3": "123"
+                  "brickflow_env": "dev"
+                  "brickflow_internal_only_run_tasks": ""
+                  "brickflow_internal_task_name": "{{task_key}}"
+                  "brickflow_internal_workflow_name": "test"
+                  "brickflow_internal_workflow_prefix": ""
+                  "brickflow_internal_workflow_suffix": ""
+                  "brickflow_job_id": "{{job_id}}"
+                  "brickflow_parent_run_id": "{{parent_run_id}}"
+                  "brickflow_run_id": "{{run_id}}"
+                  "brickflow_start_date": "{{start_date}}"
+                  "brickflow_start_time": "{{start_time}}"
+                  "brickflow_task_key": "{{task_key}}"
+                  "brickflow_task_retry_count": "{{task_retry_count}}"
+                "notebook_path": "test_databricks_bundle.py"
+                "source": "GIT"
+              "retry_on_timeout": null
+              "task_key": "run_job_task_b"
+              "timeout_seconds": null
             - depends_on: []
               email_notifications: {}
               existing_cluster_id: existing_cluster_id

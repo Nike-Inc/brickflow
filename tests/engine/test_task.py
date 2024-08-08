@@ -444,7 +444,7 @@ class TestTask:
     def test_get_brickflow_libraries(self):
         settings = BrickflowProjectDeploymentSettings()
         settings.brickflow_project_runtime_version = "1.0.0"
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 7
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -460,7 +460,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "1.0.1rc1234"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 7
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
@@ -476,7 +476,7 @@ class TestTask:
         settings = BrickflowProjectDeploymentSettings()
         tag = "somebranch"
         settings.brickflow_project_runtime_version = tag
-        assert len(get_brickflow_libraries(enable_plugins=True)) == 5
+        assert len(get_brickflow_libraries(enable_plugins=True)) == 7
         assert len(get_brickflow_libraries(enable_plugins=False)) == 1
         lib = get_brickflow_libraries(enable_plugins=False)[0].dict
         expected = {
