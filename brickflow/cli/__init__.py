@@ -145,8 +145,8 @@ def bundle_env_set_options(f: Callable) -> Callable:
             type=str,
             multiple=True,
             callback=deploy_only_workflows,
-            help="""Provide the workflow file names which you want to deploy, each file name separated by space!
-                    Example: bf deploy -p DEFAULT -l -w wf1.py -w wf2.py""",
+            help="""Provide the workflow names (bundle mode) which you want to deploy, each workflow separated by space!
+                    Example: bf deploy -p DEFAULT -l -w wf1 -w wf2""",
         ),
         click.option(
             "--env",
