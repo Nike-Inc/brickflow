@@ -123,9 +123,16 @@ def bind_env_var(env_var: str) -> Callable:
         # pylint: disable=unused-argument
         if value is not None:
             _ilog.info("Setting env var: %s to %s...", env_var, value)
-            os.environ[env_var] = (
-                str(value).lower() if isinstance(value, bool) else value
-            )
+            if isinstance(value, list):
+                os.environ[env_var] = ",".join(value)
+            if isinstance(value, tuple):
+                print("PARI")
+                print(value)
+                os.environ[env_var] = ",".join(value)
+            elif isinstance(value, bool):
+                os.environ[env_var] = str(value).lower()
+            else:
+                os.environ[env_var] = value
 
     return callback
 

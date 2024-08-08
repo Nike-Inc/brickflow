@@ -101,21 +101,6 @@ def bundle_env_set_options(f: Callable) -> Callable:
                 BrickflowEnvVars.BRICKFLOW_ENV.value
             ] = BrickflowDefaultEnvs.LOCAL.value
 
-    def deploy_only_workflows(
-        ctx: click.Context, param: str, value: Any
-    ) -> None:  # noqa
-        # pylint: disable=unused-argument
-        if (
-            click.confirm(
-                "This can delete all of your other workflows that are already deployed? Are you sure?"
-            )
-            is False
-        ):
-            ctx.exit(0)
-        os.environ[BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value] = ",".join(
-            value
-        )
-
     def set_up_bundle_for_workflow_dir(
         ctx: click.Context, param: str, value: Any  # pylint: disable=unused-argument
     ) -> None:  # noqa
@@ -137,15 +122,6 @@ def bundle_env_set_options(f: Callable) -> Callable:
             prompt=INTERACTIVE_MODE,
             callback=set_up_bundle_for_workflow_dir,
             help="Provide the workflow directory that has to be deployed",
-        ),
-        click.option(
-            "--workflow",
-            "-w",
-            type=str,
-            multiple=True,
-            callback=deploy_only_workflows,
-            help="""Provide the workflow names (local mode only) to deploy, each workflow separated by space!
-                    Example: bf deploy -p DEFAULT -l -w wf1.py -w wf2.py""",
         ),
         click.option(
             "--env",
