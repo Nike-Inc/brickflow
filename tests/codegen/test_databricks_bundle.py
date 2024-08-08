@@ -510,14 +510,14 @@ import {
             BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
             BrickflowEnvVars.BRICKFLOW_ENV.value: "local",
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
-            BrickflowEnvVars.BRICKFLOW_WORKFLOW_LIST.value: "wf-test-2",
+            BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value: "wf-test-2",
         },
     )
     @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
-    def test_selected_workflows(
+    def test_deploy_single_workflow(
         self,
         bf_version_mock: Mock,
         dbutils: Mock,

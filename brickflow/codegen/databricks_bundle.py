@@ -700,7 +700,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         for workflow_name, workflow in self.project.workflows.items():
             if self.env == BrickflowDefaultEnvs.LOCAL.value:
                 selected_workflows = os.getenv(
-                    BrickflowEnvVars.BRICKFLOW_WORKFLOW_LIST.value
+                    BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
                 )
                 if selected_workflows and selected_workflows != workflow_name:
                     continue

@@ -106,10 +106,6 @@ def bundle_env_set_options(f: Callable) -> Callable:
     ) -> None:  # noqa
         # pylint: disable=unused-argument
         if value:
-            for file in value:
-                if file[-3:] != ".py":
-                    raise ClickException("Should pass only python files as workflows")
-            _ilog.info("Brickflow will only deploy workflows: %s", ", ".join(value))
             if (
                 click.confirm(
                     "This can delete all of your other workflows that are already deployed? Are you sure?"
