@@ -1,6 +1,4 @@
 import base64
-import json
-
 import binascii
 import copy
 import functools
@@ -379,15 +377,16 @@ class Context:
     def get_project_parameter(
         self, key: str, debug: Optional[str] = None
     ) -> Optional[str]:
+        project_params = str(
+            self.get_parameter(BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value.lower())
+        )
         try:
-            project_param = self.get_parameter(
-                BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value.lower(), debug="{}"
-            )
-            project_param_dict = json.loads(str(project_param))
-            return project_param_dict.get(key, debug)
-        except Exception:
+            pairs = project_params.split(",")
+            kv_dict = {pair.split("=")[0]: pair.split("=")[1] for pair in pairs}
+            return kv_dict.get(key)
+        except KeyError:
             # todo: log error
-            _ilog.debug("Unable to get parameter: %s from dbutils", key)
+            _ilog.debug("Could not find the key in %s project params", project_params)
             return debug
 
     def _try_import_chaining(self, callables: List[Callable]) -> Optional[Any]:
