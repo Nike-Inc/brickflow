@@ -126,8 +126,6 @@ def bind_env_var(env_var: str) -> Callable:
             if isinstance(value, list):
                 os.environ[env_var] = ",".join(value)
             if isinstance(value, tuple):
-                print("PARI")
-                print(value)
                 os.environ[env_var] = ",".join(value)
             elif isinstance(value, bool):
                 os.environ[env_var] = str(value).lower()
