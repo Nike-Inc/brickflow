@@ -196,3 +196,26 @@ class TestContext:
     def test_get_by_env_no_default_value_error(self):
         with pytest.raises(KeyError):
             ctx.get_by_env("testing...")
+
+    @patch("brickflow.context.ctx._dbutils")
+    def test_get_project_parameter(self, dbutils: Mock):
+        parameter_name = BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value.lower()
+        expected_value = "k1=v1,k2=v2"
+        dbutils.widgets.get.return_value = expected_value
+
+        result = ctx.get_parameter(parameter_name)
+
+        dbutils.widgets.get.assert_called_with(parameter_name)
+        assert result == expected_value
+
+        result = ctx.get_project_parameter("k1")
+        assert result == "v1"
+
+        result = ctx.get_project_parameter("k2")
+        assert result == "v2"
+
+        result = ctx.get_project_parameter("k3")
+        assert result is None
+
+        result = ctx.get_project_parameter("k3", "v3")
+        assert result == "v3"
