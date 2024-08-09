@@ -474,6 +474,17 @@ def apply_bundles_deployment_options(
             default=False,
             help="Force acquire lock for databricks bundles destroy.",
         ),
+        "workflow": click.option(
+            "--workflow",
+            "-w",
+            type=str,
+            multiple=True,
+            callback=bind_env_var(
+                BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
+            ),
+            help="""Provide the workflow names (local mode only) to deploy, each workflow separated by space!
+            Example: bf projects deploy -p DEFAULT -e local -w wf1 -w wf2""",
+        ),
     }
 
     def _apply_bundles_deployment_options(func: Callable) -> Callable[..., Any]:

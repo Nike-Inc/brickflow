@@ -119,8 +119,8 @@ class TestBundleCodegen:
         expected = get_expected_bundle_yaml("local_bundle.yml")
         bf_version_mock.assert_called_once()
         assert_equal_dicts(actual, expected)
-        # if os.path.exists(BUNDLE_FILE_NAME):
-        #     os.remove(BUNDLE_FILE_NAME)
+        if os.path.exists(BUNDLE_FILE_NAME):
+            os.remove(BUNDLE_FILE_NAME)
 
     @patch.dict(
         os.environ,
