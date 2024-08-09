@@ -894,12 +894,12 @@ class Task:
             )
 
         if (
-            BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value in os.environ
-            and os.environ.get(BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value)
+            BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value in os.environ
+            and os.environ.get(BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value)
         ):
             final_task_parameters[
-                BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value.lower()
-            ] = str(os.environ[BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value])
+                BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value.lower()
+            ] = str(os.environ[BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value])
         return final_task_parameters
 
     # @property

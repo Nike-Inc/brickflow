@@ -378,12 +378,22 @@ class Context:
         self, key: str, debug: Optional[str] = None
     ) -> Optional[str]:
         project_params = str(
-            self.get_parameter(BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value.lower())
+            self.get_parameter(
+                BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value.lower(), debug=debug
+            )
         )
+        if project_params == debug:
+            return debug
         try:
             pairs = project_params.split(",")
             kv_dict = {pair.split("=")[0]: pair.split("=")[1] for pair in pairs}
-            return kv_dict.get(key)
+            value = kv_dict.get(key)
+            if value is None:
+                _ilog.debug(
+                    "Could not find the key in %s project params", project_params
+                )
+                return debug
+            return value
         except KeyError:
             # todo: log error
             _ilog.debug("Could not find the key in %s project params", project_params)

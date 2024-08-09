@@ -490,7 +490,7 @@ def apply_bundles_deployment_options(
             "-kv",
             type=str,
             multiple=True,
-            callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_CLI_PARAMS.value),
+            callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value),
             help="""Provide the runtime key-value parameters, each key-value separated by space!
         Example: bf projects deploy -p DEFAULT -e local -kv key1=value1 -kv key2=value2""",
         ),
