@@ -701,6 +701,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             if (
                 self.env == BrickflowDefaultEnvs.LOCAL.value
                 and BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value in os.environ
+                and os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value)
             ):
                 selected_workflows = os.getenv(  # type: ignore
                     BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
