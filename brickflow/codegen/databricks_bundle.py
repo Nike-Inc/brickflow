@@ -697,22 +697,28 @@ class DatabricksBundleCodegen(CodegenInterface):
     def proj_to_bundle(self) -> DatabricksAssetBundles:
         jobs = {}
         pipelines = {}  # noqa
+
+        selected_workflows = (
+            os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value, "").split(
+                ","
+            )
+            if BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value in os.environ
+            else []
+        )
+
+        if self.env != BrickflowDefaultEnvs.LOCAL.value and selected_workflows:
+            raise ValueError(
+                "Cannot set BRICKFLOW_DEPLOY_ONLY_WORKFLOWS in non-local environments"
+            )
+
         for workflow_name, workflow in self.project.workflows.items():
-            if (
-                self.env == BrickflowDefaultEnvs.LOCAL.value
-                and BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value in os.environ
-                and os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value)
-            ):
-                selected_workflows = os.getenv(  # type: ignore
-                    BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
-                ).split(",")
-                if workflow_name not in selected_workflows:
-                    _ilog.info(
-                        "Skipping workflow %s as it is not in the selected workflows %s",
-                        workflow_name,
-                        selected_workflows,
-                    )
-                    continue
+            if selected_workflows and workflow_name not in selected_workflows:
+                _ilog.info(
+                    "Skipping workflow %s as it is not in the selected workflows %s",
+                    workflow_name,
+                    selected_workflows,
+                )
+                continue
             git_ref = self.project.git_reference or ""
             ref_type = git_ref.split("/", maxsplit=1)[0]
             ref_type = (
