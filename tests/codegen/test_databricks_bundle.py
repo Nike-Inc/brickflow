@@ -78,6 +78,7 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
             BrickflowEnvVars.BRICKFLOW_ENV.value: "local",
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
+            BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value: "k1=v1,k2=v2",
         },
     )
     @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
@@ -119,8 +120,8 @@ class TestBundleCodegen:
         expected = get_expected_bundle_yaml("local_bundle.yml")
         bf_version_mock.assert_called_once()
         assert_equal_dicts(actual, expected)
-        # if os.path.exists(BUNDLE_FILE_NAME):
-        #     os.remove(BUNDLE_FILE_NAME)
+        if os.path.exists(BUNDLE_FILE_NAME):
+            os.remove(BUNDLE_FILE_NAME)
 
     @patch.dict(
         os.environ,
