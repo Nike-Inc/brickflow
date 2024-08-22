@@ -1,4 +1,6 @@
 import base64
+import time
+
 import binascii
 import copy
 import functools
@@ -174,6 +176,9 @@ class Context:
     @property
     def current_task(self) -> Optional[str]:
         return self._current_task
+
+    def get_current_timestamp(self) -> int:
+        return int(time.time() * 1000)
 
     def _set_current_task(self, task_key: str) -> None:
         self._current_task = task_key

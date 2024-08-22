@@ -201,7 +201,6 @@ class TestBundleCodegen:
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
         get_job_id_mock.return_value = 12345678901234.0
-
         workspace_client = get_workspace_client_mock()
 
         # get caller part breaks here

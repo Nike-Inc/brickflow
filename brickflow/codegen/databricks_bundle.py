@@ -95,6 +95,9 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
         return {
             DatabricksDefaultClusterTagKeys.ENVIRONMENT.value: ctx.env,
             DatabricksDefaultClusterTagKeys.DEPLOYED_BY.value: self._get_current_user_alphanumeric(),
+            DatabricksDefaultClusterTagKeys.DEPLOYED_AT.value: str(
+                ctx.get_current_timestamp()
+            ),
             DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: ci.project.name,
             DatabricksDefaultClusterTagKeys.BRICKFLOW_DEPLOYMENT_MODE.value: "Databricks Asset Bundles",
             DatabricksDefaultClusterTagKeys.BRICKFLOW_VERSION.value: get_brickflow_version(),

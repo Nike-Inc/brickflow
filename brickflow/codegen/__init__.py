@@ -28,6 +28,7 @@ class CodegenInterface(abc.ABC):
 class DatabricksDefaultClusterTagKeys(Enum):
     ENVIRONMENT = "environment"
     DEPLOYED_BY = "deployed_by"
+    DEPLOYED_AT = "deployed_at"
     BRICKFLOW_PROJECT_NAME = "brickflow_project_name"
     BRICKFLOW_DEPLOYMENT_MODE = "brickflow_deployment_mode"
     DATABRICKS_TF_PROVIDER_VERSION = "databricks_tf_provider_version"
