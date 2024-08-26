@@ -483,6 +483,7 @@ def apply_bundles_deployment_options(
                 BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
             ),
             help="""Provide the workflow names (local mode only) to deploy, each workflow separated by space!
+            Note: provide the workflow names without the env prefix or the file extension.
             Example: bf projects deploy -p DEFAULT -e local -w wf1 -w wf2""",
         ),
         "--key-value": click.option(
