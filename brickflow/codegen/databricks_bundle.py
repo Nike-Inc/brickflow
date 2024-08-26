@@ -126,7 +126,10 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
     def _get_runtime_tags() -> Dict[str, str]:
         project_tags = os.environ.get(BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value)
         if project_tags:
-            tags = dict(tag.split("=") for tag in project_tags.split(","))
+            tags: dict[str, str] = dict(
+                map(str.strip, tag.split("="))  # type: ignore[misc]
+                for tag in project_tags.split(",")
+            )
             return tags
         return {}
 
