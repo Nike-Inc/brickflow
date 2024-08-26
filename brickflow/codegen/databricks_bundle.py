@@ -127,10 +127,9 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
         project_tags = os.environ.get(BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value)
         if project_tags:
             tags: dict[str, str] = dict(
-                map(str.strip, tag.split("="))  # type: ignore[misc]
-                for tag in project_tags.split(",")
+                tag.split("=") for tag in project_tags.split(",")
             )
-            return tags
+            return {k.strip(): v.strip() for (k, v) in tags.items()}
         return {}
 
     def _mutate_pipelines(self, resource: Resources, ci: CodegenInterface) -> Resources:
