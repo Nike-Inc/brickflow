@@ -22,6 +22,7 @@ targets:
             brickflow_deployment_mode: Databricks Asset Bundles
             brickflow_project_name: test-project
             brickflow_version: 1.0.0
+            deployed_at: "1704067200000"
             deployed_by: test_user
             environment: dev
           tasks:
@@ -113,6 +114,7 @@ targets:
             brickflow_project_name: test-project
             brickflow_deployment_mode: Databricks Asset Bundles
             deployed_by: test_user
+            deployed_at: "1704067200000"
             brickflow_version: 1.0.0
             environment: dev
             test: test2
