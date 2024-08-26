@@ -715,10 +715,10 @@ class DatabricksBundleCodegen(CodegenInterface):
         pipelines = {}  # noqa
 
         selected_workflows = (
-            os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value, "").split(
-                ","
-            )
-            if BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value in os.environ
+            str(
+                os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value)
+            ).split(",")
+            if os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value)
             else []
         )
 
