@@ -35,6 +35,7 @@
             "brickflow_project_name": "test-project"
             "brickflow_version": "1.0.0"
             "deployed_by": "test_user"
+            "deployed_at": "1704067200000"
             "environment": "local"
             "test": "test2"
           "tasks":

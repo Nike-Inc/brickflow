@@ -44,6 +44,7 @@ targets:
             brickflow_project_name: test-project
             brickflow_deployment_mode: Databricks Asset Bundles
             deployed_by: test_user
+            deployed_at: "1704067200000"
             environment: dev
             test: test2
             brickflow_version: 1.0.0

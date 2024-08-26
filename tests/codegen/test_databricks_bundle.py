@@ -79,12 +79,17 @@ class TestBundleCodegen:
             BrickflowEnvVars.BRICKFLOW_ENV.value: "local",
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
             BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value: "k1=v1,k2=v2",
+            BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value: "tag1 = value1,  tag2 =value2    ",  # spaces will be trimmed
         },
     )
     @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
+    @patch(
+        "brickflow.context.ctx.get_current_timestamp",
+        MagicMock(return_value=1704067200000),
+    )
     def test_generate_bundle_local(
         self,
         bf_version_mock: Mock,
@@ -137,6 +142,10 @@ class TestBundleCodegen:
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
+    @patch(
+        "brickflow.context.ctx.get_current_timestamp",
+        MagicMock(return_value=1704067200000),
+    )
     def test_generate_bundle_local_prefix_suffix(
         self,
         bf_version_mock: Mock,
@@ -187,6 +196,10 @@ class TestBundleCodegen:
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
+    @patch(
+        "brickflow.context.ctx.get_current_timestamp",
+        MagicMock(return_value=1704067200000),
+    )
     def test_generate_bundle_dev(
         self,
         bf_version_mock: Mock,
@@ -201,7 +214,6 @@ class TestBundleCodegen:
         sub_proc_mock.return_value = git_ref_b
         bf_version_mock.return_value = "1.0.0"
         get_job_id_mock.return_value = 12345678901234.0
-
         workspace_client = get_workspace_client_mock()
 
         # get caller part breaks here
@@ -244,6 +256,10 @@ class TestBundleCodegen:
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
+    @patch(
+        "brickflow.context.ctx.get_current_timestamp",
+        MagicMock(return_value=1704067200000),
+    )
     def test_generate_bundle_dev_auto_add_libs(
         self,
         bf_version_mock: Mock,
@@ -313,6 +329,10 @@ class TestBundleCodegen:
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
+    @patch(
+        "brickflow.context.ctx.get_current_timestamp",
+        MagicMock(return_value=1704067200000),
+    )
     def test_generate_bundle_dev_monorepo(
         self,
         bf_version_mock: Mock,
@@ -467,6 +487,10 @@ import {
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
+    @patch(
+        "brickflow.context.ctx.get_current_timestamp",
+        MagicMock(return_value=1704067200000),
+    )
     def test_schedule_continuous(
         self,
         bf_version_mock: Mock,

@@ -56,6 +56,27 @@ ctx.get_project_parameter("key1") ## returns value1
 ctx.get_project_parameter("key2") ## returns value2
 ```
 
+# Runtime project tags
+
+This allows for passing runtime tags to be applied to workflows.
+After deployment, the tags will be applied to the workflows in the Databricks workspace.
+
+### Environment Variable
+The tags are passed as a comma separated list when setting through environment variable.
+The key-value pairs are separated by an equal sign.
+
+```shell
+export BRICKFLOW_PROJECT_TAGS="tag1=value1,tag2=value2"
+bf projects deploy -p DEFAULT -e local
+```
+
+### CLI
+
+Provide the runtime key-value tags, each key-value separated by space when using CLI.
+
+```shell
+bf projects deploy -p DEFAULT -e local --tag tag1=value1 --tag tag2=value2
+```
 
 # Workflow prefixing or suffixing
 

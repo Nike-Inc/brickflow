@@ -95,6 +95,9 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
         return {
             DatabricksDefaultClusterTagKeys.ENVIRONMENT.value: ctx.env,
             DatabricksDefaultClusterTagKeys.DEPLOYED_BY.value: self._get_current_user_alphanumeric(),
+            DatabricksDefaultClusterTagKeys.DEPLOYED_AT.value: str(
+                ctx.get_current_timestamp()
+            ),
             DatabricksDefaultClusterTagKeys.BRICKFLOW_PROJECT_NAME.value: ci.project.name,
             DatabricksDefaultClusterTagKeys.BRICKFLOW_DEPLOYMENT_MODE.value: "Databricks Asset Bundles",
             DatabricksDefaultClusterTagKeys.BRICKFLOW_VERSION.value: get_brickflow_version(),
@@ -112,8 +115,20 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
                 # set correct names
                 job.name = self._rewrite_name(job.name)
                 # set tags
-                job.tags = {**self._get_default_tags(ci), **(job.tags or {})}
+                job.tags = {
+                    **self._get_default_tags(ci),
+                    **self._get_runtime_tags(),
+                    **(job.tags or {}),
+                }
         return resource
+
+    @staticmethod
+    def _get_runtime_tags() -> Dict[str, str]:
+        project_tags = os.environ.get(BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value)
+        if project_tags:
+            tags = dict(tag.split("=") for tag in project_tags.split(","))
+            return {k.strip(): v.strip() for (k, v) in tags.items()}
+        return {}
 
     def _mutate_pipelines(self, resource: Resources, ci: CodegenInterface) -> Resources:
         if resource.pipelines is not None:
@@ -125,6 +140,7 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
                     # set correct tags
                     cluster.custom_tags = {
                         **self._get_default_tags(ci),
+                        **self._get_runtime_tags(),
                         **(cluster.custom_tags or {}),
                     }
         return resource
@@ -699,10 +715,10 @@ class DatabricksBundleCodegen(CodegenInterface):
         pipelines = {}  # noqa
 
         selected_workflows = (
-            os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value, "").split(
-                ","
-            )
-            if BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value in os.environ
+            str(
+                os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value)
+            ).split(",")
+            if os.getenv(BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value)
             else []
         )
 
@@ -719,12 +735,14 @@ class DatabricksBundleCodegen(CodegenInterface):
                     selected_workflows,
                 )
                 continue
+
             git_ref = self.project.git_reference or ""
             ref_type = git_ref.split("/", maxsplit=1)[0]
             ref_type = (
                 ref_type if ref_type.startswith("git_") else f"git_{ref_type}"
             )  # handle git_branch and git_tag
             ref_value = "/".join(git_ref.split("/")[1:])
+
             # only add git source if not local
             git_conf = (
                 JobsGitSource(
