@@ -121,7 +121,7 @@ def bind_env_var(env_var: str) -> Callable:
         value: Any,
     ) -> None:
         # pylint: disable=unused-argument
-        if value is not None:
+        if value is not None and len(value) > 0:
             _ilog.info("Setting env var: %s to %s...", env_var, value)
             if isinstance(value, list):
                 os.environ[env_var] = ",".join(value)
