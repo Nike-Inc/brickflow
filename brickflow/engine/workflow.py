@@ -462,7 +462,7 @@ class Workflow:
             depends_on=depends_on,
             if_else_outcome=if_else_outcome,
         )
-    
+
     def spark_python_task(
         self,
         task_func: Optional[Callable] = None,

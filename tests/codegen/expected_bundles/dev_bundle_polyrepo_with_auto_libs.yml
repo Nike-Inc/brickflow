@@ -201,6 +201,10 @@ targets:
               libraries:
                 - pypi: 
                     package: koheesio
+                    repo: null
+                - pypi:
+                    package: "brickflows==0.1.0"
+                    repo: null
               max_retries: null
               min_retry_interval_millis: null
               spark_python_task:

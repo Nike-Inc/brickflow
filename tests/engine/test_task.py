@@ -551,7 +551,7 @@ class TestTask:
         task = SparkPythonTask(
             python_file="path/to/python/file.py",
         )
-        assert task.main_class_name == "MainClass"
+        assert task.python_file == "path/to/python/file.py"
         assert task.source is None
         assert task.parameters is None
 

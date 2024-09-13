@@ -456,9 +456,9 @@ class SparkJarTask(JobsTasksSparkJarTask):
 class SparkPythonTask(JobsTasksSparkPythonTask):
     """
     The SparkPythonTask class is designed to handle the execution of a Spark job with Python dependencies in a
-    Databricks workspace. One has to make sure that the Python file(s) are uploaded to the worksapce (or) git and provide
-    the absolute path in the library. An instance of SparkPythonTask represents a Spark job that is identified by its
-    main class name and optionally by its parameters.
+    Databricks workspace. One has to make sure that the Python file(s) are uploaded to the worksapce (or) git
+    and provide the absolute path in the library. An instance of SparkPythonTask represents a Spark job that
+    is identified by its main class name and optionally by its parameters.
 
     Attributes:
         main_class_name (str, optional): The main class name of the Spark job to be run.

@@ -1,39 +1,37 @@
 import os
 from pathlib import Path
-from typing import Dict, Any
-from unittest.mock import patch, Mock, MagicMock
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
 
 import yaml
 from deepdiff import DeepDiff
 
 from brickflow import BrickflowEnvVars
 from brickflow.bundles.model import (
-    Resources,
+    DatabricksAssetBundles,
     Jobs,
     JobsTasks,
     Pipelines,
+    PipelinesClusters,
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
-    PipelinesClusters,
-    DatabricksAssetBundles,
+    Resources,
 )
 from brickflow.cli import BrickflowDeployMode
 from brickflow.codegen import DatabricksDefaultClusterTagKeys
 from brickflow.codegen.databricks_bundle import (
-    DatabricksBundleTagsAndNameMutator,
-    DatabricksBundleImportMutator,
     DatabricksBundleCodegen,
+    DatabricksBundleImportMutator,
+    DatabricksBundleTagsAndNameMutator,
     ImportBlock,
     ImportManager,
 )
-from brickflow.engine.project import Stage, Project
+from brickflow.engine.project import Project, Stage
 from brickflow.engine.task import NotebookTask
-
 
 # `get_job_id` is being called during workflow init, hence the patch
 with patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0) as p:
-    from tests.codegen.sample_workflows import wf
-    from tests.codegen.sample_workflows import wf2
+    from tests.codegen.sample_workflows import wf, wf2
 
 # BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
@@ -288,7 +286,7 @@ class TestBundleCodegen:
             },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
-            from brickflow import Workflow, Cluster
+            from brickflow import Cluster, Workflow
 
             fake_workflow = Workflow(
                 "some_wf",
@@ -312,6 +310,10 @@ class TestBundleCodegen:
 
         actual = read_yaml_file(BUNDLE_FILE_NAME)
         expected = get_expected_bundle_yaml("dev_bundle_polyrepo_with_auto_libs.yml")
+        import json
+
+        print(json.dumps(actual, indent=2))
+        print(json.dumps(expected, indent=2))
         assert_equal_dicts(actual, expected)
         if os.path.exists(BUNDLE_FILE_NAME):
             os.remove(BUNDLE_FILE_NAME)
