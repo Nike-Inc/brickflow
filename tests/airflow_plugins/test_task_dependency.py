@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import pytest
 from requests.exceptions import HTTPError
@@ -66,6 +66,33 @@ class TestTaskDependencySensor:
                 {"json": {"state": "success"}, "status_code": int(200)},
             ],
         )
+        # DAG Run Endpoint with max end date
+        rm.register_uri(
+            method="GET",
+            url=f"{BASE_URL}/api/v1/dags/test-dag/dagRuns?execution_date_gte=2024-01-01T00:00:00Z&end_date_lte=2024-01-01T01:20:00Z",
+            response_list=[
+                # Test 3: max end date specified
+                {
+                    "json": {
+                        "dag_runs": [
+                            {
+                                "conf": {},
+                                "dag_id": "test-dag",
+                                "dag_run_id": "manual__2024-01-01T01:00:00.000000+00:00",
+                                "end_date": "2024-01-01T01:10:00.000000+00:00",
+                                "execution_date": "2024-01-01T01:00:00.000000+00:00",
+                                "external_trigger": True,
+                                "logical_date": "2024-01-01T01:00:00.000000+00:00",
+                                "start_date": "2024-01-01T01:00:00.000000+00:00",
+                                "state": "success",
+                            },
+                        ],
+                        "total_entries": 1,
+                    },
+                    "status_code": int(200),
+                },
+            ],
+        )
         yield rm
 
     @pytest.fixture()
@@ -95,6 +122,8 @@ class TestTaskDependencySensor:
         with api:
             sensor.execute(context={"execution_date": "2024-01-01T03:00:00Z"})
 
+        print("iris")
+        print(caplog.text)
         assert (
             "No Runs found for test-dag dag after 2024-01-01T00:00:00Z, please check upstream dag"
             in caplog.text
@@ -128,3 +157,10 @@ class TestTaskDependencySensor:
         with pytest.raises(AirflowSensorTimeout):
             with rm:
                 sensor.execute(context={"execution_date": "2024-01-01T03:00:00Z"})
+
+    def test_end_date(self, api, caplog, sensor):
+        execution_date = datetime.strptime("2024-01-01T03:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        max_end_date = datetime.strptime("2024-01-01T01:20:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        with api:
+            task_status = sensor.get_execution_stats(execution_date=execution_date, max_end_date=max_end_date)
+        assert task_status == "success"

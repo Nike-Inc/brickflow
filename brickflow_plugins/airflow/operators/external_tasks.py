@@ -286,7 +286,7 @@ class TaskDependencySensor(BaseSensorOperator):
             if latest:
                 # Only picking the latest run id if latest flag is True
                 dag_run_id = list_of_dictionaries[0]["dag_run_id"]
-        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")
+        log.info(f"Latest run for the dag is with execution date of {dag_run_id}")
         log.info(
             f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
         )
