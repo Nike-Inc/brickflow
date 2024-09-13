@@ -1,20 +1,21 @@
-from brickflow import JarTaskLibrary
-from brickflow.engine.compute import Cluster
+from brickflow import JarTaskLibrary, PypiTaskLibrary
 from brickflow.bundles.model import JobsContinuous
+from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
     BrickflowTriggerRule,
-    RunJobTask,
-    SqlTask,
-    TaskType,
-    TaskResponse,
     DLTPipeline,
-    NotebookTask,
-    SparkJarTask,
-    TaskSettings,
-    TaskRunCondition,
     IfElseConditionTask,
+    NotebookTask,
+    RunJobTask,
+    SparkJarTask,
+    SparkPythonTask,
+    SqlTask,
+    TaskResponse,
+    TaskRunCondition,
+    TaskSettings,
+    TaskType,
 )
-from brickflow.engine.workflow import Workflow, WorkflowPermissions, User
+from brickflow.engine.workflow import User, Workflow, WorkflowPermissions
 
 wf = Workflow(
     "test",
@@ -75,6 +76,18 @@ def spark_jar_task_a():
     )  # type: ignore
 
 
+@wf.spark_python_task(
+    libraries=[PypiTaskLibrary(package="koheesio")],
+    depends_on=spark_jar_task_a,
+)
+def spark_python_task_a():
+    return SparkPythonTask(
+        python_file="path/to/python/file.py",
+        source="GIT",
+        parameters=["--param1", "World!"],
+    )  # type: ignore
+
+
 @wf.run_job_task(
     depends_on=notebook_task_a,
 )
@@ -86,7 +99,9 @@ def run_job_task_a():
     depends_on=notebook_task_a,
 )
 def run_job_task_b():
-    return RunJobTask(job_name="dev_object_raw_to_cleansed", host="https://foo.cloud.databricks.com")  # type: ignore
+    return RunJobTask(
+        job_name="dev_object_raw_to_cleansed", host="https://foo.cloud.databricks.com"
+    )  # type: ignore
 
 
 @wf.sql_task

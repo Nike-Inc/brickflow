@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+import functools
 import logging
 import os
 import sys
-from enum import Enum
-from typing import List, Callable, Any, Union, Optional
-
 import warnings
-import functools
+from enum import Enum
+from typing import Any, Callable, List, Optional, Union
 
 from decouple import config
 
@@ -244,46 +243,47 @@ def get_bundles_project_env() -> str:
     return f"{ctx.current_project}-{ctx.env}"
 
 
-from brickflow.engine.workflow import (
-    Workflow,
-    WorkflowPermissions,
-    User,
-    Group,
-    ServicePrincipal,
-    WorkflowEmailNotifications,
-    WorkflowWebhookNotifications,
-    WorkflowNotificationSettings,
-    Trigger,
-)
-from brickflow.engine.task import (
-    Task,
-    TaskType,
-    TaskSettings,
-    TaskResponse,
-    BrickflowTriggerRule,
-    TaskRunCondition,
-    Operator,
-    BrickflowTaskEnvVars,
-    StorageBasedTaskLibrary,
-    JarTaskLibrary,
-    EggTaskLibrary,
-    WheelTaskLibrary,
-    PypiTaskLibrary,
-    MavenTaskLibrary,
-    CranTaskLibrary,
-    EmailNotifications,
-    TaskNotificationSettings,
-    DLTPipeline,
-    DLTEdition,
-    DLTChannels,
-    NotebookTask,
-    SparkJarTask,
-    RunJobTask,
-    SqlTask,
-    IfElseConditionTask,
-)
 from brickflow.engine.compute import Cluster, Runtimes
 from brickflow.engine.project import Project
+from brickflow.engine.task import (
+    BrickflowTaskEnvVars,
+    BrickflowTriggerRule,
+    CranTaskLibrary,
+    DLTChannels,
+    DLTEdition,
+    DLTPipeline,
+    EggTaskLibrary,
+    EmailNotifications,
+    IfElseConditionTask,
+    JarTaskLibrary,
+    MavenTaskLibrary,
+    NotebookTask,
+    Operator,
+    PypiTaskLibrary,
+    RunJobTask,
+    SparkJarTask,
+    SparkPythonTask,
+    SqlTask,
+    StorageBasedTaskLibrary,
+    Task,
+    TaskNotificationSettings,
+    TaskResponse,
+    TaskRunCondition,
+    TaskSettings,
+    TaskType,
+    WheelTaskLibrary,
+)
+from brickflow.engine.workflow import (
+    Group,
+    ServicePrincipal,
+    Trigger,
+    User,
+    Workflow,
+    WorkflowEmailNotifications,
+    WorkflowNotificationSettings,
+    WorkflowPermissions,
+    WorkflowWebhookNotifications,
+)
 from brickflow.resolver import (
     get_relative_path_to_brickflow_root,
 )
@@ -323,6 +323,7 @@ __all__: List[str] = [
     "DLTPipeline",
     "NotebookTask",
     "SparkJarTask",
+    "SparkPythonTask",
     "RunJobTask",
     "DLTEdition",
     "DLTChannels",

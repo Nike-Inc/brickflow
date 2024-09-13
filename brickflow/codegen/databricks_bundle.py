@@ -6,7 +6,7 @@ import re
 import typing
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Union, Dict, Any, Iterator
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 import yaml
 from databricks.sdk import WorkspaceClient
@@ -15,49 +15,50 @@ from decouple import config
 from pydantic import BaseModel
 
 from brickflow import (
-    Workflow,
+    BrickflowDefaultEnvs,
+    BrickflowEnvVars,
     Task,
     TaskType,
-    BrickflowDefaultEnvs,
-    ctx,
+    Workflow,
     _ilog,
-    get_bundles_project_env,
-    BrickflowEnvVars,
+    ctx,
     get_brickflow_version,
+    get_bundles_project_env,
 )
 from brickflow.bundles.model import (
+    Bundle,
+    DatabricksAssetBundles,
     Jobs,
+    JobsGitSource,
+    JobsJobClusters,
+    JobsPermissions,
+    JobsRunAs,
     JobsSchedule,
     JobsTasks,
-    JobsPermissions,
-    JobsGitSource,
-    DatabricksAssetBundles,
-    JobsJobClusters,
-    JobsTasksPipelineTask,
+    JobsTasksConditionTask,
     JobsTasksDependsOn,
     JobsTasksLibraries,
     JobsTasksNotebookTask,
+    JobsTasksPipelineTask,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
+    JobsTasksSparkPythonTask,
     JobsTasksSqlTask,
-    JobsTasksConditionTask,
-    Resources,
-    Workspace,
-    Bundle,
     Pipelines,
-    JobsRunAs,
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
+    Resources,
     Targets,
+    Workspace,
 )
 from brickflow.codegen import (
     CodegenInterface,
-    handle_mono_repo_path,
     DatabricksDefaultClusterTagKeys,
+    handle_mono_repo_path,
 )
 from brickflow.engine.task import (
-    TaskLibrary,
     DLTPipeline,
+    TaskLibrary,
     TaskSettings,
     filter_bf_related_libraries,
     get_brickflow_libraries,
@@ -66,7 +67,7 @@ from brickflow.engine.task import (
 if typing.TYPE_CHECKING:
     from brickflow.engine.project import (
         _Project,
-    )  # noqa
+    )
 
 
 class DatabricksBundleResourceMutator(abc.ABC):
@@ -505,6 +506,33 @@ class DatabricksBundleCodegen(CodegenInterface):
             **task.cluster.job_task_field_dict,
         )
 
+    def _build_native_spark_python_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_libraries: List[JobsTasksLibraries],
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+    ) -> JobsTasks:
+        try:
+            spark_python_task: JobsTasksSparkPythonTask = task.task_func()
+        except Exception as e:
+            raise ValueError(
+                f"Error while building python task {task_name}. "
+                f"Make sure {task_name} returns a SparkPythonTask object."
+            ) from e
+
+        return JobsTasks(
+            **task_settings.to_tf_dict(),
+            spark_python_task=spark_python_task,
+            libraries=task_libraries,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id
+            **task.cluster.job_task_field_dict,
+        )
+
     def _build_native_run_job_task(
         self,
         task_name: str,
@@ -614,7 +642,8 @@ class DatabricksBundleCodegen(CodegenInterface):
                 libraries += get_brickflow_libraries(workflow.enable_plugins)
 
             task_libraries = [
-                JobsTasksLibraries(**library.dict) for library in libraries  # type: ignore
+                JobsTasksLibraries(**library.dict)
+                for library in libraries  # type: ignore
             ]
             task_settings = workflow.default_task_settings.merge(task.task_settings)
             if task.task_type == TaskType.DLT:
@@ -635,6 +664,13 @@ class DatabricksBundleCodegen(CodegenInterface):
                 # native jar task
                 tasks.append(
                     self._build_native_spark_jar_task(
+                        task_name, task, task_libraries, task_settings, depends_on
+                    )
+                )
+            elif task.task_type == TaskType.SPARK_PYTHON_TASK:
+                # native python task
+                tasks.append(
+                    self._build_native_spark_python_task(
                         task_name, task, task_libraries, task_settings, depends_on
                     )
                 )

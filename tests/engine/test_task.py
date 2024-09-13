@@ -1,49 +1,51 @@
 import datetime
 from collections import namedtuple
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
-from pydantic import SecretStr
 import pytest
 from deepdiff import DeepDiff
-from brickflow.engine.utils import get_job_id
+from pydantic import SecretStr
+
 from brickflow import (
     BrickflowProjectDeploymentSettings,
-    SparkJarTask,
     IfElseConditionTask,
+    SparkJarTask,
+    SparkPythonTask,
 )
 from brickflow.context import (
-    ctx,
     BRANCH_SKIP_EXCEPT,
-    SKIP_EXCEPT_HACK,
     RETURN_VALUE_KEY,
+    SKIP_EXCEPT_HACK,
     BrickflowInternalVariables,
+    ctx,
 )
 from brickflow.engine.task import (
-    InvalidTaskSignatureDefinition,
-    EmailNotifications,
-    TaskSettings,
-    JarTaskLibrary,
-    EggTaskLibrary,
-    WheelTaskLibrary,
-    PypiTaskLibrary,
-    MavenTaskLibrary,
     CranTaskLibrary,
+    EggTaskLibrary,
+    EmailNotifications,
     InvalidTaskLibraryError,
+    InvalidTaskSignatureDefinition,
+    JarTaskLibrary,
+    MavenTaskLibrary,
+    PypiTaskLibrary,
     TaskLibrary,
+    TaskSettings,
+    WheelTaskLibrary,
     get_brickflow_lib_version,
     get_brickflow_libraries,
-    get_plugin_manager,
     get_brickflow_tasks_hook,
+    get_plugin_manager,
 )
+from brickflow.engine.utils import get_job_id
 from tests.engine.sample_workflow import (
-    wf,
+    custom_python_task_push,
     task_function,
-    task_function_nokwargs,
     task_function_2,
     task_function_3,
     task_function_4,
-    custom_python_task_push,
+    task_function_nokwargs,
     task_function_with_error,
+    wf,
 )
 
 
@@ -533,6 +535,24 @@ class TestTask:
         task = SparkJarTask(main_class_name="MainClass", jar_uri="test_uri")
         assert task.main_class_name == "MainClass"
         assert task.jar_uri == "test_uri"
+        assert task.parameters is None
+
+    def test_init_spark_python(self):
+        task = SparkPythonTask(
+            python_file="path/to/python/file.py",
+            source="GIT",
+            parameters=["--param1", "World!"],
+        )
+        assert task.python_file == "path/to/python/file.py"
+        assert task.source == "GIT"
+        assert task.parameters == ["--param1", "World!"]
+
+    def test_without_params_spark_python(self):
+        task = SparkPythonTask(
+            python_file="path/to/python/file.py",
+        )
+        assert task.main_class_name == "MainClass"
+        assert task.source is None
         assert task.parameters is None
 
     def if_else_condition_task(self):

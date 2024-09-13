@@ -229,6 +229,25 @@
               - "World!"
             "task_key": "spark_jar_task_a"
             "timeout_seconds": null
+          - "depends_on":
+            - "outcome": null
+              "task_key": "spark_jar_task_a"
+            "email_notifications": {}
+            "existing_cluster_id": "existing_cluster_id"
+            "libraries":
+            - "pypi": 
+                "package": "koheesio"
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "retry_on_timeout": null
+            "spark_python_task":
+              "python_file": "path/to/python/file.py"
+              "source": "GIT"
+              "parameters":
+              - "--param1"
+              - "World!"
+            "task_key": "spark_python_task_a"
+            "timeout_seconds": null
           - "depends_on": []
             "email_notifications": {}
             "existing_cluster_id": "existing_cluster_id"

@@ -1,35 +1,38 @@
 from datetime import timedelta
 
 from airflow.operators.bash import BashOperator
+
 from brickflow import (
-    ctx,
-    Cluster,
     BrickflowTriggerRule,
-    TaskSettings,
+    Cluster,
     EmailNotifications,
-    Workflow,
-    WorkflowPermissions,
-    User,
+    IfElseConditionTask,
+    JarTaskLibrary,
     NotebookTask,
-    SqlTask,
+    PypiTaskLibrary,
     RunJobTask,
     SparkJarTask,
-    JarTaskLibrary,
-    IfElseConditionTask,
-)
-from brickflow_plugins import (
-    TaskDependencySensor,
-    AirflowProxyOktaClusterAuth,
-    AutosysSensor,
-    SnowflakeOperator,
-    UcToSnowflakeOperator,
-    TableauRefreshDataSourceOperator,
-    TableauRefreshWorkBookOperator,
-    BoxToVolumesOperator,
-    VolumesToBoxOperator,
-    BoxOperator,
+    SparkPythonTask,
+    SqlTask,
+    TaskSettings,
+    User,
+    Workflow,
+    WorkflowPermissions,
+    ctx,
 )
 from brickflow.engine.task import PypiTaskLibrary
+from brickflow_plugins import (
+    AirflowProxyOktaClusterAuth,
+    AutosysSensor,
+    BoxOperator,
+    BoxToVolumesOperator,
+    SnowflakeOperator,
+    TableauRefreshDataSourceOperator,
+    TableauRefreshWorkBookOperator,
+    TaskDependencySensor,
+    UcToSnowflakeOperator,
+    VolumesToBoxOperator,
+)
 
 wf = Workflow(
     "brickflow-demo",
@@ -457,6 +460,15 @@ def spark_jar_task_a():
     return SparkJarTask(
         main_class_name="PrintArgs",
         parameters=["Hello", "World!"],
+    )  # type: ignore
+
+
+@wf.spark_python_task(libraries=[PypiTaskLibrary(package="koheesio")])
+def spark_python_task_a():
+    return SparkPythonTask(
+        python_file="path/to/python/file.py",
+        source="GIT",
+        parameters=["--param1", "World!"],
     )  # type: ignore
 
 
