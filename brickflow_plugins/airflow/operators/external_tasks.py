@@ -220,8 +220,9 @@ class TaskDependencySensor(BaseSensorOperator):
         self._poke_count = 0
         self._start_time = time.time()
 
-    def get_execution_stats(self, execution_date: datetime):
-        """Function to get the execution stats for task_id within a execution delta window
+    def get_execution_stats(self, execution_date: datetime, max_end_date: datetime = None):
+        """Function to get the execution stats for task_id within a execution start time and
+        (optionally) allowed job end time.
 
         Returns:
             string: state of the desired task id and dag_run_id (success/failure/running)
@@ -236,6 +237,7 @@ class TaskDependencySensor(BaseSensorOperator):
         execution_window_tz = (execution_date + execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
+        max_end_date_filter = f"&end_date_lte={max_end_date.strftime('%Y-%m-%dT%H:%M:%SZ')}" if max_end_date else ""
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
@@ -256,7 +258,7 @@ class TaskDependencySensor(BaseSensorOperator):
                 api_url
                 + "/api/v1/dags/"
                 + external_dag_id
-                + f"/dagRuns?execution_date_gte={execution_window_tz}"
+                + f"/dagRuns?execution_date_gte={execution_window_tz}{max_end_date_filter}"
             )
         log.info(f"URL to poke for dag runs {url}")
         response = requests.request("GET", url, headers=headers, verify=False)
@@ -269,7 +271,9 @@ class TaskDependencySensor(BaseSensorOperator):
 
         if len(list_of_dictionaries) == 0:
             log.info(
-                f"No Runs found for {external_dag_id} dag after {execution_window_tz}, please check upstream dag"
+                f"No Runs found for {external_dag_id} dag in time window: {execution_window_tz} - "
+                f"{max_end_date.strftime('%Y-%m-%dT%H:%M:%SZ') if max_end_date else 'now'}, "
+                f"please check upstream dag"
             )
             return "none"
 
