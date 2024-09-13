@@ -122,10 +122,8 @@ class TestTaskDependencySensor:
         with api:
             sensor.execute(context={"execution_date": "2024-01-01T03:00:00Z"})
 
-        print("iris")
-        print(caplog.text)
         assert (
-            "No Runs found for test-dag dag after 2024-01-01T00:00:00Z, please check upstream dag"
+            "No Runs found for test-dag dag in time window: 2024-01-01T00:00:00Z - now, please check upstream dag"
             in caplog.text
         )
         assert "task_status=running" in caplog.text
