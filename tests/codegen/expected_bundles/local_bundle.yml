@@ -237,12 +237,13 @@
             "libraries":
             - "pypi": 
                 "package": "koheesio"
+                "repo": null
             "max_retries": null
             "min_retry_interval_millis": null
             "retry_on_timeout": null
             "spark_python_task":
-              "python_file": "path/to/python/file.py"
-              "source": "GIT"
+              "python_file": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/path/to/python/file.py"
+              "source": "WORKSPACE"
               "parameters":
               - "--param1"
               - "World!"

@@ -120,9 +120,9 @@ targets:
               max_retries: null
               min_retry_interval_millis: null
               spark_python_task:
-                python_file: path/to/python/file.py
+                python_file: /Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/path/to/python/file.py
                 parameters: ["--param1", "World!"]
-                source: GIT
+                source: WORKSPACE
               retry_on_timeout: null
               task_key: spark_python_task_a
               timeout_seconds: null
