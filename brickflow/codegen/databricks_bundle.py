@@ -442,7 +442,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         ):
             bundle_files_local_path = "/".join(
                 [
-                    "Workspace",
+                    "/Workspace",
                     self.project.bundle_base_path,
                     self.project.bundle_obj_name,
                     self.project.name,
