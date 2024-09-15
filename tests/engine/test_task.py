@@ -539,19 +539,19 @@ class TestTask:
 
     def test_init_spark_python(self):
         task = SparkPythonTask(
-            python_file="path/to/python/file.py",
+            python_file="./products/test-project/path/to/python/file.py",
             source="GIT",
             parameters=["--param1", "World!"],
         )
-        assert task.python_file == "path/to/python/file.py"
+        assert task.python_file == "./products/test-project/path/to/python/file.py"
         assert task.source == "GIT"
         assert task.parameters == ["--param1", "World!"]
 
     def test_without_params_spark_python(self):
         task = SparkPythonTask(
-            python_file="path/to/python/file.py",
+            python_file="./products/test-project/path/to/python/file.py",
         )
-        assert task.python_file == "path/to/python/file.py"
+        assert task.python_file == "./products/test-project/path/to/python/file.py"
         assert task.source is None
         assert task.parameters is None
 
