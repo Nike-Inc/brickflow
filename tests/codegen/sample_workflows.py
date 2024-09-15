@@ -1,5 +1,5 @@
 from brickflow import JarTaskLibrary, PypiTaskLibrary
-from brickflow.bundles.model import JobsContinuous
+from brickflow.bundles.model import JobsContinuous, JobsParameters
 from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
     BrickflowTriggerRule,
@@ -39,6 +39,12 @@ wf = Workflow(
         "file_arrival": {"url": "<my_url>"},
         "pause_status": "UNPAUSED",
     },  # type: ignore
+    parameters=[
+        JobsParameters(
+            default="value1",
+            name="wf_param1",
+        )
+    ],
 )
 
 

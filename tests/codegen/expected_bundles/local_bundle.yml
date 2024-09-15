@@ -42,6 +42,7 @@
             "tag1": "value1"
             "tag2": "value2"
             "test": "test2"
+          "parameters": [{"name": "wf_param1", "default": "value1"}]
           "tasks":
           - "condition_task":
               "left": "1"
