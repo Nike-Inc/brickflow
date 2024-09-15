@@ -123,7 +123,7 @@ targets:
               max_retries: null
               min_retry_interval_millis: null
               spark_python_task:
-                python_file: path/to/python/file.py
+                python_file: ./products/test-project/spark/python/src/run_task.py
                 parameters: ["--param1", "World!"]
                 source: GIT
               retry_on_timeout: null

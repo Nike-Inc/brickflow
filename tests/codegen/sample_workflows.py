@@ -82,7 +82,7 @@ def spark_jar_task_a():
 )
 def spark_python_task_a():
     return SparkPythonTask(
-        python_file="path/to/python/file.py",
+        python_file="./products/test-project/spark/python/src/run_task.py",
         source="GIT",
         parameters=["--param1", "World!"],
     )  # type: ignore

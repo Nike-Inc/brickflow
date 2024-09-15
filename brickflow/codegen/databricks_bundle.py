@@ -426,6 +426,15 @@ class DatabricksBundleCodegen(CodegenInterface):
         return "WORKSPACE" if self.env == BrickflowDefaultEnvs.LOCAL.value else "GIT"
 
     def adjust_file_path(self, file_path: str) -> str:
+        """
+        Adjusts the given file path based on the environment and project settings.
+        If the environment is local and the project has a defined bundle base path and bundle object name,
+        the method constructs a new file path by appending the local bundle path to the given file path.
+        Args:
+            file_path (str): The original file path to be adjusted.
+        Returns:
+            str: The adjusted file path.
+        """
         if (
             self.env == BrickflowDefaultEnvs.LOCAL.value
             and self.project.bundle_base_path is not None
@@ -433,16 +442,26 @@ class DatabricksBundleCodegen(CodegenInterface):
         ):
             bundle_files_local_path = "/".join(
                 [
+                    "Workspace",
                     self.project.bundle_base_path,
                     self.project.bundle_obj_name,
                     self.project.name,
                     str(BrickflowDefaultEnvs.LOCAL.value),
+                    "files",
                 ]
-            )
+            ).replace("//", "/")
+
+            #  Finds the start position of the project name in the given file path and calculates the cut position.
+            #   - `file_path.find(self.project.name)`: Finds the start index of the project name in the file path.
+            #   - `+ len(self.project.name) + 1`: Moves the start position to the character after the project name.
+            # - Adjusts the file path by appending the local bundle path to the cut file path.
+            cut_file_path = file_path[
+                file_path.find(self.project.name) + len(self.project.name) + 1 :
+            ]
             file_path = (
                 bundle_files_local_path + file_path
                 if file_path.startswith("/")
-                else f"{bundle_files_local_path}/{file_path}"
+                else f"{bundle_files_local_path}/{cut_file_path}"
             )
         return file_path
 
