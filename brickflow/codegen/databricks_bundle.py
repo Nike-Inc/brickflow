@@ -555,7 +555,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         task_libraries: List[JobsTasksLibraries],
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
-        **_kwargs: Any,
+        **kwargs: Any,
     ) -> JobsTasks:
         try:
             spark_python_task: JobsTasksSparkPythonTask = task.task_func()
@@ -569,6 +569,15 @@ class DatabricksBundleCodegen(CodegenInterface):
         spark_python_task.python_file = self.adjust_file_path(
             file_path=spark_python_task.python_file
         )
+        workflow: Optional[Workflow] = kwargs.get("workflow")
+        commom_task_parameters = workflow.common_task_parameters if workflow else None
+
+        if commom_task_parameters:
+            spark_python_task.parameters = spark_python_task.parameters or []
+            for k, v in commom_task_parameters.items():
+                if k not in spark_python_task.parameters:
+                    spark_python_task.parameters.append(k)
+                    spark_python_task.parameters.append(v)
 
         return JobsTasks(
             **task_settings.to_tf_dict(),

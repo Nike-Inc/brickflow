@@ -248,6 +248,10 @@
               "parameters":
               - "--param1"
               - "World!"
+              - "all_tasks1"
+              - "test"
+              - "all_tasks3"
+              - "123"
             "task_key": "spark_python_task_a"
             "timeout_seconds": null
           - "depends_on": []
