@@ -501,9 +501,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **_kwargs: Any,
     ) -> JobsTasks:
+        notebook_task: JobsTasksNotebookTask = task.task_func()
+
         try:
-            notebook_task: JobsTasksNotebookTask = task.task_func()
-        except Exception as e:
+            assert isinstance(notebook_task, JobsTasksNotebookTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building notebook task {task_name}. "
                 f"Make sure {task_name} returns a NotebookTask object."
@@ -529,9 +531,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **_kwargs: Any,
     ) -> JobsTasks:
+        spark_jar_task: JobsTasksSparkJarTask = task.task_func()
+
         try:
-            spark_jar_task: JobsTasksSparkJarTask = task.task_func()
-        except Exception as e:
+            assert isinstance(spark_jar_task, JobsTasksSparkJarTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building jar task {task_name}. "
                 f"Make sure {task_name} returns a SparkJarTask object."
@@ -557,9 +561,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **kwargs: Any,
     ) -> JobsTasks:
+        spark_python_task = task.task_func()
+
         try:
-            spark_python_task: JobsTasksSparkPythonTask = task.task_func()
-        except Exception as e:
+            assert isinstance(spark_python_task, JobsTasksSparkPythonTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building python task {task_name}. "
                 f"Make sure {task_name} returns a SparkPythonTask object."
@@ -598,13 +604,16 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **_kwargs: Any,
     ) -> JobsTasks:
+        run_job_task: JobsTasksRunJobTask = task.task_func()
+
         try:
-            run_job_task: JobsTasksRunJobTask = task.task_func()
-        except Exception as e:
+            assert isinstance(run_job_task, JobsTasksRunJobTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building run job task {task_name}. "
                 f"Make sure {task_name} returns a RunJobTask object."
             ) from e
+
         return JobsTasks(
             **task_settings.to_tf_dict(),  # type: ignore
             run_job_task=JobsTasksRunJobTask(job_id=run_job_task.job_id),
@@ -620,14 +629,16 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **_kwargs: Any,
     ) -> JobsTasks:
+        sql_task: JobsTasksSqlTask = task.task_func()
+
         try:
-            sql_task: JobsTasksSqlTask = task.task_func()
-        except Exception as e:
-            print(e)
+            assert isinstance(sql_task, JobsTasksSqlTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building sql file task {task_name}. "
                 f"Make sure {task_name} returns a JobsTasksSqlTask object."
             ) from e
+
         return JobsTasks(
             **task_settings.to_tf_dict(),  # type: ignore
             sql_task=sql_task,
@@ -643,10 +654,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **_kwargs: Any,
     ) -> JobsTasks:
+        condition_task: JobsTasksConditionTask = task.task_func()
+
         try:
-            condition_task: JobsTasksConditionTask = task.task_func()
-        except Exception as e:
-            print(e)
+            assert isinstance(condition_task, JobsTasksConditionTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building If/else task {task_name}. "
                 f"Make sure {task_name} returns a JobsTasksConditionTask object."
@@ -668,6 +680,15 @@ class DatabricksBundleCodegen(CodegenInterface):
         **_kwargs: Any,
     ) -> JobsTasks:
         dlt_task: DLTPipeline = task.task_func()
+
+        try:
+            assert isinstance(dlt_task, DLTPipeline)
+        except AssertionError as e:
+            raise ValueError(
+                f"Error while building DLT task {task_name}. "
+                f"Make sure {task_name} returns a DLTPipeline object."
+            ) from e
+
         # tasks.append(Pipelines(**dlt_task.to_dict())) # TODO: fix this so pipeline also gets created
         pipeline_ref = self.get_pipeline_reference(workflow, dlt_task)
         return JobsTasks(
