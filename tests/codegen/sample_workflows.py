@@ -1,5 +1,16 @@
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel
+
 from brickflow import JarTaskLibrary, PypiTaskLibrary
-from brickflow.bundles.model import JobsContinuous
+from brickflow.bundles.model import (
+    JobsContinuous,
+    JobsTasksRunJobTaskPipelineParams,
+    JobsTasksSqlTaskAlert,
+    JobsTasksSqlTaskDashboard,
+    JobsTasksSqlTaskFile,
+    JobsTasksSqlTaskQuery,
+)
 from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
     BrickflowTriggerRule,
@@ -249,3 +260,93 @@ wf2 = Workflow(
 @wf2.task()
 def task_function2(*, test="var"):
     return test
+
+
+wf_bad_tasks = Workflow(
+    "wf_bad_tasks",
+    default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),
+    schedule_continuous=JobsContinuous(pause_status="PAUSED"),
+    permissions=WorkflowPermissions(
+        owner=User("abc@abc.com"),
+        can_manage_run=[User("abc@abc.com")],
+        can_view=[User("abc@abc.com")],
+        can_manage=[User("abc@abc.com")],
+    ),
+    run_as_user="abc@abc.com",
+    tags={"test": "test2"},
+    common_task_parameters={"all_tasks1": "test", "all_tasks3": "123"},  # type: ignore
+    health={
+        "rules": [
+            {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
+        ]
+    },  # type: ignore
+)
+
+
+class BadPythonModel(BaseModel):
+    python_file: str
+    source: str
+    parameters: List[str]
+
+
+class BadSparkJar(BaseModel):
+    jar_uri: str
+    main_class_name: str
+    parameters: List[str]
+
+
+class BadRunJob(BaseModel):
+    dbt_commands: List[str]
+    jar_params: List[str]
+    job_id: float
+    job_parameters: Optional[Dict[str, str]]
+    notebook_params: Optional[Dict[str, str]]
+    pipeline_params: Optional[JobsTasksRunJobTaskPipelineParams]
+    python_named_params: Optional[Dict[str, str]]
+    python_params: Optional[List[str]]
+    spark_submit_params: Optional[List[str]]
+    sql_params: Optional[Dict[str, str]]
+    host: str
+
+
+class BadSql(BaseModel):
+    alert: Optional[JobsTasksSqlTaskAlert]
+    dashboard: Optional[JobsTasksSqlTaskDashboard]
+    file: Optional[JobsTasksSqlTaskFile]
+    parameters: Optional[Dict[str, str]]
+    query: Optional[JobsTasksSqlTaskQuery]
+    warehouse_id: str
+
+
+class BadCondition(BaseModel):
+    left: str
+    op: str
+    right: str
+
+
+class BadDLT(BaseModel):
+    catalog: str
+    commands: List[str]
+    profiles_directory: Optional[str]
+    project_directory: Optional[str]
+    schema_: Optional[str]
+    source: Optional[str]
+    warehouse_id: Optional[str]
+
+
+@wf_bad_tasks.task(task_type=TaskType.SPARK_PYTHON_TASK)
+def task_python():
+    return BadPythonModel(
+        python_file="./products/test-project/spark/python/src/run_task.py",
+        source="GIT",
+        parameters=["--param1", "World!"],
+    )
+
+
+@wf_bad_tasks.task(task_type=TaskType.SPARK_JAR_TASK)
+def task_spark_jar():
+    return BadSparkJar(
+        jar_uri="dbfs:/path/to/jar",
+        main_class_name="com.example.MainClass",
+        parameters=["param1", "param2"],
+    )
