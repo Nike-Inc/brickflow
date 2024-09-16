@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from brickflow import JarTaskLibrary, PypiTaskLibrary
 from brickflow.bundles.model import (
     JobsContinuous,
+    JobsParameters,
     JobsTasksRunJobTaskPipelineParams,
     JobsTasksSqlTaskAlert,
     JobsTasksSqlTaskDashboard,
