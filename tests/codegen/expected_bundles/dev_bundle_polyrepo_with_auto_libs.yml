@@ -118,6 +118,9 @@ targets:
             brickflow_version: 1.0.0
             environment: dev
             test: test2
+          parameters:
+            - name: wf_param1
+              default: value1
           tasks:
             - depends_on: []
               email_notifications: {}

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from brickflow import JarTaskLibrary, PypiTaskLibrary
 from brickflow.bundles.model import (
     JobsContinuous,
+    JobsParameters,
     JobsTasksRunJobTaskPipelineParams,
     JobsTasksSqlTaskAlert,
     JobsTasksSqlTaskDashboard,
@@ -50,6 +51,12 @@ wf = Workflow(
         "file_arrival": {"url": "<my_url>"},
         "pause_status": "UNPAUSED",
     },  # type: ignore
+    parameters=[
+        JobsParameters(
+            default="value1",
+            name="wf_param1",
+        )
+    ],
 )
 
 
