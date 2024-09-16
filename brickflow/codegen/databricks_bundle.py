@@ -6,7 +6,7 @@ import re
 import typing
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Union, Dict, Any, Iterator
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import yaml
 from databricks.sdk import WorkspaceClient
@@ -15,49 +15,50 @@ from decouple import config
 from pydantic import BaseModel
 
 from brickflow import (
-    Workflow,
+    BrickflowDefaultEnvs,
+    BrickflowEnvVars,
     Task,
     TaskType,
-    BrickflowDefaultEnvs,
-    ctx,
+    Workflow,
     _ilog,
-    get_bundles_project_env,
-    BrickflowEnvVars,
+    ctx,
     get_brickflow_version,
+    get_bundles_project_env,
 )
 from brickflow.bundles.model import (
+    Bundle,
+    DatabricksAssetBundles,
     Jobs,
+    JobsGitSource,
+    JobsJobClusters,
+    JobsPermissions,
+    JobsRunAs,
     JobsSchedule,
     JobsTasks,
-    JobsPermissions,
-    JobsGitSource,
-    DatabricksAssetBundles,
-    JobsJobClusters,
-    JobsTasksPipelineTask,
+    JobsTasksConditionTask,
     JobsTasksDependsOn,
     JobsTasksLibraries,
     JobsTasksNotebookTask,
+    JobsTasksPipelineTask,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
+    JobsTasksSparkPythonTask,
     JobsTasksSqlTask,
-    JobsTasksConditionTask,
-    Resources,
-    Workspace,
-    Bundle,
     Pipelines,
-    JobsRunAs,
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
+    Resources,
     Targets,
+    Workspace,
 )
 from brickflow.codegen import (
     CodegenInterface,
-    handle_mono_repo_path,
     DatabricksDefaultClusterTagKeys,
+    handle_mono_repo_path,
 )
 from brickflow.engine.task import (
-    TaskLibrary,
     DLTPipeline,
+    TaskLibrary,
     TaskSettings,
     filter_bf_related_libraries,
     get_brickflow_libraries,
@@ -66,7 +67,7 @@ from brickflow.engine.task import (
 if typing.TYPE_CHECKING:
     from brickflow.engine.project import (
         _Project,
-    )  # noqa
+    )
 
 
 class DatabricksBundleResourceMutator(abc.ABC):
@@ -399,9 +400,9 @@ class DatabricksBundleCodegen(CodegenInterface):
         id_: str,
         env: str,
         mutators: Optional[List[DatabricksBundleResourceMutator]] = None,
-        **kwargs: Any,
+        **_kwargs: Any,
     ) -> None:
-        super().__init__(project, id_, env, **kwargs)
+        super().__init__(project, id_, env, **_kwargs)
         self.imports: List[ImportBlock] = []
         self.mutators = mutators or [
             DatabricksBundleTagsAndNameMutator(),
@@ -421,15 +422,55 @@ class DatabricksBundleCodegen(CodegenInterface):
             )
         return None
 
-    def get_entrypoint_notebook_source(self) -> str:
+    def adjust_source(self) -> str:
         return "WORKSPACE" if self.env == BrickflowDefaultEnvs.LOCAL.value else "GIT"
 
-    def task_to_task_obj(self, task: Task) -> Union[JobsTasksNotebookTask]:
+    def adjust_file_path(self, file_path: str) -> str:
+        """
+        Adjusts the given file path based on the environment and project settings.
+        If the environment is local and the project has a defined bundle base path and bundle object name,
+        the method constructs a new file path by appending the local bundle path to the given file path.
+        Args:
+            file_path (str): The original file path to be adjusted.
+        Returns:
+            str: The adjusted file path.
+        """
+        if (
+            self.env == BrickflowDefaultEnvs.LOCAL.value
+            and self.project.bundle_base_path is not None
+            and self.project.bundle_obj_name is not None
+        ):
+            bundle_files_local_path = "/".join(
+                [
+                    "/Workspace",
+                    self.project.bundle_base_path,
+                    self.project.bundle_obj_name,
+                    self.project.name,
+                    str(BrickflowDefaultEnvs.LOCAL.value),
+                    "files",
+                ]
+            ).replace("//", "/")
+
+            #  Finds the start position of the project name in the given file path and calculates the cut position.
+            #   - `file_path.find(self.project.name)`: Finds the start index of the project name in the file path.
+            #   - `+ len(self.project.name) + 1`: Moves the start position to the character after the project name.
+            # - Adjusts the file path by appending the local bundle path to the cut file path.
+            cut_file_path = file_path[
+                file_path.find(self.project.name) + len(self.project.name) + 1 :
+            ]
+            file_path = (
+                bundle_files_local_path + file_path
+                if file_path.startswith("/")
+                else f"{bundle_files_local_path}/{cut_file_path}"
+            )
+        return file_path
+
+    def task_to_task_obj(self, task: Task) -> JobsTasksNotebookTask:
         if task.task_type in [TaskType.BRICKFLOW_TASK, TaskType.CUSTOM_PYTHON_TASK]:
             generated_path = handle_mono_repo_path(self.project, self.env)
             return JobsTasksNotebookTask(
                 **task.get_obj_dict(generated_path),
-                source=self.get_entrypoint_notebook_source(),
+                source=self.adjust_source(),
             )
 
     def workflow_obj_to_pipelines(self, workflow: Workflow) -> Dict[str, Pipelines]:
@@ -458,10 +499,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         task_libraries: List[JobsTasksLibraries],
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
     ) -> JobsTasks:
+        notebook_task: JobsTasksNotebookTask = task.task_func()
+
         try:
-            notebook_task: JobsTasksNotebookTask = task.task_func()
-        except Exception as e:
+            assert isinstance(notebook_task, JobsTasksNotebookTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building notebook task {task_name}. "
                 f"Make sure {task_name} returns a NotebookTask object."
@@ -485,10 +529,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         task_libraries: List[JobsTasksLibraries],
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
     ) -> JobsTasks:
+        spark_jar_task: JobsTasksSparkJarTask = task.task_func()
+
         try:
-            spark_jar_task: JobsTasksSparkJarTask = task.task_func()
-        except Exception as e:
+            assert isinstance(spark_jar_task, JobsTasksSparkJarTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building jar task {task_name}. "
                 f"Make sure {task_name} returns a SparkJarTask object."
@@ -505,20 +552,68 @@ class DatabricksBundleCodegen(CodegenInterface):
             **task.cluster.job_task_field_dict,
         )
 
+    def _build_native_spark_python_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_libraries: List[JobsTasksLibraries],
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+        **kwargs: Any,
+    ) -> JobsTasks:
+        spark_python_task = task.task_func()
+
+        try:
+            assert isinstance(spark_python_task, JobsTasksSparkPythonTask)
+        except AssertionError as e:
+            raise ValueError(
+                f"Error while building python task {task_name}. "
+                f"Make sure {task_name} returns a SparkPythonTask object."
+            ) from e
+
+        spark_python_task.source = self.adjust_source()
+        spark_python_task.python_file = self.adjust_file_path(
+            file_path=spark_python_task.python_file
+        )
+        workflow: Optional[Workflow] = kwargs.get("workflow")
+        commom_task_parameters = workflow.common_task_parameters if workflow else None
+
+        if commom_task_parameters:
+            spark_python_task.parameters = spark_python_task.parameters or []
+            for k, v in commom_task_parameters.items():
+                if k not in spark_python_task.parameters:
+                    spark_python_task.parameters.append(k)
+                    spark_python_task.parameters.append(v)
+
+        return JobsTasks(
+            **task_settings.to_tf_dict(),
+            spark_python_task=spark_python_task,
+            libraries=task_libraries,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id
+            **task.cluster.job_task_field_dict,
+        )
+
     def _build_native_run_job_task(
         self,
         task_name: str,
         task: Task,
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
     ) -> JobsTasks:
+        run_job_task: JobsTasksRunJobTask = task.task_func()
+
         try:
-            run_job_task: JobsTasksRunJobTask = task.task_func()
-        except Exception as e:
+            assert isinstance(run_job_task, JobsTasksRunJobTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building run job task {task_name}. "
                 f"Make sure {task_name} returns a RunJobTask object."
             ) from e
+
         return JobsTasks(
             **task_settings.to_tf_dict(),  # type: ignore
             run_job_task=JobsTasksRunJobTask(job_id=run_job_task.job_id),
@@ -532,15 +627,18 @@ class DatabricksBundleCodegen(CodegenInterface):
         task: Task,
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
     ) -> JobsTasks:
+        sql_task: JobsTasksSqlTask = task.task_func()
+
         try:
-            sql_task: JobsTasksSqlTask = task.task_func()
-        except Exception as e:
-            print(e)
+            assert isinstance(sql_task, JobsTasksSqlTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building sql file task {task_name}. "
                 f"Make sure {task_name} returns a JobsTasksSqlTask object."
             ) from e
+
         return JobsTasks(
             **task_settings.to_tf_dict(),  # type: ignore
             sql_task=sql_task,
@@ -554,11 +652,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         task: Task,
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
     ) -> JobsTasks:
+        condition_task: JobsTasksConditionTask = task.task_func()
+
         try:
-            condition_task: JobsTasksConditionTask = task.task_func()
-        except Exception as e:
-            print(e)
+            assert isinstance(condition_task, JobsTasksConditionTask)
+        except AssertionError as e:
             raise ValueError(
                 f"Error while building If/else task {task_name}. "
                 f"Make sure {task_name} returns a JobsTasksConditionTask object."
@@ -577,8 +677,18 @@ class DatabricksBundleCodegen(CodegenInterface):
         workflow: Workflow,
         task_settings: TaskSettings,
         depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
     ) -> JobsTasks:
         dlt_task: DLTPipeline = task.task_func()
+
+        try:
+            assert isinstance(dlt_task, DLTPipeline)
+        except AssertionError as e:
+            raise ValueError(
+                f"Error while building DLT task {task_name}. "
+                f"Make sure {task_name} returns a DLTPipeline object."
+            ) from e
+
         # tasks.append(Pipelines(**dlt_task.to_dict())) # TODO: fix this so pipeline also gets created
         pipeline_ref = self.get_pipeline_reference(workflow, dlt_task)
         return JobsTasks(
@@ -591,11 +701,49 @@ class DatabricksBundleCodegen(CodegenInterface):
             task_key=task_name,
         )
 
+    def _build_brickflow_entrypoint_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+        task_libraries: List[JobsTasksLibraries],
+        **_kwargs: Any,
+    ) -> JobsTasks:
+        task_obj = JobsTasks(
+            **{
+                task.databricks_task_type_str: self.task_to_task_obj(task),
+                **task_settings.to_tf_dict(),
+            },  # type: ignore
+            libraries=task_libraries,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id
+            **task.cluster.job_task_field_dict,
+        )
+        return task_obj
+
     def workflow_obj_to_tasks(
         self, workflow: Workflow
     ) -> List[Union[JobsTasks, Pipelines]]:
         tasks = []
+
+        map_task_type_to_builder: Dict[TaskType, Callable[..., Any]] = {
+            TaskType.DLT: self._build_dlt_task,
+            TaskType.NOTEBOOK_TASK: self._build_native_notebook_task,
+            TaskType.SPARK_JAR_TASK: self._build_native_spark_jar_task,
+            TaskType.SPARK_PYTHON_TASK: self._build_native_spark_python_task,
+            TaskType.RUN_JOB_TASK: self._build_native_run_job_task,
+            TaskType.SQL: self._build_native_sql_file_task,
+            TaskType.IF_ELSE_CONDITION_TASK: self._build_native_condition_task,
+        }
+
         for task_name, task in workflow.tasks.items():
+            builder_func = map_task_type_to_builder.get(
+                task.task_type, self._build_brickflow_entrypoint_task
+            )
+
             # TODO: DLT
             # pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
             if task.depends_on_names:
@@ -614,67 +762,21 @@ class DatabricksBundleCodegen(CodegenInterface):
                 libraries += get_brickflow_libraries(workflow.enable_plugins)
 
             task_libraries = [
-                JobsTasksLibraries(**library.dict) for library in libraries  # type: ignore
-            ]
-            task_settings = workflow.default_task_settings.merge(task.task_settings)
-            if task.task_type == TaskType.DLT:
-                # native dlt task
-                tasks.append(
-                    self._build_dlt_task(
-                        task_name, task, workflow, task_settings, depends_on
-                    )
-                )
-            elif task.task_type == TaskType.NOTEBOOK_TASK:
-                # native notebook task
-                tasks.append(
-                    self._build_native_notebook_task(
-                        task_name, task, task_libraries, task_settings, depends_on
-                    )
-                )
-            elif task.task_type == TaskType.SPARK_JAR_TASK:
-                # native jar task
-                tasks.append(
-                    self._build_native_spark_jar_task(
-                        task_name, task, task_libraries, task_settings, depends_on
-                    )
-                )
-            elif task.task_type == TaskType.RUN_JOB_TASK:
-                # native run job task
-                tasks.append(
-                    self._build_native_run_job_task(
-                        task_name, task, task_settings, depends_on
-                    )
-                )
-            elif task.task_type == TaskType.SQL:
-                # native SQL task
-                tasks.append(
-                    self._build_native_sql_file_task(
-                        task_name, task, task_settings, depends_on
-                    )
-                )
-            elif task.task_type == TaskType.IF_ELSE_CONDITION_TASK:
-                # native If/Else task
-                tasks.append(
-                    self._build_native_condition_task(
-                        task_name, task, task_settings, depends_on
-                    )
-                )
-            else:
-                # brickflow entrypoint task
-                task_obj = JobsTasks(
-                    **{
-                        task.databricks_task_type_str: self.task_to_task_obj(task),
-                        **task_settings.to_tf_dict(),
-                    },  # type: ignore
-                    libraries=task_libraries,
-                    depends_on=depends_on,
-                    task_key=task_name,
-                    # unpack dictionary provided by cluster object, will either be key or
-                    # existing cluster id
-                    **task.cluster.job_task_field_dict,
-                )
-                tasks.append(task_obj)
+                JobsTasksLibraries(**library.dict) for library in libraries
+            ]  # type: ignore
+            task_settings = workflow.default_task_settings.merge(task.task_settings)  # type: ignore
+            task = builder_func(
+                task_name=task_name,
+                task=task,
+                workflow=workflow,
+                task_libraries=task_libraries,
+                task_settings=task_settings,
+                depends_on=depends_on,
+            )
+            tasks.append(task)
+
         tasks.sort(key=lambda t: (t.task_key is None, t.task_key))
+
         return tasks
 
     @staticmethod

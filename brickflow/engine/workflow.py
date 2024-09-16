@@ -463,6 +463,27 @@ class Workflow:
             if_else_outcome=if_else_outcome,
         )
 
+    def spark_python_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        cluster: Optional[Cluster] = None,
+        libraries: Optional[List[TaskLibrary]] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            cluster=cluster,
+            libraries=libraries,
+            task_type=TaskType.SPARK_PYTHON_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
+        )
+
     def run_job_task(
         self,
         task_func: Optional[Callable] = None,

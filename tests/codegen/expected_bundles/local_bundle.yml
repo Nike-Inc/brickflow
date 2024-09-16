@@ -229,6 +229,30 @@
               - "World!"
             "task_key": "spark_jar_task_a"
             "timeout_seconds": null
+          - "depends_on":
+            - "outcome": null
+              "task_key": "spark_jar_task_a"
+            "email_notifications": {}
+            "existing_cluster_id": "existing_cluster_id"
+            "libraries":
+            - "pypi": 
+                "package": "koheesio"
+                "repo": null
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "retry_on_timeout": null
+            "spark_python_task":
+              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/spark/python/src/run_task.py"
+              "source": "WORKSPACE"
+              "parameters":
+              - "--param1"
+              - "World!"
+              - "all_tasks1"
+              - "test"
+              - "all_tasks3"
+              - "123"
+            "task_key": "spark_python_task_a"
+            "timeout_seconds": null
           - "depends_on": []
             "email_notifications": {}
             "existing_cluster_id": "existing_cluster_id"
