@@ -1,12 +1,12 @@
-A Workflow is similar to an Airflow dag that lets you encapsulate a set of tasks. 
+A Workflow is similar to an Airflow dag that lets you encapsulate a set of tasks.
 
-Here is an example of a workflow. 
+Here is an example of a workflow.
 Click the plus buttons to understand all the parts of the workflow file.
 
 ```python title="workflow.py"
 from datetime import timedelta
-from brickflow import Workflow, Cluster, WorkflowPermissions, User, \
-    TaskSettings, EmailNotifications, PypiTaskLibrary, MavenTaskLibrary
+from brickflow import (Workflow, Cluster, WorkflowPermissions, User, 
+    TaskSettings, EmailNotifications, PypiTaskLibrary, MavenTaskLibrary, JobsParameters)
 
 wf = Workflow(  # (1)!
     "wf_test",  # (2)!
@@ -49,7 +49,8 @@ wf = Workflow(  # (1)!
         "metric": "RUN_DURATION_SECONDS",
         "op": "GREATER_THAN",
         "value": 7200
-    }
+    },
+    parameters=[JobsParameters(default="INFO", name="jp_logging_level")],  # (18)!
 )
 
 
@@ -75,12 +76,14 @@ def task_function(*, test="var"):
 15. Define the schedule pause status. It is defaulted to "UNPAUSED"
 16. Define health check condition that triggers duration warning threshold exceeded notifications
 17. Define timeout_seconds check condition that triggers workflow failure if duration exceeds threshold
+18. Define the parameters on workflow level [databricks docs](https://docs.databricks.com/en/jobs/settings.html#job-parameters)
 
 ### Clusters
 
 There are two ways to define the cluster for the workflow or a task
 
 #### Using an existing cluster
+
 ```python title="existing_cluster"
 from brickflow import Cluster
 
@@ -88,6 +91,7 @@ default_cluster=Cluster.from_existing_cluster("your_existing_cluster_id")
 ```
 
 #### Use a job cluster
+
 ```python title="job_cluster"
 from brickflow import Cluster
 
@@ -113,6 +117,7 @@ default_cluster=Cluster(
 ```
 
 #### Use a job cluster with driver and worker instances from the same pool
+
 ```python title="job_cluster_driver_workers_same_pool"
 from brickflow import Cluster
 
@@ -127,6 +132,7 @@ default_cluster=Cluster(
 ```
 
 #### Use a job cluster with driver and worker instances from different pools
+
 ```python title="job_cluster_driver_workers_same_pool"
 from brickflow import Cluster
 
@@ -143,8 +149,8 @@ default_cluster=Cluster(
 
 ### Permissions
 
-Brickflow provides an opportunity to manage permissions on the workflows. 
-You can provide individual users or to a group or to a ServicePrincipal that can help manage, run or 
+Brickflow provides an opportunity to manage permissions on the workflows.
+You can provide individual users or to a group or to a ServicePrincipal that can help manage, run or
 view the workflows.
 
 Below example is for reference
@@ -165,7 +171,7 @@ permissions=WorkflowPermissions(
 
 ### Tags
 
-Using brickflow, custom tags can be created on the workflow - but there are also some default tags 
+Using brickflow, custom tags can be created on the workflow - but there are also some default tags
 that are created while the job is deployed.
 
 The defaults tags that gets automatically attached to the workflow are below
@@ -173,7 +179,7 @@ The defaults tags that gets automatically attached to the workflow are below
 * "brickflow_project_name" : Brickflow Project Name that is referred from the entrypoint.py file
 * "brickflow_version" : Brickflow Version that is used to deploy the workflow
 * "databricks_tf_provider_version" : Databricks terraform provider version that is used to deploy the workflow
-* "deployed_by" : Email id of the profile that is used to deploy the workflow. 
+* "deployed_by" : Email id of the profile that is used to deploy the workflow.
    It can be a user or a service principle. Whichever id is used to deploy the workflow, automatically becomes the
    owner of the workflow
 * "environment" : Environment to which the workflow is identified to
@@ -196,6 +202,7 @@ A typical Quartz cron expression have six or seven fields, seperated by spaces
 ```text
 second minute hour day_of_month month day_of_week year(optional)
 ```
+
 Below is a sample
 
 ```python title="quartz_cron_expression"
@@ -207,6 +214,7 @@ schedule_quartz_expression="0 0/20 0 ? * * *"
 Task setting at workflow level can be used to have common setting defined that will be applicable for
 all the tasks. Below is a sample that can be used for reference and all the parameters in TaskSettings
 are optional
+
 ```python title="task_settings"
 from datetime import timedelta
 from brickflow import TaskSettings, EmailNotifications
@@ -248,7 +256,6 @@ libraries=[
 ]
 ```
 
-
 ### Common task parameters
 
 Define the common parameters that can be used in all the tasks. Example could be database name, secrets_id etc
@@ -260,3 +267,16 @@ common_task_parameters={
     }
 ```
 
+### Jobs Parameters
+
+You can configure parameters on a job that are passed to any of the job’s tasks that accept key-value parameters, including Python wheel files configured to accept keyword arguments. Parameters set at the job level are added to configured task-level parameters. Job parameters passed to tasks are visible in the task configuration, along with any parameters configured on the task.
+
+You can also pass job parameters to tasks that are not configured with key-value parameters such as JAR or Spark Submit tasks. To pass job parameters to these tasks, format arguments as {{job.parameters.[name]}}, replacing [name] with the key that identifies the parameter.
+
+Job parameters take precedence over task parameters. If a job parameter and a task parameter have the same key, the job parameter overrides the task parameter.
+
+You can override configured job parameters or add new job parameters when you run a job with different parameters or repair a job run.
+
+```python title="jobs_parameters"
+    parameters=[JobsParameters(default="INFO", name="jp_logging_level")]
+```
