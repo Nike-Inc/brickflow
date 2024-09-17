@@ -14,7 +14,30 @@
             - "metric": "RUN_DURATION_SECONDS"
               "op": "GREATER_THAN"
               "value": 7200.0
-          "job_clusters": []
+          "job_clusters":
+          - "job_cluster_key": "sample_job_cluster"
+            "new_cluster":
+              "aws_attributes": null
+              "custom_tags":
+                "brickflow_deployment_mode": "Databricks Asset Bundles"
+                "brickflow_project_name": "test-project"
+                "brickflow_version": "1.0.0"
+                "deployed_at": "1704067200000"
+                "deployed_by": "test_user"
+                "environment": "local"
+              "data_security_mode": "SINGLE_USER"
+              "driver_instance_pool_id": null
+              "driver_node_type_id": null
+              "enable_elastic_disk": null
+              "init_scripts": null
+              "instance_pool_id": null
+              "node_type_id": "m6gd.xlarge"
+              "num_workers": 1.0
+              "policy_id": null
+              "runtime_engine": null
+              "spark_conf": null
+              "spark_env_vars": null
+              "spark_version": "13.3.x-scala2.12"
           "max_concurrent_runs": 1.0
           "name": "test_user_wf-test-2"
           "notification_settings": null
@@ -34,14 +57,14 @@
             "brickflow_deployment_mode": "Databricks Asset Bundles"
             "brickflow_project_name": "test-project"
             "brickflow_version": "1.0.0"
-            "deployed_by": "test_user"
             "deployed_at": "1704067200000"
+            "deployed_by": "test_user"
             "environment": "local"
             "test": "test2"
           "tasks":
           - "depends_on": []
             "email_notifications": {}
-            "existing_cluster_id": "existing_cluster_id"
+            "job_cluster_key": "sample_job_cluster"
             "libraries": []
             "max_retries": null
             "min_retry_interval_millis": null

@@ -45,6 +45,9 @@ targets:
             brickflow_version: 1.0.0
             environment: local
             test: test2
+          parameters:
+            - name: wf_param1
+              default: value1
           tasks:
             - depends_on: []
               email_notifications: {}
@@ -109,6 +112,22 @@ targets:
                 jar_uri: null
               retry_on_timeout: null
               task_key: spark_jar_task_a
+              timeout_seconds: null
+            - depends_on:
+                - task_key: spark_jar_task_a
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi: 
+                    package: koheesio
+              max_retries: null
+              min_retry_interval_millis: null
+              spark_python_task:
+                python_file: /Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/spark/python/src/run_task.py
+                parameters: ["--param1", "World!", "all_tasks1", "test", "all_tasks3", "123"]
+                source: WORKSPACE
+              retry_on_timeout: null
+              task_key: spark_python_task_a
               timeout_seconds: null
             - depends_on:
                 - task_key: notebook_task_a

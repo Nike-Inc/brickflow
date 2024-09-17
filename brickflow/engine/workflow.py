@@ -1,33 +1,34 @@
 import abc
-import logging
 import functools
+import logging
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional, Dict, Union, Iterator, Any
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import networkx as nx
 
-from brickflow import env_chain, BrickflowEnvVars
+from brickflow import BrickflowEnvVars, env_chain
 from brickflow.bundles.model import (
-    JobsEmailNotifications,
-    JobsWebhookNotifications,
-    JobsNotificationSettings,
-    JobsTrigger,
-    JobsHealthRules,
     JobsContinuous,
+    JobsEmailNotifications,
+    JobsHealthRules,
+    JobsNotificationSettings,
+    JobsParameters,
+    JobsTrigger,
+    JobsWebhookNotifications,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
-    TaskNotFoundError,
     AnotherActiveTaskError,
-    Task,
-    TaskType,
-    TaskAlreadyExistsError,
     BrickflowTriggerRule,
-    TaskSettings,
     NoCallableTaskError,
+    Task,
+    TaskAlreadyExistsError,
     TaskLibrary,
+    TaskNotFoundError,
+    TaskSettings,
+    TaskType,
 )
 from brickflow.engine.utils import wraps_keyerror
 
@@ -142,6 +143,7 @@ class Workflow:
     # this a databricks limit set on workflows, you can override it if you have exception
     max_tasks_in_workflow: int = 100
     enable_plugins: Optional[bool] = None
+    parameters: Optional[List[JobsParameters]] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
@@ -458,6 +460,27 @@ class Workflow:
             cluster=cluster,
             libraries=libraries,
             task_type=TaskType.SPARK_JAR_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
+        )
+
+    def spark_python_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        cluster: Optional[Cluster] = None,
+        libraries: Optional[List[TaskLibrary]] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            cluster=cluster,
+            libraries=libraries,
+            task_type=TaskType.SPARK_PYTHON_TASK,
             task_settings=task_settings,
             depends_on=depends_on,
             if_else_outcome=if_else_outcome,

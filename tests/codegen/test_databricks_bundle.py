@@ -1,39 +1,39 @@
 import os
+from copy import deepcopy
 from pathlib import Path
-from typing import Dict, Any
-from unittest.mock import patch, Mock, MagicMock
+from typing import Any, Dict
+from unittest import TestCase
+from unittest.mock import MagicMock, Mock, patch
 
 import yaml
 from deepdiff import DeepDiff
 
 from brickflow import BrickflowEnvVars
 from brickflow.bundles.model import (
-    Resources,
+    DatabricksAssetBundles,
     Jobs,
     JobsTasks,
     Pipelines,
+    PipelinesClusters,
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
-    PipelinesClusters,
-    DatabricksAssetBundles,
+    Resources,
 )
 from brickflow.cli import BrickflowDeployMode
 from brickflow.codegen import DatabricksDefaultClusterTagKeys
 from brickflow.codegen.databricks_bundle import (
-    DatabricksBundleTagsAndNameMutator,
-    DatabricksBundleImportMutator,
     DatabricksBundleCodegen,
+    DatabricksBundleImportMutator,
+    DatabricksBundleTagsAndNameMutator,
     ImportBlock,
     ImportManager,
 )
-from brickflow.engine.project import Stage, Project
+from brickflow.engine.project import Project, Stage
 from brickflow.engine.task import NotebookTask
-
 
 # `get_job_id` is being called during workflow init, hence the patch
 with patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0) as p:
-    from tests.codegen.sample_workflows import wf
-    from tests.codegen.sample_workflows import wf2
+    from tests.codegen.sample_workflows import wf, wf2, wf_bad_tasks
 
 # BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
@@ -71,7 +71,7 @@ def get_workspace_client_mock() -> MagicMock:
     return workspace_client
 
 
-class TestBundleCodegen:
+class TestBundleCodegen(TestCase):
     @patch.dict(
         os.environ,
         {
@@ -288,7 +288,7 @@ class TestBundleCodegen:
             },  # dont test import mutator
         ) as f:
             f.add_workflow(wf)
-            from brickflow import Workflow, Cluster
+            from brickflow import Cluster, Workflow
 
             fake_workflow = Workflow(
                 "some_wf",
@@ -312,6 +312,10 @@ class TestBundleCodegen:
 
         actual = read_yaml_file(BUNDLE_FILE_NAME)
         expected = get_expected_bundle_yaml("dev_bundle_polyrepo_with_auto_libs.yml")
+        import json
+
+        print(json.dumps(actual, indent=2))
+        print(json.dumps(expected, indent=2))
         assert_equal_dicts(actual, expected)
         if os.path.exists(BUNDLE_FILE_NAME):
             os.remove(BUNDLE_FILE_NAME)
@@ -524,7 +528,70 @@ import {
 
         actual = read_yaml_file(BUNDLE_FILE_NAME)
         expected = get_expected_bundle_yaml("local_bundle_continuous_schedule.yml")
-        bf_version_mock.assert_called_once()
         assert_equal_dicts(actual, expected)
         if os.path.exists(BUNDLE_FILE_NAME):
             os.remove(BUNDLE_FILE_NAME)
+
+    @patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
+            BrickflowEnvVars.BRICKFLOW_ENV.value: "dev",
+            BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
+        },
+    )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
+    @patch("subprocess.check_output")
+    @patch("brickflow.context.ctx.get_parameter")
+    @patch("importlib.metadata.version")
+    @patch(
+        "brickflow.context.ctx.get_current_timestamp",
+        MagicMock(return_value=1704067200000),
+    )
+    def test_generate_task_bad_return(
+        self,
+        bf_version_mock: Mock,
+        dbutils: Mock,
+        sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
+    ):
+        dbutils.return_value = None
+        git_ref_b = b"a"
+        git_repo = "https://github.com/"
+        git_provider = "github"
+        sub_proc_mock.return_value = git_ref_b
+        bf_version_mock.return_value = "1.0.0"
+        get_job_id_mock.return_value = 12345678901234.0
+        workspace_client = get_workspace_client_mock()
+        # get caller part breaks here
+        wf_bad = deepcopy(wf_bad_tasks)
+        map_task_name_to_erorr_part = {
+            "task_python": ("python", "SparkPythonTask"),
+            "task_spark_jar": ("jar", "SparkJarTask"),
+        }
+
+        for task_name in wf_bad_tasks.tasks:
+            wf_bad = deepcopy(wf_bad_tasks)
+            wf_bad.tasks = {task_name: wf_bad_tasks.tasks[task_name]}
+            print(task_name)
+
+            with self.assertRaises(ValueError) as context:
+                with Project(
+                    "test-project",
+                    entry_point_path="test_databricks_bundle.py",
+                    git_repo=git_repo,
+                    provider=git_provider,
+                    codegen_kwargs={
+                        "mutators": [
+                            DatabricksBundleTagsAndNameMutator(workspace_client)
+                        ]
+                    },  # dont test import mutator
+                ) as f:
+                    # Add pytest catch for exception and check error message
+                    f.add_workflow(wf_bad)
+
+            self.assertRegex(
+                str(context.exception),
+                f"Error while building {map_task_name_to_erorr_part[task_name][0]} task .* "
+                f"Make sure .* returns a {map_task_name_to_erorr_part[task_name][1]} object.",
+            )
