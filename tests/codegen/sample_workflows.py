@@ -243,9 +243,16 @@ def custom_python_task_push():
     pass
 
 
+job_cluster = Cluster(
+    name="sample_job_cluster",
+    node_type_id="m6gd.xlarge",
+    spark_version="13.3.x-scala2.12",
+    num_workers=1,
+)
+
 wf2 = Workflow(
     "wf-test-2",
-    default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),
+    default_cluster=job_cluster,
     schedule_continuous=JobsContinuous(pause_status="PAUSED"),
     permissions=WorkflowPermissions(
         owner=User("abc@abc.com"),
