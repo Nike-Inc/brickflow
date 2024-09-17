@@ -220,7 +220,9 @@ class TaskDependencySensor(BaseSensorOperator):
         self._poke_count = 0
         self._start_time = time.time()
 
-    def get_execution_stats(self, execution_date: datetime, max_end_date: datetime = None):
+    def get_execution_stats(
+        self, execution_date: datetime, max_end_date: datetime = None
+    ):
         """Function to get the execution stats for task_id within a execution start time and
         (optionally) allowed job end time.
 
@@ -237,7 +239,11 @@ class TaskDependencySensor(BaseSensorOperator):
         execution_window_tz = (execution_date + execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
-        max_end_date_filter = f"&end_date_lte={max_end_date.strftime('%Y-%m-%dT%H:%M:%SZ')}" if max_end_date else ""
+        max_end_date_filter = (
+            f"&end_date_lte={max_end_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+            if max_end_date
+            else ""
+        )
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",

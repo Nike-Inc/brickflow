@@ -160,5 +160,7 @@ class TestTaskDependencySensor:
         execution_date = datetime.strptime("2024-01-01T03:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
         max_end_date = datetime.strptime("2024-01-01T01:20:00Z", "%Y-%m-%dT%H:%M:%SZ")
         with api:
-            task_status = sensor.get_execution_stats(execution_date=execution_date, max_end_date=max_end_date)
+            task_status = sensor.get_execution_stats(
+                execution_date=execution_date, max_end_date=max_end_date
+            )
         assert task_status == "success"
