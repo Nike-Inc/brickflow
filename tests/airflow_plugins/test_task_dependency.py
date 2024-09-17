@@ -69,7 +69,10 @@ class TestTaskDependencySensor:
         # DAG Run Endpoint with max end date
         rm.register_uri(
             method="GET",
-            url=f"{BASE_URL}/api/v1/dags/test-dag/dagRuns?execution_date_gte=2024-01-01T00:00:00Z&end_date_lte=2024-01-01T01:20:00Z",
+            url=(
+                f"{BASE_URL}/api/v1/dags/test-dag"
+                f"/dagRuns?execution_date_gte=2024-01-01T00:00:00Z&end_date_lte=2024-01-01T01:20:00Z"
+            ),
             response_list=[
                 # Test 3: max end date specified
                 {
@@ -156,7 +159,7 @@ class TestTaskDependencySensor:
             with rm:
                 sensor.execute(context={"execution_date": "2024-01-01T03:00:00Z"})
 
-    def test_end_date(self, api, caplog, sensor):
+    def test_end_date(self, api, sensor):
         execution_date = datetime.strptime("2024-01-01T03:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
         max_end_date = datetime.strptime("2024-01-01T01:20:00Z", "%Y-%m-%dT%H:%M:%SZ")
         with api:
