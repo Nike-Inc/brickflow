@@ -876,6 +876,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 webhook_notifications=workflow.webhook_notifications,
                 trigger=workflow.trigger,
                 continuous=workflow.schedule_continuous,
+                parameters=workflow.parameters,
             )
             jobs[workflow_name] = job
 
