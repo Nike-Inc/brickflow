@@ -115,7 +115,17 @@ class DatabricksBundleTagsAndNameMutator(DatabricksBundleResourceMutator):
             for job in resource.jobs.values():
                 # set correct names
                 job.name = self._rewrite_name(job.name)
-                # set tags
+
+                if job.job_clusters:
+                    # update cluster tags
+                    for cluster in job.job_clusters:
+                        if cluster.new_cluster:
+                            cluster.new_cluster.custom_tags = {
+                                **self._get_default_tags(ci),
+                                **self._get_runtime_tags(),
+                                **(cluster.new_cluster.custom_tags or {}),
+                            }
+                # update job tags
                 job.tags = {
                     **self._get_default_tags(ci),
                     **self._get_runtime_tags(),
