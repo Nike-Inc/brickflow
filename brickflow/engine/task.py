@@ -752,7 +752,7 @@ class Task:
     task_id: str
     task_func: Callable
     workflow: Workflow  # noqa
-    cluster: Cluster
+    cluster: Optional[Cluster] = None
     description: Optional[str] = None
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     depends_on: List[Union[Callable, str]] = field(default_factory=lambda: [])

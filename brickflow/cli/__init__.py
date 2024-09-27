@@ -97,9 +97,9 @@ def bundle_env_set_options(f: Callable) -> Callable:
                 "Configuring environment to %s...",
                 BrickflowDefaultEnvs.LOCAL.value,
             )
-            os.environ[
-                BrickflowEnvVars.BRICKFLOW_ENV.value
-            ] = BrickflowDefaultEnvs.LOCAL.value
+            os.environ[BrickflowEnvVars.BRICKFLOW_ENV.value] = (
+                BrickflowDefaultEnvs.LOCAL.value
+            )
 
     def deploy_only_workflows(
         ctx: click.Context, param: str, value: Any
@@ -117,9 +117,9 @@ def bundle_env_set_options(f: Callable) -> Callable:
                 is False
             ):
                 ctx.exit(0)
-            os.environ[
-                BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
-            ] = ",".join(value)
+            os.environ[BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value] = (
+                ",".join(value)
+            )
 
     def set_up_bundle_for_workflow_dir(
         ctx: click.Context, param: str, value: Any  # pylint: disable=unused-argument

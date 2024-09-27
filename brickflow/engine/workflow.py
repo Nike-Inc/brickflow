@@ -144,9 +144,8 @@ class Workflow:
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
         if self.default_cluster is None and self.clusters == []:
-            raise NoWorkflowComputeError(
-                f"Please configure default_cluster or "
-                f"clusters field for workflow: {self.name}"
+            logging.info(
+                "Default cluster details are not provided, switching to serverless compute."
             )
         if self.prefix is None:
             self.prefix = env_chain(
@@ -160,7 +159,7 @@ class Workflow:
                 BrickflowInternalVariables.workflow_suffix.value,
                 "",
             )
-        if self.default_cluster is None:
+        if self.default_cluster is None and self.clusters:
             # the default cluster is set to the first cluster if it is not configured
             self.default_cluster = self.clusters[0]
 
@@ -306,8 +305,8 @@ class Workflow:
             )
 
         if self.default_cluster is None:
-            raise RuntimeError(
-                "Some how default cluster wasnt set please raise a github issue."
+            logging.info(
+                "Default cluster details are not provided, switching to serverless compute."
             )
 
         if self.log_timeout_warning(task_settings):  # type: ignore

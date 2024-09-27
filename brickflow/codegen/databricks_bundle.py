@@ -458,8 +458,8 @@ class DatabricksBundleCodegen(CodegenInterface):
             depends_on=depends_on,
             task_key=task_name,
             # unpack dictionary provided by cluster object, will either be key or
-            # existing cluster id
-            **task.cluster.job_task_field_dict,
+            # existing cluster id, if cluster object is empty, Databricks will use serverless compute
+            **(task.cluster.job_task_field_dict if task.cluster else {}),
         )
 
     def _build_native_spark_jar_task(
@@ -655,7 +655,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                     task_key=task_name,
                     # unpack dictionary provided by cluster object, will either be key or
                     # existing cluster id
-                    **task.cluster.job_task_field_dict,
+                    **(task.cluster.job_task_field_dict if task.cluster else {}),
                 )
                 tasks.append(task_obj)
         tasks.sort(key=lambda t: (t.task_key is None, t.task_key))

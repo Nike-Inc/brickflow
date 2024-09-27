@@ -165,9 +165,9 @@ class Project:
     batch: bool = True
     codegen_mechanism: Optional[Type[CodegenInterface]] = None
     codegen_kwargs: Optional[Dict[str, Any]] = None
-    bundle_obj_name: Optional[
-        str
-    ] = None  # repo name or folder where bundle assets will be saved
+    bundle_obj_name: Optional[str] = (
+        None  # repo name or folder where bundle assets will be saved
+    )
     bundle_base_path: Optional[str] = None
     enable_plugins: bool = False
     _project: _Project = field(init=False)
