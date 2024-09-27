@@ -29,6 +29,8 @@ from brickflow.engine.task import (
     TaskNotFoundError,
     TaskSettings,
     TaskType,
+    PypiTaskLibrary,
+    WheelTaskLibrary,
 )
 from brickflow.engine.utils import wraps_keyerror
 
@@ -144,6 +146,8 @@ class Workflow:
     max_tasks_in_workflow: int = 100
     enable_plugins: Optional[bool] = None
     parameters: Optional[List[JobsParameters]] = None
+    # environments should be defined for serverless workloads
+    environments: Optional[List[Dict[Any, Any]]] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
@@ -151,6 +155,9 @@ class Workflow:
             logging.info(
                 "Default cluster details are not provided, switching to serverless compute."
             )
+            self.environments = self.convert_libraries_to_environments
+            print(self.environments)
+
         if self.prefix is None:
             self.prefix = env_chain(
                 BrickflowEnvVars.BRICKFLOW_WORKFLOW_PREFIX.value,
@@ -252,6 +259,38 @@ class Workflow:
                 raise WorkflowConfigError(
                     "Please configure either PAUSED or UNPAUSED for schedule_continuous.pause_status"
                 )
+
+    @property
+    def convert_libraries_to_environments(self) -> List[Dict[Any, Any]]:
+        logging.info(
+            "Serverless workload detected, library dependencies will be converted to 'environments'!"
+        )
+        environments, dependencies = [], []
+        for lib in self.libraries:
+            if isinstance(lib, PypiTaskLibrary):
+                if lib.repo:
+                    dependencies.append(
+                        lib.repo
+                    )  # TODO: check if `--extra-index-url` is needed
+                dependencies.append(lib.package)
+            elif isinstance(lib, WheelTaskLibrary):
+                dependencies.append(lib.whl)
+            else:
+                logging.info(
+                    "Serverless workload type only compatible with PyPi and Whl dependencies, skipping %s",
+                    lib,
+                )
+        environments.append(
+            {
+                "environment_key": "Default",
+                "spec": {
+                    "client": "1",
+                    "baseEnvironment": "",
+                    "dependencies": dependencies,
+                },
+            }
+        )
+        return environments
 
     @property
     def bfs_layers(self) -> List[str]:
