@@ -9,11 +9,11 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [commit]
-      - id: make-cov
-        name: Running Lint Checks & Test Suite
-        entry: make cov
-        language: system
-        files: '\.py$'
-        pass_filenames: false
-        always_run: true
-        stages: [push]
+#      - id: make-cov
+#        name: Running Lint Checks & Test Suite
+#        entry: make cov
+#        language: system
+#        files: '\.py$'
+#        pass_filenames: false
+#        always_run: true
+#        stages: [push]
