@@ -148,6 +148,9 @@ nav:
           - Secrets: api/secrets.md
           - TableauRefreshDataSourceOperator: api/airflow_tableau_operators.md
           - TableauRefreshWorkbookOperator: api/airflow_tableau_operators.md
+          - BoxToVolumeOperator: api/box_operator.md
+          - VolumeToBoxOperator: api/box_operator.md
+          - BoxOperator: api/box_operator.md
 
 
 extra:

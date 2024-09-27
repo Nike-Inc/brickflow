@@ -1,32 +1,34 @@
 import abc
-import logging
 import functools
+import logging
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional, Dict, Union, Iterator, Any
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import networkx as nx
 
-from brickflow import env_chain, BrickflowEnvVars
+from brickflow import BrickflowEnvVars, env_chain
 from brickflow.bundles.model import (
+    JobsContinuous,
     JobsEmailNotifications,
-    JobsWebhookNotifications,
-    JobsNotificationSettings,
-    JobsTrigger,
     JobsHealthRules,
+    JobsNotificationSettings,
+    JobsParameters,
+    JobsTrigger,
+    JobsWebhookNotifications,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
-    TaskNotFoundError,
     AnotherActiveTaskError,
-    Task,
-    TaskType,
-    TaskAlreadyExistsError,
     BrickflowTriggerRule,
-    TaskSettings,
     NoCallableTaskError,
+    Task,
+    TaskAlreadyExistsError,
     TaskLibrary,
+    TaskNotFoundError,
+    TaskSettings,
+    TaskType,
 )
 from brickflow.engine.utils import wraps_keyerror
 
@@ -114,6 +116,7 @@ class Workflow:
     # name should be immutable and not modified after being set
     _name: str
     schedule_quartz_expression: Optional[str] = None
+    schedule_continuous: Optional[JobsContinuous] = None
     timezone: str = "UTC"
     schedule_pause_status: str = "UNPAUSED"
     default_cluster: Optional[Cluster] = None
@@ -140,6 +143,7 @@ class Workflow:
     # this a databricks limit set on workflows, you can override it if you have exception
     max_tasks_in_workflow: int = 100
     enable_plugins: Optional[bool] = None
+    parameters: Optional[List[JobsParameters]] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
@@ -163,12 +167,7 @@ class Workflow:
             # the default cluster is set to the first cluster if it is not configured
             self.default_cluster = self.clusters[0]
 
-        self.schedule_pause_status = self.schedule_pause_status.upper()
-        allowed_scheduled_pause_statuses = ["PAUSED", "UNPAUSED"]
-        if self.schedule_pause_status not in allowed_scheduled_pause_statuses:
-            raise WorkflowConfigError(
-                f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}"
-            )
+        self.validate_schedule_configs()
 
     # def __hash__(self) -> int:
     #     import json
@@ -219,6 +218,40 @@ class Workflow:
                 f"Found duplicate cluster definitions in your workflow: {self.name}, "
                 f"with names: {duplicate_list}"
             )
+
+    def validate_schedule_configs(self) -> None:
+        allowed_scheduled_pause_statuses = ["PAUSED", "UNPAUSED"]
+        self.schedule_pause_status = self.schedule_pause_status.upper()
+        if self.schedule_pause_status not in allowed_scheduled_pause_statuses:
+            raise WorkflowConfigError(
+                f"schedule_pause_status must be one of {allowed_scheduled_pause_statuses}"
+            )
+
+        if (
+            self.schedule_quartz_expression is not None
+            and self.schedule_continuous is not None
+        ):
+            raise WorkflowConfigError(
+                "Please configure either schedule_quartz_expression or schedule_continuous for workflow"
+            )
+
+        if self.trigger is not None and self.schedule_continuous is not None:
+            raise WorkflowConfigError(
+                "Please configure either trigger or schedule_continuous for workflow"
+            )
+
+        if self.schedule_continuous is not None:
+            self.schedule_continuous.pause_status = (
+                self.schedule_continuous.pause_status.upper()
+            )
+
+            if (
+                self.schedule_continuous.pause_status
+                not in allowed_scheduled_pause_statuses
+            ):
+                raise WorkflowConfigError(
+                    "Please configure either PAUSED or UNPAUSED for schedule_continuous.pause_status"
+                )
 
     @property
     def bfs_layers(self) -> List[str]:
@@ -326,6 +359,30 @@ class Workflow:
         else:
             ensure_plugins = ensure_brickflow_plugins
 
+        # NOTE: REMOTE WORKSPACE RUN JOB OVERRIDE
+        # This is a temporary override for the RunJobTask because Databricks does not natively support
+        # triggering the job run in the remote workspace. By default, Databricks SDK derives the workspace URL
+        # from the runtime, and hence it is not required by the RunJobTask. The assumption is that if `host` parameter
+        # is set, user wants to trigger a remote job, in this case we set the task type to BRICKFLOW_TASK to
+        # enforce notebook type execution and replacing the original callable function with the RunJobInRemoteWorkspace
+        if task_type == TaskType.RUN_JOB_TASK:
+            func = f()
+            if func.host:
+                from brickflow_plugins.databricks.run_job import RunJobInRemoteWorkspace
+
+                task_type = TaskType.BRICKFLOW_TASK
+
+                def run_job_func() -> Callable:
+                    # Using parameter values from the original RunJobTask
+                    return RunJobInRemoteWorkspace(
+                        job_name=func.job_name,
+                        databricks_host=func.host,
+                        databricks_token=func.token,
+                    ).execute()
+
+                f = run_job_func
+        # NOTE: END REMOTE WORKSPACE RUN JOB OVERRIDE
+
         self.tasks[task_id] = Task(
             task_id=task_id,
             task_func=f,
@@ -402,6 +459,27 @@ class Workflow:
             cluster=cluster,
             libraries=libraries,
             task_type=TaskType.SPARK_JAR_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
+        )
+
+    def spark_python_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        cluster: Optional[Cluster] = None,
+        libraries: Optional[List[TaskLibrary]] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            cluster=cluster,
+            libraries=libraries,
+            task_type=TaskType.SPARK_PYTHON_TASK,
             task_settings=task_settings,
             depends_on=depends_on,
             if_else_outcome=if_else_outcome,

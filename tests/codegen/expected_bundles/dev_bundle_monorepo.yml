@@ -44,9 +44,13 @@ targets:
             brickflow_project_name: test-project
             brickflow_deployment_mode: Databricks Asset Bundles
             deployed_by: test_user
+            deployed_at: "1704067200000"
             environment: dev
             test: test2
             brickflow_version: 1.0.0
+          parameters:
+            - name: wf_param1
+              default: value1
           tasks:
             - depends_on: []
               email_notifications: {}
@@ -113,6 +117,22 @@ targets:
               task_key: spark_jar_task_a
               timeout_seconds: null
             - depends_on:
+                - task_key: spark_jar_task_a
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi: 
+                    package: koheesio
+              max_retries: null
+              min_retry_interval_millis: null
+              spark_python_task:
+                python_file: ./products/test-project/spark/python/src/run_task.py
+                parameters: ["--param1", "World!", "all_tasks1", "test", "all_tasks3", "123"]
+                source: GIT
+              retry_on_timeout: null
+              task_key: spark_python_task_a
+              timeout_seconds: null
+            - depends_on:
                 - task_key: notebook_task_a
               email_notifications: {}
               existing_cluster_id: null
@@ -123,6 +143,36 @@ targets:
               retry_on_timeout: null
               task_key: run_job_task_a
               timeout_seconds: null
+            - "depends_on":
+              - "outcome": null
+                "task_key": "notebook_task_a"
+              "email_notifications": {}
+              "existing_cluster_id": "existing_cluster_id"
+              "libraries": []
+              "max_retries": null
+              "min_retry_interval_millis": null
+              "notebook_task":
+                "base_parameters":
+                  "all_tasks1": "test"
+                  "all_tasks3": "123"
+                  "brickflow_env": "dev"
+                  "brickflow_internal_only_run_tasks": ""
+                  "brickflow_internal_task_name": "{{task_key}}"
+                  "brickflow_internal_workflow_name": "test"
+                  "brickflow_internal_workflow_prefix": ""
+                  "brickflow_internal_workflow_suffix": ""
+                  "brickflow_job_id": "{{job_id}}"
+                  "brickflow_parent_run_id": "{{parent_run_id}}"
+                  "brickflow_run_id": "{{run_id}}"
+                  "brickflow_start_date": "{{start_date}}"
+                  "brickflow_start_time": "{{start_time}}"
+                  "brickflow_task_key": "{{task_key}}"
+                  "brickflow_task_retry_count": "{{task_retry_count}}"
+                "notebook_path": "some/path/to/root/test_databricks_bundle.py"
+                "source": "GIT"
+              "retry_on_timeout": null
+              "task_key": "run_job_task_b"
+              "timeout_seconds": null
             - depends_on: []
               email_notifications: {}
               existing_cluster_id: existing_cluster_id

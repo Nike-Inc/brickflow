@@ -69,22 +69,6 @@ class _Project:
             raise ImportError(f"Invalid pkg error: {str(pkg)}")
         actual_workflow_dir_files = os.listdir(os.path.dirname(file_name))
 
-        if os.getenv(BrickflowEnvVars.BRICKFLOW_ENV.value) == "local":
-            if BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value in os.environ:
-                deploy_only_workflow_files = os.getenv(  # type: ignore
-                    BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
-                ).split(",")
-                files_not_in_actual = [
-                    file
-                    for file in deploy_only_workflow_files
-                    if file not in actual_workflow_dir_files
-                ]
-                if files_not_in_actual:
-                    raise WorkflowNotFoundError(
-                        f"The following workflows are not present in the directory: {', '.join(files_not_in_actual)}"
-                    )
-                actual_workflow_dir_files = deploy_only_workflow_files
-
         for module in actual_workflow_dir_files:
             # only find python files and ignore __init__.py
             if module == "__init__.py" or module[-3:] != ".py":
@@ -165,9 +149,9 @@ class Project:
     batch: bool = True
     codegen_mechanism: Optional[Type[CodegenInterface]] = None
     codegen_kwargs: Optional[Dict[str, Any]] = None
-    bundle_obj_name: Optional[str] = (
-        None  # repo name or folder where bundle assets will be saved
-    )
+    bundle_obj_name: Optional[
+        str
+    ] = None  # repo name or folder where bundle assets will be saved
     bundle_base_path: Optional[str] = None
     enable_plugins: bool = False
     _project: _Project = field(init=False)

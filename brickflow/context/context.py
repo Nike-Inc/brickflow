@@ -1,4 +1,6 @@
 import base64
+import time
+
 import binascii
 import copy
 import functools
@@ -174,6 +176,9 @@ class Context:
     @property
     def current_task(self) -> Optional[str]:
         return self._current_task
+
+    def get_current_timestamp(self) -> int:
+        return int(time.time() * 1000)
 
     def _set_current_task(self, task_key: str) -> None:
         self._current_task = task_key
@@ -372,6 +377,31 @@ class Context:
         except Exception:
             # todo: log error
             _ilog.debug("Unable to get parameter: %s from dbutils", key)
+            return debug
+
+    def get_project_parameter(
+        self, key: str, debug: Optional[str] = None
+    ) -> Optional[str]:
+        project_params = str(
+            self.get_parameter(
+                BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value.lower(), debug=debug
+            )
+        )
+        if project_params == debug:
+            return debug
+        try:
+            pairs = project_params.split(",")
+            kv_dict = {pair.split("=")[0]: pair.split("=")[1] for pair in pairs}
+            value = kv_dict.get(key)
+            if value is None:
+                _ilog.debug(
+                    "Could not find the key in %s project params", project_params
+                )
+                return debug
+            return value
+        except KeyError:
+            # todo: log error
+            _ilog.debug("Could not find the key in %s project params", project_params)
             return debug
 
     def _try_import_chaining(self, callables: List[Callable]) -> Optional[Any]:

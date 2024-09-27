@@ -161,9 +161,9 @@ class MultiProjectManager:
             BrickflowRootProjectConfig(projects={}),
         )
         project_root_config.projects[project.name] = project
-        self._project_config_dict[project.path_from_repo_root_to_project_root] = (
-            project_root_config
-        )
+        self._project_config_dict[
+            project.path_from_repo_root_to_project_root
+        ] = project_root_config
 
     def project_exists(self, project: BrickflowProject) -> bool:
         return project.name in self._brickflow_multi_project_config.project_roots
@@ -473,6 +473,36 @@ def apply_bundles_deployment_options(
             show_default=True,
             default=False,
             help="Force acquire lock for databricks bundles destroy.",
+        ),
+        "workflow": click.option(
+            "--workflow",
+            "-w",
+            type=str,
+            multiple=True,
+            callback=bind_env_var(
+                BrickflowEnvVars.BRICKFLOW_DEPLOY_ONLY_WORKFLOWS.value
+            ),
+            help="""Provide the workflow names (local mode only) to deploy, each workflow separated by space!
+            Note: provide the workflow names without the env prefix or the file extension.
+            Example: bf projects deploy -p DEFAULT -e local -w wf1 -w wf2""",
+        ),
+        "--key-value": click.option(
+            "--key-value",
+            "-kv",
+            type=str,
+            multiple=True,
+            callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value),
+            help="""Provide the runtime key-value parameters, each key-value separated by space!
+        Example: bf projects deploy -p DEFAULT -e local -kv key1=value1 -kv key2=value2""",
+        ),
+        "--tag": click.option(
+            "--tag",
+            "-t",
+            type=str,
+            multiple=True,
+            callback=bind_env_var(BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value),
+            help="""Provide the runtime key-value tags, each key-value separated by space!
+        Example: bf projects deploy -p DEFAULT -e local -t t_key1=value1 -kv t_key2=value2""",
         ),
     }
 

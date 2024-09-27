@@ -4,6 +4,7 @@ from brickflow.engine.task import (
     TaskType,
     TaskResponse,
     DLTPipeline,
+    RunJobTask,
 )
 from brickflow.engine.workflow import Workflow, WorkflowPermissions, User
 
@@ -39,7 +40,7 @@ def task_function_with_error(*, test="var"):
 
 
 @wf.task
-def task_function_no_deco_args(*, test="var"):
+def task_function_no_deco_args():
     return "hello world"
 
 
@@ -102,3 +103,8 @@ def task_function_4():
 )
 def custom_python_task_push():
     pass
+
+
+@wf.run_job_task()
+def run_job_task():
+    return RunJobTask(job_name="foo", host="https://foo.cloud.databricks.com")

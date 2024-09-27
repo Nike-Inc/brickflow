@@ -7,56 +7,59 @@ import functools
 import inspect
 import json
 import logging
+import os
 import textwrap
 from dataclasses import dataclass, field
 from enum import Enum
 from io import StringIO
 from pathlib import Path
 from typing import (
-    Callable,
-    List,
-    Dict,
-    Union,
-    Optional,
-    Any,
-    Tuple,
     TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
     Iterator,
+    List,
     Literal,
+    Optional,
+    Tuple,
+    Union,
 )
 
 import pluggy
 from decouple import config
 
 from brickflow import (
-    _ilog,
     BrickflowDefaultEnvs,
+    BrickflowEnvVars,
     BrickflowProjectDeploymentSettings,
+    _ilog,
     get_brickflow_version,
 )
 from brickflow.bundles.model import (
+    JobsTasksConditionTask,
+    JobsTasksHealthRules,
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
-    JobsTasksHealthRules,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
+    JobsTasksSparkPythonTask,
     JobsTasksSqlTask,
     JobsTasksSqlTaskAlert,
     JobsTasksSqlTaskAlertSubscriptions,
-    JobsTasksSqlTaskDashboardSubscriptions,
     JobsTasksSqlTaskDashboard,
+    JobsTasksSqlTaskDashboardSubscriptions,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
-    JobsTasksConditionTask,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
+    BRANCH_SKIP_EXCEPT,
+    RETURN_VALUE_KEY,
+    SKIP_EXCEPT_HACK,
     BrickflowBuiltInTaskVariables,
     BrickflowInternalVariables,
     ctx,
-    BRANCH_SKIP_EXCEPT,
-    SKIP_EXCEPT_HACK,
-    RETURN_VALUE_KEY,
 )
 from brickflow.engine import ROOT_NODE, with_brickflow_logger
 from brickflow.engine.compute import Cluster
@@ -117,6 +120,7 @@ class TaskType(Enum):
     CUSTOM_PYTHON_TASK = "custom_python_task"
     NOTEBOOK_TASK = "notebook_task"
     SPARK_JAR_TASK = "spark_jar_task"
+    SPARK_PYTHON_TASK = "spark_python_task"
     RUN_JOB_TASK = "run_job_task"
     IF_ELSE_CONDITION_TASK = "condition_task"
 
@@ -150,7 +154,7 @@ class TaskLibrary:
         return list(set(library_list))
 
     @property
-    def dict(self) -> Dict[str, Union[str | Dict[str, str]]]:
+    def dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
         return dataclasses.asdict(self)
 
     @staticmethod
@@ -447,6 +451,46 @@ class SparkJarTask(JobsTasksSparkJarTask):
         super().__init__(**kwargs)
         self.main_class_name = kwargs.get("main_class_name", None)
         self.parameters = kwargs.get("parameters", None)
+
+
+class SparkPythonTask(JobsTasksSparkPythonTask):
+    """
+    The SparkPythonTask class is designed to handle the execution of a Spark job with Python dependencies in a
+    Databricks workspace. One has to make sure that the Python file(s) are uploaded to the worksapce (or) git
+    and provide the absolute path in the library. An instance of SparkPythonTask represents a Spark job that
+    is identified by its main class name and optionally by its parameters.
+
+    Attributes:
+        main_class_name (str, optional): The main class name of the Spark job to be run.
+        parameters (List[str], optional): The parameters for the Spark job. If not provided, default
+        parameters are used.
+
+    Examples:
+        Below are the different ways in which the SparkPythonTask class can be used:
+        @wf.spark_python_task(
+                    libraries=[
+                        PypiTaskLibrary(
+                            package="koheesio"
+                        )
+                    ]
+                )
+            def spark_python_task_a():
+                return SparkPythonTask(
+                    python_file="path/to/python/file.py",
+                    source="GIT",
+                    parameters=["--param1", "World!"],
+                )
+    """
+
+    python_file: str
+    source: Optional[str] = None
+    parameters: Optional[List[str]] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.source = kwargs.get("source", None)
+        self.parameters = kwargs.get("parameters", None)
+        self.python_file = kwargs.get("python_file", None)
 
 
 class RunJobTask(JobsTasksRunJobTask):
@@ -884,12 +928,20 @@ class Task:
         if self.workflow.common_task_parameters is not None:
             final_task_parameters = self.workflow.common_task_parameters.copy() or {}
         spec: inspect.FullArgSpec = inspect.getfullargspec(self.task_func)
-        if spec.kwonlydefaults is None:
-            return final_task_parameters
-        # convert numbers into strings for base parameters
-        final_task_parameters.update(
-            {k: str(v) for k, v in spec.kwonlydefaults.items()}
-        )
+
+        if spec.kwonlydefaults:
+            # convert numbers into strings for base parameters
+            final_task_parameters.update(
+                {k: str(v) for k, v in spec.kwonlydefaults.items()}
+            )
+
+        if (
+            BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value in os.environ
+            and os.environ.get(BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value)
+        ):
+            final_task_parameters[
+                BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value.lower()
+            ] = str(os.environ[BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value])
         return final_task_parameters
 
     # @property
@@ -1109,6 +1161,8 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
             PypiTaskLibrary("apache-airflow==2.7.3"),
             PypiTaskLibrary("snowflake==0.6.0"),
             PypiTaskLibrary("tableauserverclient==0.25"),
+            PypiTaskLibrary("boxsdk==3.9.2"),
+            PypiTaskLibrary("cerberus-python-client==2.5.4"),
             MavenTaskLibrary("com.cronutils:cron-utils:9.2.0"),
         ]
     else:

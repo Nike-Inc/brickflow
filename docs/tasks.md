@@ -1,6 +1,6 @@
-A task in Databricks workflows refers to a single unit of work that is executed as part of a larger data processing 
-pipeline. Tasks are typically designed to perform a specific set of operations on data, such as loading data from a 
-source, transforming the data, and storing it in a destination. In brickflow, tasks as designed in such a way that 
+A task in Databricks workflows refers to a single unit of work that is executed as part of a larger data processing
+pipeline. Tasks are typically designed to perform a specific set of operations on data, such as loading data from a
+source, transforming the data, and storing it in a destination. In brickflow, tasks as designed in such a way that
 
 Assuming, that this is already read - [workflow](workflows.md) and workflow object is created
 
@@ -21,7 +21,7 @@ def end():
     pass
 ```
 
-1. Create a task using a decorator pattern. The task name would default to the python function name. So a task will be 
+1. Create a task using a decorator pattern. The task name would default to the python function name. So a task will be
     created with the name "start"
 2. Creating a task and defining the task name explicitly instead of using the function name "end". The task will be
    created with the new name "custom_end"
@@ -89,7 +89,7 @@ def task_function(*, test="var", test1="var1"):  # (1)!
 
 ### Common task parameters
 
-In the [workflows](workflows.md#common-task-parameters) section, we saw how the common task parameters are created at 
+In the [workflows](workflows.md#common-task-parameters) section, we saw how the common task parameters are created at
 the workflow level. Now in this section, we shall see how to use the common task parameters
 
 ```python title="use_common_task_parameters"
@@ -171,7 +171,6 @@ def inbuilt_params():
 11. "brickflow_internal_workflow_prefix" holds the value of the prefix used for the current workflow name
 12. "brickflow_internal_workflow_suffix" holds the value of the suffix used for the current workflow name
 
-
 ### Clusters
 
 There is a flexibility to use different clusters for each task or assign custom clusters
@@ -185,7 +184,7 @@ def custom_cluster():
     pass
 ```
 
-1. You will be able to create a job cluster or use existing cluster. Refer to this [section](workflows.md#clusters) in 
+1. You will be able to create a job cluster or use existing cluster. Refer to this [section](workflows.md#clusters) in
    the workflows to understand how to implement
 
 ### Libraries
@@ -204,12 +203,10 @@ def custom_libraries():
 1. You will be able to install libraries that are specific to a task. Refer to this [section](workflows.md#libraries) in
    the workflows to understand how to implement
 
-
 ### Task types
 
-There are different task types that are supported by brickflow right now. The default task type that is used by 
+There are different task types that are supported by brickflow right now. The default task type that is used by
 brickflow is NOTEBOOK
-
 
 ```python title="task_types"
 from brickflow import Workflow, TaskType, BrickflowTriggerRule, TaskResponse
@@ -227,6 +224,7 @@ def dlt_task():
 1. Provide the task type that is to be used for this task. Default is a notebook task
 2. Trigger rule can be attached. It can be ALL_SUCCESS or NONE_FAILED. In this case, this task will be triggered, if all
    the upstream tasks are at-least run and completed.
+
 #### Notebook Task
 
 The `Notebook Task` is used as a decorator in conjunction with the `notebook_task` method of a `Workflow` instance. This method registers the task within the workflow.
@@ -249,11 +247,12 @@ def example_notebook():
     )
 
 ```
+
 NotebookTask class can accept the following as inputs:<br />
 &emsp;<b>base_parameters: Optional[Dict[str, str]]</b> = parameters to pass to notebook and can be accessed through dbutils widgets<br>
    &emsp; <b>notebook_path</b>:'The path of the notebook to be run in the Databricks workspace or remote repository.For notebooks stored in the Databricks workspace, the path must be absolute and begin with a slash.<br>For notebooks stored in a remote repository, the path must be relative.,
     <br>
-  &emsp;  <b>source: Optional[str]</b> :'Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved from the local <Databricks> workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,the Python file will be retrieved from a Git repository defined in `git_source`.* `WORKSPACE`: The Python file is located in a <Databricks> workspace or at a cloud filesystem URI.* `GIT`: The Python file is located in a remote Git repository.',
+  &emsp;  <b>source: Optional[str]</b> :'Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved from the local <Databricks> workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,the Python file will be retrieved from a Git repository defined in `git_source`.*`WORKSPACE`: The Python file is located in a <Databricks> workspace or at a cloud filesystem URI.* `GIT`: The Python file is located in a remote Git repository.',
 
 #### Run Job Task
 
@@ -280,6 +279,11 @@ RunJobTask class can accept the following as inputs:<br />
 &emsp;<b>host [Optional]</b>: The URL of the Databricks workspace.<br />
 &emsp;<b>token [Optional]</b>: The Databricks API token.
 
+!!! important
+
+    Databricks does not natively support triggering the job run in the remote workspace. Only set `host` and `token`
+    parameters when remote trigger is required, it will envoke RunJobInRemoteWorkspace plugin which will transparently 
+    substitute the native execution. No extra action will be required from the user.
 
 #### JAR Task
 
@@ -328,10 +332,55 @@ JarTask class can accept the following as inputs:<br />
 &emsp;<b>main_class_name</b>: The full name of the class containing the main method to be executed.<br />
 &emsp;<b>parameters [Optional]</b>: Parameters passed to the main method.
 
+#### PYTHON Task
+
+The `PYTHON Task` is used as a decorator in conjunction with the `spark_python_task` method of a `Workflow` instance. This method registers the task within the workflow.<br>
+Make sure to provide correct path to  `PYTHON` file from workspace or relative path from git repo.<br>
+Here's an example of how to use the `PYTHON` Task type:
+
+```python
+# Example:1
+@wf.spark_python_task(
+        libraries=[
+            PypiTaskLibrary(
+                package="koheesio"
+            )
+        ]
+    )
+def spark_python_task_a():
+    return SparkPythonTask(
+        python_file="path/to/python/file.py",
+        source="GIT",
+        parameters=["--param1", "World!"],
+    )
+# Example: 2
+# we can also pass task type as parameter
+@wf.task(task_type=TaskType.SPARK_PYTHON_TASK, libraries=[
+            PypiTaskLibrary(
+                package="koheesio"
+            )
+        ]
+def run_job_task_a():
+    return SparkPythonTask(
+        python_file="path/to/python/file.py",
+        source="GIT",
+        parameters=["--param1", "World!"],
+    )
+```
+
+PythonTask class can accept the following as inputs:<br />
+
+&emsp;<b>python_file</b>:
+The Python file to be executed. Cloud file URIs (such as dbfs:/, s3:/, adls:/, gcs:/) and workspace paths are supported. For python files stored in the Databricks workspace, the path must be absolute and begin with `/`. For files stored in a remote repository, the path must be relative. This field is required.'
+<br />
+&emsp;<b>source</b>: When set to `WORKSPACE` or not specified, the file will be retrieved from the local Databricks workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,\nthe Python file will be retrieved from a Git repository defined in `git_source`.\n\n* `WORKSPACE`: The Python file is located in a Databricks workspace or at a cloud filesystem URI.\n* `GIT`: The Python file is located in a remote Git repository..<br />
+&emsp;<b>parameters [Optional]</b>: Parameters passed to the main method.
+
 #### SQL Task
+
 The SqlTask class is used to create SQL tasks in the workflow. It can be used to create tasks with a query ID, file path, alert ID, and dashboard ID.<br>
 The `SQL Task` is used as a decorator in conjunction with the `sql_task` method of a `Workflow` instance.
-This method registers the task within the workflow. 
+This method registers the task within the workflow.
 
 SQLTask class can accept the following as inputs:<br />
 &emsp; <b>query_id[Optional]</b>: A string representing the ID of the query.<br>
@@ -344,6 +393,7 @@ SQLTask class can accept the following as inputs:<br />
 &emsp; <b>warehouse_id</b>: A string representing the ID of the warehouse.<br>
 
 Here's an example of how to use the `SQL` Task type:
+
 ```python
 @wf.sql_task
 def sample_sql_task_query():
@@ -399,11 +449,13 @@ def sample_sql_dashboard_task() -> any:
 ```
 
 #### If/Else Task
+
 The `IfElseConditionTask` class is used to create conditional tasks in the workflow. It can be used to create tasks with a left operand, a right operand, and an operator.
 
 The `IfElseConditionTask` is used as a decorator in conjunction with the `if_else_condition_task` method of a `Workflow` instance. This method registers the task within the workflow.
 
 `IfElseConditionTask` class can accept the following as inputs:
+
 - **left[Optional]**: A string representing the left operand in the condition.
 - **right[Optional]**: A string representing the right operand in the condition.
 - **operator[Optional]**: A string representing the operator used in the condition. It can be one of the following: "==", "!=", ">", "<", ">=", "<=".
@@ -450,8 +502,6 @@ def sample_sql_alert() ->any:
 # Note: Since SQL task doesn't return any bool, we can't make use of if_else_outcome params for the tasks that depends on sql Task
 ```
 
-
-
 ### Trigger rules
 
 There are two types of trigger rules that can be applied on a task. It can be either ALL_SUCCESS or NONE_FAILED
@@ -476,7 +526,6 @@ def all_success_task():
 1. NONE_FAILED - use this if you want to trigger the task irrespective of the upstream tasks success or failure state
 2. ALL_SUCCESS - use this if you want to trigger the task only if all the upstream tasks are all having success state
 
-
 ### Tasks conditional run
 
 Adding condition for task running based on result of parent tasks
@@ -493,6 +542,7 @@ def none_failed_task():
 ```
 
 This option is determining whether the task is run once its dependencies have been completed. Available options:
+
 1. `ALL_SUCCESS`: All dependencies have executed and succeeded
 2. `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded
 3. `NONE_FAILED`: None of the dependencies have failed and at least one was executed
@@ -522,7 +572,6 @@ def bash_task():
 ```
 
 1. Use Bashoperator like how we use in airflow but it has to be returned from task function
-
 
 #### Task Dependency Sensor
 
@@ -648,9 +697,9 @@ def wait_on_workflow(*args):
 
 #### Snowflake Operator
 
-run snowflake queries from the databricks environment 
+run snowflake queries from the databricks environment
 
-As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys   
+As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys
 &emsp;&emsp;&emsp;&emsp;username : user id created for connecting to snowflake for ex: sample_user  
 &emsp;&emsp;&emsp;&emsp;password : password information for about user for ex: P@$$word  
 &emsp;&emsp;&emsp;&emsp;account  : snowflake account information, not entire url for ex: sample_enterprise  
@@ -658,7 +707,7 @@ As databricks secrets is a key value store, code expects the secret scope to con
 &emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
 &emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
 
-SnowflakeOperator can accept the following as inputs 
+SnowflakeOperator can accept the following as inputs
 
 &emsp;&emsp;&emsp;&emsp;secret_scope (required) : databricks secret scope identifier
 &emsp;&emsp;&emsp;&emsp;query_string (required) : queries separated by semicolon
@@ -666,6 +715,7 @@ SnowflakeOperator can accept the following as inputs
 &emsp;&emsp;&emsp;&emsp;parameters (optional) : dictionary with variables that can be used to substitute in queries
 
 Operator only takes one of either query_string or sql_file needs to be passed
+
 ```python title="snowflake_operator using sql queries "
 from brickflow_plugins import SnowflakeOperator
 
@@ -696,9 +746,9 @@ def run_snowflake_files(*args):
 
 #### UC to Snowflake Operator
 
-copy data from databricks to snowflake 
+copy data from databricks to snowflake
 
-As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys   
+As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys
 &emsp;&emsp;&emsp;&emsp;username : user id created for connecting to snowflake for ex: sample_user  
 &emsp;&emsp;&emsp;&emsp;password : password information for about user for ex: P@$$word  
 &emsp;&emsp;&emsp;&emsp;account  : snowflake account information, not entire url for ex: sample_enterprise  
@@ -707,20 +757,21 @@ As databricks secrets is a key value store, code expects the secret scope to con
 &emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
 
 UcToSnowflakeOperator can expects the following as inputs to copy data in parameters  
-one of Either dbx_sql or (dbx_catalog, dbx_database, dbx_table ) needs to be provided 
+one of Either dbx_sql or (dbx_catalog, dbx_database, dbx_table ) needs to be provided
 &emsp;&emsp;&emsp;&emsp;load_type (required): type of data load , acceptable values full or incremental
-&emsp;&emsp;&emsp;&emsp;dbx_catalog (optional) : name of the databricks catalog in which object resides 
+&emsp;&emsp;&emsp;&emsp;dbx_catalog (optional) : name of the databricks catalog in which object resides
 &emsp;&emsp;&emsp;&emsp;dbx_database (optional): name of the databricks schema in which object is available
-&emsp;&emsp;&emsp;&emsp;dbx_table (optional) : name of the databricks object we want to copy to snowflake 
+&emsp;&emsp;&emsp;&emsp;dbx_table (optional) : name of the databricks object we want to copy to snowflake
 &emsp;&emsp;&emsp;&emsp;dbx_sql (optional) : Custom sql to extract data from databricks Unity Catalog
-&emsp;&emsp;&emsp;&emsp;sf_database (optional) : name of the snowflake database if different from the one in secret_scope 
-&emsp;&emsp;&emsp;&emsp;sf_schema (required): name of the snowflake schema in which we want to copy the data 
+&emsp;&emsp;&emsp;&emsp;sf_database (optional) : name of the snowflake database if different from the one in secret_scope
+&emsp;&emsp;&emsp;&emsp;sf_schema (required): name of the snowflake schema in which we want to copy the data
 &emsp;&emsp;&emsp;&emsp;sf_table (required) : name of the snowflake object to which we want to copy from databricks
 &emsp;&emsp;&emsp;&emsp;incremental_filter (required for incrmental mode) :  condition to manage data before writing to snowflake
 &emsp;&emsp;&emsp;&emsp;dbx_data_filter (optional): filter condition on databricks source for full or incremental (if different from inremental_filter)
-&emsp;&emsp;&emsp;&emsp;sf_grantee_roles (optional) : snowflake roles to which we want to grant select/read access 
-&emsp;&emsp;&emsp;&emsp;sf_cluster_keys (optional) : list of keys we want to cluster our snowflake table. 
-&emsp;&emsp;&emsp;&emsp;write_mode (optional) : write mode to write into snowflake table ( overwrite, append etc) 
+&emsp;&emsp;&emsp;&emsp;sf_grantee_roles (optional) : snowflake roles to which we want to grant select/read access
+&emsp;&emsp;&emsp;&emsp;sf_cluster_keys (optional) : list of keys we want to cluster our snowflake table.
+&emsp;&emsp;&emsp;&emsp;write_mode (optional) : write mode to write into snowflake table ( overwrite, append etc)
+
 ```python title="uc_to_snowflake_operator"
 from brickflow_plugins import UcToSnowflakeOperator
 
@@ -740,27 +791,31 @@ def run_snowflake_queries(*args):
 ```
 
 #### Tableau Refresh Operators
+
 Connect to the Tableau server and trigger the refresh of the data sources or workbooks.
 
 Tableau client uses object GUIDs  to identify objects on the server. At the same time the server does not
-enforce unique names for the objects across the server. This means that multiple objects, e.g. data sources, with the 
-same name can exist on the server. 
+enforce unique names for the objects across the server. This means that multiple objects, e.g. data sources, with the
+same name can exist on the server.
 
 To overcome this, operators are using the combination of `project` and `parent_project` parameters to uniquely
 identify the project that owns data source or workbook on the server. Successfull project resolution will be indicated
 in the logs as follows:
+
 ```
 INFO - Querying all projects on site
 
 Parent project identified:
-	Name: My Parent Project
-	ID: 2e14e111-036f-409e-b536-fb515ee534b9
+ Name: My Parent Project
+ ID: 2e14e111-036f-409e-b536-fb515ee534b9
 Working project identified:
-	Name: My Project
-	ID: 2426e01f-c145-43fc-a7f6-1a7488aceec0
+ Name: My Project
+ ID: 2426e01f-c145-43fc-a7f6-1a7488aceec0
 ```
-If project resolution is successful the refresh will be triggered and operator will poll the server for the refresh 
+
+If project resolution is successful the refresh will be triggered and operator will poll the server for the refresh
 status:
+
 ```
 Triggering refresh of 'my-datasource' datasource...
 Query for information about job c3263ad0-1340-444d-8128-24ad742a943a
@@ -774,6 +829,7 @@ Data source 'my-datasource' refresh status:
       'job_status_details': None
    }!
 ```
+
 If refresh fails, `job_status_details` will contain the error message retrieved from the server and the operator will
 fail. If fail behavior is not desired, `fail_operator = False` can be set in the operator parameters.
 
@@ -807,4 +863,101 @@ def tableau_refresh_workbook():
         workbooks=["workbook1", "workbook2"],
     )
 ```
+
+#### Box Operators
+
+The Box Operator provides a comprehensive solution for authenticating with Box and efficiently managing file transfers
+between Box and Databricks Unity Catalog (UC) volumes.  It includes classes for downloading and uploading files,
+leveraging JWT authentication via BoxAuthenticator.
+
+To properly authenticate with Box using JWT within the Databricks or Cerberus environments,
+ensure that your secrets scope contains the following exact keys:
+
+`Dbutils or Cerberus`
+The secrets scope should contain the following keys for Box authentication:
+
+- `client_id`: `your_client_id` The client ID for the Box application.
+- `client_secret`: `your_client_secret` The client secret for the Box application.
+- `jwt_key_id`: `your_jwt_key_id` The JWT key ID for the Box application.
+- `rsa_private_key_data`: `your_rsa_private_key_data` The RSA private key data for the Box application. This is encoded in UTF-8.
+- `rsa_private_key_passphrase`: `your_rsa_private_key_passphrase` The passphrase for the RSA private key.
+- `enterprise_id`: `your_enterprise_id` The enterprise ID for the Box application.
+
+The `BoxToVolumesOperator` downloads files from Box to Databricks Unity Catalog (UC) volume.
+
+The `VolumesToBoxOperator` uploads files from a Databricks Unity Catalog (UC) volume to a Box folder.
+
+The `BoxOperator` manages the high-level operations for interacting with Box (download/upload).
+
+`BoxToVolumesOperator, VolumesToBoxOperator and BoxOperator Parameters:`
+
+- `secret_scope`: (required) The scope within Databricks or Cerberus where the secrets are stored.
+- `cerberus_client_url`: (optional) The URL for the Cerberus client, used to retrieve secrets if not found in the secret_scope.
+- `folder_id`: (required) The ID of the Box folder from which files will be downloaded.
+- `volume_path`: (required) The local path to the volume where files will be downloaded.
+- `file_names`: (optional) A list of specific file names to be downloaded. If not specified, all files in the folder will be downloaded.
+- `file_pattern`: (optional) The pattern to match file names starting with or ending with the given file pattern to be downloaded or uploaded.
+- `file_id`: (optional for BoxToVolumesOperator) The ID of a specific file to be downloaded. If specified, only this file will be downloaded. This parameter is not used in VolumesToBoxOperator.
+- `operation`: (required only for BoxOperator) Specifies the operation to be performed: `"download"` or `"upload"`.
+
+```python title="box_operators"
+from brickflow.context import ctx
+from brickflow_plugins import BoxToVolumesOperator, VolumeToBoxOperator, BoxOperator
+
+wf = Workflow(...)
+
+@wf.task
+def box_to_volume():
+    box_to_volume_copy = BoxToVolumesOperator(
+        secret_scope="my_secret_scope",
+        cerberus_client_url="https://cerberus-url.com",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
+    )
+    box_to_volume_copy.execute()
+
+
+@wf.task
+def volume_to_box():
+    volumes_to_box_copy = VolumesToBoxOperator(
+        secret_scope="my_secret_scope",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+    )
+    volumes_to_box_copy.execute()
+
+
+@wf.task
+def download_box_to_volume():
+    download_box_to_volume_copy = BoxOperator(
+        secret_scope="my_secret_scope",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        file_id="678910",
+        operation="download",
+    )
+    download_box_to_volume_copy.execute()
+
+
+@wf.task
+def upload_volume_to_box():
+    upload_volumes_to_box_copy = BoxOperator(
+        secret_scope="my_secret_scope",
+        cerberus_client_url="https://cerberus-url.com",
+        folder_id="12345",
+        volume_path="/path/to/local/volume",
+        file_names=["file1.txt", "file2.txt"],
+        file_pattern=".txt",
+        operation="upload",
+    )
+    upload_volumes_to_box_copy.execute()
+```
+
 Check operator logs for more details on the status of the connection and the refresh.

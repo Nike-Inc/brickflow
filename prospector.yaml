@@ -9,7 +9,7 @@ ignore-paths:
   - venv2
   - site
   - docs
-  - tests/engine/sample_workflow.py
+  - tests/engine/sample_workflows.py
   - tools
   - .databricks
   - .mypy_cache
