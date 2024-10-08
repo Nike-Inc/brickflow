@@ -40,9 +40,16 @@ class TestWorkflow:
         assert t.trigger_rule == BrickflowTriggerRule.ALL_SUCCESS
         assert t.custom_execute_callback is None
 
-    def test_create_workflow_no_compute(self):
-        with pytest.raises(NoWorkflowComputeError):
+    def test_create_workflow_no_compute(self, caplog):
+        try:
+            # if cluster details are not provided, the job must be treated as serverless
             Workflow("test")
+            assert (
+                "Default cluster details are not provided, switching to serverless compute."
+                in caplog.text
+            )
+        except NoWorkflowComputeError:
+            pytest.fail("NoWorkflowComputeError was raised")
 
     def test_create_workflow_with_duplicate_compute(self):
         with pytest.raises(DuplicateClustersDefinitionError):
@@ -110,14 +117,23 @@ class TestWorkflow:
         for field in ["spark_version", "autoscale", "node_type_id"]:
             assert field in new_cluster
 
-    def test_default_cluster_isnt_empty(self):
-        with pytest.raises(RuntimeError):
+    def test_default_cluster_isnt_empty(self, caplog):
+        try:
             compute = [
                 Cluster("name", "spark", "vmnode"),
             ]
             this_wf = Workflow("test", clusters=compute)
             this_wf.default_cluster = None
             this_wf._add_task(f=lambda: 123, task_id="taskid")
+
+            assert (
+                "Default cluster details are not provided, switching to serverless compute."
+                in caplog.text
+            )
+        except RuntimeError:
+            # The error should not be raised because when default cluster is not configure, the job will be treated
+            # as serverless conpute job
+            pytest.fail("RuntimeError was raised")
 
     def test_max_tasks_reached_error(self):
         with pytest.raises(ValueError):
