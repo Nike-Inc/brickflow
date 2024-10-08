@@ -9,7 +9,6 @@ def get_name(path):
     for remove_item in [
         "artifacts",
         "bundle",
-        "environments",
         "include",
         "resources",
         "workspace",
