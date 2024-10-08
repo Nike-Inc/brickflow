@@ -285,7 +285,6 @@ class Workflow:
                 "environment_key": "Default",
                 "spec": {
                     "client": "1",
-                    "baseEnvironment": "",
                     "dependencies": dependencies,
                 },
             }
