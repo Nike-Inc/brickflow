@@ -292,7 +292,7 @@ class JobsEmailNotifications(BaseModel):
     )
 
 
-class JobsSpec(BaseModel):
+class JobsEnvironmentsSpec(BaseModel):
     class Config:
         extra = "forbid"
         protected_namespaces = ()
@@ -307,7 +307,7 @@ class JobsSpec(BaseModel):
     )
 
 
-class Jobs(BaseModel):
+class JobsEnvironments(BaseModel):
     class Config:
         extra = "forbid"
         protected_namespaces = ()
@@ -315,7 +315,7 @@ class Jobs(BaseModel):
     environment_key: str = Field(
         ..., description='The key of an environment. It has to be unique within a job.'
     )
-    spec: Optional[JobsSpec] = None
+    spec: Optional[JobsEnvironmentsSpec] = None
 
 
 class JobsGitSourceGitSnapshot(BaseModel):
@@ -2541,7 +2541,7 @@ class Jobs(BaseModel):
         description='Edit mode of the job.\n\n* `UI_LOCKED`: The job is in a locked UI state and cannot be modified.\n* `EDITABLE`: The job is in an editable state and can be modified.',
     )
     email_notifications: Optional[JobsEmailNotifications] = None
-    environments: Optional[List[Jobs]] = Field(
+    environments: Optional[List[JobsEnvironments]] = Field(
         None,
         description='A list of task execution environment specifications that can be referenced by tasks of this job.',
     )
