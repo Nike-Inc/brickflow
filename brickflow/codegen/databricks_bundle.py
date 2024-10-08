@@ -895,7 +895,6 @@ class DatabricksBundleCodegen(CodegenInterface):
             job = Jobs(
                 name=workflow_name,
                 tasks=tasks,
-                git_source=git_conf,
                 tags=workflow.tags,
                 health=workflow.health,
                 job_clusters=[JobsJobClusters(**c) for c in workflow_clusters],
@@ -914,6 +913,10 @@ class DatabricksBundleCodegen(CodegenInterface):
                 parameters=workflow.parameters,
                 environments=workflow.environments,
             )
+            # Make sure that `git_source` is not included in the job definition, otherwise model validation will fail
+            if git_conf:
+                job.git_source = git_conf
+
             jobs[workflow_name] = job
 
             pipelines.update(self.workflow_obj_to_pipelines(workflow))
