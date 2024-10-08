@@ -15,6 +15,7 @@ from brickflow.bundles.model import (
     JobsParameters,
     JobsTrigger,
     JobsWebhookNotifications,
+    JobsEnvironments,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -147,7 +148,7 @@ class Workflow:
     enable_plugins: Optional[bool] = None
     parameters: Optional[List[JobsParameters]] = None
     # environments should be defined for serverless workloads
-    environments: Optional[List[Dict[Any, Any]]] = None
+    environments: Optional[List[JobsEnvironments]] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
@@ -156,7 +157,7 @@ class Workflow:
                 "Default cluster details are not provided, switching to serverless compute."
             )
             self.environments = self.convert_libraries_to_environments
-            print(self.environments)
+            logging.debug(self.environments)
 
         if self.prefix is None:
             self.prefix = env_chain(
