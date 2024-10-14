@@ -51,6 +51,7 @@ from brickflow.bundles.model import (
     Targets,
     Workspace,
 )
+from brickflow.cli.projects import MultiProjectManager, get_brickflow_root
 from brickflow.codegen import (
     CodegenInterface,
     DatabricksDefaultClusterTagKeys,
@@ -461,12 +462,30 @@ class DatabricksBundleCodegen(CodegenInterface):
                 ]
             ).replace("//", "/")
 
-            #  Finds the start position of the project name in the given file path and calculates the cut position.
-            #   - `file_path.find(self.project.name)`: Finds the start index of the project name in the file path.
-            #   - `+ len(self.project.name) + 1`: Moves the start position to the character after the project name.
+            multi_project_manager = MultiProjectManager(
+                config_file_name=str(get_brickflow_root())
+            )
+            bf_project = multi_project_manager.get_project(self.project.name)
+
+            start_index_of_project_root = file_path.find(
+                bf_project.path_from_repo_root_to_project_root
+            )
+
+            if start_index_of_project_root < 0:
+                raise ValueError(
+                    f"Error while adjusting file path. "
+                    f"Project root not found in the file path: {file_path}."
+                )
+
+            #  Finds the start position of the path_from_repo_root_to_project_root in the given file path
+            #  and calculates the cut position.
+            #   - `file_path.find: Finds the start index of the project root in the file path.
+            #   - `+ len + 1`: Moves the start position to the character after the project root.
             # - Adjusts the file path by appending the local bundle path to the cut file path.
             cut_file_path = file_path[
-                file_path.find(self.project.name) + len(self.project.name) + 1 :
+                start_index_of_project_root
+                + len(bf_project.path_from_repo_root_to_project_root)
+                + 1 :
             ]
             file_path = (
                 bundle_files_local_path + file_path
