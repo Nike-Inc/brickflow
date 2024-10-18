@@ -82,6 +82,7 @@ class TestBundleCodegen(TestCase):
             BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value: "tag1 = value1,  tag2 =value2    ",  # spaces will be trimmed
         },
     )
+    @patch("brickflow.codegen.databricks_bundle.MultiProjectManager")
     @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
@@ -96,12 +97,16 @@ class TestBundleCodegen(TestCase):
         dbutils: Mock,
         sub_proc_mock: Mock,
         get_job_id_mock: Mock,
+        multi_project_manager_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
         get_job_id_mock.return_value = 12345678901234.0
+        multi_project_manager_mock.return_value.get_project.return_value = MagicMock(
+            path_from_repo_root_to_project_root="test-project"
+        )
         # get caller part breaks here
         with Project(
             "test-project",
@@ -138,6 +143,7 @@ class TestBundleCodegen(TestCase):
             BrickflowEnvVars.BRICKFLOW_WORKFLOW_SUFFIX.value: "_suffix",
         },
     )
+    @patch("brickflow.codegen.databricks_bundle.MultiProjectManager")
     @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
@@ -146,18 +152,23 @@ class TestBundleCodegen(TestCase):
         "brickflow.context.ctx.get_current_timestamp",
         MagicMock(return_value=1704067200000),
     )
+    # @patch()
     def test_generate_bundle_local_prefix_suffix(
         self,
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
         get_job_id_mock: Mock,
+        multi_project_manager_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
         get_job_id_mock.return_value = 12345678901234.0
+        multi_project_manager_mock.return_value.get_project.return_value = MagicMock(
+            path_from_repo_root_to_project_root="test-project"
+        )
         # get caller part breaks here
         with Project(
             "test-project",
