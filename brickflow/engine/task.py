@@ -822,15 +822,24 @@ class Task:
     @property
     def depends_on_names(self) -> Iterator[Dict[str, Optional[str]]]:
         for i in self.depends_on:
-            if self.if_else_outcome:
-                outcome = list(self.if_else_outcome.values())[0]
+            task_name = i.__name__ if callable(i) and hasattr(i, "__name__") else str(i)
+            if (
+                self.workflow.get_task(task_name).task_type
+                == TaskType.IF_ELSE_CONDITION_TASK
+                and self.if_else_outcome
+            ):
+                outcome = self.if_else_outcome.get(task_name)
+                if not outcome:
+                    raise ValueError(
+                        f"Task {task_name} is an if else condition task and does not have an outcome"
+                    )
             else:
                 outcome = None
 
             if callable(i) and hasattr(i, "__name__"):
-                yield {i.__name__: outcome}
+                yield {task_name: outcome}
             else:
-                yield {str(i): outcome}
+                yield {task_name: outcome}
 
     @property
     def databricks_task_type_str(self) -> str:

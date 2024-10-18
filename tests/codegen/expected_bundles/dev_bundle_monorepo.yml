@@ -133,6 +133,45 @@ targets:
               task_key: spark_python_task_a
               timeout_seconds: null
             - depends_on:
+                - task_key: spark_python_task_a
+                - outcome: "false"
+                  task_key: condition_task_test2
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: koheesio
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              spark_python_task:
+                parameters: ["--param1", "World!", "all_tasks1", "test", "all_tasks3", "123"]
+                python_file: ./products/test-project/spark/python/src/run_task.py
+                source: GIT
+              task_key: spark_python_task_depended
+              timeout_seconds: null
+            - depends_on:
+                - outcome: "true"
+                  task_key: condtion_task_test
+                - outcome: "false"
+                  task_key: condition_task_test2
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+                - pypi:
+                    package: koheesio
+                    repo: null
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              spark_python_task:
+                parameters: ["--param1", "World!", "all_tasks1", "test", "all_tasks3", "123"]
+                python_file: ./products/test-project/spark/python/src/run_task.py
+                source: GIT
+              task_key: spark_python_task_depended2
+              timeout_seconds: null
+            - depends_on:
                 - task_key: notebook_task_a
               email_notifications: {}
               existing_cluster_id: null
@@ -442,6 +481,18 @@ targets:
                 op: "EQUAL_TO"
                 right: "2"
               task_key: "condtion_task_test"
+              timeout_seconds: null
+            - depends_on:
+              - task_key: "sample_sql_task_query"
+              email_notifications: {}
+              max_retries: null
+              min_retry_interval_millis: null
+              retry_on_timeout: null
+              condition_task:
+                left: "1"
+                op: "EQUAL_TO"
+                right: "1"
+              task_key: "condition_task_test2"
               timeout_seconds: null
       pipelines:
         test_hello_world:
