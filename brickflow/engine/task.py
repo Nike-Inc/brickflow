@@ -835,7 +835,7 @@ class Task:
                     )
             else:
                 outcome = None
-            
+
             yield {task_name: outcome}
 
     @property
