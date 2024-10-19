@@ -835,11 +835,8 @@ class Task:
                     )
             else:
                 outcome = None
-
-            if callable(i) and hasattr(i, "__name__"):
-                yield {task_name: outcome}
-            else:
-                yield {task_name: outcome}
+            
+            yield {task_name: outcome}
 
     @property
     def databricks_task_type_str(self) -> str:
