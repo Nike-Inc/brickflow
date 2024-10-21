@@ -57,6 +57,19 @@
             "retry_on_timeout": null
             "task_key": "condtion_task_test"
             "timeout_seconds": null
+          - "condition_task":
+              "left": "1"
+              "op": "EQUAL_TO"
+              "right": "1"
+            "depends_on":
+            - "outcome": null
+              "task_key": "sample_sql_task_query"
+            "email_notifications": {}
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "retry_on_timeout": null
+            "task_key": "condition_task_test2"
+            "timeout_seconds": null
           - "depends_on": []
             "email_notifications": {}
             "existing_cluster_id": "existing_cluster_id"
@@ -236,15 +249,13 @@
             "email_notifications": {}
             "existing_cluster_id": "existing_cluster_id"
             "libraries":
-            - "pypi": 
+            - "pypi":
                 "package": "koheesio"
                 "repo": null
             "max_retries": null
             "min_retry_interval_millis": null
             "retry_on_timeout": null
             "spark_python_task":
-              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/spark/python/src/run_task.py"
-              "source": "WORKSPACE"
               "parameters":
               - "--param1"
               - "World!"
@@ -252,7 +263,61 @@
               - "test"
               - "all_tasks3"
               - "123"
+              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/spark/python/src/run_task.py"
+              "source": "WORKSPACE"
             "task_key": "spark_python_task_a"
+            "timeout_seconds": null
+          - "depends_on":
+            - "outcome": null
+              "task_key": "spark_python_task_a"
+            - "outcome": "false"
+              "task_key": "condition_task_test2"
+            "email_notifications": {}
+            "existing_cluster_id": "existing_cluster_id"
+            "libraries":
+            - "pypi":
+                "package": "koheesio"
+                "repo": null
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "retry_on_timeout": null
+            "spark_python_task":
+              "parameters":
+              - "--param1"
+              - "World!"
+              - "all_tasks1"
+              - "test"
+              - "all_tasks3"
+              - "123"
+              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/spark/python/src/run_task.py"
+              "source": "WORKSPACE"
+            "task_key": "spark_python_task_depended"
+            "timeout_seconds": null
+          - "depends_on":
+            - "outcome": "true"
+              "task_key": "condtion_task_test"
+            - "outcome": "false"
+              "task_key": "condition_task_test2"
+            "email_notifications": {}
+            "existing_cluster_id": "existing_cluster_id"
+            "libraries":
+            - "pypi":
+                "package": "koheesio"
+                "repo": null
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "retry_on_timeout": null
+            "spark_python_task":
+              "parameters":
+              - "--param1"
+              - "World!"
+              - "all_tasks1"
+              - "test"
+              - "all_tasks3"
+              - "123"
+              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/spark/python/src/run_task.py"
+              "source": "WORKSPACE"
+            "task_key": "spark_python_task_depended2"
             "timeout_seconds": null
           - "depends_on": []
             "email_notifications": {}
