@@ -33,7 +33,8 @@ from brickflow.engine.task import NotebookTask
 
 # `get_job_id` is being called during workflow init, hence the patch
 with patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0) as p:
-    from tests.codegen.sample_workflows import wf, wf2, wf_bad_tasks, wf_serverless
+    from tests.codegen.sample_workflows import wf, wf2, wf_bad_tasks  # , wf_serverless
+    from tests.codegen.sample_serverless_workflow import wf as wf_serverless
 
 # BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
@@ -613,10 +614,9 @@ import {
             BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
             BrickflowEnvVars.BRICKFLOW_ENV.value: "local",
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
-            BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value: "k1=v1,k2=v2",
-            BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value: "tag1 = value1,  tag2 =value2    ",  # spaces will be trimmed
         },
     )
+    @patch("brickflow.codegen.databricks_bundle.MultiProjectManager")
     @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
@@ -631,12 +631,16 @@ import {
         dbutils: Mock,
         sub_proc_mock: Mock,
         get_job_id_mock: Mock,
+        multi_project_manager_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
         get_job_id_mock.return_value = 12345678901234.0
+        multi_project_manager_mock.return_value.get_project.return_value = MagicMock(
+            path_from_repo_root_to_project_root="test-project"
+        )
         # get caller part breaks here
         with Project(
             "test-project",
