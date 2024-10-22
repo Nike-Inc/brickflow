@@ -602,8 +602,11 @@ import {
             BrickflowEnvVars.BRICKFLOW_MODE.value: Stage.deploy.value,
             BrickflowEnvVars.BRICKFLOW_ENV.value: "local",
             BrickflowEnvVars.BRICKFLOW_DEPLOYMENT_MODE.value: BrickflowDeployMode.BUNDLE.value,
+            BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value: "k1=v1,k2=v2",
+            BrickflowEnvVars.BRICKFLOW_PROJECT_TAGS.value: "tag1 = value1,  tag2 =value2    ",  # spaces will be trimmed
         },
     )
+    @patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0)
     @patch("subprocess.check_output")
     @patch("brickflow.context.ctx.get_parameter")
     @patch("importlib.metadata.version")
@@ -616,11 +619,13 @@ import {
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
+        get_job_id_mock: Mock,
     ):
         dbutils.return_value = None
         sub_proc_mock.return_value = b""
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
+        get_job_id_mock.return_value = 12345678901234.0
         # get caller part breaks here
         with Project(
             "test-project",

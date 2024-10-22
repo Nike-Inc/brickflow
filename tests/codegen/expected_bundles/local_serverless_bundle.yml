@@ -31,6 +31,8 @@
             "deployed_at": "1704067200000"
             "deployed_by": "test_user"
             "environment": "local"
+            "tag1": "value1"
+            "tag2": "value2"
           "tasks":
           - "depends_on": []
             "email_notifications": {}
@@ -46,6 +48,7 @@
                 "brickflow_internal_workflow_suffix": ""
                 "brickflow_job_id": "{{job_id}}"
                 "brickflow_parent_run_id": "{{parent_run_id}}"
+                "brickflow_project_params": "k1=v1,k2=v2"
                 "brickflow_run_id": "{{run_id}}"
                 "brickflow_start_date": "{{start_date}}"
                 "brickflow_start_time": "{{start_time}}"
