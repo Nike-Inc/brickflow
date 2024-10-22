@@ -1,0 +1,92 @@
+"bundle":
+  "name": "test-project"
+"targets":
+  "test-project-local":
+    "resources":
+      "jobs":
+        "brickflow-serverless-demo":
+          "continuous": null
+          "email_notifications": null
+          "environments":
+          - "environment_key": "Default"
+            "spec":
+              "client": "1"
+              "dependencies":
+              - "pytz==2024.2"
+          "health": null
+          "job_clusters": []
+          "max_concurrent_runs": 1.0
+          "name": "test_user_brickflow-serverless-demo"
+          "notification_settings": null
+          "parameters": null
+          "permissions": null
+          "schedule":
+            "pause_status": "UNPAUSED"
+            "quartz_cron_expression": "0 0/20 0 ? * * *"
+            "timezone_id": "UTC"
+          "tags":
+            "brickflow_deployment_mode": "Databricks Asset Bundles"
+            "brickflow_project_name": "test-project"
+            "brickflow_version": "1.0.0"
+            "deployed_at": "1704067200000"
+            "deployed_by": "test_user"
+            "environment": "local"
+          "tasks":
+          - "depends_on": []
+            "email_notifications": {}
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "notebook_task":
+              "base_parameters":
+                "brickflow_env": "local"
+                "brickflow_internal_only_run_tasks": ""
+                "brickflow_internal_task_name": "{{task_key}}"
+                "brickflow_internal_workflow_name": "brickflow-serverless-demo"
+                "brickflow_internal_workflow_prefix": ""
+                "brickflow_internal_workflow_suffix": ""
+                "brickflow_job_id": "{{job_id}}"
+                "brickflow_parent_run_id": "{{parent_run_id}}"
+                "brickflow_run_id": "{{run_id}}"
+                "brickflow_start_date": "{{start_date}}"
+                "brickflow_start_time": "{{start_time}}"
+                "brickflow_task_key": "{{task_key}}"
+                "brickflow_task_retry_count": "{{task_retry_count}}"
+              "notebook_path": "test_databricks_serverless_bundle.py"
+              "source": "WORKSPACE"
+            "retry_on_timeout": null
+            "task_key": "entrypoint_task"
+            "timeout_seconds": null
+          - "depends_on": []
+            "email_notifications": {}
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "notebook_task":
+              "base_parameters":
+                "some_parameter": "some_value"
+              "notebook_path": "notebooks/example_notebook.py"
+            "retry_on_timeout": null
+            "task_key": "notebook_task"
+            "timeout_seconds": null
+          - "depends_on": []
+            "email_notifications": {}
+            "environment_key": "Default"
+            "max_retries": null
+            "min_retry_interval_millis": null
+            "retry_on_timeout": null
+            "spark_python_task":
+              "parameters":
+              - "--timezone"
+              - "UTC"
+              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/src/python/example.py"
+              "source": "WORKSPACE"
+            "task_key": "spark_python_task"
+            "timeout_seconds": null
+          "timeout_seconds": null
+          "trigger": null
+          "webhook_notifications": null
+      "pipelines": {}
+    "workspace":
+      "file_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files"
+      "root_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local"
+      "state_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/state"
+"workspace": {}

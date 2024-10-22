@@ -1,0 +1,4 @@
+project_roots:
+  brickflow-serverless-demo:
+    root_yaml_rel_path: .
+version: v1
