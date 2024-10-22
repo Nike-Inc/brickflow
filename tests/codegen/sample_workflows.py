@@ -174,6 +174,41 @@ def condtion_task_test() -> any:
     )
 
 
+@wf.if_else_condition_task(depends_on=[sample_sql_task_query])
+def condition_task_test2() -> any:
+    return IfElseConditionTask(
+        left="1",
+        op="==",
+        right="1",
+    )
+
+
+@wf.spark_python_task(
+    libraries=[PypiTaskLibrary(package="koheesio")],
+    depends_on=[spark_python_task_a, condition_task_test2],
+    if_else_outcome={"condition_task_test2": "false"},
+)
+def spark_python_task_depended():
+    return SparkPythonTask(
+        python_file="./products/test-project/spark/python/src/run_task.py",
+        source="GIT",
+        parameters=["--param1", "World!"],
+    )  # type: ignore
+
+
+@wf.spark_python_task(
+    libraries=[PypiTaskLibrary(package="koheesio")],
+    depends_on=[condtion_task_test, condition_task_test2],
+    if_else_outcome={"condtion_task_test": "true", "condition_task_test2": "false"},
+)
+def spark_python_task_depended2():
+    return SparkPythonTask(
+        python_file="./products/test-project/spark/python/src/run_task.py",
+        source="GIT",
+        parameters=["--param1", "World!"],
+    )  # type: ignore
+
+
 @wf.dlt_task
 def dlt_pipeline():
     # pass
