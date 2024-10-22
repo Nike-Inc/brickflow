@@ -40,7 +40,7 @@ def assert_equal_dicts(actual: Dict[str, Any], expected: Dict[str, Any]):
         ignore_order=True,
     )
     print(diff)
-    # pylint indicates that empty dictionary is falsey
+    # pylint indicates that empty dictionary is false
     # diff should be empty dict
     assert not diff, diff
 
@@ -83,7 +83,7 @@ class TestServerlessBundleCodegen(TestCase):
         workspace_client = get_workspace_client_mock()
         # get caller part breaks here
         with Project(
-            "test-project",
+            "test-serverless-project",
             entry_point_path="test_databricks_serverless_bundle.py",
             codegen_kwargs={
                 "mutators": [

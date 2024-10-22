@@ -1,7 +1,7 @@
 "bundle":
-  "name": "test-project"
+  "name": "test-serverless-project"
 "targets":
-  "test-project-local":
+  "test-serverless-project-local":
     "resources":
       "jobs":
         "brickflow-serverless-demo":
@@ -26,7 +26,7 @@
             "timezone_id": "UTC"
           "tags":
             "brickflow_deployment_mode": "Databricks Asset Bundles"
-            "brickflow_project_name": "test-project"
+            "brickflow_project_name": "test-serverless-project"
             "brickflow_version": "1.0.0"
             "deployed_at": "1704067200000"
             "deployed_by": "test_user"
@@ -77,7 +77,7 @@
               "parameters":
               - "--timezone"
               - "UTC"
-              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/src/python/example.py"
+              "python_file": "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-serverless-project/local/files/src/python/example.py"
               "source": "WORKSPACE"
             "task_key": "spark_python_task"
             "timeout_seconds": null
@@ -86,7 +86,7 @@
           "webhook_notifications": null
       "pipelines": {}
     "workspace":
-      "file_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files"
-      "root_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local"
-      "state_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/state"
+      "file_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-serverless-project/local/files"
+      "root_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-serverless-project/local"
+      "state_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-serverless-project/local/state"
 "workspace": {}
