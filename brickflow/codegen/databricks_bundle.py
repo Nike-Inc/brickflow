@@ -931,10 +931,8 @@ class DatabricksBundleCodegen(CodegenInterface):
                 continuous=workflow.schedule_continuous,
                 parameters=workflow.parameters,
                 environments=workflow.environments,
+                git_source=git_conf,
             )
-            # Make sure that `git_source` is not included in the job definition, otherwise model validation will fail
-            if git_conf:
-                job.git_source = git_conf
 
             jobs[workflow_name] = job
 
@@ -1010,4 +1008,4 @@ class DatabricksBundleCodegen(CodegenInterface):
         yaml.add_representer(str, quoted_presenter)
 
         with open("bundle.yml", "w", encoding="utf-8") as f:
-            f.write(yaml.dump(bundle.dict(exclude_unset=True)))
+            f.write(yaml.dump(bundle.dict(exclude_unset=True, exclude_none=True)))
