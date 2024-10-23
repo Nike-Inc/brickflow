@@ -12,6 +12,9 @@ from brickflow.engine.task import (
     AnotherActiveTaskError,
     NoCallableTaskError,
     TaskNotFoundError,
+    PypiTaskLibrary,
+    WheelTaskLibrary,
+    JarTaskLibrary,
 )
 from brickflow.engine.workflow import (
     User,
@@ -338,3 +341,34 @@ class TestWorkflow:
                 assert t.name == run_job_task.__name__
                 assert t.task_func.__name__ == "run_job_func"
                 assert t.task_func() == "success"
+
+    def test_convert_libraries_to_environments(self):
+        wf_serverless = Workflow(
+            "test",
+            libraries=[
+                PypiTaskLibrary(package="foo"),
+                # PypiTaskLibrary(package="bar", repo="https://pypi.org/simple"),
+                WheelTaskLibrary(whl="dbfs:/mnt/lib/baz.whl"),
+                JarTaskLibrary(jar="dbfs:/mnt/lib/qux.jar"),
+            ],
+        )
+        expect = [
+            {
+                "environment_key": "Default",
+                "spec": {
+                    "client": "1",
+                    "dependencies": ["foo", "dbfs:/mnt/lib/baz.whl"],
+                },
+            }
+        ]
+        assert expect == wf_serverless.convert_libraries_to_environments
+
+    def test_convert_libraries_to_environments_with_repo_error(self):
+        with pytest.raises(WorkflowConfigError):
+            Workflow(
+                "test",
+                libraries=[
+                    PypiTaskLibrary(package="foo"),
+                    PypiTaskLibrary(package="bar", repo="https://pypi.org/simple"),
+                ],
+            )

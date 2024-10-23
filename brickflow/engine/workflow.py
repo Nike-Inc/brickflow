@@ -269,11 +269,19 @@ class Workflow:
         environments, dependencies = [], []
         for lib in self.libraries:
             if isinstance(lib, PypiTaskLibrary):
+                # pylint: disable=no-else-raise
                 if lib.repo:
+                    # TODO: update to new Databricks CLI and remove WorkflowConfigError (see below)
                     dependencies.append(
-                        lib.repo
-                    )  # TODO: check if `--extra-index-url` is needed
-                dependencies.append(lib.package)
+                        f"--extra-index-url {lib.repo.strip()} {lib.package}"
+                    )
+                    raise WorkflowConfigError(
+                        "Custom repositories are not supported for serverless workloads, due to Databricks CLI "
+                        "limitations. Refer to https://github.com/databricks/cli/pull/1842"
+                        "This will be fixed in the future releases, use wheel instead."
+                    )
+                else:
+                    dependencies.append(lib.package)
             elif isinstance(lib, WheelTaskLibrary):
                 dependencies.append(lib.whl)
             else:

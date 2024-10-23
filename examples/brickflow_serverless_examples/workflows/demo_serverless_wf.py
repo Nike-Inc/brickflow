@@ -8,7 +8,14 @@ from brickflow.engine.task import PypiTaskLibrary
 wf = Workflow(
     "brickflow-serverless-demo",
     schedule_quartz_expression="0 0/20 0 ? * * *",
-    libraries=[PypiTaskLibrary(package="pytz==2024.2")],
+    libraries=[
+        PypiTaskLibrary(package="pytz==2024.2"),
+        #  Custom repositories are not supported for serverless workloads, due to Databricks CLI limitations.
+        #  Refer to: https://github.com/databricks/cli/pull/1842This will be fixed in the future releases, use wheel instead.
+        # PypiTaskLibrary(
+        #     package="my-lib==1.2.3", repo="https://artifactory.my-org.com/api/pypi/python-virtual/simple"
+        # ),
+    ],
 )
 
 
