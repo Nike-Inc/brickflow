@@ -85,6 +85,45 @@ def wait_on_workflow(*args):
     sensor.execute()
 ```
 
+## How do I monitor the SLA on a workflow?
+
+```python
+from brickflow.context import ctx
+from brickflow_plugins import SLASensor
+from datetime import datetime, timezone
+
+wf = Workflow(...)
+
+@wf.task
+def sla_sensor(*args):
+    api_token_key = ctx.dbutils.secrets.get("scope", "api_token_key")
+    sensor = SLASensor(
+        expected_sla_timestamp=datetime(2024, 1, 1, 10, 0, 0, tzinfo=pytz.utc),
+        monitored_task_name="end",
+        env="dev",
+        data_product="product_name",
+        run_date="2024-01-01",
+        sla_sensor_task_names=["sla_sensor"],
+        dependency_job_name="target_job_name",
+        databricks_host="https://your_workspace_url.cloud.databricks.com",
+        databricks_token=api_token_key,
+        custom_description="message to provide additional context",
+        slack_webhook_url="https://hooks.slack.com/your/webhook/url",
+        email_params={
+            "email_list": "recipient_1@email.com,recipient_2@email.com",
+            "sender_address": "sender@email.com",
+            "cc": "cc_1@email.com,cc_2@email.com",
+            "port": 25,
+            "host": "your.email.host"
+        },
+        timeout_seconds=120
+    )
+
+    # returns {"sla_alert_fired": True | False}
+    response = sensor.monitor()
+
+```
+
 ## How do I run a sql query on snowflake from DBX?
 ```python
 from brickflow_plugins import SnowflakeOperator
