@@ -102,7 +102,10 @@ def create_entry_point(working_dir: str, data: str) -> None:
 
 
 def create_brickflow_project_root_marker() -> None:
-    path = Path(BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value)
+    path = Path(
+        f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value}."
+        f"{BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE.value}"
+    )
     if path.exists():
         click.echo(f"Path: {str(path.absolute())} already exists...")
         # path = Path(working_dir) / "entrypoint.py.new"

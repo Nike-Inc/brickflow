@@ -1,6 +1,5 @@
 import contextlib
 import os
-from enum import Enum
 from pathlib import Path
 from typing import Dict, Optional, List, Generator, Any, Callable
 
@@ -15,6 +14,8 @@ from brickflow import (
     _ilog,
     BrickflowProjectDeploymentSettings,
     ctx,
+    ConfigFileType,
+    get_config_file_type,
 )
 from brickflow.cli.bundles import (
     bundle_deploy,
@@ -83,11 +84,6 @@ class BrickflowMultiRootProjectConfig(BaseModel):
         return self.project_roots is not None and len(self.project_roots) > 0
 
 
-class ConfigFileType(Enum):
-    YAML = "yaml"
-    JSON = "json"  # unsupported
-
-
 class MultiProjectManager:
     def __init__(
         self,
@@ -95,7 +91,7 @@ class MultiProjectManager:
         file_type: ConfigFileType = ConfigFileType.YAML,
     ) -> None:
         self.file_type = file_type
-        self._config_file: Path = Path(config_file_name)
+        self._config_file: Path = Path(f"{config_file_name}.{file_type.value}")
         self._brickflow_multi_project_config: BrickflowMultiRootProjectConfig
         self._brickflow_multi_project_config = (
             self._load_config()
@@ -127,7 +123,10 @@ class MultiProjectManager:
             return BrickflowMultiRootProjectConfig(project_roots={})
 
     def _root_config_path(self, root: str) -> Path:
-        root_file = BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value
+        root_file = (
+            f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value}."
+            f"{BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE.value}"
+        )
         return self._config_file.parent / root / root_file
 
     def _load_roots(self) -> Dict[str, BrickflowRootProjectConfig]:
@@ -233,22 +232,32 @@ class BrickflowRootNotFound(Exception):
 
 def get_brickflow_root(current_path: Optional[Path] = None) -> Path:
     current_dir = Path(current_path or get_notebook_ws_path(ctx.dbutils) or os.getcwd())
-    potential_config_file_path = (
-        current_dir
-        / BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value
-    )
-    if potential_config_file_path.exists():
-        return potential_config_file_path
-    elif current_dir.parent == current_dir:
+
+    potential_config_files = [
+        f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value}.{cfg_type.value}"
+        for cfg_type in ConfigFileType
+    ]
+    potential_config_file_paths = [current_dir / p for p in potential_config_files]
+
+    for potential_config_file_path in potential_config_file_paths:
+        if potential_config_file_path.exists():
+            return potential_config_file_path
+
+    if current_dir.parent == current_dir:
         # Reached the filesystem root, return just raw file value
         return Path(
-            BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value
+            f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value}."
+            f"{BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE.value}"
         )
     else:
         return get_brickflow_root(current_dir.parent)
 
 
-multi_project_manager = MultiProjectManager(config_file_name=str(get_brickflow_root()))
+brickflow_root_path = get_brickflow_root()
+config_file_type = get_config_file_type(str(brickflow_root_path))
+multi_project_manager = MultiProjectManager(
+    config_file_name=str(brickflow_root_path), file_type=config_file_type
+)
 
 
 def initialize_project_entrypoint(

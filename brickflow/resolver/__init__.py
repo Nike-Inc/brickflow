@@ -37,8 +37,10 @@ def go_up_till_brickflow_root(cur_path: str) -> str:
     path = pathlib.Path(cur_path).resolve()
 
     valid_roots = [
-        BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value,
-        BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value,
+        f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value}."
+        f"{BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE.value}",
+        f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value}."
+        f"{BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE.value}",
     ]
 
     # recurse to see if there is a brickflow root and return the path
