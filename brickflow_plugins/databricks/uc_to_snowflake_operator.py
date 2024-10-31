@@ -514,7 +514,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         if self.authenticator is not None:
             sf_options["sfAuthenticator"] = self.authenticator
         self.log.info("snowflake package and options defined...!!!")
-        if len(source_df.take(1)) == 0:
+        if source_df.isEmpty():
             self.write_mode = "Append"
         if len(self.sf_cluster_keys) == 0:
             # Without order by clause compared to above
