@@ -20,10 +20,22 @@ class SLASensorTimeoutException(TimeoutError):
     pass
 
 
+class SLASensorException(Exception):
+    pass
+
+
 class SLASensor(WorkflowTaskDependencySensor):
+    # TODO: implement function report_sla_miss() that records the workflow metadata and the sla miss for reporting purposes
     """
     A special case of a WorkflowTaskDependencySensor that monitors a workflow's end task and expected completion time in UTC.
-    Alerts specified users if end time is beyond expected_sla_timestamp_utc.
+    Alerts specified users if end time is beyond `expected_sla_timestamp_utc`.
+
+    Two options to provide an SLA:
+        1. pass a datetime object with utc timezone specification as `expected_sla_timestamp_utc`
+            * `expected_sla_timestamp_utc` must be passed as a datetime object in UTC. it will not be converted.
+        2. tag the workflow with a key-value tag. pass the key to `sla_tag_key` and ensure that the value ENDS with a 5-place quartz cron expression (e.g. 0 10 @ @ @)
+
+        If both options are provided, the sensor will default to using the datetime object in `expected_sla_timestamp_utc`
 
     This task should not be a dependency of the workflow it's monitoring. It should run concurrently with tasks in the monitored workflow:
 
@@ -31,12 +43,8 @@ class SLASensor(WorkflowTaskDependencySensor):
 
         start -> task_1 -> task_2 -> end
 
-    expected_sla_timestamp_utc must be passed as a datetime object in UTC. it will not be converted.
-
     Parameters
         ----------
-        expected_sla_timestamp_utc : datetime
-                time workflow is expected to have been completed. datetime object with UTC timezone
     monitored_task_name : str
                 final task of target workflow
     env : str
@@ -44,9 +52,15 @@ class SLASensor(WorkflowTaskDependencySensor):
     data_product : str
             name of data product
     run_date : str
-                date that sensor is running for alert
+            date that sensor is running for alert
     sla_sensor_task_names : List[str]
         name of tasks with SLASensor, to omit from reporting running tasks
+    sla_tag_key : str
+        key for tag that contains a quartz cron schedule indicating SLA time
+        defaults to None
+    expected_sla_timestamp_utc : datetime
+        time workflow is expected to have been completed. datetime object with UTC timezone
+        defaults to None
     dependency_job_name : str
         name of the databricks job the sensor is monitoring.  can be current workflow or other
         databricks_host : str
@@ -114,13 +128,14 @@ class SLASensor(WorkflowTaskDependencySensor):
 
     def __init__(
         self,
-        expected_sla_timestamp_utc: datetime,
         monitored_task_name: str,
         env: str,
         data_product: str,
         run_date: str,
         sla_sensor_task_names: List[str],
-        dependency_job_name: str = None,
+        dependency_job_name: str,
+        sla_tag_key: str = None,
+        expected_sla_timestamp_utc: datetime = None,
         databricks_host: str = None,
         databricks_token: Union[str, SecretStr] = None,
         poke_interval_seconds: int = 60,
@@ -131,24 +146,6 @@ class SLASensor(WorkflowTaskDependencySensor):
     ):
         self.start_time = time.time()
 
-        self.expected_sla_timestamp_utc = expected_sla_timestamp_utc
-
-        # check the timezone of provided timestamp
-        if self.expected_sla_timestamp_utc.tzinfo is None:
-            warn(
-                "The provided expected_sla_timestamp_utc datetime object does not have any timezone information. It will be assumed to be UTC. If this is not the case, please add timezone information to your datetime object",
-                RuntimeWarning,
-                stacklevel=2,
-            )
-
-        self.monitored_task_name = monitored_task_name
-        self.dependency_job_name = dependency_job_name
-        self.sla_sensor_task_names = sla_sensor_task_names
-        self.env = env
-        self.data_product = data_product
-        self.run_date = run_date
-        self.sla_missed = False
-
         super().__init__(
             dependency_job_name=dependency_job_name,
             dependency_task_name=monitored_task_name,
@@ -158,6 +155,48 @@ class SLASensor(WorkflowTaskDependencySensor):
             databricks_token=databricks_token,
             poke_interval_seconds=poke_interval_seconds,
         )
+
+        self.dependency_job_id = self._get_job_id
+        self.monitored_task_name = monitored_task_name
+        self.dependency_job_name = dependency_job_name
+        self.databricks_host = databricks_host
+        self.databricks_token = databricks_token
+        self.sla_sensor_task_names = sla_sensor_task_names
+        self.env = env
+        self.data_product = data_product
+        self.run_date = run_date
+        self.sla_missed = False
+
+        if sla_tag_key is None and expected_sla_timestamp_utc is None:
+            raise SLASensorException(
+                "No SLA provided. Either provide a tag with a cron expression in sla_tag or a datetime object in expected_sla_timestamp_utc"
+            )
+
+        if expected_sla_timestamp_utc:
+            if expected_sla_timestamp_utc.tzinfo is None:
+                warn(
+                    "The provided expected_sla_timestamp_utc datetime object does not have any timezone information. It will be assumed to be UTC. If this is not the case, please add timezone information to your datetime object",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+
+            self.log.info(
+                f"Datetime object provided for SLA: {str(expected_sla_timestamp_utc)}"
+            )
+            self.expected_sla_timestamp_utc = expected_sla_timestamp_utc
+        else:
+            self.log.info(
+                f"Retrieving expected SLA time from provided workflow tag: {sla_tag_key}"
+            )
+            self.expected_sla_timestamp_utc = self.parse_tagged_sla(sla_tag_key)
+
+        # check the timezone of provided timestamp
+        if self.expected_sla_timestamp_utc.tzinfo is None:
+            warn(
+                "The provided expected_sla_timestamp_utc datetime object does not have any timezone information. It will be assumed to be UTC. If this is not the case, please add timezone information to your datetime object",
+                RuntimeWarning,
+                stacklevel=2,
+            )
 
         self.log.info(f"Retrieving an active run id for: {self.dependency_job_name}")
         self.timeout = (
@@ -199,6 +238,43 @@ class SLASensor(WorkflowTaskDependencySensor):
         self.custom_description = (
             custom_description if custom_description is not None else "SLA Missed"
         )
+
+    def get_job_configuration(self):
+        try:
+            return self._workspace_obj.jobs.get(job_id=self.dependency_job_id)
+        except SLASensorException as e:
+            self.log.error(f"Error retrieving job configuration: {e}")
+
+    def parse_tagged_sla(self, sla_tag_key):
+        """
+        Accepts a tag key to retrieve from job settings.
+        Assumes it ends with a 5-place quartz cron expression and extracts the time only (first 2 positions)
+        Must be a fixed time.
+        Returns a datetime object using the extracted time and the current date.
+        """
+        job = self.get_job_configuration()
+
+        try:
+            tag_value = job.settings.tags[sla_tag_key]
+        except:
+            raise SLASensorException(
+                f"Workflow tag {sla_tag_key} returns None. Cannot create an SLA timestamp. Please ensure this tag key has been added to your workflow"
+            )
+
+        cron_expression = tag_value.rstrip().split(" ")[
+            -5:
+        ]  # remove any inadvertent right side whitespace
+
+        try:
+            minute = int(cron_expression[0])
+            hour = int(cron_expression[1])
+            sla_datetime = datetime.now(timezone.utc).replace(
+                hour=hour, minute=minute, second=0, microsecond=0
+            )
+            self.log.info(f"SLA read from {sla_tag_key}: {str(sla_datetime)}")
+            return sla_datetime
+        except ValueError as ve:
+            self.log.error(f"Error converting SLA time fields to datetime object: {ve}")
 
     def construct_email(
         self,
@@ -335,9 +411,8 @@ class SLASensor(WorkflowTaskDependencySensor):
         Get the unix timestamp of the current job given the job run id
         """
         if self.run_id is None:
-            raise WorkflowDependencySensorException(
-                "run_id is empty, brickflow_parent_run_id parameter is not found "
-                "or no value present"
+            raise SLASensorException(
+                "run_id is empty, job with provided name was not found"
             )
 
         run = self._workspace_obj.jobs.get_run(run_id=self.run_id)
@@ -350,7 +425,6 @@ class SLASensor(WorkflowTaskDependencySensor):
     def get_target_run_id(self, run_date, dependency_job_name):
         """
         Looks for an actively running job for a given workflow on a given run_date.
-        Used when SLASensor is in a separate workflow from target
         """
         while True:
             jobs = self._workspace_obj.jobs.list(name=dependency_job_name)
@@ -447,8 +521,7 @@ class SLASensor(WorkflowTaskDependencySensor):
 
                         self.send_email_alert(email_content)
                         self.log.info("Email sent successfully")
-                    except Exception as e:
-                        # TODO: more specific exception
+                    except SLASensorException as e:
                         self.log.info(
                             f"Problem sending notification email: {e}\nReview your email parameters: {self.email_params}"
                         )
@@ -468,15 +541,14 @@ class SLASensor(WorkflowTaskDependencySensor):
                             self.running_tasks,
                         )
                         self.log.info("Slack message sent successfully")
-                    except Exception as e:
-                        # TODO: more specific exception
+                    except SLASensorException as e:
                         self.log.info(
                             f"Problem sending slack message: {e}\nCheck your slack configuration for webhook: {self.slack_webhook_url}"
                         )
 
             if self.sla_missed:
                 self.log.info("SLA Alert has fired. Finishing task.")
-                return {"sla_alert_fired": self.sla_missed}
+                return "SLA Missed"
 
             """
             SLA alert has not fired. Check for task completion
@@ -498,13 +570,13 @@ class SLASensor(WorkflowTaskDependencySensor):
                                 f"Monitored task {self.monitored_task_name} for SLA sensor found in {task_state.value} state\n"
                                 f"Workflow has completed at {str(datetime.now(timezone.utc))} UTC"
                             )
-                            return {"sla_alert_fired": self.sla_missed}
+                            return "SLA Missed" if self.sla_missed else "SLA Met"
                         else:
                             self.log.info(
                                 f"Monitored task {self.monitored_task_name} for SLA sensor found in {task_state.value} state\n"
                                 f"Workflow is no longer running as of {str(datetime.now(timezone.utc))} UTC"
                             )
-                            return {"sla_alert_fired": self.sla_missed}
+                            return "SLA Missed" if self.sla_missed else "SLA Met"
 
             self.log.info("Monitored task is still running...")
 
