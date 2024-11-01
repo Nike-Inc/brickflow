@@ -540,16 +540,25 @@ class DatabricksBundleCodegen(CodegenInterface):
                 f"Make sure {task_name} returns a NotebookTask object."
             ) from e
 
-        return JobsTasks(
+        jt = JobsTasks(
             **task_settings.to_tf_dict(),
             notebook_task=notebook_task,
-            libraries=task_libraries,
             depends_on=depends_on,
             task_key=task_name,
             # unpack dictionary provided by cluster object, will either be key or
-            # existing cluster id
-            **task.cluster.job_task_field_dict,
+            # existing cluster id, if cluster object is empty, Databricks will use serverless compute
+            **(task.cluster.job_task_field_dict if task.cluster else {}),
         )
+
+        # Do not configure Notebook dependencies for Serverless clusters
+        if task.cluster:
+            jt.libraries = task_libraries
+        else:
+            _ilog.warning(
+                "Library definitions are not compatible with Serverless executions. "
+                "Use '%pip install' directly in the notebook instead."
+            )
+        return jt
 
     def _build_native_spark_jar_task(
         self,
@@ -614,16 +623,24 @@ class DatabricksBundleCodegen(CodegenInterface):
                     spark_python_task.parameters.append(k)
                     spark_python_task.parameters.append(v)
 
-        return JobsTasks(
+        jt = JobsTasks(
             **task_settings.to_tf_dict(),
             spark_python_task=spark_python_task,
-            libraries=task_libraries,
             depends_on=depends_on,
             task_key=task_name,
             # unpack dictionary provided by cluster object, will either be key or
-            # existing cluster id
-            **task.cluster.job_task_field_dict,
+            # existing cluster id, if cluster object is empty, Databricks will use serverless compute
+            **(task.cluster.job_task_field_dict if task.cluster else {}),
         )
+
+        if task.cluster:
+            jt.libraries = task_libraries
+        else:
+            jt.environment_key = (
+                "Default"  # TODO: make configurable from task definition
+            )
+
+        return jt
 
     def _build_native_run_job_task(
         self,
@@ -744,13 +761,21 @@ class DatabricksBundleCodegen(CodegenInterface):
                 task.databricks_task_type_str: self.task_to_task_obj(task),
                 **task_settings.to_tf_dict(),
             },  # type: ignore
-            libraries=task_libraries,
             depends_on=depends_on,
             task_key=task_name,
             # unpack dictionary provided by cluster object, will either be key or
-            # existing cluster id
-            **task.cluster.job_task_field_dict,
+            # existing cluster id, if cluster object is empty, Databricks will use serverless compute
+            **(task.cluster.job_task_field_dict if task.cluster else {}),
         )
+
+        # Do not configure Notebook dependencies for Serverless clusters
+        if task.cluster:
+            task_obj.libraries = task_libraries
+        else:
+            _ilog.warning(
+                "Library definitions are not compatible with Serverless executions. "
+                "Use '%pip install' directly in the 'entrypoint.py' instead."
+            )
         return task_obj
 
     def workflow_obj_to_tasks(
@@ -889,7 +914,6 @@ class DatabricksBundleCodegen(CodegenInterface):
             job = Jobs(
                 name=workflow_name,
                 tasks=tasks,
-                git_source=git_conf,
                 tags=workflow.tags,
                 health=workflow.health,
                 job_clusters=[JobsJobClusters(**c) for c in workflow_clusters],
@@ -906,7 +930,10 @@ class DatabricksBundleCodegen(CodegenInterface):
                 trigger=workflow.trigger,
                 continuous=workflow.schedule_continuous,
                 parameters=workflow.parameters,
+                environments=workflow.environments,
+                git_source=git_conf,
             )
+
             jobs[workflow_name] = job
 
             pipelines.update(self.workflow_obj_to_pipelines(workflow))
@@ -981,4 +1008,4 @@ class DatabricksBundleCodegen(CodegenInterface):
         yaml.add_representer(str, quoted_presenter)
 
         with open("bundle.yml", "w", encoding="utf-8") as f:
-            f.write(yaml.dump(bundle.dict(exclude_unset=True)))
+            f.write(yaml.dump(bundle.dict(exclude_unset=True, exclude_none=True)))

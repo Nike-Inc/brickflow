@@ -135,4 +135,5 @@ follow_imports = "skip"
     [tool.pylint.'MESSAGES CONTROL']
     disable = """
     django-not-configured,
+    too-many-lines
     """

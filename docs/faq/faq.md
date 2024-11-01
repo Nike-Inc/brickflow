@@ -194,3 +194,43 @@ def copy_from_volumnes_to_box(*args):
   )
   volumnes_to_box_copy.execute()
 ```
+
+## How do I use serverless compute for my tasks?
+Serverless compute is supported for: Brickflow entrypoint task, Notebook task and Python task.
+1. Remove `default_cluster` configuration from the workflow and tasks.
+2. Configure dependencies:
+      - For Brickflow entrypoint task use MAGIC commands by adding the below to the top of the notebook:
+       
+        ```python
+           # Databricks notebook source
+           # `brickflows` dependency is mandatory!
+           # It should always point to the `brickflows` version with serverless support or the wheel file with the same
+           # MAGIC %pip install brickflows==x.x.x
+           # MAGIC %pip install my-dependency==x.x.x
+           # MAGIC %restart_python
+
+           # COMMAND ----------
+        ```
+        
+      - For Notebook task use the MAGIC commands, but `brickflows` dependency is not required:
+           ```python
+           # Databricks notebook source
+           # MAGIC %pip install my-dependency==x.x.x
+           # MAGIC %restart_python
+
+           # COMMAND ----------
+        ```
+     
+      - For Python set the dependencies as usual on workflow level::
+        ```python
+         wf = Workflow(
+             "brickflow-serverless-demo",
+             schedule_quartz_expression="0 0/20 0 ? * * *",
+             libraries=[
+                 PypiTaskLibrary(package="my-package==x.x.x"),
+                 WheelTaskLibrary(whl="/path/to/wheel.whl")
+             ],
+         )
+        ```
+
+Refer to the full workflow example in `/examples/brickflow_serverless_examples` folder.

@@ -15,6 +15,7 @@ from brickflow.bundles.model import (
     JobsParameters,
     JobsTrigger,
     JobsWebhookNotifications,
+    JobsEnvironments,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -29,6 +30,8 @@ from brickflow.engine.task import (
     TaskNotFoundError,
     TaskSettings,
     TaskType,
+    PypiTaskLibrary,
+    WheelTaskLibrary,
 )
 from brickflow.engine.utils import wraps_keyerror
 
@@ -144,14 +147,18 @@ class Workflow:
     max_tasks_in_workflow: int = 100
     enable_plugins: Optional[bool] = None
     parameters: Optional[List[JobsParameters]] = None
+    # environments should be defined for serverless workloads
+    environments: Optional[List[JobsEnvironments]] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
         if self.default_cluster is None and self.clusters == []:
-            raise NoWorkflowComputeError(
-                f"Please configure default_cluster or "
-                f"clusters field for workflow: {self.name}"
+            logging.info(
+                "Default cluster details are not provided, switching to serverless compute."
             )
+            self.environments = self.convert_libraries_to_environments
+            logging.debug(self.environments)
+
         if self.prefix is None:
             self.prefix = env_chain(
                 BrickflowEnvVars.BRICKFLOW_WORKFLOW_PREFIX.value,
@@ -164,7 +171,7 @@ class Workflow:
                 BrickflowInternalVariables.workflow_suffix.value,
                 "",
             )
-        if self.default_cluster is None:
+        if self.default_cluster is None and self.clusters:
             # the default cluster is set to the first cluster if it is not configured
             self.default_cluster = self.clusters[0]
 
@@ -255,6 +262,45 @@ class Workflow:
                 )
 
     @property
+    def convert_libraries_to_environments(self) -> List[Dict[Any, Any]]:
+        logging.info(
+            "Serverless workload detected, library dependencies will be converted to 'environments'!"
+        )
+        environments, dependencies = [], []
+        for lib in self.libraries:
+            if isinstance(lib, PypiTaskLibrary):
+                # pylint: disable=no-else-raise
+                if lib.repo:
+                    # TODO: update to new Databricks CLI and remove WorkflowConfigError (see below)
+                    dependencies.append(
+                        f"--extra-index-url {lib.repo.strip()} {lib.package}"
+                    )
+                    raise WorkflowConfigError(
+                        "Custom repositories are not supported for serverless workloads, due to Databricks CLI "
+                        "limitations. Refer to https://github.com/databricks/cli/pull/1842"
+                        "This will be fixed in the future releases, use wheel instead."
+                    )
+                else:
+                    dependencies.append(lib.package)
+            elif isinstance(lib, WheelTaskLibrary):
+                dependencies.append(lib.whl)
+            else:
+                logging.info(
+                    "Serverless workload type only compatible with PyPi and Whl dependencies, skipping %s",
+                    lib,
+                )
+        environments.append(
+            {
+                "environment_key": "Default",
+                "spec": {
+                    "client": "1",
+                    "dependencies": dependencies,
+                },
+            }
+        )
+        return environments
+
+    @property
     def bfs_layers(self) -> List[str]:
         return list(nx.bfs_layers(self.graph, ROOT_NODE))[1:]
 
@@ -339,8 +385,8 @@ class Workflow:
             )
 
         if self.default_cluster is None:
-            raise RuntimeError(
-                "Some how default cluster wasnt set please raise a github issue."
+            logging.info(
+                "Default cluster details are not provided, switching to serverless compute."
             )
 
         if self.log_timeout_warning(task_settings):  # type: ignore
