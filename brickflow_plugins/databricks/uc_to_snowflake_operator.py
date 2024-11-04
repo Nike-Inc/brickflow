@@ -378,7 +378,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
 
     def get_sf_postgrants(self):
         post_grantee_roles = (
-            self.parameters["sf_grantee_roles"].split(',')
+            [role.strip() for role in self.parameters["sf_grantee_roles"].split(',')]
             if "sf_grantee_roles" in self.parameters.keys()
             else [self.role]
         )
@@ -388,7 +388,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
             query = """GRANT SELECT ON TABLE {sfDatabase}.{sfSchema}.{sfTable} TO ROLE {sfGrantee_role}; """.format(
                 sfSchema=self.parameters["sf_schema"],
                 sfTable=self.parameters["sf_table"],
-                sfGrantee_role=role.strip(),
+                sfGrantee_role=role,
                 sfDatabase=self.sf_database,
             )
             queries += query
