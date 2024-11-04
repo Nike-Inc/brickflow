@@ -88,8 +88,7 @@ class SLASensor(WorkflowTaskDependencySensor):
 
         Returns
         -------
-        dict with notification flag, True if alert fired, False if not
-    {sla_alert_fired: True | False}
+        str: "SLA Met" or "SLA Missed"
 
     Example Usage
     --------
