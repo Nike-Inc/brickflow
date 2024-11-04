@@ -76,6 +76,7 @@ class SnowflakeOperator:
         *args,
         **kwargs,
     ):
+        self.conn = None
         self.cur = None
         self.query = None
         self.sql_file = None
@@ -199,12 +200,12 @@ class SnowflakeOperator:
                     self.secret_scope
                 )
             )
-            con = self.get_snowflake_connection()
+            self.conn = self.get_snowflake_connection()
         except snowflake.connector.errors.ProgrammingError as e:
             raise ValueError(
                 "Error {0} ({1}): {2} ({3})".format(e.errno, e.sqlstate, e.msg, e.sfqid)
             )
-        self.cur = con.cursor()
+        self.cur = self.conn.cursor()
 
     def snowflake_query_exec(self, cur, database, query_string):
         """
@@ -264,10 +265,11 @@ class SnowflakeOperator:
         # Run the query against SnowFlake
         try:
             self.snowflake_query_exec(self.cur, self.database, self.query)
-        except:
-            self.log.error("failed to execute")
+        except Exception as e:
+            self.log.error(f"Failed to execute")
+            raise e
         finally:
-            self.cur.close()
+            self.conn.close()
             self.log.info("Closed connection")
 
 
