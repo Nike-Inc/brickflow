@@ -65,6 +65,7 @@ class SnowflakeOperator:
     query_string : Optional parameter with queries separeted by semicolon(;)
     sql_file : Optional parameter with file path (relative to brickflow project root) to .sql file
     parameters: optional parameter dictionary with key value pairs to substitute in the query
+    fail_on_error: Optional parameter to fail the task on error, defaults to True
     """
 
     def __init__(
@@ -73,6 +74,7 @@ class SnowflakeOperator:
         query_string=None,
         sql_file=None,
         parameters={},
+        fail_on_error=True,
         *args,
         **kwargs,
     ):
@@ -84,6 +86,7 @@ class SnowflakeOperator:
         self.log = log
         self.query = query_string
         self.parameters = parameters
+        self.fail_on_error = fail_on_error
         self.sql_file = sql_file
         self.brickflow_root = get_bf_project_root()
 
@@ -266,8 +269,9 @@ class SnowflakeOperator:
         try:
             self.snowflake_query_exec(self.cur, self.database, self.query)
         except Exception as e:
-            self.log.error(f"Failed to execute")
-            raise e
+            if self.fail_on_error:
+                raise e
+            self.log.exception(f"Failed to execute")
         finally:
             self.conn.close()
             self.log.info("Closed connection")
