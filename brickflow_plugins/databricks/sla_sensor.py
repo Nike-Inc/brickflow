@@ -1,5 +1,5 @@
-from pydantic import SecretStr
-from typing import Union, List
+from pydantic import SecretStr, BaseModel, ValidationError
+from typing import Union, List, Optional
 from datetime import timedelta, datetime, timezone
 from warnings import warn
 from textwrap import dedent
@@ -14,6 +14,14 @@ from brickflow_plugins.databricks.workflow_dependency_sensor import (
     WorkflowTaskDependencySensor,
     WorkflowDependencySensorException,
 )
+
+
+class EmailParams(BaseModel):
+    email_list: str
+    sender_address: str
+    port: int
+    host: str
+    cc: Optional[str] = ""
 
 
 class SLASensorTimeoutException(TimeoutError):
@@ -79,7 +87,7 @@ class SLASensor(WorkflowTaskDependencySensor):
         parameters to send emails:
             email_list : comma delimited string of email recipients
             sender_address : email of sender
-            cc : comma delimited string of recipients to cc
+            cc : comma delimited string of recipients to cc (optional)
             port : integer port number
             host : email host url
     timeout_seconds : int
@@ -218,13 +226,16 @@ class SLASensor(WorkflowTaskDependencySensor):
         self.slack_webhook_url = slack_webhook_url
 
         # email configuration
-        self.email_params = email_params
-        if self.email_params:
-            self.alert_email_list = email_params["email_list"]
-            self.sender = email_params["sender_address"]
-            self.cc = email_params["cc"]
-            self.email_port = email_params["port"]
-            self.email_host = email_params["host"]
+        if email_params:
+            try:
+                self.email_params = EmailParams(**email_params)
+                self.alert_email_list = self.email_params.email_list
+                self.sender = self.email_params.sender_address
+                self.cc = self.email_params.cc
+                self.email_port = self.email_params.port
+                self.email_host = self.email_params.host
+            except ValidationError as e:
+                self.log.error(f"Error with email_params: {e}")
 
         # warn if no alert destinations provided. sensor will work, will not have any alert sent.
         if not (self.slack_webhook_url or self.email_params):
