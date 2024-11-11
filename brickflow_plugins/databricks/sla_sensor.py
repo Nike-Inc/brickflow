@@ -236,6 +236,8 @@ class SLASensor(WorkflowTaskDependencySensor):
                 self.email_host = self.email_params.host
             except ValidationError as e:
                 self.log.error(f"Error with email_params: {e}")
+        else:
+            self.email_params = email_params  # will be None
 
         # warn if no alert destinations provided. sensor will work, will not have any alert sent.
         if not (self.slack_webhook_url or self.email_params):
