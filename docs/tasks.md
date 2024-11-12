@@ -697,22 +697,24 @@ def wait_on_workflow(*args):
 
 #### Snowflake Operator
 
-run snowflake queries from the databricks environment
+Run snowflake queries from the databricks environment
 
 As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys
-&emsp;&emsp;&emsp;&emsp;username : user id created for connecting to snowflake for ex: sample_user  
-&emsp;&emsp;&emsp;&emsp;password : password information for about user for ex: P@$$word  
-&emsp;&emsp;&emsp;&emsp;account  : snowflake account information, not entire url for ex: sample_enterprise  
-&emsp;&emsp;&emsp;&emsp;warehouse: warehouse/cluster information that user has access for ex: sample_warehouse  
-&emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
-&emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
+
+- `username` : user id created for connecting to snowflake for ex: sample_user  
+- `password` : password information for about user for ex: P@$$word  
+- `account`  : snowflake account information, not entire url for ex: sample_enterprise  
+- `warehouse`: warehouse/cluster information that user has access for ex: sample_warehouse  
+- `database` : default database that we want to connect for ex: sample_database  
+- `role`     : role to which the user has write access for ex: sample_write_role
 
 SnowflakeOperator can accept the following as inputs
 
-&emsp;&emsp;&emsp;&emsp;secret_scope (required) : databricks secret scope identifier
-&emsp;&emsp;&emsp;&emsp;query_string (required) : queries separated by semicolon
-&emsp;&emsp;&emsp;&emsp;sql_file (optional) : path to the sql file
-&emsp;&emsp;&emsp;&emsp;parameters (optional) : dictionary with variables that can be used to substitute in queries
+- `secret_scope` : **(required)** databricks secret scope identifier
+- `query_string` : **(required)** queries separated by semicolon
+- `sql_file` : (optional) path to the sql file
+- `parameters` : (optional) dictionary with variables that can be used to substitute in queries
+- `fail_on_error` : (optional) bool to fail the task if there is a sql error, default is True
 
 Operator only takes one of either query_string or sql_file needs to be passed
 
@@ -726,7 +728,8 @@ def run_snowflake_queries(*args):
   sf_query_run = SnowflakeOperator(
     secret_scope = "your_databricks secrets scope name",
     query_string ="select * from database.$schema.$table where $filter_condition1; select * from sample_schema.test_table",
-    parameters = {"schema":"test_schema","table":"sample_table","filter_condition":"col='something'"}
+    parameters = {"schema":"test_schema","table":"sample_table","filter_condition":"col='something'"},
+    fail_on_error=True,
   )
   sf_query_run.execute()
 

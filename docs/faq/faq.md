@@ -96,7 +96,8 @@ def run_snowflake_queries(*args):
   sf_query_run = SnowflakeOperator(
     secret_scope = "your_databricks secrets scope name",
     query_string = "string of queries separated by semicolon(;)",
-    parameters={"key1":"value1", "key2":"value2"}
+    parameters={"key1":"value1", "key2":"value2"},
+    fail_on_error=True,
   )
   sf_query_run.execute()
 ```
