@@ -317,6 +317,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     sf_database (optional): database name in snowflake
     sf_schema   (required): snowflake schema in the database provided as part of scope
     sf_table    (required): name of the table in snowflake to which we want to append or overwrite
+    sf_grantee_roles (optional): downstream roles to which we want to grant access to the table, can be comma separated
     incremental_filter (optional): mandatory parameter for incremental load type to delete existing data in snowflake table
     dbx_data_filter (optional): parameter to filter databricks table if different from snowflake filter
     sf_cluster_keys (optional): list of keys to cluster the data in snowflake
@@ -376,17 +377,22 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         return queries
 
     def get_sf_postgrants(self):
-        post_grantee_role = (
-            self.parameters["sf_grantee_roles"]
+        post_grantee_roles = (
+            [role.strip() for role in self.parameters["sf_grantee_roles"].split(",")]
             if "sf_grantee_roles" in self.parameters.keys()
-            else self.role
+            else [self.role]
         )
-        queries = """ GRANT SELECT ON TABLE {sfDatabase}.{sfSchema}.{sfTable} TO ROLE {sfGrantee_roles};""".format(
-            sfSchema=self.parameters["sf_schema"],
-            sfTable=self.parameters["sf_table"],
-            sfGrantee_roles=post_grantee_role,
-            sfDatabase=self.sf_database,
-        )
+
+        queries = ""
+        for role in post_grantee_roles:
+            query = """GRANT SELECT ON TABLE {sfDatabase}.{sfSchema}.{sfTable} TO ROLE {sfGrantee_role}; """.format(
+                sfSchema=self.parameters["sf_schema"],
+                sfTable=self.parameters["sf_table"],
+                sfGrantee_role=role,
+                sfDatabase=self.sf_database,
+            )
+            queries += query
+        queries = queries.strip()
         return queries
 
     def validate_input_params(self):
@@ -508,7 +514,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         if self.authenticator is not None:
             sf_options["sfAuthenticator"] = self.authenticator
         self.log.info("snowflake package and options defined...!!!")
-        if len(source_df.take(1)) == 0:
+        if source_df.isEmpty():
             self.write_mode = "Append"
         if len(self.sf_cluster_keys) == 0:
             # Without order by clause compared to above
