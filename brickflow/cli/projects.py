@@ -91,7 +91,7 @@ class MultiProjectManager:
         file_type: ConfigFileType = ConfigFileType.YAML,
     ) -> None:
         self.file_type = file_type
-        self._config_file: Path = Path(f"{config_file_name}.{file_type.value}")
+        self._config_file: Path = Path(config_file_name)
         self._brickflow_multi_project_config: BrickflowMultiRootProjectConfig
         self._brickflow_multi_project_config = (
             self._load_config()
@@ -122,10 +122,14 @@ class MultiProjectManager:
                 return config
             return BrickflowMultiRootProjectConfig(project_roots={})
 
-    def _root_config_path(self, root: str) -> Path:
+    def _root_config_path(
+        self,
+        root: str,
+        config_file_type: ConfigFileType = BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE,
+    ) -> Path:
         root_file = (
             f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value}."
-            f"{BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE.value}"
+            f"{config_file_type.value}"
         )
         return self._config_file.parent / root / root_file
 
@@ -140,7 +144,9 @@ class MultiProjectManager:
         )
         root_dict = {}
         for root in roots:
-            with self._root_config_path(root).open("r", encoding="utf-8") as f:
+            with self._root_config_path(root, config_file_type=self.file_type).open(
+                "r", encoding="utf-8"
+            ) as f:
                 root_dict[root] = BrickflowRootProjectConfig.parse_obj(
                     yaml.safe_load(f.read())
                 )
@@ -234,7 +240,7 @@ def get_brickflow_root(current_path: Optional[Path] = None) -> Path:
     current_dir = Path(current_path or get_notebook_ws_path(ctx.dbutils) or os.getcwd())
 
     potential_config_files = [
-        f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME.value}.{cfg_type.value}"
+        f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value}.{cfg_type.value}"
         for cfg_type in ConfigFileType
     ]
     potential_config_file_paths = [current_dir / p for p in potential_config_files]
@@ -254,9 +260,9 @@ def get_brickflow_root(current_path: Optional[Path] = None) -> Path:
 
 
 brickflow_root_path = get_brickflow_root()
-config_file_type = get_config_file_type(str(brickflow_root_path))
+cfg_file_type = get_config_file_type(str(brickflow_root_path))
 multi_project_manager = MultiProjectManager(
-    config_file_name=str(brickflow_root_path), file_type=config_file_type
+    config_file_name=str(brickflow_root_path), file_type=cfg_file_type
 )
 
 
