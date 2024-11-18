@@ -540,6 +540,16 @@ class DatabricksBundleCodegen(CodegenInterface):
                 f"Make sure {task_name} returns a NotebookTask object."
             ) from e
 
+        # Setting common task parameters if present
+        workflow: Optional[Workflow] = _kwargs.get("workflow")
+        common_task_parameters = workflow.common_task_parameters if workflow else None
+
+        if common_task_parameters:
+            notebook_task.base_parameters = notebook_task.base_parameters or {}
+            for k, v in common_task_parameters.items():
+                if k not in notebook_task.base_parameters:
+                    notebook_task.base_parameters[k] = v
+
         jt = JobsTasks(
             **task_settings.to_tf_dict(),
             notebook_task=notebook_task,

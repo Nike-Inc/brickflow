@@ -697,22 +697,24 @@ def wait_on_workflow(*args):
 
 #### Snowflake Operator
 
-run snowflake queries from the databricks environment
+Run snowflake queries from the databricks environment
 
 As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys
-&emsp;&emsp;&emsp;&emsp;username : user id created for connecting to snowflake for ex: sample_user  
-&emsp;&emsp;&emsp;&emsp;password : password information for about user for ex: P@$$word  
-&emsp;&emsp;&emsp;&emsp;account  : snowflake account information, not entire url for ex: sample_enterprise  
-&emsp;&emsp;&emsp;&emsp;warehouse: warehouse/cluster information that user has access for ex: sample_warehouse  
-&emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
-&emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
+
+- `username` : user id created for connecting to snowflake for ex: sample_user  
+- `password` : password information for about user for ex: P@$$word  
+- `account`  : snowflake account information, not entire url for ex: sample_enterprise  
+- `warehouse`: warehouse/cluster information that user has access for ex: sample_warehouse  
+- `database` : default database that we want to connect for ex: sample_database  
+- `role`     : role to which the user has write access for ex: sample_write_role
 
 SnowflakeOperator can accept the following as inputs
 
-&emsp;&emsp;&emsp;&emsp;secret_scope (required) : databricks secret scope identifier
-&emsp;&emsp;&emsp;&emsp;query_string (required) : queries separated by semicolon
-&emsp;&emsp;&emsp;&emsp;sql_file (optional) : path to the sql file
-&emsp;&emsp;&emsp;&emsp;parameters (optional) : dictionary with variables that can be used to substitute in queries
+- `secret_scope` : **(required)** databricks secret scope identifier
+- `query_string` : **(required)** queries separated by semicolon
+- `sql_file` : (optional) path to the sql file
+- `parameters` : (optional) dictionary with variables that can be used to substitute in queries
+- `fail_on_error` : (optional) bool to fail the task if there is a sql error, default is True
 
 Operator only takes one of either query_string or sql_file needs to be passed
 
@@ -726,7 +728,8 @@ def run_snowflake_queries(*args):
   sf_query_run = SnowflakeOperator(
     secret_scope = "your_databricks secrets scope name",
     query_string ="select * from database.$schema.$table where $filter_condition1; select * from sample_schema.test_table",
-    parameters = {"schema":"test_schema","table":"sample_table","filter_condition":"col='something'"}
+    parameters = {"schema":"test_schema","table":"sample_table","filter_condition":"col='something'"},
+    fail_on_error=True,
   )
   sf_query_run.execute()
 
@@ -749,28 +752,28 @@ def run_snowflake_files(*args):
 copy data from databricks to snowflake
 
 As databricks secrets is a key value store, code expects the secret scope to contain the below exact keys
-&emsp;&emsp;&emsp;&emsp;username : user id created for connecting to snowflake for ex: sample_user  
-&emsp;&emsp;&emsp;&emsp;password : password information for about user for ex: P@$$word  
-&emsp;&emsp;&emsp;&emsp;account  : snowflake account information, not entire url for ex: sample_enterprise  
-&emsp;&emsp;&emsp;&emsp;warehouse: warehouse/cluster information that user has access for ex: sample_warehouse  
-&emsp;&emsp;&emsp;&emsp;database : default database that we want to connect for ex: sample_database  
-&emsp;&emsp;&emsp;&emsp;role     : role to which the user has write access for ex: sample_write_role
+- `username` : user id created for connecting to snowflake for ex: sample_user  
+- `password` : password information for about user for ex: P@$$word  
+- `account`  : snowflake account information, not entire url for ex: sample_enterprise  
+- `warehouse`: warehouse/cluster information that user has access for ex: sample_warehouse  
+- `database` : default database that we want to connect for ex: sample_database  
+- `role`     : role to which the user has write access for ex: sample_write_role
 
 UcToSnowflakeOperator can expects the following as inputs to copy data in parameters  
 one of Either dbx_sql or (dbx_catalog, dbx_database, dbx_table ) needs to be provided
-&emsp;&emsp;&emsp;&emsp;load_type (required): type of data load , acceptable values full or incremental
-&emsp;&emsp;&emsp;&emsp;dbx_catalog (optional) : name of the databricks catalog in which object resides
-&emsp;&emsp;&emsp;&emsp;dbx_database (optional): name of the databricks schema in which object is available
-&emsp;&emsp;&emsp;&emsp;dbx_table (optional) : name of the databricks object we want to copy to snowflake
-&emsp;&emsp;&emsp;&emsp;dbx_sql (optional) : Custom sql to extract data from databricks Unity Catalog
-&emsp;&emsp;&emsp;&emsp;sf_database (optional) : name of the snowflake database if different from the one in secret_scope
-&emsp;&emsp;&emsp;&emsp;sf_schema (required): name of the snowflake schema in which we want to copy the data
-&emsp;&emsp;&emsp;&emsp;sf_table (required) : name of the snowflake object to which we want to copy from databricks
-&emsp;&emsp;&emsp;&emsp;incremental_filter (required for incrmental mode) :  condition to manage data before writing to snowflake
-&emsp;&emsp;&emsp;&emsp;dbx_data_filter (optional): filter condition on databricks source for full or incremental (if different from inremental_filter)
-&emsp;&emsp;&emsp;&emsp;sf_grantee_roles (optional) : snowflake roles to which we want to grant select/read access
-&emsp;&emsp;&emsp;&emsp;sf_cluster_keys (optional) : list of keys we want to cluster our snowflake table.
-&emsp;&emsp;&emsp;&emsp;write_mode (optional) : write mode to write into snowflake table ( overwrite, append etc)
+- `load_type`: (required) type of data load , acceptable values full or incremental
+- `dbx_catalog`: (optional) name of the databricks catalog in which object resides
+- `dbx_database`: (optional) name of the databricks schema in which object is available
+- `dbx_table`: (optional) name of the databricks object we want to copy to snowflake
+- `dbx_sql`: (optional) Custom sql to extract data from databricks Unity Catalog
+- `sf_database`: (optional) name of the snowflake database if different from the one in secret_scope
+- `sf_schema`: (required) name of the snowflake schema in which we want to copy the data
+- `sf_table`: (required) name of the snowflake object to which we want to copy from databricks
+- `incremental_filter`: (required for incrmental mode) condition to manage data before writing to snowflake
+- `dbx_data_filter`: (optional) filter condition on databricks source for full or incremental (if different from inremental_filter)
+- `sf_grantee_roles`: (optional) snowflake roles to which we want to grant select/read access, can be a comma seperated string
+- `sf_cluster_keys`: (optional) list of keys we want to cluster our snowflake table.
+- `write_mode`: (optional) write mode to write into snowflake table ( overwrite, append etc)
 
 ```python title="uc_to_snowflake_operator"
 from brickflow_plugins import UcToSnowflakeOperator
@@ -784,7 +787,7 @@ def run_snowflake_queries(*args):
     write_mode ="overwrite",
     parameters = {'load_type':'incremental','dbx_catalog':'sample_catalog','dbx_database':'sample_schema',
                       'dbx_table':'sf_operator_1', 'sf_schema':'stage','sf_table':'SF_OPERATOR_1',
-                      'sf_grantee_roles':'downstream_read_role', 'incremental_filter':"dt='2023-10-22'",
+                      'sf_grantee_roles':'downstream_read_role1,downstream_read_role2', 'incremental_filter':"dt='2023-10-22'",
                       'sf_cluster_keys':'', 'dbx_sql':'Custom sql query to read data from UC'}
   )
   uc_to_sf_copy.execute()
