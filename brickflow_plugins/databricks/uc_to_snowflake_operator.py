@@ -65,6 +65,7 @@ class SnowflakeOperator:
     query_string : Optional parameter with queries separeted by semicolon(;)
     sql_file : Optional parameter with file path (relative to brickflow project root) to .sql file
     parameters: optional parameter dictionary with key value pairs to substitute in the query
+    fail_on_error: Optional parameter to fail the task on error, defaults to True
     """
 
     def __init__(
@@ -73,9 +74,11 @@ class SnowflakeOperator:
         query_string=None,
         sql_file=None,
         parameters={},
+        fail_on_error=True,
         *args,
         **kwargs,
     ):
+        self.conn = None
         self.cur = None
         self.query = None
         self.sql_file = None
@@ -83,6 +86,7 @@ class SnowflakeOperator:
         self.log = log
         self.query = query_string
         self.parameters = parameters
+        self.fail_on_error = fail_on_error
         self.sql_file = sql_file
         self.brickflow_root = get_bf_project_root()
 
@@ -199,12 +203,12 @@ class SnowflakeOperator:
                     self.secret_scope
                 )
             )
-            con = self.get_snowflake_connection()
+            self.conn = self.get_snowflake_connection()
         except snowflake.connector.errors.ProgrammingError as e:
             raise ValueError(
                 "Error {0} ({1}): {2} ({3})".format(e.errno, e.sqlstate, e.msg, e.sfqid)
             )
-        self.cur = con.cursor()
+        self.cur = self.conn.cursor()
 
     def snowflake_query_exec(self, cur, database, query_string):
         """
@@ -264,10 +268,12 @@ class SnowflakeOperator:
         # Run the query against SnowFlake
         try:
             self.snowflake_query_exec(self.cur, self.database, self.query)
-        except:
-            self.log.error("failed to execute")
+        except Exception as e:
+            if self.fail_on_error:
+                raise e
+            self.log.exception(f"Failed to execute")
         finally:
-            self.cur.close()
+            self.conn.close()
             self.log.info("Closed connection")
 
 
@@ -317,6 +323,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
     sf_database (optional): database name in snowflake
     sf_schema   (required): snowflake schema in the database provided as part of scope
     sf_table    (required): name of the table in snowflake to which we want to append or overwrite
+    sf_grantee_roles (optional): downstream roles to which we want to grant access to the table, can be comma separated
     incremental_filter (optional): mandatory parameter for incremental load type to delete existing data in snowflake table
     dbx_data_filter (optional): parameter to filter databricks table if different from snowflake filter
     sf_cluster_keys (optional): list of keys to cluster the data in snowflake
@@ -376,17 +383,22 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         return queries
 
     def get_sf_postgrants(self):
-        post_grantee_role = (
-            self.parameters["sf_grantee_roles"]
+        post_grantee_roles = (
+            [role.strip() for role in self.parameters["sf_grantee_roles"].split(",")]
             if "sf_grantee_roles" in self.parameters.keys()
-            else self.role
+            else [self.role]
         )
-        queries = """ GRANT SELECT ON TABLE {sfDatabase}.{sfSchema}.{sfTable} TO ROLE {sfGrantee_roles};""".format(
-            sfSchema=self.parameters["sf_schema"],
-            sfTable=self.parameters["sf_table"],
-            sfGrantee_roles=post_grantee_role,
-            sfDatabase=self.sf_database,
-        )
+
+        queries = ""
+        for role in post_grantee_roles:
+            query = """GRANT SELECT ON TABLE {sfDatabase}.{sfSchema}.{sfTable} TO ROLE {sfGrantee_role}; """.format(
+                sfSchema=self.parameters["sf_schema"],
+                sfTable=self.parameters["sf_table"],
+                sfGrantee_role=role,
+                sfDatabase=self.sf_database,
+            )
+            queries += query
+        queries = queries.strip()
         return queries
 
     def validate_input_params(self):
@@ -508,7 +520,7 @@ class UcToSnowflakeOperator(SnowflakeOperator):
         if self.authenticator is not None:
             sf_options["sfAuthenticator"] = self.authenticator
         self.log.info("snowflake package and options defined...!!!")
-        if len(source_df.take(1)) == 0:
+        if source_df.isEmpty():
             self.write_mode = "Append"
         if len(self.sf_cluster_keys) == 0:
             # Without order by clause compared to above
