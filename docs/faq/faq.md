@@ -112,9 +112,9 @@ def sla_sensor(*args):
         custom_description="message to provide additional context",
         slack_webhook_url="https://hooks.slack.com/your/webhook/url",
         email_params={
-            "email_list": "recipient_1@email.com,recipient_2@email.com",
+            "email_list": ["recipient_1@email.com, recipient_2@email.com"],
             "sender_address": "sender@email.com",
-            "cc": "cc_1@email.com,cc_2@email.com",
+            "cc": ["cc_1@email.com, cc_2@email.com"],
             "port": 25,
             "host": "your.email.host",
             "priority": "1",
@@ -158,9 +158,9 @@ def sla_sensor(*args):
         custom_description="message to provide additional context",
         slack_webhook_url="https://hooks.slack.com/your/webhook/url",
         email_params={
-            "email_list": "recipient_1@email.com,recipient_2@email.com",
+            "email_list": ["recipient_1@email.com, recipient_2@email.com"],
             "sender_address": "sender@email.com",
-            "cc": "cc_1@email.com,cc_2@email.com",
+            "cc": ["cc_1@email.com, cc_2@email.com"],
             "port": 25,
             "host": "your.email.host",
             "priority": "1",
