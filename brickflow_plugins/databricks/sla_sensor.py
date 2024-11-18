@@ -1,5 +1,5 @@
 from pydantic import SecretStr, BaseModel, ValidationError
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Literal
 from datetime import timedelta, datetime, timezone
 from warnings import warn
 from textwrap import dedent
@@ -17,11 +17,12 @@ from brickflow_plugins.databricks.workflow_dependency_sensor import (
 
 
 class EmailParams(BaseModel):
-    email_list: str
+    email_list: List[str]
     sender_address: str
     port: int
     host: str
-    cc: Optional[str] = ""
+    cc: Optional[List[str]] = []
+    priority: Optional[Literal["1", "2", "3", "4", "5"]] = "3"
 
 
 class SLASensorTimeoutException(TimeoutError):
@@ -54,13 +55,13 @@ class SLASensor(WorkflowTaskDependencySensor):
     Parameters
         ----------
     monitored_task_name : str
-                final task of target workflow
+        final task of target workflow
     env : str
-                environment sensor is running in
+        environment sensor is running in
     data_product : str
-            name of data product
+        name of data product
     run_date : str
-            date that sensor is running for alert
+        date that sensor is running for alert
     sla_sensor_task_names : List[str]
         name of tasks with SLASensor, to omit from reporting running tasks
     sla_tag_key : str
@@ -71,12 +72,12 @@ class SLASensor(WorkflowTaskDependencySensor):
         defaults to None
     dependency_job_name : str
         name of the databricks job the sensor is monitoring.  can be current workflow or other
-        databricks_host : str
-                databricks host url to find workflow
-        databricks_token : Union[str, SecretStr]
-                databricks token for authentication
-        poke_interval_seconds : int
-                frequency in seconds between status checks
+    databricks_host : str
+        databricks host url to find workflow
+    databricks_token : Union[str, SecretStr]
+        databricks token for authentication
+    poke_interval_seconds : int
+        frequency in seconds between status checks
         defaults to 60
     custom_description : str
         text to include in an additional context field.
@@ -85,18 +86,19 @@ class SLASensor(WorkflowTaskDependencySensor):
         slack url to send notifications
     email_params : dict
         parameters to send emails:
-            email_list : comma delimited string of email recipients
+            email_list : list of email recipients
             sender_address : email of sender
-            cc : comma delimited string of recipients to cc (optional)
+            cc : list of recipients to cc (optional)
             port : integer port number
             host : email host url
+            priority : string priority level of email where 1 is highest and 5 is lowest. defaults to 3 (normal)
     timeout_seconds : int
         how long in seconds to check for a running workflow to monitor. if a task is found, the timeout seconds are ignored thereafter.
         defaults to an hour.
 
-        Returns
-        -------
-        str: "SLA Met" or "SLA Missed"
+    Returns
+    -------
+    str: "SLA Met" or "SLA Missed"
 
     Example Usage
     --------
@@ -116,11 +118,12 @@ class SLASensor(WorkflowTaskDependencySensor):
                     custom_description="message to provide additional context",
                     slack_webhook_url="https://hooks.slack.com/your/webhook/url",
                     email_params={
-                        "email_list": "recipient_1@email.com,recipient_2@email.com",
+                        "email_list": ["recipient_1@email.com", "recipient_2@email.com"],
                         "sender_address": "sender@email.com",
-                        "cc": "cc_1@email.com,cc_2@email.com",
+                        "cc": ["cc_1@email.com","cc_2@email.com"],
                         "port": 25,
-                        "host": "your.email.host"
+                        "host": "your.email.host",
+                        "priority": "1"
                     },
                     timeout_seconds=120
                 )
@@ -234,6 +237,7 @@ class SLASensor(WorkflowTaskDependencySensor):
                 self.cc = self.email_params.cc
                 self.email_port = self.email_params.port
                 self.email_host = self.email_params.host
+                self.email_priority = self.email_params.priority
             except ValidationError as e:
                 self.log.error(f"Error with email_params: {e}")
         else:
@@ -406,11 +410,11 @@ class SLASensor(WorkflowTaskDependencySensor):
         email = MIMEMultipart("alternative")
         email["Subject"] = content["subject"]
         email["From"] = self.sender
-        email["To"] = self.alert_email_list
-        email["Cc"] = self.cc
-        email["X-Priority"] = "1"
+        email["To"] = ",".join(self.alert_email_list)
+        email["Cc"] = ",".join(self.cc)
+        email["X-Priority"] = self.email_priority
 
-        receiver = self.alert_email_list.split(",")
+        receiver = self.alert_email_list
         email_body = content["body"]
         html = MIMEText(email_body, "html")
         email.attach(html)

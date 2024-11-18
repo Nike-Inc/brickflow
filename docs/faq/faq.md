@@ -116,7 +116,8 @@ def sla_sensor(*args):
             "sender_address": "sender@email.com",
             "cc": "cc_1@email.com,cc_2@email.com",
             "port": 25,
-            "host": "your.email.host"
+            "host": "your.email.host",
+            "priority": "1",
         },
         timeout_seconds=120
     )
@@ -126,7 +127,7 @@ def sla_sensor(*args):
 
 ```
 
-### Tag your workflow an pass the tag to the sensor
+### Tag your workflow and pass the tag to the sensor
 
 This approach will only work for explicit times provided to the minute and hour fields. Ranges and intervals in the minute and hour fields are not supported.
 
@@ -161,7 +162,8 @@ def sla_sensor(*args):
             "sender_address": "sender@email.com",
             "cc": "cc_1@email.com,cc_2@email.com",
             "port": 25,
-            "host": "your.email.host"
+            "host": "your.email.host",
+            "priority": "1",
         },
         timeout_seconds=120
     )
