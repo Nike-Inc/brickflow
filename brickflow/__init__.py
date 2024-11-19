@@ -43,9 +43,22 @@ def _insert_before_path_startswith(
     arr.append(new_element)
 
 
+class ConfigFileType(Enum):
+    YAML = "yaml"
+    YML = "yml"
+
+
 class BrickflowProjectConstants(Enum):
-    DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME = ".brickflow-project-root.yml"
-    DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME = "brickflow-multi-project.yml"
+    DEFAULT_MULTI_PROJECT_ROOT_FILE_NAME = ".brickflow-project-root"
+    DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME = "brickflow-multi-project"
+    DEFAULT_CONFIG_FILE_TYPE = ConfigFileType.YML.value
+
+
+def get_config_file_type(brickflow_root: str) -> ConfigFileType:
+    for config_file_type in ConfigFileType:
+        if brickflow_root.endswith(config_file_type.value):
+            return config_file_type
+    return ConfigFileType.YAML
 
 
 class BrickflowEnvVars(Enum):
@@ -339,6 +352,8 @@ __all__: List[str] = [
     "BrickflowDefaultEnvs",
     "get_default_log_handler",
     "get_brickflow_version",
+    "ConfigFileType",
+    "get_config_file_type",
     "BrickflowProjectConstants",
     "BrickflowProjectDeploymentSettings",
 ]

@@ -1,0 +1,9 @@
+version: v1
+projects:
+  test_cli_project:
+    name: test_cli_project
+    brickflow_version: 1.2.1
+    deployment_mode: bundle
+    enable_plugins: false
+    path_from_repo_root_to_project_root: some/test/path
+    path_project_root_to_workflows_dir:  path/to/workflows
