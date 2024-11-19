@@ -1,4 +1,5 @@
 # pylint: disable=unused-import
+import pytest
 from brickflow import get_config_file_type, ConfigFileType
 
 
@@ -41,16 +42,14 @@ def test_imports():
         print(f"Import failed: {e}")
 
 
-def test_get_config_type_yaml():
-    actual = get_config_file_type("some/brickflow/root/.brickflow-project-root.yaml")
-    assert actual == ConfigFileType.YAML
-
-
-def test_get_config_type_yml():
-    actual = get_config_file_type("some/brickflow/root/.brickflow-project-root.yml")
-    assert actual == ConfigFileType.YML
-
-
-def test_get_config_type_default():
-    actual = get_config_file_type("some/brickflow/root/.brickflow-project-root.json")
-    assert actual == ConfigFileType.YAML
+@pytest.mark.parametrize(
+    "config_file_name,expected_extension",
+    [
+        (".brickflow-project-root.yaml", ConfigFileType.YAML),
+        (".brickflow-project-root.yml", ConfigFileType.YML),
+        (".brickflow-project-root.json", ConfigFileType.YAML),
+    ],
+)
+def test_get_config_type(config_file_name, expected_extension):
+    actual = get_config_file_type(f"some/brickflow/root/{config_file_name}")
+    assert actual == expected_extension
