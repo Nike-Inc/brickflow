@@ -17,6 +17,7 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Madhusudan Koukutla](https://www.linkedin.com/in/madhusudan-reddy/)
 * [Surya Teja Jagatha](https://www.linkedin.com/in/surya-teja-jagatha/)
 * [Iris Meerman](https://www.linkedin.com/in/iris-meerman-92694675/)
+* [Michael Espiritu](https://www.linkedin.com/in/michaelespiritu92/)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project

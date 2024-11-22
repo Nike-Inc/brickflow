@@ -85,6 +85,95 @@ def wait_on_workflow(*args):
     sensor.execute()
 ```
 
+## How do I monitor the SLA on a workflow?
+
+### Provide a datetime object with UTC specified as the timezone
+
+```python
+from brickflow.context import ctx
+from brickflow_plugins import SLASensor
+from datetime import datetime, timezone
+
+wf = Workflow(...)
+
+@wf.task
+def sla_sensor(*args):
+    api_token_key = ctx.dbutils.secrets.get("scope", "api_token_key")
+    sensor = SLASensor(
+        monitored_task_name="end",
+        env="dev",
+        data_product="product_name",
+        run_date="2024-01-01",
+        sla_sensor_task_names=["sla_sensor"],
+        expected_sla_timestamp=datetime(2024, 1, 1, 10, 0, 0, tzinfo=pytz.utc),
+        dependency_job_name="target_job_name",
+        databricks_host="https://your_workspace_url.cloud.databricks.com",
+        databricks_token=api_token_key,
+        custom_description="message to provide additional context",
+        slack_webhook_url="https://hooks.slack.com/your/webhook/url",
+        email_params={
+            "email_list": ["recipient_1@email.com, recipient_2@email.com"],
+            "sender_address": "sender@email.com",
+            "cc": ["cc_1@email.com, cc_2@email.com"],
+            "port": 25,
+            "host": "your.email.host",
+            "priority": "1",
+        },
+        timeout_seconds=120
+    )
+
+    # returns "SLA Missed" or "SLA Met"
+    response = sensor.monitor()
+
+```
+
+### Tag your workflow and pass the tag to the sensor
+
+This approach will only work for explicit times provided to the minute and hour fields. Ranges and intervals in the minute and hour fields are not supported.
+
+```python
+from brickflow.context import ctx
+from brickflow_plugins import SLASensor
+from datetime import datetime, timezone
+
+wf = Workflow(...)
+
+'''
+Value for tag key must END with a 5-place quartz cron expression, e.g. "0 10 @ @ @"
+'''
+
+@wf.task
+def sla_sensor(*args):
+    api_token_key = ctx.dbutils.secrets.get("scope", "api_token_key")
+    sensor = SLASensor(
+        monitored_task_name="end",
+        env="dev",
+        data_product="product_name",
+        run_date="2024-01-01",
+        sla_sensor_task_names=["sla_sensor"],
+        sla_tag_key="My_Tag_Key",
+        dependency_job_name="target_job_name",
+        databricks_host="https://your_workspace_url.cloud.databricks.com",
+        databricks_token=api_token_key,
+        custom_description="message to provide additional context",
+        slack_webhook_url="https://hooks.slack.com/your/webhook/url",
+        email_params={
+            "email_list": ["recipient_1@email.com, recipient_2@email.com"],
+            "sender_address": "sender@email.com",
+            "cc": ["cc_1@email.com, cc_2@email.com"],
+            "port": 25,
+            "host": "your.email.host",
+            "priority": "1",
+        },
+        timeout_seconds=120
+    )
+
+    # returns "SLA Missed" or "SLA Met"
+    response = sensor.monitor()
+
+```
+
+
 ## How do I run a sql query on snowflake from DBX?
 ```python
 from brickflow_plugins import SnowflakeOperator

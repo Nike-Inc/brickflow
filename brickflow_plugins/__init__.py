@@ -44,6 +44,7 @@ from brickflow_plugins.databricks.box_operator import (
     VolumesToBoxOperator,
     BoxOperator,
 )
+from brickflow_plugins.databricks.sla_sensor import SLASensor
 
 
 def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
@@ -83,6 +84,7 @@ __all__: List[str] = [
     "BoxToVolumesOperator",
     "VolumesToBoxOperator",
     "BoxOperator",
+    "SLASensor",
     "load_plugins",
     "ensure_installation",
 ]
