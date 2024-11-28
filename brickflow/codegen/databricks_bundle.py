@@ -24,6 +24,7 @@ from brickflow import (
     ctx,
     get_brickflow_version,
     get_bundles_project_env,
+    get_config_file_type,
 )
 from brickflow.bundles.model import (
     Bundle,
@@ -462,8 +463,10 @@ class DatabricksBundleCodegen(CodegenInterface):
                 ]
             ).replace("//", "/")
 
+            brickflow_root = str(get_brickflow_root())
             multi_project_manager = MultiProjectManager(
-                config_file_name=str(get_brickflow_root())
+                config_file_name=brickflow_root,
+                file_type=get_config_file_type(brickflow_root),
             )
             bf_project = multi_project_manager.get_project(self.project.name)
 

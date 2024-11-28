@@ -87,8 +87,9 @@ class BrickflowMultiRootProjectConfig(BaseModel):
 class MultiProjectManager:
     def __init__(
         self,
-        config_file_name: str = BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value,
-        file_type: ConfigFileType = ConfigFileType.YAML,
+        config_file_name: str = f"{BrickflowProjectConstants.DEFAULT_MULTI_PROJECT_CONFIG_FILE_NAME.value}."
+        f"{BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE.value}",
+        file_type: ConfigFileType = BrickflowProjectConstants.DEFAULT_CONFIG_FILE_TYPE,
     ) -> None:
         self.file_type = file_type
         self._config_file: Path = Path(config_file_name)
