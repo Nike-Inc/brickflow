@@ -51,6 +51,7 @@ from brickflow.bundles.model import (
     JobsTasksSqlTaskDashboardSubscriptions,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
+    JobsTasksForEachTask,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -123,6 +124,7 @@ class TaskType(Enum):
     SPARK_PYTHON_TASK = "spark_python_task"
     RUN_JOB_TASK = "run_job_task"
     IF_ELSE_CONDITION_TASK = "condition_task"
+    FOR_EACH_TASK = "for_each_task"
 
 
 class TaskRunCondition(Enum):
@@ -493,6 +495,30 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         self.python_file = kwargs.get("python_file", None)
 
 
+class ForEachTask(JobsTasksForEachTask):
+    """
+    The ForEachTask class provides iteration of a task over a list of inputs. The looped task can be executed
+    concurrently based on the concurrency value provided.
+
+    Attributes:
+        inputs (List[Any]): The list of inputs to be iterated over.
+        concurrency (int): The number of concurrent tasks to be executed.
+        task (Any): The task to be executed
+
+    TODO riccamini: Add examples
+    """
+
+    inputs: List[Any]
+    concurrency: int
+    task: Any
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.inputs = kwargs.get("inputs", None)
+        self.concurrency = kwargs.get("concurrency", None)
+        self.task = kwargs.get("task", None)
+
+
 class RunJobTask(JobsTasksRunJobTask):
     """
     The RunJobTask class is designed to handle the execution of a specific job in a Databricks workspace.
@@ -807,6 +833,8 @@ class Task:
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
+    foreach_task_inputs: Optional[List[Any]] = None
+    concurrency: Optional[int] = 1
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()

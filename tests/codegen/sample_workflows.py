@@ -311,6 +311,16 @@ def task_function2(*, test="var"):
     return test
 
 
+@wf2.for_each_task(
+    name="foreach_task",
+    depends_on=task_function2,
+    concurrency=3,
+    foreach_task_inputs=[1, 2, 3],
+)
+def nested_notebook_task():
+    return NotebookTask(notebook_path="notebooks/notebook_a")
+
+
 wf_bad_tasks = Workflow(
     "wf_bad_tasks",
     default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),

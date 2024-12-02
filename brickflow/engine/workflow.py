@@ -378,6 +378,8 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        foreach_task_inputs: Optional[List[Any]] = None,
+        concurrency: Optional[int] = None,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -444,6 +446,8 @@ class Workflow:
             custom_execute_callback=custom_execute_callback,
             ensure_brickflow_plugins=ensure_plugins,
             if_else_outcome=if_else_outcome,
+            foreach_task_inputs=foreach_task_inputs,
+            concurrency=concurrency,
         )
 
         # attempt to create task object before adding to graph
@@ -583,6 +587,27 @@ class Workflow:
             if_else_outcome=if_else_outcome,
         )
 
+    def for_each_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        foreach_task_inputs: Optional[List[Any]] = None,
+        concurrency: Optional[int] = 1,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            task_type=TaskType.FOR_EACH_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+            if_else_outcome=if_else_outcome,
+            foreach_task_inputs=foreach_task_inputs,
+            concurrency=concurrency,
+        )
+
     def task(
         self,
         task_func: Optional[Callable] = None,
@@ -596,6 +621,8 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        foreach_task_inputs: Optional[List[Any]] = None,
+        concurrency: Optional[int] = 1,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -619,6 +646,8 @@ class Workflow:
                 task_settings=task_settings,
                 ensure_brickflow_plugins=ensure_brickflow_plugins,
                 if_else_outcome=if_else_outcome,
+                foreach_task_inputs=foreach_task_inputs,
+                concurrency=concurrency,
             )
 
             @functools.wraps(f)

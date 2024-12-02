@@ -51,6 +51,7 @@ from brickflow.bundles.model import (
     Resources,
     Targets,
     Workspace,
+    JobsTasksForEachTask,
 )
 from brickflow.cli.projects import MultiProjectManager, get_brickflow_root
 from brickflow.codegen import (
@@ -64,6 +65,8 @@ from brickflow.engine.task import (
     TaskSettings,
     filter_bf_related_libraries,
     get_brickflow_libraries,
+    NotebookTask,
+    ForEachTask,
 )
 
 if typing.TYPE_CHECKING:
@@ -760,6 +763,71 @@ class DatabricksBundleCodegen(CodegenInterface):
             task_key=task_name,
         )
 
+    def _build_for_each_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_libraries: List[JobsTasksLibraries],
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+        **kwargs: Any,
+    ) -> JobsTasks:
+        nested_task = task.task_func()
+
+        try:
+            # TODO: Foreach task needs to be one of...
+            assert isinstance(nested_task, (JobsTasksForEachTask, NotebookTask))
+        except AssertionError as e:
+            raise ValueError(
+                f"Error while building python task {task_name}. "
+                f"Make sure {task_name} returns a ForEachTask object."
+            ) from e
+
+        workflow: Optional[Workflow] = kwargs.get("workflow")
+
+        # We need to build the nested task, that can be of type NotebookTask, ... We need to resolve the proper
+        # builder function based on the nested task type that will be provided.
+
+        # task_type_to_builder_func: Dict = {
+        #    "NotebookTask": self._build_native_notebook_task
+        # }
+        # builder_func = task_type_to_builder_func.get(type(nested_task).__name__)
+
+        # TODO: make it dynamically resolve the build methods based on task type
+        nested_task_jt = self._build_native_notebook_task(
+            task_name="Some name",
+            task=task,
+            workflow=workflow,
+            task_libraries=task_libraries,
+            task_settings=task_settings,
+            depends_on=[],
+        )
+
+        for_each_task = ForEachTask(
+            inputs=task.foreach_task_inputs,
+            concurrency=task.concurrency,
+            task=nested_task_jt,
+        )
+
+        jt = JobsTasks(
+            **task_settings.to_tf_dict(),
+            for_each_task=for_each_task,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id, if cluster object is empty, Databricks will use serverless compute
+            **(task.cluster.job_task_field_dict if task.cluster else {}),
+        )
+
+        if task.cluster:
+            jt.libraries = task_libraries
+        else:
+            jt.environment_key = (
+                "Default"  # TODO: make configurable from task definition
+            )
+
+        return jt
+
     def _build_brickflow_entrypoint_task(
         self,
         task_name: str,
@@ -804,6 +872,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.RUN_JOB_TASK: self._build_native_run_job_task,
             TaskType.SQL: self._build_native_sql_file_task,
             TaskType.IF_ELSE_CONDITION_TASK: self._build_native_condition_task,
+            TaskType.FOR_EACH_TASK: self._build_for_each_task,
         }
 
         for task_name, task in workflow.tasks.items():
