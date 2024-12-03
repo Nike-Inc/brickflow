@@ -38,6 +38,7 @@ from brickflow.bundles.model import (
     JobsTasks,
     JobsTasksConditionTask,
     JobsTasksDependsOn,
+    JobsTasksForEachTask,
     JobsTasksLibraries,
     JobsTasksNotebookTask,
     JobsTasksPipelineTask,
@@ -51,7 +52,6 @@ from brickflow.bundles.model import (
     Resources,
     Targets,
     Workspace,
-    JobsTasksForEachTask,
 )
 from brickflow.cli.projects import MultiProjectManager, get_brickflow_root
 from brickflow.codegen import (
@@ -61,16 +61,15 @@ from brickflow.codegen import (
 )
 from brickflow.engine.task import (
     DLTPipeline,
+    NotebookTask,
+    RunJobTask,
+    SparkJarTask,
+    SparkPythonTask,
+    SqlTask,
     TaskLibrary,
     TaskSettings,
     filter_bf_related_libraries,
     get_brickflow_libraries,
-    NotebookTask,
-    ForEachTask,
-    SparkJarTask,
-    SparkPythonTask,
-    RunJobTask,
-    SqlTask,
 )
 
 if typing.TYPE_CHECKING:
@@ -767,7 +766,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             task_key=task_name,
         )
 
-    def _build_for_each_task(
+    def _build_native_for_each_task(
         self,
         task_name: str,
         task: Task,
@@ -797,15 +796,8 @@ class DatabricksBundleCodegen(CodegenInterface):
         # as this is done runtime and the used does not need to specify it in the for_each decorator (maybe it should?)
 
         workflow: Optional[Workflow] = kwargs.get("workflow")
-        builder_func_mapping = {
-            NotebookTask.__name__: self._build_native_notebook_task,
-            SparkJarTask.__name__: self._build_native_spark_jar_task,
-            SparkPythonTask.__name__: self._build_native_spark_python_task,
-            RunJobTask.__name__: self._build_native_run_job_task,
-            SqlTask.__name__: self._build_native_sql_file_task,
-        }
 
-        builder_func = builder_func_mapping.get(nested_task.__class__.__name__)
+        builder_func = self._get_task_builder(task=nested_task.task_type)
         # TODO: How can the user specify the nested task name?
         nested_task_jt = builder_func(
             task_name=f"{task_name}_nested",
@@ -872,11 +864,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             )
         return task_obj
 
-    def workflow_obj_to_tasks(
-        self, workflow: Workflow
-    ) -> List[Union[JobsTasks, Pipelines]]:
-        tasks = []
-
+    def _get_task_builder(self, task: TaskType) -> Callable[..., Any]:
         map_task_type_to_builder: Dict[TaskType, Callable[..., Any]] = {
             TaskType.DLT: self._build_dlt_task,
             TaskType.NOTEBOOK_TASK: self._build_native_notebook_task,
@@ -885,44 +873,61 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.RUN_JOB_TASK: self._build_native_run_job_task,
             TaskType.SQL: self._build_native_sql_file_task,
             TaskType.IF_ELSE_CONDITION_TASK: self._build_native_condition_task,
-            TaskType.FOR_EACH_TASK: self._build_for_each_task,
+            TaskType.SPARK_PYTHON_TASK: self._build_native_spark_python_task,
+            TaskType.FOR_EACH_TASK: self._build_native_for_each_task,
         }
 
-        for task_name, task in workflow.tasks.items():
-            builder_func = map_task_type_to_builder.get(
-                task.task_type, self._build_brickflow_entrypoint_task
-            )
+        return map_task_type_to_builder.get(task, self._build_brickflow_entrypoint_task)
 
-            # TODO: DLT
-            # pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
-            if task.depends_on_names:
-                depends_on = [
-                    JobsTasksDependsOn(task_key=depends_key, outcome=expected_outcome)
-                    for i in task.depends_on_names
-                    for depends_key, expected_outcome in i.items()
-                ]  # type: ignore
-            else:
-                depends_on = []
-            libraries = TaskLibrary.unique_libraries(
-                task.libraries + (self.project.libraries or [])
-            )
-            if workflow.enable_plugins is True:
-                libraries = filter_bf_related_libraries(libraries)
-                libraries += get_brickflow_libraries(workflow.enable_plugins)
-
-            task_libraries = [
-                JobsTasksLibraries(**library.dict) for library in libraries
+    def _build_task(
+        self, build_func: Callable, workflow: Workflow, task_name: str, task: Task
+    ) -> Union[JobsTasks, Pipelines]:
+        # TODO: DLT
+        # pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
+        if task.depends_on_names:
+            depends_on = [
+                JobsTasksDependsOn(task_key=depends_key, outcome=expected_outcome)
+                for i in task.depends_on_names
+                for depends_key, expected_outcome in i.items()
             ]  # type: ignore
-            task_settings = workflow.default_task_settings.merge(task.task_settings)  # type: ignore
-            task = builder_func(
-                task_name=task_name,
-                task=task,
-                workflow=workflow,
-                task_libraries=task_libraries,
-                task_settings=task_settings,
-                depends_on=depends_on,
+        else:
+            depends_on = []
+
+        libraries = TaskLibrary.unique_libraries(
+            task.libraries + (self.project.libraries or [])
+        )
+        if workflow.enable_plugins is True:
+            libraries = filter_bf_related_libraries(libraries)
+            libraries += get_brickflow_libraries(workflow.enable_plugins)
+
+        task_libraries = [JobsTasksLibraries(**library.dict) for library in libraries]  # type: ignore
+        task_settings = workflow.default_task_settings.merge(task.task_settings)  # type: ignore
+        task = build_func(
+            task_name=task_name,
+            task=task,
+            workflow=workflow,
+            task_libraries=task_libraries,
+            task_settings=task_settings,
+            depends_on=depends_on,
+        )
+
+        return task
+
+    def workflow_obj_to_tasks(
+        self, workflow: Workflow
+    ) -> List[Union[JobsTasks, Pipelines]]:
+        tasks = []
+
+        for task_name, task in workflow.tasks.items():
+            build_func = self._get_task_builder(task.task_type)
+            tasks.append(
+                self._build_task(
+                    build_func=build_func,
+                    workflow=workflow,
+                    task_name=task_name,
+                    task=task,
+                )
             )
-            tasks.append(task)
 
         tasks.sort(key=lambda t: (t.task_key is None, t.task_key))
 
