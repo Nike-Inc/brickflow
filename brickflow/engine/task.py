@@ -38,6 +38,7 @@ from brickflow import (
 )
 from brickflow.bundles.model import (
     JobsTasksConditionTask,
+    JobsTasksForEachTask,
     JobsTasksHealthRules,
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
@@ -51,7 +52,6 @@ from brickflow.bundles.model import (
     JobsTasksSqlTaskDashboardSubscriptions,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
-    JobsTasksForEachTask,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -513,11 +513,13 @@ class ForEachTask(JobsTasksForEachTask):
     concurrency: int
     task: Any
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self.inputs = kwargs.get("inputs", None)
-        self.concurrency = kwargs.get("concurrency", None)
-        self.task = kwargs.get("task", None)
+    # TODO: not sure if you want to keep this
+    # @field_validator("inputs", mode="after")
+    # @classmethod
+    # def validate_inputs(cls, inputs):
+    #     if not isinstance(inputs, str):
+    #         inputs = json.dumps(inputs)
+    #     return inputs
 
 
 class RunJobTask(JobsTasksRunJobTask):
