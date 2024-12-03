@@ -495,6 +495,7 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         self.python_file = kwargs.get("python_file", None)
 
 
+# TODO: still needed?
 class ForEachTask(JobsTasksForEachTask):
     """
     The ForEachTask class provides iteration of a task over a list of inputs. The looped task can be executed
@@ -833,7 +834,7 @@ class Task:
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
-    foreach_task_inputs: Optional[List[Any]] = None
+    foreach_task_inputs: Optional[str] = None
     concurrency: Optional[int] = 1
 
     def __post_init__(self) -> None:

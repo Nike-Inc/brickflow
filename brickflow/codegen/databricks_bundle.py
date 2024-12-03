@@ -67,6 +67,10 @@ from brickflow.engine.task import (
     get_brickflow_libraries,
     NotebookTask,
     ForEachTask,
+    SparkJarTask,
+    SparkPythonTask,
+    RunJobTask,
+    SqlTask,
 )
 
 if typing.TYPE_CHECKING:
@@ -772,30 +776,39 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **kwargs: Any,
     ) -> JobsTasks:
-        nested_task = task.task_func()
+        supported_task_types = (
+            NotebookTask,
+            SparkJarTask,
+            SparkPythonTask,
+            RunJobTask,
+            SqlTask,
+        )
 
+        nested_task = task.task_func()
         try:
-            # TODO: Foreach task needs to be one of...
-            assert isinstance(nested_task, (JobsTasksForEachTask, NotebookTask))
+            assert isinstance(nested_task, supported_task_types)
         except AssertionError as e:
             raise ValueError(
-                f"Error while building python task {task_name}. "
-                f"Make sure {task_name} returns a ForEachTask object."
+                f"Error while building python task {task_name}. Make sure {task_name} returns one of "
+                f"{', '.join(task_type.__name__ for task_type in supported_task_types)}."
             ) from e
 
+        # The need to resolve the proper build function based on the task type (we cannot rely on the task type enum
+        # as this is done runtime and the used does not need to specify it in the for_each decorator (maybe it should?)
+
         workflow: Optional[Workflow] = kwargs.get("workflow")
+        builder_func_mapping = {
+            NotebookTask.__name__: self._build_native_notebook_task,
+            SparkJarTask.__name__: self._build_native_spark_jar_task,
+            SparkPythonTask.__name__: self._build_native_spark_python_task,
+            RunJobTask.__name__: self._build_native_run_job_task,
+            SqlTask.__name__: self._build_native_sql_file_task,
+        }
 
-        # We need to build the nested task, that can be of type NotebookTask, ... We need to resolve the proper
-        # builder function based on the nested task type that will be provided.
-
-        # task_type_to_builder_func: Dict = {
-        #    "NotebookTask": self._build_native_notebook_task
-        # }
-        # builder_func = task_type_to_builder_func.get(type(nested_task).__name__)
-
-        # TODO: make it dynamically resolve the build methods based on task type
-        nested_task_jt = self._build_native_notebook_task(
-            task_name="Some name",
+        builder_func = builder_func_mapping.get(nested_task.__class__.__name__)
+        # TODO: How can the user specify the nested task name?
+        nested_task_jt = builder_func(
+            task_name=f"{task_name}_nested",
             task=task,
             workflow=workflow,
             task_libraries=task_libraries,
@@ -803,7 +816,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             depends_on=[],
         )
 
-        for_each_task = ForEachTask(
+        for_each_task = JobsTasksForEachTask(
             inputs=task.foreach_task_inputs,
             concurrency=task.concurrency,
             task=nested_task_jt,

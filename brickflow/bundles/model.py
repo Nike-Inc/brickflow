@@ -1174,7 +1174,9 @@ class JobsTasksEmailNotifications(BaseModel):
 
 
 class JobsTasksForEachTask(BaseModel):
-    pass
+    inputs: str = Field(description="Array for task to iterate on. This can be a JSON string or a reference to an array parameter.")
+    concurrency: int = Field(description="An optional maximum allowed number of concurrent runs of the task. Set this value if you want to be able to execute multiple runs of the task concurrently.")
+    task: JobsTasks = Field(description="The task that will be run for each element in the array")
 
 
 class JobsTasksHealthRules(BaseModel):

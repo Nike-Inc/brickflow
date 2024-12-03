@@ -1,0 +1,71 @@
+"bundle":
+  "name": "test-project"
+"targets":
+  "test-project-local":
+    "resources":
+      "jobs":
+        "wf-foreach-task-test":
+          "job_clusters":
+            - "job_cluster_key": "sample_job_cluster"
+              "new_cluster":
+                "custom_tags":
+                  "brickflow_deployment_mode": "Databricks Asset Bundles"
+                  "brickflow_project_name": "test-project"
+                  "brickflow_version": "1.0.0"
+                  "deployed_at": "1704067200000"
+                  "deployed_by": "test_user"
+                  "environment": "local"
+                "data_security_mode": "SINGLE_USER"
+                "node_type_id": "m6gd.xlarge"
+                "num_workers": 1.0
+                "spark_version": "13.3.x-scala2.12"
+          "max_concurrent_runs": 1.0
+          "name": "test_user_wf-foreach-task-test"
+          "permissions":
+            - "level": "IS_OWNER"
+              "user_name": "abc@abc.com"
+            - "level": "CAN_MANAGE"
+              "user_name": "abc@abc.com"
+            - "level": "CAN_MANAGE_RUN"
+              "user_name": "abc@abc.com"
+            - "level": "CAN_VIEW"
+              "user_name": "abc@abc.com"
+          "run_as":
+            "user_name": "abc@abc.com"
+          "tags":
+            "brickflow_deployment_mode": "Databricks Asset Bundles"
+            "brickflow_project_name": "test-project"
+            "brickflow_version": "1.0.0"
+            "deployed_at": "1704067200000"
+            "deployed_by": "test_user"
+            "environment": "local"
+            "test": "test2"
+          tasks:
+            - task_key: first_notebook
+              notebook_task:
+                notebook_path: notebooks/notebook_a
+                source: WORKSPACE
+              job_cluster_key: sample_job_cluster
+            - task_key: for_each_notebook
+              depends_on:
+                - task_key: first_notebook
+              for_each_task:
+                inputs: "[1, 2, 3]"
+                concurrency: 3
+                task:
+                  task_key: for_each_notebook_nested
+                  notebook_task:
+                    notebook_path: notebooks/notebook_b
+                    base_parameters:
+                      looped_parameter: "{{input}}"
+                    source: WORKSPACE
+                  job_cluster_key: sample_job_cluster
+          "timeout_seconds": null
+          "trigger": null
+          "webhook_notifications": null
+      "pipelines": {}
+    "workspace":
+      "file_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files"
+      "root_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local"
+      "state_path": "/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/state"
+"workspace": {}

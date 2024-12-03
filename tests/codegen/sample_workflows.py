@@ -311,16 +311,6 @@ def task_function2(*, test="var"):
     return test
 
 
-@wf2.for_each_task(
-    name="foreach_task",
-    depends_on=task_function2,
-    concurrency=3,
-    foreach_task_inputs=[1, 2, 3],
-)
-def nested_notebook_task():
-    return NotebookTask(notebook_path="notebooks/notebook_a")
-
-
 wf_bad_tasks = Workflow(
     "wf_bad_tasks",
     default_cluster=Cluster.from_existing_cluster("existing_cluster_id"),
@@ -408,4 +398,34 @@ def task_spark_jar():
         jar_uri="dbfs:/path/to/jar",
         main_class_name="com.example.MainClass",
         parameters=["param1", "param2"],
+    )
+
+
+wf3 = Workflow(
+    "wf-foreach-task-test",
+    default_cluster=job_cluster,
+    permissions=WorkflowPermissions(
+        owner=User("abc@abc.com"),
+        can_manage_run=[User("abc@abc.com")],
+        can_view=[User("abc@abc.com")],
+        can_manage=[User("abc@abc.com")],
+    ),
+    run_as_user="abc@abc.com",
+    tags={"test": "test2"},
+)
+
+
+@wf3.notebook_task()
+def first_notebook():
+    return NotebookTask(notebook_path="notebooks/notebook_a", source="WORKSPACE")
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook, concurrency=3, foreach_task_inputs="[1, 2, 3]"
+)
+def for_each_notebook():
+    return NotebookTask(
+        notebook_path="notebooks/notebook_b",
+        base_parameters={"looped_parameter": "{{input}}"},
+        source="WORKSPACE",
     )
