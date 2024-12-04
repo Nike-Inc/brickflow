@@ -70,6 +70,7 @@ from brickflow.engine.task import (
     TaskSettings,
     filter_bf_related_libraries,
     get_brickflow_libraries,
+    ForEachTask,
 )
 
 if typing.TYPE_CHECKING:
@@ -792,12 +793,11 @@ class DatabricksBundleCodegen(CodegenInterface):
                 f"{', '.join(task_type.__name__ for task_type in supported_task_types)}."
             ) from e
 
-        # The need to resolve the proper build function based on the task type (we cannot rely on the task type enum
-        # as this is done runtime and the used does not need to specify it in the for_each decorator (maybe it should?)
-
+        # Resolving the build function for the nested task based on the task type (we can iterate on any kind of task)
+        # so we can build it and attach it to the for_each_task
         workflow: Optional[Workflow] = kwargs.get("workflow")
 
-        builder_func = self._get_task_builder(task=nested_task.task_type)
+        builder_func = self._get_task_builder(task_type=nested_task.task_type)
         # TODO: How can the user specify the nested task name?
         nested_task_jt = builder_func(
             task_name=f"{task_name}_nested",
@@ -864,7 +864,13 @@ class DatabricksBundleCodegen(CodegenInterface):
             )
         return task_obj
 
-    def _get_task_builder(self, task: TaskType) -> Callable[..., Any]:
+    def _get_task_builder(
+        self, task_type: TaskType = None, task_class: typing.Type = type(None)
+    ) -> Callable[..., Any]:
+        assert any(
+            [task_type, task_class]
+        ), "Either task or task_class must be provided"
+
         map_task_type_to_builder: Dict[TaskType, Callable[..., Any]] = {
             TaskType.DLT: self._build_dlt_task,
             TaskType.NOTEBOOK_TASK: self._build_native_notebook_task,
@@ -873,11 +879,26 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.RUN_JOB_TASK: self._build_native_run_job_task,
             TaskType.SQL: self._build_native_sql_file_task,
             TaskType.IF_ELSE_CONDITION_TASK: self._build_native_condition_task,
-            TaskType.SPARK_PYTHON_TASK: self._build_native_spark_python_task,
             TaskType.FOR_EACH_TASK: self._build_native_for_each_task,
         }
 
-        return map_task_type_to_builder.get(task, self._build_brickflow_entrypoint_task)
+        map_task_class_to_builder: Dict[typing.Type, Callable[..., Any]] = {
+            DLTPipeline: self._build_dlt_task,
+            JobsTasksNotebookTask: self._build_native_notebook_task,
+            JobsTasksSparkJarTask: self._build_native_spark_jar_task,
+            JobsTasksSparkPythonTask: self._build_native_spark_python_task,
+            JobsTasksRunJobTask: self._build_native_run_job_task,
+            JobsTasksSqlTask: self._build_native_sql_file_task,
+            JobsTasksConditionTask: self._build_native_condition_task,
+            ForEachTask: self._build_native_for_each_task,
+        }
+
+        builder = map_task_type_to_builder.get(
+            task_type, None
+        ) or map_task_class_to_builder.get(task_class, None)
+        if builder is None:
+            raise ValueError("No builder found for the given task or task class")
+        return builder
 
     def _build_task(
         self, build_func: Callable, workflow: Workflow, task_name: str, task: Task

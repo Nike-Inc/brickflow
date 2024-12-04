@@ -121,6 +121,8 @@ class TestWorkflow:
             assert field in new_cluster
 
     def test_default_cluster_isnt_empty(self, caplog):
+        #  pylint: disable=no-value-for-parameter
+        #  pylint: disable=unexpected-keyword-arg
         try:
             compute = [
                 Cluster("name", "spark", "vmnode"),

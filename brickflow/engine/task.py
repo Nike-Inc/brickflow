@@ -838,6 +838,8 @@ class Task:
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
     foreach_task_inputs: Optional[str] = None
     concurrency: Optional[int] = 1
+    for_each_task_inputs: Optional[str] = None
+    for_each_task_concurrency: Optional[int] = 1
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()

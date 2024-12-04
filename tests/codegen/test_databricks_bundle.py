@@ -1,12 +1,14 @@
 import os
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Callable
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
 import yaml
 from deepdiff import DeepDiff
+
+import pytest
 
 from brickflow import BrickflowEnvVars
 from brickflow.bundles.model import (
@@ -29,7 +31,7 @@ from brickflow.codegen.databricks_bundle import (
     ImportManager,
 )
 from brickflow.engine.project import Project, Stage
-from brickflow.engine.task import NotebookTask
+from brickflow.engine.task import NotebookTask, TaskType, ForEachTask
 
 # `get_job_id` is being called during workflow init, hence the patch
 with patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0) as p:
@@ -43,6 +45,30 @@ with patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0) as
 
 # BUNDLE_FILE_NAME = str(Path(__file__).parent / f"bundle.yml")
 BUNDLE_FILE_NAME = "bundle.yml"
+
+
+@pytest.mark.parametrize(
+    "task_type,task_class,expected",
+    [
+        (
+            TaskType.FOR_EACH_TASK,
+            None,
+            DatabricksBundleCodegen._build_native_for_each_task,
+        ),
+        (None, ForEachTask, DatabricksBundleCodegen._build_native_for_each_task),
+    ],
+)
+def test_get_task_builder(task_type: TaskType, task_class, expected: Callable, mocker):
+    mocker.patch(
+        "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator"
+    )
+    mocker.patch("brickflow.codegen.databricks_bundle.DatabricksBundleImportMutator")
+
+    bundle_codegen = DatabricksBundleCodegen(project=None, id_="test", env="local")
+    task_builder = bundle_codegen._get_task_builder(
+        task_type=task_type, task_class=task_class
+    )
+    assert task_builder.__name__ == expected.__name__
 
 
 def read_yaml_file(file_name: str):

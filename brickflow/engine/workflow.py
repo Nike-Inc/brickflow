@@ -378,6 +378,8 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        for_each_task_inputs: Optional[str] = None,
+        for_each_task_concurrency: Optional[int] = 1,
     ) -> Task:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -444,6 +446,8 @@ class Workflow:
             custom_execute_callback=custom_execute_callback,
             ensure_brickflow_plugins=ensure_plugins,
             if_else_outcome=if_else_outcome,
+            for_each_task_inputs=for_each_task_inputs,
+            for_each_task_concurrency=for_each_task_concurrency,
         )
 
         return task
@@ -605,8 +609,8 @@ class Workflow:
             task_settings=task_settings,
             depends_on=depends_on,
             if_else_outcome=if_else_outcome,
-            foreach_task_inputs=foreach_task_inputs,
-            concurrency=concurrency,
+            for_each_task_inputs=foreach_task_inputs,
+            for_each_task_concurrency=concurrency,
         )
 
     def task(
@@ -622,6 +626,8 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        for_each_task_inputs: Optional[str] = None,
+        for_each_task_concurrency: Optional[int] = 1,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -644,6 +650,8 @@ class Workflow:
                 task_settings=task_settings,
                 ensure_brickflow_plugins=ensure_brickflow_plugins,
                 if_else_outcome=if_else_outcome,
+                for_each_task_inputs=for_each_task_inputs,
+                for_each_task_concurrency=for_each_task_concurrency,
             )
 
             self._add_task(task_id=task_id, task=task)
