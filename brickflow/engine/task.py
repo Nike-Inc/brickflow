@@ -28,7 +28,7 @@ from typing import (
 
 import pluggy
 from decouple import config
-
+from pydantic import field_validator
 from brickflow import (
     BrickflowDefaultEnvs,
     BrickflowEnvVars,
@@ -495,31 +495,26 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         self.python_file = kwargs.get("python_file", None)
 
 
-# TODO: still needed?
 class ForEachTask(JobsTasksForEachTask):
     """
     The ForEachTask class provides iteration of a task over a list of inputs. The looped task can be executed
     concurrently based on the concurrency value provided.
 
     Attributes:
-        inputs (List[Any]): The list of inputs to be iterated over.
-        concurrency (int): The number of concurrent tasks to be executed.
-        task (Any): The task to be executed
+        inputs (str): Array for task to iterate on. This can be a JSON string or a reference to an array parameter.
+        concurrency (int): An optional maximum allowed number of concurrent runs of the task. Set this value if you want
+                           to be able to execute multiple runs of the task concurrently
+        task (Any): The task that will be run for each element in the array
 
     TODO riccamini: Add examples
     """
 
-    inputs: List[Any]
-    concurrency: int
-    task: Any
-
-    # TODO: not sure if you want to keep this
-    # @field_validator("inputs", mode="after")
-    # @classmethod
-    # def validate_inputs(cls, inputs):
-    #     if not isinstance(inputs, str):
-    #         inputs = json.dumps(inputs)
-    #     return inputs
+    @field_validator("inputs", mode="before")
+    @classmethod
+    def validate_inputs(cls, inputs: Any) -> str:
+        if not isinstance(inputs, str):
+            inputs = json.dumps(inputs)
+        return inputs
 
 
 class RunJobTask(JobsTasksRunJobTask):

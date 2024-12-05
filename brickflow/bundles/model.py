@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Extra, Field, constr
+from pydantic import BaseModel, Field, constr
 from typing_extensions import Literal
 
 
@@ -1174,9 +1174,10 @@ class JobsTasksEmailNotifications(BaseModel):
 
 
 class JobsTasksForEachTask(BaseModel):
-    inputs: str = Field(description="Array for task to iterate on. This can be a JSON string or a reference to an array parameter.")
-    concurrency: int = Field(description="An optional maximum allowed number of concurrent runs of the task. Set this value if you want to be able to execute multiple runs of the task concurrently.")
-    task: JobsTasks = Field(description="The task that will be run for each element in the array")
+    inputs: str
+    concurrency: int
+    task: JobsTasks
+
 
 
 class JobsTasksHealthRules(BaseModel):

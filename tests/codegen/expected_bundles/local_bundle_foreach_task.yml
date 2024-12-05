@@ -42,18 +42,27 @@
             "test": "test2"
           tasks:
             - task_key: first_notebook
+              "depends_on": [ ]
+              "email_notifications": { }
+              "libraries": [ ]
               notebook_task:
                 notebook_path: notebooks/notebook_a
                 source: WORKSPACE
-              job_cluster_key: sample_job_cluster
+              "job_cluster_key": "sample_job_cluster"
             - task_key: for_each_notebook
               depends_on:
                 - task_key: first_notebook
+              "email_notifications": { }
+              "libraries": [ ]
+              job_cluster_key: sample_job_cluster
               for_each_task:
                 inputs: "[1, 2, 3]"
                 concurrency: 3
                 task:
                   task_key: for_each_notebook_nested
+                  "depends_on": [ ]
+                  "email_notifications": { }
+                  "libraries": [ ]
                   notebook_task:
                     notebook_path: notebooks/notebook_b
                     base_parameters:
