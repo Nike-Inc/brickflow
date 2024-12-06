@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, constr, InstanceOf
 from typing_extensions import Literal
 
 

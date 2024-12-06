@@ -594,8 +594,8 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
-        foreach_task_inputs: Optional[str] = None,
-        concurrency: Optional[int] = 1,
+        for_each_task_inputs: Optional[str] = None,
+        for_each_task_concurrency: Optional[int] = 1,
     ) -> Callable:
         return self.task(
             task_func,
@@ -604,8 +604,8 @@ class Workflow:
             task_settings=task_settings,
             depends_on=depends_on,
             if_else_outcome=if_else_outcome,
-            for_each_task_inputs=foreach_task_inputs,
-            for_each_task_concurrency=concurrency,
+            for_each_task_inputs=for_each_task_inputs,
+            for_each_task_concurrency=for_each_task_concurrency,
         )
 
     def task(

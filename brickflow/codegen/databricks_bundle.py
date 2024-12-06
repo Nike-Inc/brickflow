@@ -6,6 +6,7 @@ import re
 import typing
 from enum import Enum
 from pathlib import Path
+from types import NoneType
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import yaml
@@ -505,12 +506,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         return file_path
 
     def task_to_task_obj(self, task: Task) -> JobsTasksNotebookTask:
-        if task.task_type in [TaskType.BRICKFLOW_TASK, TaskType.CUSTOM_PYTHON_TASK]:
-            generated_path = handle_mono_repo_path(self.project, self.env)
-            return JobsTasksNotebookTask(
-                **task.get_obj_dict(generated_path),
-                source=self.adjust_source(),
-            )
+        generated_path = handle_mono_repo_path(self.project, self.env)
+        return JobsTasksNotebookTask(
+            **task.get_obj_dict(generated_path),
+            source=self.adjust_source(),
+        )
 
     def workflow_obj_to_pipelines(self, workflow: Workflow) -> Dict[str, Pipelines]:
         pipelines_dict = {}
@@ -782,8 +782,10 @@ class DatabricksBundleCodegen(CodegenInterface):
             SparkPythonTask,
             RunJobTask,
             SqlTask,
+            NoneType,  # Accounts for brickflow entrypoint tasks
         )
-
+        # TODO: how to handle brickflow task types when they do have return statements? The nested_task type won't
+        # TODO: be NoneType anymore, needs to figure out a different way to still be able to validate!
         nested_task = task.task_func()
         try:
             assert isinstance(nested_task, supported_task_types)
@@ -794,10 +796,17 @@ class DatabricksBundleCodegen(CodegenInterface):
             ) from e
 
         # Resolving the build function for the nested task based on the task type (we can iterate on any kind of task)
-        # so we can build it and attach it to the for_each_task
-        workflow: Optional[Workflow] = kwargs.get("workflow")
+        # so we can build it and attach it to the for_each_task. For brickflow native task we do not have a class type
+        # we can leverage to resolve the build function, so we are setting the task_type variable to
+        # TaskType.BRICKFLOW_TASK
 
-        builder_func = self._get_task_builder(task_class=type(nested_task))
+        task_type = TaskType.BRICKFLOW_TASK if nested_task is None else None
+
+        builder_func = self._get_task_builder(
+            task_class=type(nested_task), task_type=task_type
+        )
+
+        workflow: Optional[Workflow] = kwargs.get("workflow")
         # TODO: How can the user specify the nested task name?
         nested_task_jt = builder_func(
             task_name=f"{task_name}_nested",
@@ -814,22 +823,13 @@ class DatabricksBundleCodegen(CodegenInterface):
             task=nested_task_jt,
         )
 
+        # We are not specifying any cluster or libraries as for_each_task cannot have them!
         jt = JobsTasks(
             **task_settings.to_tf_dict(),
             for_each_task=for_each_task,
             depends_on=depends_on,
             task_key=task_name,
-            # unpack dictionary provided by cluster object, will either be key or
-            # existing cluster id, if cluster object is empty, Databricks will use serverless compute
-            **(task.cluster.job_task_field_dict if task.cluster else {}),
         )
-
-        if task.cluster:
-            jt.libraries = task_libraries
-        else:
-            jt.environment_key = (
-                "Default"  # TODO: make configurable from task definition
-            )
 
         return jt
 
@@ -844,7 +844,7 @@ class DatabricksBundleCodegen(CodegenInterface):
     ) -> JobsTasks:
         task_obj = JobsTasks(
             **{
-                task.databricks_task_type_str: self.task_to_task_obj(task),
+                TaskType.NOTEBOOK_TASK.value: self.task_to_task_obj(task),
                 **task_settings.to_tf_dict(),
             },  # type: ignore
             depends_on=depends_on,

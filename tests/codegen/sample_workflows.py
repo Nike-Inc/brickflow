@@ -421,7 +421,9 @@ def first_notebook():
 
 
 @wf3.for_each_task(
-    depends_on=first_notebook, concurrency=3, foreach_task_inputs="[1, 2, 3]"
+    depends_on=first_notebook,
+    for_each_task_concurrency=3,
+    for_each_task_inputs="[1, 2, 3]",
 )
 def for_each_notebook():
     return NotebookTask(
@@ -429,3 +431,12 @@ def for_each_notebook():
         base_parameters={"looped_parameter": "{{input}}"},
         source="WORKSPACE",
     )
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs=["1", "2", "3"],
+    for_each_task_concurrency=1,
+)
+def for_each_bf_task():
+    print("This is a bf task!")

@@ -53,8 +53,6 @@
               depends_on:
                 - task_key: first_notebook
               "email_notifications": { }
-              "libraries": [ ]
-              job_cluster_key: sample_job_cluster
               for_each_task:
                 inputs: "[1, 2, 3]"
                 concurrency: 3
@@ -68,6 +66,36 @@
                     base_parameters:
                       looped_parameter: "{{input}}"
                     source: WORKSPACE
+                  job_cluster_key: sample_job_cluster
+            - task_key: for_each_bf_task
+              depends_on:
+                - task_key: first_notebook
+              "email_notifications": { }
+              for_each_task:
+                inputs: "[\"1\", \"2\", \"3\"]"
+                concurrency: 1
+                task:
+                  task_key: for_each_bf_task_nested
+                  "depends_on": [ ]
+                  "email_notifications": { }
+                  "libraries": [ ]
+                  notebook_task:
+                    base_parameters:
+                      brickflow_env: local
+                      brickflow_internal_only_run_tasks: ""
+                      brickflow_internal_task_name: "{{task_key}}"
+                      brickflow_internal_workflow_name: wf-foreach-task-test
+                      brickflow_internal_workflow_prefix: ""
+                      brickflow_internal_workflow_suffix: ""
+                      brickflow_job_id: "{{job_id}}"
+                      brickflow_parent_run_id: "{{parent_run_id}}"
+                      brickflow_run_id: "{{run_id}}"
+                      brickflow_start_date: "{{start_date}}"
+                      brickflow_start_time: "{{start_time}}"
+                      brickflow_task_key: "{{task_key}}"
+                      brickflow_task_retry_count: "{{task_retry_count}}"
+                    notebook_path: test_databricks_bundle.py
+                    source: WORKSPACE # TODO check if this needs to be GIT for BF tasks
                   job_cluster_key: sample_job_cluster
           "timeout_seconds": null
           "trigger": null
