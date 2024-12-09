@@ -6,7 +6,6 @@ import re
 import typing
 from enum import Enum
 from pathlib import Path
-from types import NoneType
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import yaml
@@ -777,34 +776,26 @@ class DatabricksBundleCodegen(CodegenInterface):
         **kwargs: Any,
     ) -> JobsTasks:
         supported_task_types = (
-            NotebookTask,
-            SparkJarTask,
-            SparkPythonTask,
-            RunJobTask,
-            SqlTask,
-            NoneType,  # Accounts for brickflow entrypoint tasks
+            TaskType.NOTEBOOK_TASK,
+            TaskType.SPARK_JAR_TASK,
+            TaskType.SPARK_PYTHON_TASK,
+            TaskType.RUN_JOB_TASK,
+            TaskType.SQL,
+            TaskType.BRICKFLOW_TASK,  # Accounts for brickflow entrypoint tasks
         )
-        # TODO: how to handle brickflow task types when they do have return statements? The nested_task type won't
-        # TODO: be NoneType anymore, needs to figure out a different way to still be able to validate!
+
         nested_task = task.task_func()
+        task_type = self._get_task_type(nested_task)
+
         try:
-            assert isinstance(nested_task, supported_task_types)
+            assert task_type in supported_task_types
         except AssertionError as e:
             raise ValueError(
-                f"Error while building python task {task_name}. Make sure {task_name} returns one of "
+                f"Error while building python task {task_name}. Make sure {task_name} is one of "
                 f"{', '.join(task_type.__name__ for task_type in supported_task_types)}."
             ) from e
 
-        # Resolving the build function for the nested task based on the task type (we can iterate on any kind of task)
-        # so we can build it and attach it to the for_each_task. For brickflow native task we do not have a class type
-        # we can leverage to resolve the build function, so we are setting the task_type variable to
-        # TaskType.BRICKFLOW_TASK
-
-        task_type = TaskType.BRICKFLOW_TASK if nested_task is None else None
-
-        builder_func = self._get_task_builder(
-            task_class=type(nested_task), task_type=task_type
-        )
+        builder_func = self._get_task_builder(task_type=task_type)
 
         workflow: Optional[Workflow] = kwargs.get("workflow")
         # TODO: How can the user specify the nested task name?
@@ -864,13 +855,24 @@ class DatabricksBundleCodegen(CodegenInterface):
             )
         return task_obj
 
-    def _get_task_builder(
-        self, task_type: TaskType = None, task_class: typing.Type = type(None)
-    ) -> Callable[..., Any]:
-        assert any(
-            [task_type, task_class]
-        ), "Either task or task_class must be provided"
+    def _get_task_type(self, task: Any) -> TaskType:
+        """Resolves the task type given the task object"""
 
+        map_task_class_to_task_type: Dict[typing.Type, TaskType] = {
+            DLTPipeline: TaskType.DLT,
+            NotebookTask: TaskType.NOTEBOOK_TASK,
+            SparkJarTask: TaskType.SPARK_JAR_TASK,
+            SparkPythonTask: TaskType.SPARK_PYTHON_TASK,
+            RunJobTask: TaskType.RUN_JOB_TASK,
+            SqlTask: TaskType.SQL,
+            IfElseConditionTask: TaskType.IF_ELSE_CONDITION_TASK,
+            ForEachTask: TaskType.FOR_EACH_TASK,
+        }
+
+        # Brickflow tasks does not have a dedicated task class, so we are matching everything else with it
+        return map_task_class_to_task_type.get(type(task), TaskType.BRICKFLOW_TASK)
+
+    def _get_task_builder(self, task_type: TaskType = None) -> Callable[..., Any]:
         map_task_type_to_builder: Dict[TaskType, Callable[..., Any]] = {
             TaskType.BRICKFLOW_TASK: self._build_brickflow_entrypoint_task,
             TaskType.DLT: self._build_dlt_task,
@@ -884,20 +886,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.CUSTOM_PYTHON_TASK: self._build_brickflow_entrypoint_task,
         }
 
-        map_task_class_to_builder: Dict[typing.Type, Callable[..., Any]] = {
-            DLTPipeline: self._build_dlt_task,
-            NotebookTask: self._build_native_notebook_task,
-            SparkJarTask: self._build_native_spark_jar_task,
-            SparkPythonTask: self._build_native_spark_python_task,
-            RunJobTask: self._build_native_run_job_task,
-            SqlTask: self._build_native_sql_file_task,
-            IfElseConditionTask: self._build_native_condition_task,
-            ForEachTask: self._build_native_for_each_task,
-        }
-
-        builder = map_task_type_to_builder.get(
-            task_type, None
-        ) or map_task_class_to_builder.get(task_class, None)
+        builder = map_task_type_to_builder.get(task_type, None)
         if builder is None:
             raise ValueError("No builder found for the given task or task class")
         return builder
