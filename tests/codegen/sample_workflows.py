@@ -440,3 +440,16 @@ def for_each_notebook():
 )
 def for_each_bf_task():
     print("This is a bf task!")
+
+
+@wf3.for_each_task(
+    depends_on=for_each_bf_task,
+    for_each_task_inputs="[1,2,3]",
+    for_each_task_concurrency=1,
+    libraries=[JarTaskLibrary(jar="dbfs:/some/path/to/The.jar")],
+)
+def for_each_spark_jar():
+    return SparkJarTask(
+        main_class_name="com.example.MainClass",
+        parameters=["{{input}}"],
+    )

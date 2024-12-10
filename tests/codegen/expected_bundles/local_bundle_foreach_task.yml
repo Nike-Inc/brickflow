@@ -97,6 +97,24 @@
                     notebook_path: test_databricks_bundle.py
                     source: WORKSPACE # TODO check if this needs to be GIT for BF tasks
                   job_cluster_key: sample_job_cluster
+            - task_key: for_each_spark_jar
+              depends_on:
+                - task_key: for_each_bf_task
+              email_notifications: {}
+              for_each_task:
+                inputs: "[1,2,3]"
+                concurrency: 1
+                task:
+                  "depends_on": [ ]
+                  "email_notifications": { }
+                  task_key: for_each_spark_jar_nested
+                  spark_jar_task:
+                    main_class_name: com.example.MainClass
+                    parameters:
+                      - "{{input}}"
+                  job_cluster_key: sample_job_cluster
+                  libraries:
+                    - jar: dbfs:/some/path/to/The.jar
           "timeout_seconds": null
           "trigger": null
           "webhook_notifications": null
