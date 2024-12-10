@@ -12,6 +12,7 @@ from brickflow import (
     SparkJarTask,
     SparkPythonTask,
 )
+from brickflow.bundles.model import JobsTasks
 from brickflow.context import (
     BRANCH_SKIP_EXCEPT,
     RETURN_VALUE_KEY,
@@ -35,6 +36,7 @@ from brickflow.engine.task import (
     get_brickflow_libraries,
     get_brickflow_tasks_hook,
     get_plugin_manager,
+    ForEachTask,
 )
 from brickflow.engine.utils import get_job_id
 from tests.engine.sample_workflow import (
@@ -631,3 +633,12 @@ class TestTask:
         assert sql_task.dashboard.custom_subject == "custom subject"
         assert sql_task.dashboard.pause_subscriptions is False
         assert len(sql_task.dashboard.subscriptions) == 2
+
+    def test_for_each_task_validation(self):
+        for_each_task = ForEachTask(
+            inputs=["input1", "input2"],
+            concurrency=2,
+            task=JobsTasks(task_key="task_key"),
+        )
+
+        assert for_each_task.inputs == '["input1", "input2"]'

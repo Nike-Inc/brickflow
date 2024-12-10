@@ -399,3 +399,57 @@ def task_spark_jar():
         main_class_name="com.example.MainClass",
         parameters=["param1", "param2"],
     )
+
+
+wf3 = Workflow(
+    "wf-foreach-task-test",
+    default_cluster=job_cluster,
+    permissions=WorkflowPermissions(
+        owner=User("abc@abc.com"),
+        can_manage_run=[User("abc@abc.com")],
+        can_view=[User("abc@abc.com")],
+        can_manage=[User("abc@abc.com")],
+    ),
+    run_as_user="abc@abc.com",
+    tags={"test": "test2"},
+)
+
+
+@wf3.notebook_task()
+def first_notebook():
+    return NotebookTask(notebook_path="notebooks/notebook_a", source="WORKSPACE")
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_concurrency=3,
+    for_each_task_inputs="[1, 2, 3]",
+)
+def for_each_notebook():
+    return NotebookTask(
+        notebook_path="notebooks/notebook_b",
+        base_parameters={"looped_parameter": "{{input}}"},
+        source="WORKSPACE",
+    )
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs=["1", "2", "3"],
+    for_each_task_concurrency=1,
+)
+def for_each_bf_task():
+    print("This is a bf task!")
+
+
+@wf3.for_each_task(
+    depends_on=for_each_bf_task,
+    for_each_task_inputs="[1,2,3]",
+    for_each_task_concurrency=1,
+    libraries=[JarTaskLibrary(jar="dbfs:/some/path/to/The.jar")],
+)
+def for_each_spark_jar():
+    return SparkJarTask(
+        main_class_name="com.example.MainClass",
+        parameters=["{{input}}"],
+    )

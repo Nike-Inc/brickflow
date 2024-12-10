@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Extra, Field, constr
+from pydantic import BaseModel, Field, constr, InstanceOf
 from typing_extensions import Literal
 
 
@@ -1174,7 +1174,10 @@ class JobsTasksEmailNotifications(BaseModel):
 
 
 class JobsTasksForEachTask(BaseModel):
-    pass
+    inputs: str
+    concurrency: int
+    task: JobsTasks
+
 
 
 class JobsTasksHealthRules(BaseModel):
