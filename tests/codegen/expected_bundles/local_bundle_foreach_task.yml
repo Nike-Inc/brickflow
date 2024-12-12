@@ -94,6 +94,7 @@
                       brickflow_start_time: "{{start_time}}"
                       brickflow_task_key: "{{task_key}}"
                       brickflow_task_retry_count: "{{task_retry_count}}"
+                      looped_parameter: "{{input}}"
                     notebook_path: test_databricks_bundle.py
                     source: WORKSPACE # TODO check if this needs to be GIT for BF tasks
                   job_cluster_key: sample_job_cluster
@@ -115,6 +116,37 @@
                   job_cluster_key: sample_job_cluster
                   libraries:
                     - jar: dbfs:/some/path/to/The.jar
+            - task_key: for_each_spark_python
+              depends_on:
+                  - task_key: first_notebook
+              email_notifications: {}
+              for_each_task:
+                inputs: "[1,2,3]"
+                concurrency: 1
+                task:
+                  "email_notifications": { }
+                  "depends_on": [ ]
+                  task_key: for_each_spark_python_nested
+                  "libraries": []
+                  spark_python_task:
+                    python_file: "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/test-project/path/to/python_script.py"
+                    parameters:
+                      - "{{input}}"
+                    source: WORKSPACE
+                  job_cluster_key: sample_job_cluster
+            - task_key: for_each_run_job
+              depends_on:
+                - task_key: first_notebook
+              email_notifications: {}
+              for_each_task:
+                inputs: "[\"job_param_1\",\"job_param_2\"]"
+                concurrency: 1
+                task:
+                  "depends_on": [ ]
+                  "email_notifications": { }
+                  task_key: for_each_run_job_nested
+                  run_job_task:
+                    job_id: 12345678901234.0
           "timeout_seconds": null
           "trigger": null
           "webhook_notifications": null

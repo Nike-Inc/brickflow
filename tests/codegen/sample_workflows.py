@@ -438,8 +438,8 @@ def for_each_notebook():
     for_each_task_inputs=["1", "2", "3"],
     for_each_task_concurrency=1,
 )
-def for_each_bf_task():
-    print("This is a bf task!")
+def for_each_bf_task(*, looped_parameter="{{input}}"):
+    print(f"This is a nested bf task running with input: {looped_parameter}")
 
 
 @wf3.for_each_task(
@@ -453,3 +453,25 @@ def for_each_spark_jar():
         main_class_name="com.example.MainClass",
         parameters=["{{input}}"],
     )
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs="[1,2,3]",
+    for_each_task_concurrency=1,
+)
+def for_each_spark_python():
+    return SparkPythonTask(
+        python_file="/test-project/path/to/python_script.py",
+        source="WORKSPACE",
+        parameters=["{{input}}"],
+    )
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs='["job_param_1","job_param_2"]',
+    for_each_task_concurrency=1,
+)
+def for_each_run_job():
+    return RunJobTask(job_name="some_job_name")

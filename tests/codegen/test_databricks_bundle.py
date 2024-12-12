@@ -739,8 +739,10 @@ import {
         "brickflow.context.ctx.get_current_timestamp",
         MagicMock(return_value=1704067200000),
     )
+    @patch("brickflow.codegen.databricks_bundle.MultiProjectManager")
     def test_foreach_task(
         self,
+        multi_project_manager_mock: Mock,
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
@@ -751,6 +753,10 @@ import {
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
         get_job_id_mock.return_value = 12345678901234.0
+
+        multi_project_manager_mock.return_value.get_project.return_value = MagicMock(
+            path_from_repo_root_to_project_root="test-project"
+        )
         # get caller part breaks here
         with Project(
             "test-project",
