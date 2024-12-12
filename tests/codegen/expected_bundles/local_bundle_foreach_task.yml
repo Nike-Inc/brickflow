@@ -147,6 +147,23 @@
                   task_key: for_each_run_job_nested
                   run_job_task:
                     job_id: 12345678901234.0
+            - task_key: for_each_sql_task
+              depends_on:
+                  - task_key: first_notebook
+              email_notifications: {}
+              for_each_task:
+                inputs: "[1,2,3]"
+                concurrency: 1
+                task:
+                  task_key: for_each_sql_task_nested
+                  "email_notifications": { }
+                  "depends_on": [ ]
+                  sql_task:
+                    parameters:
+                      looped_parameter: "{{input}}"
+                    query:
+                      query_id: some_sql_query_id
+                    warehouse_id: some_warehouse_id
           "timeout_seconds": null
           "trigger": null
           "webhook_notifications": null

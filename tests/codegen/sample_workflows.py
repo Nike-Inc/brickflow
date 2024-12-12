@@ -475,3 +475,16 @@ def for_each_spark_python():
 )
 def for_each_run_job():
     return RunJobTask(job_name="some_job_name")
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs="[1,2,3]",
+    for_each_task_concurrency=1,
+)
+def for_each_sql_task() -> any:
+    return SqlTask(
+        query_id="some_sql_query_id",
+        warehouse_id="some_warehouse_id",
+        parameters={"looped_parameter": "{{input}}"},
+    )
