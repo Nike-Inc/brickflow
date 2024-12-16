@@ -798,7 +798,8 @@ class DatabricksBundleCodegen(CodegenInterface):
         builder_func = self._get_task_builder(task_type=task_type)
 
         workflow: Optional[Workflow] = kwargs.get("workflow")
-        # TODO: How can the user specify the nested task name?
+        # Currently the inner task name is not exposed, will have to add a parammeter to the for_each_task decorator to
+        # allow user to configure it
         nested_task_jt = builder_func(
             task_name=f"{task_name}_nested",
             task=task,
