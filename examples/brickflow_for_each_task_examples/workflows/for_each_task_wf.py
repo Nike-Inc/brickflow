@@ -11,6 +11,7 @@ from brickflow import (
 )
 
 from brickflow.context import ctx
+from brickflow.engine.task import JobsTasksForEachTaskConfigs
 
 cluster = Cluster(
     name=f"job_cluster_for_each_task_examples",
@@ -41,13 +42,16 @@ def example_task():
 
 
 @wf.for_each_task(
-    for_each_task_inputs=[
-        "AZ",
-        "CA",
-        "IL",
-    ],  # Input can be provided by either a python iterable or a json-string
-    for_each_task_concurrency=3,
     depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        # Inputs can be provided by either a python iterable or a json-string
+        inputs=[
+            "AZ",
+            "CA",
+            "IL",
+        ],
+        concurrency=3,
+    ),
 )
 def example_notebook():
     return NotebookTask(
@@ -57,9 +61,10 @@ def example_notebook():
 
 
 @wf.for_each_task(
-    for_each_task_inputs='["1", "2", "3"]',
-    for_each_task_concurrency=3,
     depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs='["1", "2", "3"]', concurrency=3
+    ),
 )
 def example_brickflow_task(*, test_param="{{input}}"):
     print(f"Test param: {test_param}")
@@ -69,13 +74,15 @@ def example_brickflow_task(*, test_param="{{input}}"):
 
 @wf.for_each_task(
     depends_on=example_task,
-    for_each_task_inputs="[1,2,3]",
-    for_each_task_concurrency=1,
     libraries=[
         JarTaskLibrary(
             jar="<dbfs:/some/path/to/The.jar>"
         )  # Replace with actual jar path
     ],
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
 )
 def for_each_spark_jar():
     return SparkJarTask(
@@ -85,7 +92,11 @@ def for_each_spark_jar():
 
 
 @wf.for_each_task(
-    depends_on=example_task, for_each_task_inputs="[1,2,3]", for_each_task_concurrency=1
+    depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
 )
 def for_each_spark_python():
     return SparkPythonTask(
@@ -97,8 +108,10 @@ def for_each_spark_python():
 
 @wf.for_each_task(
     depends_on=example_notebook,
-    for_each_task_inputs="[1,2,3]",
-    for_each_task_concurrency=1,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
 )
 def for_each_sql_task() -> any:
     return SqlTask(

@@ -512,8 +512,8 @@ Iteration of tasks is possible only for task types:
 - Run Job
 - Sql
 
-The `for_each_task` decorator can be configured with the following parameters:
-- **for_each_task_inputs: Optional[str]**: the list of input values to iterate over. This can be a python iterable, or a string representing a JSON formatted array of values.
+The `for_each_task` decorator can be configured by providing in the `for_each_task_conf` param a `JobsTasksForEachTaskConfigs` config in which you specify:
+- **inputs: Optional[str]**: the list of input values to iterate over. This can be a python iterable, or a string representing a JSON formatted array of values.
 - **for_each_task_concurrency: Optional[int]**: the number of concurrent executions of the task. Default is 1.
 
 A reference to the current input value we are iterating on can be accessed using `{{input}}` databricks workflow parameter.
@@ -522,73 +522,82 @@ Here are some examples of how to use the for each task type:
 
 ```python
 
-
 @wf.for_each_task(
-    depends_on=first_notebook,
-    for_each_task_concurrency=3,
-    for_each_task_inputs="[1, 2, 3]",  # here we pass the inputs as a string
+    depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        # Inputs can be provided by either a python iterable or a json-string
+        inputs=[
+            "AZ",
+            "CA",
+            "IL",
+        ],
+        concurrency=3,
+    ),
 )
-def for_each_notebook():
-    return NotebookTask(  
-        notebook_path="notebooks/notebook_b",
-        base_parameters={"looped_parameter": "{{input}}"},  #  looped_parameter is set to {{input}} and will reference each time the current input we are working on in a specific iteration
-        source="WORKSPACE",
+def example_notebook():
+    return NotebookTask(
+        notebook_path="notebooks/example_notebook.py",
+        base_parameters={"looped_parameter": "{{input}}"},
     )
 
 
 @wf.for_each_task(
-    depends_on=first_notebook,
-    for_each_task_inputs=["1", "2", "3"],  # here we configure the input as a standard python list. Brickflow will take care of that
-    for_each_task_concurrency=1,
+    depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs='["1", "2", "3"]', concurrency=3
+    ),
 )
-def for_each_bf_task(*, looped_parameter="{{input}}"):
-    print(f"This is a nested bf task running with input: {looped_parameter}")
+def example_brickflow_task(*, test_param="{{input}}"):
+    print(f"Test param: {test_param}")
+    param = ctx.get_parameter("looped_parameter")
+    print(f"Nested brickflow task running with input: {param}")
 
 
-@wf3.for_each_task(
-    depends_on=for_each_bf_task,
-    for_each_task_inputs="[1,2,3]",
-    for_each_task_concurrency=1,
-    libraries=[JarTaskLibrary(jar="dbfs:/some/path/to/The.jar")],
+@wf.for_each_task(
+    depends_on=example_task,
+    libraries=[
+        JarTaskLibrary(
+            jar="<dbfs:/some/path/to/The.jar>"
+        ) 
+    ],
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
 )
 def for_each_spark_jar():
     return SparkJarTask(
-        main_class_name="com.example.MainClass",
+        main_class_name="com.example.MainClass", 
         parameters=["{{input}}"],
     )
 
 
 @wf.for_each_task(
-    depends_on=first_notebook,
-    for_each_task_inputs="[1,2,3]",
-    for_each_task_concurrency=1,
+    depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
 )
 def for_each_spark_python():
     return SparkPythonTask(
-        python_file="/test-project/path/to/python_script.py",
+        python_file="src/python/print_args.py",
         source="WORKSPACE",
         parameters=["{{input}}"],
     )
 
 
 @wf.for_each_task(
-    depends_on=first_notebook,
-    for_each_task_inputs='["job_param_1","job_param_2"]',
-    for_each_task_concurrency=1,
-)
-def for_each_run_job():
-    return RunJobTask(job_name="some_job_name")
-
-
-@wf.for_each_task(
-    depends_on=first_notebook,
-    for_each_task_inputs="[1,2,3]",
-    for_each_task_concurrency=1,
+    depends_on=example_notebook,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
 )
 def for_each_sql_task() -> any:
     return SqlTask(
-        query_id="some_sql_query_id",
-        warehouse_id="some_warehouse_id",
+        query_id="<some-query-id>", 
+        warehouse_id="<some-warehouse-id>", 
         parameters={"looped_parameter": "{{input}}"},
     )
 
