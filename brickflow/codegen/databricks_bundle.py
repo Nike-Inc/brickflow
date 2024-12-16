@@ -784,6 +784,12 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.BRICKFLOW_TASK,  # Accounts for brickflow entrypoint tasks
         )
 
+        if task.for_each_task_conf is None:
+            raise ValueError(
+                f"Error while building for each task {task_name}. "
+                f"Make sure {task_name} has a for_each_task_conf attribute."
+            )
+
         nested_task = task.task_func()
         task_type = self._get_task_type(nested_task)
 
@@ -808,12 +814,6 @@ class DatabricksBundleCodegen(CodegenInterface):
             task_settings=task_settings,
             depends_on=[],
         )
-
-        if task.for_each_task_conf is None:
-            raise ValueError(
-                f"Error while building for each task {task_name}. "
-                f"Make sure {task_name} has a for_each_task_conf attribute."
-            )
 
         for_each_task = ForEachTask(
             configs=task.for_each_task_conf,

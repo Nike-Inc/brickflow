@@ -521,7 +521,6 @@ class ForEachTask(JobsTasksForEachTask):
                            to be able to execute multiple runs of the task concurrently
         task (Any): The task that will be run for each element in the array
 
-    TODO riccamini: Add examples
     """
 
     configs: JobsTasksForEachTaskConfigs
