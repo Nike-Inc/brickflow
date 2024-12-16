@@ -53,8 +53,6 @@
               depends_on:
                 - task_key: first_notebook
               "email_notifications": { }
-              "libraries": [ ]
-              job_cluster_key: sample_job_cluster
               for_each_task:
                 inputs: "[1, 2, 3]"
                 concurrency: 3
@@ -69,6 +67,103 @@
                       looped_parameter: "{{input}}"
                     source: WORKSPACE
                   job_cluster_key: sample_job_cluster
+            - task_key: for_each_bf_task
+              depends_on:
+                - task_key: first_notebook
+              "email_notifications": { }
+              for_each_task:
+                inputs: "[\"1\", \"2\", \"3\"]"
+                concurrency: 1
+                task:
+                  task_key: for_each_bf_task_nested
+                  "depends_on": [ ]
+                  "email_notifications": { }
+                  "libraries": [ ]
+                  notebook_task:
+                    base_parameters:
+                      brickflow_env: local
+                      brickflow_internal_only_run_tasks: ""
+                      brickflow_internal_task_name: "{{task_key}}"
+                      brickflow_internal_workflow_name: wf-foreach-task-test
+                      brickflow_internal_workflow_prefix: ""
+                      brickflow_internal_workflow_suffix: ""
+                      brickflow_job_id: "{{job_id}}"
+                      brickflow_parent_run_id: "{{parent_run_id}}"
+                      brickflow_run_id: "{{run_id}}"
+                      brickflow_start_date: "{{start_date}}"
+                      brickflow_start_time: "{{start_time}}"
+                      brickflow_task_key: "{{task_key}}"
+                      brickflow_task_retry_count: "{{task_retry_count}}"
+                      looped_parameter: "{{input}}"
+                    notebook_path: test_databricks_bundle.py
+                    source: WORKSPACE # TODO check if this needs to be GIT for BF tasks
+                  job_cluster_key: sample_job_cluster
+            - task_key: for_each_spark_jar
+              depends_on:
+                - task_key: for_each_bf_task
+              email_notifications: {}
+              for_each_task:
+                inputs: "[1,2,3]"
+                concurrency: 1
+                task:
+                  "depends_on": [ ]
+                  "email_notifications": { }
+                  task_key: for_each_spark_jar_nested
+                  spark_jar_task:
+                    main_class_name: com.example.MainClass
+                    parameters:
+                      - "{{input}}"
+                  job_cluster_key: sample_job_cluster
+                  libraries:
+                    - jar: dbfs:/some/path/to/The.jar
+            - task_key: for_each_spark_python
+              depends_on:
+                  - task_key: first_notebook
+              email_notifications: {}
+              for_each_task:
+                inputs: "[1,2,3]"
+                concurrency: 1
+                task:
+                  "email_notifications": { }
+                  "depends_on": [ ]
+                  task_key: for_each_spark_python_nested
+                  "libraries": []
+                  spark_python_task:
+                    python_file: "/Workspace/Users/${workspace.current_user.userName}/.brickflow_bundles/test-project/local/files/test-project/path/to/python_script.py"
+                    parameters:
+                      - "{{input}}"
+                    source: WORKSPACE
+                  job_cluster_key: sample_job_cluster
+            - task_key: for_each_run_job
+              depends_on:
+                - task_key: first_notebook
+              email_notifications: {}
+              for_each_task:
+                inputs: "[\"job_param_1\",\"job_param_2\"]"
+                concurrency: 1
+                task:
+                  "depends_on": [ ]
+                  "email_notifications": { }
+                  task_key: for_each_run_job_nested
+                  run_job_task:
+                    job_id: 12345678901234.0
+            - task_key: for_each_sql_task
+              depends_on:
+                  - task_key: first_notebook
+              email_notifications: {}
+              for_each_task:
+                inputs: "[1,2,3]"
+                concurrency: 1
+                task:
+                  task_key: for_each_sql_task_nested
+                  "email_notifications": { }
+                  "depends_on": [ ]
+                  sql_task:
+                    parameters:
+                      looped_parameter: "{{input}}"
+                    query:
+                      query_id: some_sql_query_id
+                    warehouse_id: some_warehouse_id
           "timeout_seconds": null
           "trigger": null
           "webhook_notifications": null

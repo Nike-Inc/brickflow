@@ -31,7 +31,7 @@ from brickflow.codegen.databricks_bundle import (
     ImportManager,
 )
 from brickflow.engine.project import Project, Stage
-from brickflow.engine.task import NotebookTask, TaskType, ForEachTask
+from brickflow.engine.task import NotebookTask, TaskType
 
 # `get_job_id` is being called during workflow init, hence the patch
 with patch("brickflow.engine.task.get_job_id", return_value=12345678901234.0) as p:
@@ -48,27 +48,52 @@ BUNDLE_FILE_NAME = "bundle.yml"
 
 
 @pytest.mark.parametrize(
-    "task_type,task_class,expected",
+    "task_type,expected",
     [
         (
             TaskType.FOR_EACH_TASK,
-            None,
             DatabricksBundleCodegen._build_native_for_each_task,
         ),
-        (None, ForEachTask, DatabricksBundleCodegen._build_native_for_each_task),
+        (TaskType.NOTEBOOK_TASK, DatabricksBundleCodegen._build_native_notebook_task),
     ],
 )
-def test_get_task_builder(task_type: TaskType, task_class, expected: Callable, mocker):
+def test_get_task_builder(task_type: TaskType, expected: Callable, mocker):
     mocker.patch(
         "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator"
     )
     mocker.patch("brickflow.codegen.databricks_bundle.DatabricksBundleImportMutator")
 
     bundle_codegen = DatabricksBundleCodegen(project=None, id_="test", env="local")
-    task_builder = bundle_codegen._get_task_builder(
-        task_type=task_type, task_class=task_class
-    )
+    task_builder = bundle_codegen._get_task_builder(task_type=task_type)
     assert task_builder.__name__ == expected.__name__
+
+
+@pytest.mark.parametrize(
+    "task,expected_task_type",
+    [
+        (
+            NotebookTask(notebook_path="test-notebook"),
+            TaskType.NOTEBOOK_TASK,
+        ),
+        (
+            None,  #  test case: wrapped brickflow tasks that do not return anything
+            TaskType.BRICKFLOW_TASK,
+        ),
+        (
+            "Sample return value",  # test case: wrapped brickflow tasks that have a return value
+            TaskType.BRICKFLOW_TASK,
+        ),
+    ],
+)
+def test_get_task_type(task, expected_task_type, mocker):
+    mocker.patch(
+        "brickflow.codegen.databricks_bundle.DatabricksBundleTagsAndNameMutator"
+    )
+    mocker.patch("brickflow.codegen.databricks_bundle.DatabricksBundleImportMutator")
+
+    bundle_codegen = DatabricksBundleCodegen(project=None, id_="test", env="local")
+    actual_task_type = bundle_codegen._get_task_type(task)
+    assert actual_task_type == expected_task_type
 
 
 def read_yaml_file(file_name: str):
@@ -714,8 +739,10 @@ import {
         "brickflow.context.ctx.get_current_timestamp",
         MagicMock(return_value=1704067200000),
     )
+    @patch("brickflow.codegen.databricks_bundle.MultiProjectManager")
     def test_foreach_task(
         self,
+        multi_project_manager_mock: Mock,
         bf_version_mock: Mock,
         dbutils: Mock,
         sub_proc_mock: Mock,
@@ -726,6 +753,10 @@ import {
         bf_version_mock.return_value = "1.0.0"
         workspace_client = get_workspace_client_mock()
         get_job_id_mock.return_value = 12345678901234.0
+
+        multi_project_manager_mock.return_value.get_project.return_value = MagicMock(
+            path_from_repo_root_to_project_root="test-project"
+        )
         # get caller part breaks here
         with Project(
             "test-project",

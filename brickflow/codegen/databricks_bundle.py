@@ -505,12 +505,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         return file_path
 
     def task_to_task_obj(self, task: Task) -> JobsTasksNotebookTask:
-        if task.task_type in [TaskType.BRICKFLOW_TASK, TaskType.CUSTOM_PYTHON_TASK]:
-            generated_path = handle_mono_repo_path(self.project, self.env)
-            return JobsTasksNotebookTask(
-                **task.get_obj_dict(generated_path),
-                source=self.adjust_source(),
-            )
+        generated_path = handle_mono_repo_path(self.project, self.env)
+        return JobsTasksNotebookTask(
+            **task.get_obj_dict(generated_path),
+            source=self.adjust_source(),
+        )
 
     def workflow_obj_to_pipelines(self, workflow: Workflow) -> Dict[str, Pipelines]:
         pipelines_dict = {}
@@ -777,27 +776,28 @@ class DatabricksBundleCodegen(CodegenInterface):
         **kwargs: Any,
     ) -> JobsTasks:
         supported_task_types = (
-            NotebookTask,
-            SparkJarTask,
-            SparkPythonTask,
-            RunJobTask,
-            SqlTask,
+            TaskType.NOTEBOOK_TASK,
+            TaskType.SPARK_JAR_TASK,
+            TaskType.SPARK_PYTHON_TASK,
+            TaskType.RUN_JOB_TASK,
+            TaskType.SQL,
+            TaskType.BRICKFLOW_TASK,  # Accounts for brickflow entrypoint tasks
         )
 
         nested_task = task.task_func()
+        task_type = self._get_task_type(nested_task)
+
         try:
-            assert isinstance(nested_task, supported_task_types)
+            assert task_type in supported_task_types
         except AssertionError as e:
             raise ValueError(
-                f"Error while building python task {task_name}. Make sure {task_name} returns one of "
+                f"Error while building python task {task_name}. Make sure {task_name} is one of "
                 f"{', '.join(task_type.__name__ for task_type in supported_task_types)}."
             ) from e
 
-        # Resolving the build function for the nested task based on the task type (we can iterate on any kind of task)
-        # so we can build it and attach it to the for_each_task
-        workflow: Optional[Workflow] = kwargs.get("workflow")
+        builder_func = self._get_task_builder(task_type=task_type)
 
-        builder_func = self._get_task_builder(task_class=type(nested_task))
+        workflow: Optional[Workflow] = kwargs.get("workflow")
         # TODO: How can the user specify the nested task name?
         nested_task_jt = builder_func(
             task_name=f"{task_name}_nested",
@@ -820,22 +820,13 @@ class DatabricksBundleCodegen(CodegenInterface):
             task=nested_task_jt,
         )
 
+        # We are not specifying any cluster or libraries as for_each_task cannot have them!
         jt = JobsTasks(
             **task_settings.to_tf_dict(),
             for_each_task=for_each_task,
             depends_on=depends_on,
             task_key=task_name,
-            # unpack dictionary provided by cluster object, will either be key or
-            # existing cluster id, if cluster object is empty, Databricks will use serverless compute
-            **(task.cluster.job_task_field_dict if task.cluster else {}),
         )
-
-        if task.cluster:
-            jt.libraries = task_libraries
-        else:
-            jt.environment_key = (
-                "Default"  # TODO: make configurable from task definition
-            )
 
         return jt
 
@@ -850,7 +841,7 @@ class DatabricksBundleCodegen(CodegenInterface):
     ) -> JobsTasks:
         task_obj = JobsTasks(
             **{
-                task.databricks_task_type_str: self.task_to_task_obj(task),
+                TaskType.NOTEBOOK_TASK.value: self.task_to_task_obj(task),
                 **task_settings.to_tf_dict(),
             },  # type: ignore
             depends_on=depends_on,
@@ -870,13 +861,24 @@ class DatabricksBundleCodegen(CodegenInterface):
             )
         return task_obj
 
-    def _get_task_builder(
-        self, task_type: TaskType = None, task_class: typing.Type = type(None)
-    ) -> Callable[..., Any]:
-        assert any(
-            [task_type, task_class]
-        ), "Either task or task_class must be provided"
+    def _get_task_type(self, task: Any) -> TaskType:
+        """Resolves the task type given the task object"""
 
+        map_task_class_to_task_type: Dict[typing.Type, TaskType] = {
+            DLTPipeline: TaskType.DLT,
+            NotebookTask: TaskType.NOTEBOOK_TASK,
+            SparkJarTask: TaskType.SPARK_JAR_TASK,
+            SparkPythonTask: TaskType.SPARK_PYTHON_TASK,
+            RunJobTask: TaskType.RUN_JOB_TASK,
+            SqlTask: TaskType.SQL,
+            IfElseConditionTask: TaskType.IF_ELSE_CONDITION_TASK,
+            ForEachTask: TaskType.FOR_EACH_TASK,
+        }
+
+        # Brickflow tasks does not have a dedicated task class, so we are matching everything else with it
+        return map_task_class_to_task_type.get(type(task), TaskType.BRICKFLOW_TASK)
+
+    def _get_task_builder(self, task_type: TaskType = None) -> Callable[..., Any]:
         map_task_type_to_builder: Dict[TaskType, Callable[..., Any]] = {
             TaskType.BRICKFLOW_TASK: self._build_brickflow_entrypoint_task,
             TaskType.DLT: self._build_dlt_task,
@@ -890,20 +892,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.CUSTOM_PYTHON_TASK: self._build_brickflow_entrypoint_task,
         }
 
-        map_task_class_to_builder: Dict[typing.Type, Callable[..., Any]] = {
-            DLTPipeline: self._build_dlt_task,
-            NotebookTask: self._build_native_notebook_task,
-            SparkJarTask: self._build_native_spark_jar_task,
-            SparkPythonTask: self._build_native_spark_python_task,
-            RunJobTask: self._build_native_run_job_task,
-            SqlTask: self._build_native_sql_file_task,
-            IfElseConditionTask: self._build_native_condition_task,
-            ForEachTask: self._build_native_for_each_task,
-        }
-
-        builder = map_task_type_to_builder.get(
-            task_type, None
-        ) or map_task_class_to_builder.get(task_class, None)
+        builder = map_task_type_to_builder.get(task_type, None)
         if builder is None:
             raise ValueError("No builder found for the given task or task class")
         return builder

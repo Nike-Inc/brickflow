@@ -722,10 +722,11 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
         else:
             kwargs = task.get_runtime_parameter_values()
             try:
+                # Task return value cannot be pushed if we are in a for each task (now allowed by Databricks)
                 return TaskResponse(
                     task.task_func(**kwargs),
                     user_code_error=None,
-                    push_return_value=True,
+                    push_return_value=not task.task_type == TaskType.FOR_EACH_TASK,
                     input_kwargs=kwargs,
                 )
             except Exception as e:

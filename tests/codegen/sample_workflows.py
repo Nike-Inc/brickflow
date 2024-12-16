@@ -421,11 +421,70 @@ def first_notebook():
 
 
 @wf3.for_each_task(
-    depends_on=first_notebook, concurrency=3, foreach_task_inputs="[1, 2, 3]"
+    depends_on=first_notebook,
+    for_each_task_concurrency=3,
+    for_each_task_inputs="[1, 2, 3]",
 )
 def for_each_notebook():
     return NotebookTask(
         notebook_path="notebooks/notebook_b",
         base_parameters={"looped_parameter": "{{input}}"},
         source="WORKSPACE",
+    )
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs=["1", "2", "3"],
+    for_each_task_concurrency=1,
+)
+def for_each_bf_task(*, looped_parameter="{{input}}"):
+    print(f"This is a nested bf task running with input: {looped_parameter}")
+
+
+@wf3.for_each_task(
+    depends_on=for_each_bf_task,
+    for_each_task_inputs="[1,2,3]",
+    for_each_task_concurrency=1,
+    libraries=[JarTaskLibrary(jar="dbfs:/some/path/to/The.jar")],
+)
+def for_each_spark_jar():
+    return SparkJarTask(
+        main_class_name="com.example.MainClass",
+        parameters=["{{input}}"],
+    )
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs="[1,2,3]",
+    for_each_task_concurrency=1,
+)
+def for_each_spark_python():
+    return SparkPythonTask(
+        python_file="/test-project/path/to/python_script.py",
+        source="WORKSPACE",
+        parameters=["{{input}}"],
+    )
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs='["job_param_1","job_param_2"]',
+    for_each_task_concurrency=1,
+)
+def for_each_run_job():
+    return RunJobTask(job_name="some_job_name")
+
+
+@wf3.for_each_task(
+    depends_on=first_notebook,
+    for_each_task_inputs="[1,2,3]",
+    for_each_task_concurrency=1,
+)
+def for_each_sql_task() -> any:
+    return SqlTask(
+        query_id="some_sql_query_id",
+        warehouse_id="some_warehouse_id",
+        parameters={"looped_parameter": "{{input}}"},
     )

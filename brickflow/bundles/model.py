@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, constr, field_validator
+from pydantic import BaseModel, Field, constr, InstanceOf, field_validator
 from typing_extensions import Literal
 
 
