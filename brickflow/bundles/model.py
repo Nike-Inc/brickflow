@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, constr, InstanceOf
 from typing_extensions import Literal
 
 
@@ -39,7 +39,7 @@ class DeploymentLock(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -47,7 +47,7 @@ class DeploymentLock(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -62,7 +62,7 @@ class Deployment(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -99,11 +99,11 @@ class ExperimentalPydabs(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
-    import_: Optional[List[str]] = Field(None, alias="import")
+    import_: Optional[List[str]] = Field(None, alias='import')
     venv_path: Optional[str] = None
 
 
@@ -117,7 +117,7 @@ class Experimental(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -126,7 +126,7 @@ class Experimental(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -152,7 +152,7 @@ class Presets(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -161,7 +161,7 @@ class Presets(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -185,8 +185,8 @@ class ExperimentsTags(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    key: Optional[str] = Field(None, description="The tag key.")
-    value: Optional[str] = Field(None, description="The tag value.")
+    key: Optional[str] = Field(None, description='The tag key.')
+    value: Optional[str] = Field(None, description='The tag value.')
 
 
 class Experiments(BaseModel):
@@ -195,37 +195,37 @@ class Experiments(BaseModel):
         protected_namespaces = ()
 
     artifact_location: Optional[str] = Field(
-        None, description="Location where artifacts for the experiment are stored."
+        None, description='Location where artifacts for the experiment are stored.'
     )
     creation_time: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="Creation time")
+    ] = Field(None, description='Creation time')
     experiment_id: Optional[str] = Field(
-        None, description="Unique identifier for the experiment."
+        None, description='Unique identifier for the experiment.'
     )
     last_update_time: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="Last update time")
+    ] = Field(None, description='Last update time')
     lifecycle_stage: Optional[str] = Field(
         None,
         description='Current life cycle stage of the experiment: "active" or "deleted".\nDeleted experiments are not returned by APIs.',
     )
     name: Optional[str] = Field(
-        None, description="Human readable name that identifies the experiment."
+        None, description='Human readable name that identifies the experiment.'
     )
     permissions: Optional[List[ExperimentsPermissions]] = None
     tags: Optional[List[ExperimentsTags]] = Field(
-        None, description="Tags: Additional metadata key-value pairs."
+        None, description='Tags: Additional metadata key-value pairs.'
     )
 
 
@@ -236,7 +236,7 @@ class JobsContinuous(BaseModel):
 
     pause_status: Optional[str] = Field(
         None,
-        description="Indicate whether the continuous execution of the job is paused or not. Defaults to UNPAUSED.",
+        description='Indicate whether the continuous execution of the job is paused or not. Defaults to UNPAUSED.',
     )
 
 
@@ -247,10 +247,10 @@ class JobsDeployment(BaseModel):
 
     kind: str = Field(
         ...,
-        description="The kind of deployment that manages the job.\n\n* `BUNDLE`: The job is managed by Databricks Asset Bundle.",
+        description='The kind of deployment that manages the job.\n\n* `BUNDLE`: The job is managed by Databricks Asset Bundle.',
     )
     metadata_file_path: Optional[str] = Field(
-        None, description="Path of the file that contains deployment metadata."
+        None, description='Path of the file that contains deployment metadata.'
     )
 
 
@@ -263,32 +263,32 @@ class JobsEmailNotifications(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, do not send email to recipients specified in `on_failure` if the run is skipped.",
+        description='If true, do not send email to recipients specified in `on_failure` if the run is skipped.',
     )
     on_duration_warning_threshold_exceeded: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. If no rule for the `RUN_DURATION_SECONDS` metric is specified in the `health` field for the job, notifications are not sent.",
+        description='A list of email addresses to be notified when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. If no rule for the `RUN_DURATION_SECONDS` metric is specified in the `health` field for the job, notifications are not sent.',
     )
     on_failure: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.",
+        description='A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.',
     )
     on_start: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when a run begins. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.",
+        description='A list of email addresses to be notified when a run begins. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
     )
     on_streaming_backlog_exceeded: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to notify when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.",
+        description='A list of email addresses to notify when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.',
     )
     on_success: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when a run successfully completes. A run is considered to have completed successfully if it ends with a `TERMINATED` `life_cycle_state` and a `SUCCESS` result_state. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.",
+        description='A list of email addresses to be notified when a run successfully completes. A run is considered to have completed successfully if it ends with a `TERMINATED` `life_cycle_state` and a `SUCCESS` result_state. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
     )
 
 
@@ -299,7 +299,7 @@ class JobsEnvironmentsSpec(BaseModel):
 
     client: str = Field(
         ...,
-        description="Client version used by the environment\nThe client is the user-facing environment of the runtime.\nEach client comes with a specific set of pre-installed libraries.\nThe version is a string, consisting of the major client version.",
+        description='Client version used by the environment\nThe client is the user-facing environment of the runtime.\nEach client comes with a specific set of pre-installed libraries.\nThe version is a string, consisting of the major client version.',
     )
     dependencies: Optional[List[str]] = Field(
         None,
@@ -313,7 +313,7 @@ class JobsEnvironments(BaseModel):
         protected_namespaces = ()
 
     environment_key: str = Field(
-        ..., description="The key of an environment. It has to be unique within a job."
+        ..., description='The key of an environment. It has to be unique within a job.'
     )
     spec: Optional[JobsEnvironmentsSpec] = None
 
@@ -325,7 +325,7 @@ class JobsGitSourceGitSnapshot(BaseModel):
 
     used_commit: Optional[str] = Field(
         None,
-        description="Commit that was used to execute the run. If git_branch was specified, this points to the HEAD of the branch at the time of the run; if git_tag was specified, this points to the commit the tag points to.",
+        description='Commit that was used to execute the run. If git_branch was specified, this points to the HEAD of the branch at the time of the run; if git_tag was specified, this points to the commit the tag points to.',
     )
 
 
@@ -336,14 +336,14 @@ class JobsGitSourceJobSource(BaseModel):
 
     dirty_state: Optional[str] = Field(
         None,
-        description="Dirty state indicates the job is not fully synced with the job specification in the remote repository.\n\nPossible values are:\n* `NOT_SYNCED`: The job is not yet synced with the remote job specification. Import the remote job specification from UI to make the job fully synced.\n* `DISCONNECTED`: The job is temporary disconnected from the remote job specification and is allowed for live edit. Import the remote job specification again from UI to make the job fully synced.",
+        description='Dirty state indicates the job is not fully synced with the job specification in the remote repository.\n\nPossible values are:\n* `NOT_SYNCED`: The job is not yet synced with the remote job specification. Import the remote job specification from UI to make the job fully synced.\n* `DISCONNECTED`: The job is temporary disconnected from the remote job specification and is allowed for live edit. Import the remote job specification again from UI to make the job fully synced.',
     )
     import_from_git_branch: str = Field(
-        ..., description="Name of the branch which the job is imported from."
+        ..., description='Name of the branch which the job is imported from.'
     )
     job_config_path: str = Field(
         ...,
-        description="Path of the job YAML file that contains the job specification.",
+        description='Path of the job YAML file that contains the job specification.',
     )
 
 
@@ -354,23 +354,23 @@ class JobsGitSource(BaseModel):
 
     git_branch: Optional[str] = Field(
         None,
-        description="Name of the branch to be checked out and used by this job. This field cannot be specified in conjunction with git_tag or git_commit.",
+        description='Name of the branch to be checked out and used by this job. This field cannot be specified in conjunction with git_tag or git_commit.',
     )
     git_commit: Optional[str] = Field(
         None,
-        description="Commit to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_tag.",
+        description='Commit to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_tag.',
     )
     git_provider: str = Field(
         ...,
-        description="Unique identifier of the service used to host the Git repository. The value is case insensitive.",
+        description='Unique identifier of the service used to host the Git repository. The value is case insensitive.',
     )
     git_snapshot: Optional[JobsGitSourceGitSnapshot] = None
     git_tag: Optional[str] = Field(
         None,
-        description="Name of the tag to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_commit.",
+        description='Name of the tag to be checked out and used by this job. This field cannot be specified in conjunction with git_branch or git_commit.',
     )
     git_url: str = Field(
-        ..., description="URL of the repository to be cloned by this job."
+        ..., description='URL of the repository to be cloned by this job.'
     )
     job_source: Optional[JobsGitSourceJobSource] = None
 
@@ -385,11 +385,11 @@ class JobsHealthRules(BaseModel):
     value: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="Specifies the threshold value that the health metric should obey to satisfy the health rule.",
+        description='Specifies the threshold value that the health metric should obey to satisfy the health rule.',
     )
 
 
@@ -410,23 +410,23 @@ class JobsJobClustersNewClusterAutoscale(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The maximum number of workers to which the cluster can scale up when overloaded.\nNote that `max_workers` must be strictly greater than `min_workers`.",
+        description='The maximum number of workers to which the cluster can scale up when overloaded.\nNote that `max_workers` must be strictly greater than `min_workers`.',
     )
     min_workers: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The minimum number of workers to which the cluster can scale down when underutilized.\nIt is also the initial number of workers the cluster will have after creation.",
+        description='The minimum number of workers to which the cluster can scale down when underutilized.\nIt is also the initial number of workers the cluster will have after creation.',
     )
 
 
@@ -440,67 +440,67 @@ class JobsJobClustersNewClusterAwsAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.",
+        description='The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.',
     )
     ebs_volume_iops: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If using gp3 volumes, what IOPS to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.",
+        description='If using gp3 volumes, what IOPS to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.',
     )
     ebs_volume_size: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.",
+        description='The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.',
     )
     ebs_volume_throughput: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If using gp3 volumes, what throughput to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.",
+        description='If using gp3 volumes, what throughput to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.',
     )
     ebs_volume_type: Optional[str] = None
     first_on_demand: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.",
+        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
     )
     instance_profile_arn: Optional[str] = Field(
         None,
-        description="Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.",
+        description='Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.',
     )
     spot_bid_price_percent: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
@@ -519,10 +519,10 @@ class JobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
         protected_namespaces = ()
 
     log_analytics_primary_key: Optional[str] = Field(
-        None, description="<needs content added>"
+        None, description='<needs content added>'
     )
     log_analytics_workspace_id: Optional[str] = Field(
-        None, description="<needs content added>"
+        None, description='<needs content added>'
     )
 
 
@@ -536,12 +536,12 @@ class JobsJobClustersNewClusterAzureAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.",
+        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
     )
     log_analytics_info: Optional[
         JobsJobClustersNewClusterAzureAttributesLogAnalyticsInfo
@@ -550,12 +550,12 @@ class JobsJobClustersNewClusterAzureAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.",
+        description='The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.',
     )
 
 
@@ -564,7 +564,7 @@ class JobsJobClustersNewClusterClusterLogConfDbfs(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    destination: str = Field(..., description="dbfs destination, e.g. `dbfs:/my/path`")
+    destination: str = Field(..., description='dbfs destination, e.g. `dbfs:/my/path`')
 
 
 class JobsJobClustersNewClusterClusterLogConfS(BaseModel):
@@ -574,38 +574,38 @@ class JobsJobClustersNewClusterClusterLogConfS(BaseModel):
 
     canned_acl: Optional[str] = Field(
         None,
-        description="(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.",
+        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
     )
     destination: str = Field(
         ...,
-        description="S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.",
+        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
     )
     enable_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="(Optional) Flag to enable server side encryption, `false` by default.",
+        description='(Optional) Flag to enable server side encryption, `false` by default.',
     )
     encryption_type: Optional[str] = Field(
         None,
-        description="(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.",
+        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
     )
     endpoint: Optional[str] = Field(
         None,
-        description="S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.",
+        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
     )
     kms_key: Optional[str] = Field(
         None,
-        description="(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.",
+        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
     )
     region: Optional[str] = Field(
         None,
-        description="S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.",
+        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
     )
 
 
@@ -623,8 +623,8 @@ class JobsJobClustersNewClusterDockerImageBasicAuth(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    password: Optional[str] = Field(None, description="Password of the user")
-    username: Optional[str] = Field(None, description="Name of the user")
+    password: Optional[str] = Field(None, description='Password of the user')
+    username: Optional[str] = Field(None, description='Name of the user')
 
 
 class JobsJobClustersNewClusterDockerImage(BaseModel):
@@ -633,7 +633,7 @@ class JobsJobClustersNewClusterDockerImage(BaseModel):
         protected_namespaces = ()
 
     basic_auth: Optional[JobsJobClustersNewClusterDockerImageBasicAuth] = None
-    url: Optional[str] = Field(None, description="URL of the docker image.")
+    url: Optional[str] = Field(None, description='URL of the docker image.')
 
 
 class JobsJobClustersNewClusterGcpAttributes(BaseModel):
@@ -646,35 +646,35 @@ class JobsJobClustersNewClusterGcpAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="boot disk size in GB")
+    ] = Field(None, description='boot disk size in GB')
     google_service_account: Optional[str] = Field(
         None,
-        description="If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.",
+        description='If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.',
     )
     local_ssd_count: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.",
+        description='If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.',
     )
     use_preemptible_executors: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="This field determines whether the spark executors will be scheduled to run on preemptible VMs (when set to true) versus standard compute engine VMs (when set to false; default).\nNote: Soon to be deprecated, use the availability field instead.",
+        description='This field determines whether the spark executors will be scheduled to run on preemptible VMs (when set to true) versus standard compute engine VMs (when set to false; default).\nNote: Soon to be deprecated, use the availability field instead.',
     )
     zone_id: Optional[str] = Field(
         None,
@@ -689,7 +689,7 @@ class JobsJobClustersNewClusterInitScriptsAbfss(BaseModel):
 
     destination: str = Field(
         ...,
-        description="abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.",
+        description='abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.',
     )
 
 
@@ -698,7 +698,7 @@ class JobsJobClustersNewClusterInitScriptsDbfs(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    destination: str = Field(..., description="dbfs destination, e.g. `dbfs:/my/path`")
+    destination: str = Field(..., description='dbfs destination, e.g. `dbfs:/my/path`')
 
 
 class JobsJobClustersNewClusterInitScriptsFile(BaseModel):
@@ -707,7 +707,7 @@ class JobsJobClustersNewClusterInitScriptsFile(BaseModel):
         protected_namespaces = ()
 
     destination: str = Field(
-        ..., description="local file destination, e.g. `file:/my/local/file.sh`"
+        ..., description='local file destination, e.g. `file:/my/local/file.sh`'
     )
 
 
@@ -717,7 +717,7 @@ class JobsJobClustersNewClusterInitScriptsGcs(BaseModel):
         protected_namespaces = ()
 
     destination: str = Field(
-        ..., description="GCS destination/URI, e.g. `gs://my-bucket/some-prefix`"
+        ..., description='GCS destination/URI, e.g. `gs://my-bucket/some-prefix`'
     )
 
 
@@ -728,38 +728,38 @@ class JobsJobClustersNewClusterInitScriptsS(BaseModel):
 
     canned_acl: Optional[str] = Field(
         None,
-        description="(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.",
+        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
     )
     destination: str = Field(
         ...,
-        description="S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.",
+        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
     )
     enable_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="(Optional) Flag to enable server side encryption, `false` by default.",
+        description='(Optional) Flag to enable server side encryption, `false` by default.',
     )
     encryption_type: Optional[str] = Field(
         None,
-        description="(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.",
+        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
     )
     endpoint: Optional[str] = Field(
         None,
-        description="S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.",
+        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
     )
     kms_key: Optional[str] = Field(
         None,
-        description="(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.",
+        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
     )
     region: Optional[str] = Field(
         None,
-        description="S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.",
+        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
     )
 
 
@@ -770,7 +770,7 @@ class JobsJobClustersNewClusterInitScriptsVolumes(BaseModel):
 
     destination: str = Field(
         ...,
-        description="Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`",
+        description='Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`',
     )
 
 
@@ -781,7 +781,7 @@ class JobsJobClustersNewClusterInitScriptsWorkspace(BaseModel):
 
     destination: str = Field(
         ...,
-        description="workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`",
+        description='workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`',
     )
 
 
@@ -808,19 +808,19 @@ class JobsJobClustersNewClusterWorkloadTypeClients(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="With jobs set, the cluster can be used for jobs")
+    ] = Field(None, description='With jobs set, the cluster can be used for jobs')
     notebooks: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="With notebooks set, this cluster can be used for notebooks"
+        None, description='With notebooks set, this cluster can be used for notebooks'
     )
 
 
@@ -841,24 +841,24 @@ class JobsJobClustersNewCluster(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="When set to true, fixed and default values from the policy will be used for fields that are omitted. When set to false, only fixed values from the policy will be applied.",
+        description='When set to true, fixed and default values from the policy will be used for fields that are omitted. When set to false, only fixed values from the policy will be applied.',
     )
     autoscale: Optional[JobsJobClustersNewClusterAutoscale] = None
     autotermination_minutes: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Automatically terminates the cluster after it is inactive for this time in minutes. If not set,\nthis cluster will not be automatically terminated. If specified, the threshold must be between\n10 and 10000 minutes.\nUsers can also set this value to 0 to explicitly disable automatic termination.",
+        description='Automatically terminates the cluster after it is inactive for this time in minutes. If not set,\nthis cluster will not be automatically terminated. If specified, the threshold must be between\n10 and 10000 minutes.\nUsers can also set this value to 0 to explicitly disable automatic termination.',
     )
     aws_attributes: Optional[JobsJobClustersNewClusterAwsAttributes] = None
     azure_attributes: Optional[JobsJobClustersNewClusterAzureAttributes] = None
@@ -870,87 +870,87 @@ class JobsJobClustersNewCluster(BaseModel):
     custom_tags: Optional[Dict[str, str]] = None
     data_security_mode: Optional[
         Literal[
-            "LEGACY_TABLE_ACL",
-            "LEGACY_PASSTHROUGH",
-            "LEGACY_SINGLE_USER",
-            "LEGACY_SINGLE_USER_STANDARD",
-            "SINGLE_USER",
-            "USER_ISOLATION",
-            "NONE",
+            'LEGACY_TABLE_ACL',
+            'LEGACY_PASSTHROUGH',
+            'LEGACY_SINGLE_USER',
+            'LEGACY_SINGLE_USER_STANDARD',
+            'SINGLE_USER',
+            'USER_ISOLATION',
+            'NONE',
         ]
     ] = Field(
-        "SINGLE_USER",
+        'SINGLE_USER',
         description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "LEGACY_SINGLE_USER_STANDARD", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
     )
     docker_image: Optional[JobsJobClustersNewClusterDockerImage] = None
     driver_instance_pool_id: Optional[str] = Field(
         None,
-        description="The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.",
+        description='The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.',
     )
     driver_node_type_id: Optional[str] = Field(
         None,
-        description="The node type of the Spark driver. Note that this field is optional;\nif unset, the driver node type will be set as the same value\nas `node_type_id` defined above.\n",
+        description='The node type of the Spark driver. Note that this field is optional;\nif unset, the driver node type will be set as the same value\nas `node_type_id` defined above.\n',
     )
     enable_elastic_disk: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk\nspace when its Spark workers are running low on disk space. This feature requires specific AWS\npermissions to function correctly - refer to the User Guide for more details.",
+        description='Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk\nspace when its Spark workers are running low on disk space. This feature requires specific AWS\npermissions to function correctly - refer to the User Guide for more details.',
     )
     enable_local_disk_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(None, description="Whether to enable LUKS on cluster VMs' local disks")
     gcp_attributes: Optional[JobsJobClustersNewClusterGcpAttributes] = None
     init_scripts: Optional[List[JobsJobClustersNewClusterInitScripts]] = Field(
         None,
-        description="The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.",
+        description='The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.',
     )
     instance_pool_id: Optional[str] = Field(
         None,
-        description="The optional ID of the instance pool to which the cluster belongs.",
+        description='The optional ID of the instance pool to which the cluster belongs.',
     )
     node_type_id: Optional[str] = Field(
         None,
-        description="This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n",
+        description='This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n',
     )
     num_workers: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.",
+        description='Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.',
     )
     policy_id: Optional[str] = Field(
         None,
-        description="The ID of the cluster policy used to create the cluster if applicable.",
+        description='The ID of the cluster policy used to create the cluster if applicable.',
     )
     runtime_engine: Optional[str] = None
     single_user_name: Optional[str] = Field(
-        None, description="Single user name if data_security_mode is `SINGLE_USER`"
+        None, description='Single user name if data_security_mode is `SINGLE_USER`'
     )
     spark_conf: Optional[Dict[str, str]] = None
     spark_env_vars: Optional[Dict[str, str]] = None
     spark_version: Optional[str] = Field(
         None,
-        description="The Spark version of the cluster, e.g. `3.3.x-scala2.11`.\nA list of available Spark versions can be retrieved by using\nthe :method:clusters/sparkVersions API call.\n",
+        description='The Spark version of the cluster, e.g. `3.3.x-scala2.11`.\nA list of available Spark versions can be retrieved by using\nthe :method:clusters/sparkVersions API call.\n',
     )
     ssh_public_keys: Optional[List[str]] = Field(
         None,
-        description="SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.",
+        description='SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.',
     )
     workload_type: Optional[JobsJobClustersNewClusterWorkloadType] = None
 
@@ -962,7 +962,7 @@ class JobsJobClusters(BaseModel):
 
     job_cluster_key: str = Field(
         ...,
-        description="A unique name for the job cluster. This field is required and must be unique within the job.\n`JobTaskSettings` may refer to this field to determine which cluster to launch for the task execution.",
+        description='A unique name for the job cluster. This field is required and must be unique within the job.\n`JobTaskSettings` may refer to this field to determine which cluster to launch for the task execution.',
     )
     new_cluster: JobsJobClustersNewCluster
 
@@ -976,23 +976,23 @@ class JobsNotificationSettings(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, do not send notifications to recipients specified in `on_failure` if the run is canceled.",
+        description='If true, do not send notifications to recipients specified in `on_failure` if the run is canceled.',
     )
     no_alert_for_skipped_runs: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, do not send notifications to recipients specified in `on_failure` if the run is skipped.",
+        description='If true, do not send notifications to recipients specified in `on_failure` if the run is skipped.',
     )
 
 
@@ -1001,10 +1001,10 @@ class JobsParameters(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    default: str = Field(..., description="Default value of the parameter.")
+    default: str = Field(..., description='Default value of the parameter.')
     name: str = Field(
         ...,
-        description="The name of the defined parameter. May only contain alphanumeric characters, `_`, `-`, and `.`",
+        description='The name of the defined parameter. May only contain alphanumeric characters, `_`, `-`, and `.`',
     )
 
 
@@ -1027,11 +1027,11 @@ class JobsQueue(BaseModel):
     enabled: Union[
         bool,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="If true, enable queueing for the job. This is a required field.",
+        description='If true, enable queueing for the job. This is a required field.',
     )
 
 
@@ -1042,11 +1042,11 @@ class JobsRunAs(BaseModel):
 
     service_principal_name: Optional[str] = Field(
         None,
-        description="Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role.",
+        description='Application ID of an active service principal. Setting this field requires the `servicePrincipal/user` role.',
     )
     user_name: Optional[str] = Field(
         None,
-        description="The email of an active workspace user. Non-admin users can only set this field to their own email.",
+        description='The email of an active workspace user. Non-admin users can only set this field to their own email.',
     )
 
 
@@ -1056,15 +1056,15 @@ class JobsSchedule(BaseModel):
         protected_namespaces = ()
 
     pause_status: Optional[str] = Field(
-        None, description="Indicate whether this schedule is paused or not."
+        None, description='Indicate whether this schedule is paused or not.'
     )
     quartz_cron_expression: str = Field(
         ...,
-        description="A Cron expression using Quartz syntax that describes the schedule for a job. See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details. This field is required.",
+        description='A Cron expression using Quartz syntax that describes the schedule for a job. See [Cron Trigger](http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html) for details. This field is required.',
     )
     timezone_id: str = Field(
         ...,
-        description="A Java timezone ID. The schedule for a job is resolved with respect to this timezone. See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details. This field is required.",
+        description='A Java timezone ID. The schedule for a job is resolved with respect to this timezone. See [Java TimeZone](https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html) for details. This field is required.',
     )
 
 
@@ -1075,15 +1075,15 @@ class JobsTasksConditionTask(BaseModel):
 
     left: str = Field(
         ...,
-        description="The left operand of the condition task. Can be either a string value or a job state or parameter reference.",
+        description='The left operand of the condition task. Can be either a string value or a job state or parameter reference.',
     )
     op: str = Field(
         ...,
-        description="* `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.\n* `GREATER_THAN`, `GREATER_THAN_OR_EQUAL`, `LESS_THAN`, `LESS_THAN_OR_EQUAL` operators perform numeric comparison of their operands. `“12.0” >= “12”` will evaluate to `true`, `“10.0” >= “12”` will evaluate to `false`.\n\nThe boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.",
+        description='* `EQUAL_TO`, `NOT_EQUAL` operators perform string comparison of their operands. This means that `“12.0” == “12”` will evaluate to `false`.\n* `GREATER_THAN`, `GREATER_THAN_OR_EQUAL`, `LESS_THAN`, `LESS_THAN_OR_EQUAL` operators perform numeric comparison of their operands. `“12.0” >= “12”` will evaluate to `true`, `“10.0” >= “12”` will evaluate to `false`.\n\nThe boolean comparison to task values can be implemented with operators `EQUAL_TO`, `NOT_EQUAL`. If a task value was set to a boolean value, it will be serialized to `“true”` or `“false”` for the comparison.',
     )
     right: str = Field(
         ...,
-        description="The right operand of the condition task. Can be either a string value or a job state or parameter reference.",
+        description='The right operand of the condition task. Can be either a string value or a job state or parameter reference.',
     )
 
 
@@ -1094,32 +1094,32 @@ class JobsTasksDbtTask(BaseModel):
 
     catalog: Optional[str] = Field(
         None,
-        description="Optional name of the catalog to use. The value is the top level in the 3-level namespace of Unity Catalog (catalog / schema / relation). The catalog value can only be specified if a warehouse_id is specified. Requires dbt-databricks >= 1.1.1.",
+        description='Optional name of the catalog to use. The value is the top level in the 3-level namespace of Unity Catalog (catalog / schema / relation). The catalog value can only be specified if a warehouse_id is specified. Requires dbt-databricks >= 1.1.1.',
     )
     commands: List[str] = Field(
         ...,
-        description="A list of dbt commands to execute. All commands must start with `dbt`. This parameter must not be empty. A maximum of up to 10 commands can be provided.",
+        description='A list of dbt commands to execute. All commands must start with `dbt`. This parameter must not be empty. A maximum of up to 10 commands can be provided.',
     )
     profiles_directory: Optional[str] = Field(
         None,
-        description="Optional (relative) path to the profiles directory. Can only be specified if no warehouse_id is specified. If no warehouse_id is specified and this folder is unset, the root directory is used.",
+        description='Optional (relative) path to the profiles directory. Can only be specified if no warehouse_id is specified. If no warehouse_id is specified and this folder is unset, the root directory is used.',
     )
     project_directory: Optional[str] = Field(
         None,
-        description="Path to the project directory. Optional for Git sourced tasks, in which\ncase if no value is provided, the root of the Git repository is used.",
+        description='Path to the project directory. Optional for Git sourced tasks, in which\ncase if no value is provided, the root of the Git repository is used.',
     )
     schema_: Optional[str] = Field(
         None,
-        alias="schema",
-        description="Optional schema to write to. This parameter is only used when a warehouse_id is also provided. If not provided, the `default` schema is used.",
+        alias='schema',
+        description='Optional schema to write to. This parameter is only used when a warehouse_id is also provided. If not provided, the `default` schema is used.',
     )
     source: Optional[str] = Field(
         None,
-        description="Optional location type of the project directory. When set to `WORKSPACE`, the project will be retrieved\nfrom the local Databricks workspace. When set to `GIT`, the project will be retrieved from a Git repository\ndefined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.\n\n* `WORKSPACE`: Project is located in Databricks workspace.\n* `GIT`: Project is located in cloud Git provider.",
+        description='Optional location type of the project directory. When set to `WORKSPACE`, the project will be retrieved\nfrom the local Databricks workspace. When set to `GIT`, the project will be retrieved from a Git repository\ndefined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.\n\n* `WORKSPACE`: Project is located in Databricks workspace.\n* `GIT`: Project is located in cloud Git provider.',
     )
     warehouse_id: Optional[str] = Field(
         None,
-        description="ID of the SQL warehouse to connect to. If provided, we automatically generate and provide the profile and connection details to dbt. It can be overridden on a per-command basis by using the `--profiles-dir` command line argument.",
+        description='ID of the SQL warehouse to connect to. If provided, we automatically generate and provide the profile and connection details to dbt. It can be overridden on a per-command basis by using the `--profiles-dir` command line argument.',
     )
 
 
@@ -1130,9 +1130,9 @@ class JobsTasksDependsOn(BaseModel):
 
     outcome: Optional[str] = Field(
         None,
-        description="Can only be specified on condition task dependencies. The outcome of the dependent task that must be met for this task to run.",
+        description='Can only be specified on condition task dependencies. The outcome of the dependent task that must be met for this task to run.',
     )
-    task_key: str = Field(..., description="The name of the task this task depends on.")
+    task_key: str = Field(..., description='The name of the task this task depends on.')
 
 
 class JobsTasksEmailNotifications(BaseModel):
@@ -1144,32 +1144,32 @@ class JobsTasksEmailNotifications(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, do not send email to recipients specified in `on_failure` if the run is skipped.",
+        description='If true, do not send email to recipients specified in `on_failure` if the run is skipped.',
     )
     on_duration_warning_threshold_exceeded: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. If no rule for the `RUN_DURATION_SECONDS` metric is specified in the `health` field for the job, notifications are not sent.",
+        description='A list of email addresses to be notified when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. If no rule for the `RUN_DURATION_SECONDS` metric is specified in the `health` field for the job, notifications are not sent.',
     )
     on_failure: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.",
+        description='A list of email addresses to be notified when a run unsuccessfully completes. A run is considered to have completed unsuccessfully if it ends with an `INTERNAL_ERROR` `life_cycle_state` or a `FAILED`, or `TIMED_OUT` result_state. If this is not specified on job creation, reset, or update the list is empty, and notifications are not sent.',
     )
     on_start: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when a run begins. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.",
+        description='A list of email addresses to be notified when a run begins. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
     )
     on_streaming_backlog_exceeded: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to notify when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.",
+        description='A list of email addresses to notify when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.',
     )
     on_success: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses to be notified when a run successfully completes. A run is considered to have completed successfully if it ends with a `TERMINATED` `life_cycle_state` and a `SUCCESS` result_state. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.",
+        description='A list of email addresses to be notified when a run successfully completes. A run is considered to have completed successfully if it ends with a `TERMINATED` `life_cycle_state` and a `SUCCESS` result_state. If not specified on job creation, reset, or update, the list is empty, and notifications are not sent.',
     )
 
 
@@ -1177,6 +1177,7 @@ class JobsTasksForEachTask(BaseModel):
     inputs: str
     concurrency: int
     task: JobsTasks
+
 
 
 class JobsTasksHealthRules(BaseModel):
@@ -1189,11 +1190,11 @@ class JobsTasksHealthRules(BaseModel):
     value: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="Specifies the threshold value that the health metric should obey to satisfy the health rule.",
+        description='Specifies the threshold value that the health metric should obey to satisfy the health rule.',
     )
 
 
@@ -1210,10 +1211,10 @@ class JobsTasksLibrariesCran(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    package: str = Field(..., description="The name of the CRAN package to install.")
+    package: str = Field(..., description='The name of the CRAN package to install.')
     repo: Optional[str] = Field(
         None,
-        description="The repository where the package can be found. If not specified, the default CRAN repo is used.",
+        description='The repository where the package can be found. If not specified, the default CRAN repo is used.',
     )
 
 
@@ -1232,7 +1233,7 @@ class JobsTasksLibrariesMaven(BaseModel):
     )
     repo: Optional[str] = Field(
         None,
-        description="Maven repo to install the Maven package from. If omitted, both Maven Central Repository\nand Spark Packages are searched.",
+        description='Maven repo to install the Maven package from. If omitted, both Maven Central Repository\nand Spark Packages are searched.',
     )
 
 
@@ -1247,7 +1248,7 @@ class JobsTasksLibrariesPypi(BaseModel):
     )
     repo: Optional[str] = Field(
         None,
-        description="The repository where the package can be found. If not specified, the default pip index is\nused.",
+        description='The repository where the package can be found. If not specified, the default pip index is\nused.',
     )
 
 
@@ -1259,7 +1260,7 @@ class JobsTasksLibraries(BaseModel):
     cran: Optional[JobsTasksLibrariesCran] = None
     egg: Optional[str] = Field(
         None,
-        description="Deprecated. URI of the egg library to install. Installing Python egg files is deprecated and is not supported in Databricks Runtime 14.0 and above.",
+        description='Deprecated. URI of the egg library to install. Installing Python egg files is deprecated and is not supported in Databricks Runtime 14.0 and above.',
     )
     jar: Optional[str] = Field(
         None,
@@ -1286,23 +1287,23 @@ class JobsTasksNewClusterAutoscale(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The maximum number of workers to which the cluster can scale up when overloaded.\nNote that `max_workers` must be strictly greater than `min_workers`.",
+        description='The maximum number of workers to which the cluster can scale up when overloaded.\nNote that `max_workers` must be strictly greater than `min_workers`.',
     )
     min_workers: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The minimum number of workers to which the cluster can scale down when underutilized.\nIt is also the initial number of workers the cluster will have after creation.",
+        description='The minimum number of workers to which the cluster can scale down when underutilized.\nIt is also the initial number of workers the cluster will have after creation.',
     )
 
 
@@ -1316,67 +1317,67 @@ class JobsTasksNewClusterAwsAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.",
+        description='The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.',
     )
     ebs_volume_iops: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If using gp3 volumes, what IOPS to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.",
+        description='If using gp3 volumes, what IOPS to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.',
     )
     ebs_volume_size: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.",
+        description='The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.',
     )
     ebs_volume_throughput: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If using gp3 volumes, what throughput to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.",
+        description='If using gp3 volumes, what throughput to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.',
     )
     ebs_volume_type: Optional[str] = None
     first_on_demand: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.",
+        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
     )
     instance_profile_arn: Optional[str] = Field(
         None,
-        description="Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.",
+        description='Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.',
     )
     spot_bid_price_percent: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
@@ -1395,10 +1396,10 @@ class JobsTasksNewClusterAzureAttributesLogAnalyticsInfo(BaseModel):
         protected_namespaces = ()
 
     log_analytics_primary_key: Optional[str] = Field(
-        None, description="<needs content added>"
+        None, description='<needs content added>'
     )
     log_analytics_workspace_id: Optional[str] = Field(
-        None, description="<needs content added>"
+        None, description='<needs content added>'
     )
 
 
@@ -1412,26 +1413,26 @@ class JobsTasksNewClusterAzureAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.",
+        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
     )
-    log_analytics_info: Optional[JobsTasksNewClusterAzureAttributesLogAnalyticsInfo] = (
-        None
-    )
+    log_analytics_info: Optional[
+        JobsTasksNewClusterAzureAttributesLogAnalyticsInfo
+    ] = None
     spot_bid_max_price: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.",
+        description='The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.',
     )
 
 
@@ -1440,7 +1441,7 @@ class JobsTasksNewClusterClusterLogConfDbfs(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    destination: str = Field(..., description="dbfs destination, e.g. `dbfs:/my/path`")
+    destination: str = Field(..., description='dbfs destination, e.g. `dbfs:/my/path`')
 
 
 class JobsTasksNewClusterClusterLogConfS(BaseModel):
@@ -1450,38 +1451,38 @@ class JobsTasksNewClusterClusterLogConfS(BaseModel):
 
     canned_acl: Optional[str] = Field(
         None,
-        description="(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.",
+        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
     )
     destination: str = Field(
         ...,
-        description="S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.",
+        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
     )
     enable_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="(Optional) Flag to enable server side encryption, `false` by default.",
+        description='(Optional) Flag to enable server side encryption, `false` by default.',
     )
     encryption_type: Optional[str] = Field(
         None,
-        description="(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.",
+        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
     )
     endpoint: Optional[str] = Field(
         None,
-        description="S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.",
+        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
     )
     kms_key: Optional[str] = Field(
         None,
-        description="(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.",
+        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
     )
     region: Optional[str] = Field(
         None,
-        description="S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.",
+        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
     )
 
 
@@ -1499,8 +1500,8 @@ class JobsTasksNewClusterDockerImageBasicAuth(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    password: Optional[str] = Field(None, description="Password of the user")
-    username: Optional[str] = Field(None, description="Name of the user")
+    password: Optional[str] = Field(None, description='Password of the user')
+    username: Optional[str] = Field(None, description='Name of the user')
 
 
 class JobsTasksNewClusterDockerImage(BaseModel):
@@ -1509,7 +1510,7 @@ class JobsTasksNewClusterDockerImage(BaseModel):
         protected_namespaces = ()
 
     basic_auth: Optional[JobsTasksNewClusterDockerImageBasicAuth] = None
-    url: Optional[str] = Field(None, description="URL of the docker image.")
+    url: Optional[str] = Field(None, description='URL of the docker image.')
 
 
 class JobsTasksNewClusterGcpAttributes(BaseModel):
@@ -1522,35 +1523,35 @@ class JobsTasksNewClusterGcpAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="boot disk size in GB")
+    ] = Field(None, description='boot disk size in GB')
     google_service_account: Optional[str] = Field(
         None,
-        description="If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.",
+        description='If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.',
     )
     local_ssd_count: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.",
+        description='If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.',
     )
     use_preemptible_executors: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="This field determines whether the spark executors will be scheduled to run on preemptible VMs (when set to true) versus standard compute engine VMs (when set to false; default).\nNote: Soon to be deprecated, use the availability field instead.",
+        description='This field determines whether the spark executors will be scheduled to run on preemptible VMs (when set to true) versus standard compute engine VMs (when set to false; default).\nNote: Soon to be deprecated, use the availability field instead.',
     )
     zone_id: Optional[str] = Field(
         None,
@@ -1565,7 +1566,7 @@ class JobsTasksNewClusterInitScriptsAbfss(BaseModel):
 
     destination: str = Field(
         ...,
-        description="abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.",
+        description='abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.',
     )
 
 
@@ -1574,7 +1575,7 @@ class JobsTasksNewClusterInitScriptsDbfs(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    destination: str = Field(..., description="dbfs destination, e.g. `dbfs:/my/path`")
+    destination: str = Field(..., description='dbfs destination, e.g. `dbfs:/my/path`')
 
 
 class JobsTasksNewClusterInitScriptsFile(BaseModel):
@@ -1583,7 +1584,7 @@ class JobsTasksNewClusterInitScriptsFile(BaseModel):
         protected_namespaces = ()
 
     destination: str = Field(
-        ..., description="local file destination, e.g. `file:/my/local/file.sh`"
+        ..., description='local file destination, e.g. `file:/my/local/file.sh`'
     )
 
 
@@ -1593,7 +1594,7 @@ class JobsTasksNewClusterInitScriptsGcs(BaseModel):
         protected_namespaces = ()
 
     destination: str = Field(
-        ..., description="GCS destination/URI, e.g. `gs://my-bucket/some-prefix`"
+        ..., description='GCS destination/URI, e.g. `gs://my-bucket/some-prefix`'
     )
 
 
@@ -1604,38 +1605,38 @@ class JobsTasksNewClusterInitScriptsS(BaseModel):
 
     canned_acl: Optional[str] = Field(
         None,
-        description="(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.",
+        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
     )
     destination: str = Field(
         ...,
-        description="S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.",
+        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
     )
     enable_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="(Optional) Flag to enable server side encryption, `false` by default.",
+        description='(Optional) Flag to enable server side encryption, `false` by default.',
     )
     encryption_type: Optional[str] = Field(
         None,
-        description="(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.",
+        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
     )
     endpoint: Optional[str] = Field(
         None,
-        description="S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.",
+        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
     )
     kms_key: Optional[str] = Field(
         None,
-        description="(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.",
+        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
     )
     region: Optional[str] = Field(
         None,
-        description="S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.",
+        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
     )
 
 
@@ -1646,7 +1647,7 @@ class JobsTasksNewClusterInitScriptsVolumes(BaseModel):
 
     destination: str = Field(
         ...,
-        description="Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`",
+        description='Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`',
     )
 
 
@@ -1657,7 +1658,7 @@ class JobsTasksNewClusterInitScriptsWorkspace(BaseModel):
 
     destination: str = Field(
         ...,
-        description="workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`",
+        description='workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`',
     )
 
 
@@ -1684,19 +1685,19 @@ class JobsTasksNewClusterWorkloadTypeClients(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="With jobs set, the cluster can be used for jobs")
+    ] = Field(None, description='With jobs set, the cluster can be used for jobs')
     notebooks: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="With notebooks set, this cluster can be used for notebooks"
+        None, description='With notebooks set, this cluster can be used for notebooks'
     )
 
 
@@ -1717,24 +1718,24 @@ class JobsTasksNewCluster(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="When set to true, fixed and default values from the policy will be used for fields that are omitted. When set to false, only fixed values from the policy will be applied.",
+        description='When set to true, fixed and default values from the policy will be used for fields that are omitted. When set to false, only fixed values from the policy will be applied.',
     )
     autoscale: Optional[JobsTasksNewClusterAutoscale] = None
     autotermination_minutes: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Automatically terminates the cluster after it is inactive for this time in minutes. If not set,\nthis cluster will not be automatically terminated. If specified, the threshold must be between\n10 and 10000 minutes.\nUsers can also set this value to 0 to explicitly disable automatic termination.",
+        description='Automatically terminates the cluster after it is inactive for this time in minutes. If not set,\nthis cluster will not be automatically terminated. If specified, the threshold must be between\n10 and 10000 minutes.\nUsers can also set this value to 0 to explicitly disable automatic termination.',
     )
     aws_attributes: Optional[JobsTasksNewClusterAwsAttributes] = None
     azure_attributes: Optional[JobsTasksNewClusterAzureAttributes] = None
@@ -1746,87 +1747,87 @@ class JobsTasksNewCluster(BaseModel):
     custom_tags: Optional[Dict[str, str]] = None
     data_security_mode: Optional[
         Literal[
-            "LEGACY_TABLE_ACL",
-            "LEGACY_PASSTHROUGH",
-            "LEGACY_SINGLE_USER",
-            "LEGACY_SINGLE_USER_STANDARD",
-            "SINGLE_USER",
-            "USER_ISOLATION",
-            "NONE",
+            'LEGACY_TABLE_ACL',
+            'LEGACY_PASSTHROUGH',
+            'LEGACY_SINGLE_USER',
+            'LEGACY_SINGLE_USER_STANDARD',
+            'SINGLE_USER',
+            'USER_ISOLATION',
+            'NONE',
         ]
     ] = Field(
-        "SINGLE_USER",
+        'SINGLE_USER',
         description='The data security mode to use for clusters. Valid values are ["LEGACY_TABLE_ACL", "LEGACY_PASSTHROUGH", "LEGACY_SINGLE_USER", "LEGACY_SINGLE_USER_STANDARD", "SINGLE_USER", "USER_ISOLATION", "NONE"].',
     )
     docker_image: Optional[JobsTasksNewClusterDockerImage] = None
     driver_instance_pool_id: Optional[str] = Field(
         None,
-        description="The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.",
+        description='The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.',
     )
     driver_node_type_id: Optional[str] = Field(
         None,
-        description="The node type of the Spark driver. Note that this field is optional;\nif unset, the driver node type will be set as the same value\nas `node_type_id` defined above.\n",
+        description='The node type of the Spark driver. Note that this field is optional;\nif unset, the driver node type will be set as the same value\nas `node_type_id` defined above.\n',
     )
     enable_elastic_disk: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk\nspace when its Spark workers are running low on disk space. This feature requires specific AWS\npermissions to function correctly - refer to the User Guide for more details.",
+        description='Autoscaling Local Storage: when enabled, this cluster will dynamically acquire additional disk\nspace when its Spark workers are running low on disk space. This feature requires specific AWS\npermissions to function correctly - refer to the User Guide for more details.',
     )
     enable_local_disk_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(None, description="Whether to enable LUKS on cluster VMs' local disks")
     gcp_attributes: Optional[JobsTasksNewClusterGcpAttributes] = None
     init_scripts: Optional[List[JobsTasksNewClusterInitScripts]] = Field(
         None,
-        description="The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.",
+        description='The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.',
     )
     instance_pool_id: Optional[str] = Field(
         None,
-        description="The optional ID of the instance pool to which the cluster belongs.",
+        description='The optional ID of the instance pool to which the cluster belongs.',
     )
     node_type_id: Optional[str] = Field(
         None,
-        description="This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n",
+        description='This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n',
     )
     num_workers: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.",
+        description='Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.',
     )
     policy_id: Optional[str] = Field(
         None,
-        description="The ID of the cluster policy used to create the cluster if applicable.",
+        description='The ID of the cluster policy used to create the cluster if applicable.',
     )
     runtime_engine: Optional[str] = None
     single_user_name: Optional[str] = Field(
-        None, description="Single user name if data_security_mode is `SINGLE_USER`"
+        None, description='Single user name if data_security_mode is `SINGLE_USER`'
     )
     spark_conf: Optional[Dict[str, str]] = None
     spark_env_vars: Optional[Dict[str, str]] = None
     spark_version: Optional[str] = Field(
         None,
-        description="The Spark version of the cluster, e.g. `3.3.x-scala2.11`.\nA list of available Spark versions can be retrieved by using\nthe :method:clusters/sparkVersions API call.\n",
+        description='The Spark version of the cluster, e.g. `3.3.x-scala2.11`.\nA list of available Spark versions can be retrieved by using\nthe :method:clusters/sparkVersions API call.\n',
     )
     ssh_public_keys: Optional[List[str]] = Field(
         None,
-        description="SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.",
+        description='SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.',
     )
     workload_type: Optional[JobsTasksNewClusterWorkloadType] = None
 
@@ -1839,15 +1840,15 @@ class JobsTasksNotebookTask(BaseModel):
     base_parameters: Optional[Dict[str, str]] = None
     notebook_path: str = Field(
         ...,
-        description="The path of the notebook to be run in the Databricks workspace or remote repository.\nFor notebooks stored in the Databricks workspace, the path must be absolute and begin with a slash.\nFor notebooks stored in a remote repository, the path must be relative. This field is required.",
+        description='The path of the notebook to be run in the Databricks workspace or remote repository.\nFor notebooks stored in the Databricks workspace, the path must be absolute and begin with a slash.\nFor notebooks stored in a remote repository, the path must be relative. This field is required.',
     )
     source: Optional[str] = Field(
         None,
-        description="Optional location type of the notebook. When set to `WORKSPACE`, the notebook will be retrieved from the local Databricks workspace. When set to `GIT`, the notebook will be retrieved from a Git repository\ndefined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.\n* `WORKSPACE`: Notebook is located in Databricks workspace.\n* `GIT`: Notebook is located in cloud Git provider.",
+        description='Optional location type of the notebook. When set to `WORKSPACE`, the notebook will be retrieved from the local Databricks workspace. When set to `GIT`, the notebook will be retrieved from a Git repository\ndefined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.\n* `WORKSPACE`: Notebook is located in Databricks workspace.\n* `GIT`: Notebook is located in cloud Git provider.',
     )
     warehouse_id: Optional[str] = Field(
         None,
-        description="Optional `warehouse_id` to run the notebook on a SQL warehouse. Classic SQL warehouses are NOT supported, please use serverless or pro SQL warehouses.\n\nNote that SQL warehouses only support SQL cells; if the notebook contains non-SQL cells, the run will fail.",
+        description='Optional `warehouse_id` to run the notebook on a SQL warehouse. Classic SQL warehouses are NOT supported, please use serverless or pro SQL warehouses.\n\nNote that SQL warehouses only support SQL cells; if the notebook contains non-SQL cells, the run will fail.',
     )
 
 
@@ -1860,34 +1861,34 @@ class JobsTasksNotificationSettings(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, do not send notifications to recipients specified in `on_start` for the retried runs and do not send notifications to recipients specified in `on_failure` until the last retry of the run.",
+        description='If true, do not send notifications to recipients specified in `on_start` for the retried runs and do not send notifications to recipients specified in `on_failure` until the last retry of the run.',
     )
     no_alert_for_canceled_runs: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, do not send notifications to recipients specified in `on_failure` if the run is canceled.",
+        description='If true, do not send notifications to recipients specified in `on_failure` if the run is canceled.',
     )
     no_alert_for_skipped_runs: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, do not send notifications to recipients specified in `on_failure` if the run is skipped.",
+        description='If true, do not send notifications to recipients specified in `on_failure` if the run is skipped.',
     )
 
 
@@ -1900,14 +1901,14 @@ class JobsTasksPipelineTask(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="If true, triggers a full refresh on the delta live table."
+        None, description='If true, triggers a full refresh on the delta live table.'
     )
     pipeline_id: str = Field(
-        ..., description="The full name of the pipeline task to execute."
+        ..., description='The full name of the pipeline task to execute.'
     )
 
 
@@ -1918,13 +1919,13 @@ class JobsTasksPythonWheelTask(BaseModel):
 
     entry_point: str = Field(
         ...,
-        description="Named entry point to use, if it does not exist in the metadata of the package it executes the function from the package directly using `$packageName.$entryPoint()`",
+        description='Named entry point to use, if it does not exist in the metadata of the package it executes the function from the package directly using `$packageName.$entryPoint()`',
     )
     named_parameters: Optional[Dict[str, str]] = None
-    package_name: str = Field(..., description="Name of the package to execute")
+    package_name: str = Field(..., description='Name of the package to execute')
     parameters: Optional[List[str]] = Field(
         None,
-        description="Command-line parameters passed to Python wheel task. Leave it empty if `named_parameters` is not null.",
+        description='Command-line parameters passed to Python wheel task. Leave it empty if `named_parameters` is not null.',
     )
 
 
@@ -1937,11 +1938,11 @@ class JobsTasksRunJobTaskPipelineParams(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="If true, triggers a full refresh on the delta live table."
+        None, description='If true, triggers a full refresh on the delta live table.'
     )
 
 
@@ -1961,9 +1962,9 @@ class JobsTasksRunJobTask(BaseModel):
     job_id: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
-    ] = Field(..., description="ID of the job to trigger.")
+    ] = Field(..., description='ID of the job to trigger.')
     job_parameters: Optional[Dict[str, str]] = None
     notebook_params: Optional[Dict[str, str]] = None
     pipeline_params: Optional[JobsTasksRunJobTaskPipelineParams] = None
@@ -1986,15 +1987,15 @@ class JobsTasksSparkJarTask(BaseModel):
 
     jar_uri: Optional[str] = Field(
         None,
-        description="Deprecated since 04/2016. Provide a `jar` through the `libraries` field instead. For an example, see :method:jobs/create.",
+        description='Deprecated since 04/2016. Provide a `jar` through the `libraries` field instead. For an example, see :method:jobs/create.',
     )
     main_class_name: Optional[str] = Field(
         None,
-        description="The full name of the class containing the main method to be executed. This class must be contained in a JAR provided as a library.\n\nThe code must use `SparkContext.getOrCreate` to obtain a Spark context; otherwise, runs of the job fail.",
+        description='The full name of the class containing the main method to be executed. This class must be contained in a JAR provided as a library.\n\nThe code must use `SparkContext.getOrCreate` to obtain a Spark context; otherwise, runs of the job fail.',
     )
     parameters: Optional[List[str]] = Field(
         None,
-        description="Parameters passed to the main method.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.",
+        description='Parameters passed to the main method.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.',
     )
 
 
@@ -2005,15 +2006,15 @@ class JobsTasksSparkPythonTask(BaseModel):
 
     parameters: Optional[List[str]] = Field(
         None,
-        description="Command line parameters passed to the Python file.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.",
+        description='Command line parameters passed to the Python file.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.',
     )
     python_file: str = Field(
         ...,
-        description="The Python file to be executed. Cloud file URIs (such as dbfs:/, s3:/, adls:/, gcs:/) and workspace paths are supported. For python files stored in the Databricks workspace, the path must be absolute and begin with `/`. For files stored in a remote repository, the path must be relative. This field is required.",
+        description='The Python file to be executed. Cloud file URIs (such as dbfs:/, s3:/, adls:/, gcs:/) and workspace paths are supported. For python files stored in the Databricks workspace, the path must be absolute and begin with `/`. For files stored in a remote repository, the path must be relative. This field is required.',
     )
     source: Optional[str] = Field(
         None,
-        description="Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved from the local\nDatabricks workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,\nthe Python file will be retrieved from a Git repository defined in `git_source`.\n\n* `WORKSPACE`: The Python file is located in a Databricks workspace or at a cloud filesystem URI.\n* `GIT`: The Python file is located in a remote Git repository.",
+        description='Optional location type of the Python file. When set to `WORKSPACE` or not specified, the file will be retrieved from the local\nDatabricks workspace or cloud location (if the `python_file` has a URI format). When set to `GIT`,\nthe Python file will be retrieved from a Git repository defined in `git_source`.\n\n* `WORKSPACE`: The Python file is located in a Databricks workspace or at a cloud filesystem URI.\n* `GIT`: The Python file is located in a remote Git repository.',
     )
 
 
@@ -2024,7 +2025,7 @@ class JobsTasksSparkSubmitTask(BaseModel):
 
     parameters: Optional[List[str]] = Field(
         None,
-        description="Command-line parameters passed to spark submit.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.",
+        description='Command-line parameters passed to spark submit.\n\nUse [Task parameter variables](https://docs.databricks.com/jobs.html#parameter-variables) to set parameters containing information about job runs.',
     )
 
 
@@ -2035,11 +2036,11 @@ class JobsTasksSqlTaskAlertSubscriptions(BaseModel):
 
     destination_id: Optional[str] = Field(
         None,
-        description="The canonical identifier of the destination to receive email notification. This parameter is mutually exclusive with user_name. You cannot set both destination_id and user_name for subscription notifications.",
+        description='The canonical identifier of the destination to receive email notification. This parameter is mutually exclusive with user_name. You cannot set both destination_id and user_name for subscription notifications.',
     )
     user_name: Optional[str] = Field(
         None,
-        description="The user name to receive the subscription email. This parameter is mutually exclusive with destination_id. You cannot set both destination_id and user_name for subscription notifications.",
+        description='The user name to receive the subscription email. This parameter is mutually exclusive with destination_id. You cannot set both destination_id and user_name for subscription notifications.',
     )
 
 
@@ -2048,20 +2049,20 @@ class JobsTasksSqlTaskAlert(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    alert_id: str = Field(..., description="The canonical identifier of the SQL alert.")
+    alert_id: str = Field(..., description='The canonical identifier of the SQL alert.')
     pause_subscriptions: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, the alert notifications are not sent to subscribers.",
+        description='If true, the alert notifications are not sent to subscribers.',
     )
     subscriptions: Optional[List[JobsTasksSqlTaskAlertSubscriptions]] = Field(
-        None, description="If specified, alert notifications are sent to subscribers."
+        None, description='If specified, alert notifications are sent to subscribers.'
     )
 
 
@@ -2072,11 +2073,11 @@ class JobsTasksSqlTaskDashboardSubscriptions(BaseModel):
 
     destination_id: Optional[str] = Field(
         None,
-        description="The canonical identifier of the destination to receive email notification. This parameter is mutually exclusive with user_name. You cannot set both destination_id and user_name for subscription notifications.",
+        description='The canonical identifier of the destination to receive email notification. This parameter is mutually exclusive with user_name. You cannot set both destination_id and user_name for subscription notifications.',
     )
     user_name: Optional[str] = Field(
         None,
-        description="The user name to receive the subscription email. This parameter is mutually exclusive with destination_id. You cannot set both destination_id and user_name for subscription notifications.",
+        description='The user name to receive the subscription email. This parameter is mutually exclusive with destination_id. You cannot set both destination_id and user_name for subscription notifications.',
     )
 
 
@@ -2086,24 +2087,24 @@ class JobsTasksSqlTaskDashboard(BaseModel):
         protected_namespaces = ()
 
     custom_subject: Optional[str] = Field(
-        None, description="Subject of the email sent to subscribers of this task."
+        None, description='Subject of the email sent to subscribers of this task.'
     )
     dashboard_id: str = Field(
-        ..., description="The canonical identifier of the SQL dashboard."
+        ..., description='The canonical identifier of the SQL dashboard.'
     )
     pause_subscriptions: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, the dashboard snapshot is not taken, and emails are not sent to subscribers.",
+        description='If true, the dashboard snapshot is not taken, and emails are not sent to subscribers.',
     )
     subscriptions: Optional[List[JobsTasksSqlTaskDashboardSubscriptions]] = Field(
-        None, description="If specified, dashboard snapshots are sent to subscriptions."
+        None, description='If specified, dashboard snapshots are sent to subscriptions.'
     )
 
 
@@ -2114,11 +2115,11 @@ class JobsTasksSqlTaskFile(BaseModel):
 
     path: str = Field(
         ...,
-        description="Path of the SQL file. Must be relative if the source is a remote Git repository and absolute for workspace paths.",
+        description='Path of the SQL file. Must be relative if the source is a remote Git repository and absolute for workspace paths.',
     )
     source: Optional[str] = Field(
         None,
-        description="Optional location type of the SQL file. When set to `WORKSPACE`, the SQL file will be retrieved\nfrom the local Databricks workspace. When set to `GIT`, the SQL file will be retrieved from a Git repository\ndefined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.\n\n* `WORKSPACE`: SQL file is located in Databricks workspace.\n* `GIT`: SQL file is located in cloud Git provider.",
+        description='Optional location type of the SQL file. When set to `WORKSPACE`, the SQL file will be retrieved\nfrom the local Databricks workspace. When set to `GIT`, the SQL file will be retrieved from a Git repository\ndefined in `git_source`. If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.\n\n* `WORKSPACE`: SQL file is located in Databricks workspace.\n* `GIT`: SQL file is located in cloud Git provider.',
     )
 
 
@@ -2127,7 +2128,7 @@ class JobsTasksSqlTaskQuery(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    query_id: str = Field(..., description="The canonical identifier of the SQL query.")
+    query_id: str = Field(..., description='The canonical identifier of the SQL query.')
 
 
 class JobsTasksSqlTask(BaseModel):
@@ -2142,7 +2143,7 @@ class JobsTasksSqlTask(BaseModel):
     query: Optional[JobsTasksSqlTaskQuery] = None
     warehouse_id: str = Field(
         ...,
-        description="The canonical identifier of the SQL warehouse. Recommended to use with serverless or pro SQL warehouses. Classic SQL warehouses are only supported for SQL alert, dashboard and query tasks and are limited to scheduled single-task jobs.",
+        description='The canonical identifier of the SQL warehouse. Recommended to use with serverless or pro SQL warehouses. Classic SQL warehouses are only supported for SQL alert, dashboard and query tasks and are limited to scheduled single-task jobs.',
     )
 
 
@@ -2195,25 +2196,25 @@ class JobsTasksWebhookNotifications(BaseModel):
         List[JobsTasksWebhookNotificationsOnDurationWarningThresholdExceeded]
     ] = Field(
         None,
-        description="An optional list of system notification IDs to call when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. A maximum of 3 destinations can be specified for the `on_duration_warning_threshold_exceeded` property.",
+        description='An optional list of system notification IDs to call when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. A maximum of 3 destinations can be specified for the `on_duration_warning_threshold_exceeded` property.',
     )
     on_failure: Optional[List[JobsTasksWebhookNotificationsOnFailure]] = Field(
         None,
-        description="An optional list of system notification IDs to call when the run fails. A maximum of 3 destinations can be specified for the `on_failure` property.",
+        description='An optional list of system notification IDs to call when the run fails. A maximum of 3 destinations can be specified for the `on_failure` property.',
     )
     on_start: Optional[List[JobsTasksWebhookNotificationsOnStart]] = Field(
         None,
-        description="An optional list of system notification IDs to call when the run starts. A maximum of 3 destinations can be specified for the `on_start` property.",
+        description='An optional list of system notification IDs to call when the run starts. A maximum of 3 destinations can be specified for the `on_start` property.',
     )
     on_streaming_backlog_exceeded: Optional[
         List[JobsTasksWebhookNotificationsOnStreamingBacklogExceeded]
     ] = Field(
         None,
-        description="An optional list of system notification IDs to call when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.\nA maximum of 3 destinations can be specified for the `on_streaming_backlog_exceeded` property.",
+        description='An optional list of system notification IDs to call when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.\nA maximum of 3 destinations can be specified for the `on_streaming_backlog_exceeded` property.',
     )
     on_success: Optional[List[JobsTasksWebhookNotificationsOnSuccess]] = Field(
         None,
-        description="An optional list of system notification IDs to call when the run completes successfully. A maximum of 3 destinations can be specified for the `on_success` property.",
+        description='An optional list of system notification IDs to call when the run completes successfully. A maximum of 3 destinations can be specified for the `on_success` property.',
     )
 
 
@@ -2226,59 +2227,59 @@ class JobsTasks(BaseModel):
     dbt_task: Optional[JobsTasksDbtTask] = None
     depends_on: Optional[List[JobsTasksDependsOn]] = Field(
         None,
-        description="An optional array of objects specifying the dependency graph of the task. All tasks specified in this field must complete before executing this task. The task will run only if the `run_if` condition is true.\nThe key is `task_key`, and the value is the name assigned to the dependent task.",
+        description='An optional array of objects specifying the dependency graph of the task. All tasks specified in this field must complete before executing this task. The task will run only if the `run_if` condition is true.\nThe key is `task_key`, and the value is the name assigned to the dependent task.',
     )
     description: Optional[str] = Field(
-        None, description="An optional description for this task."
+        None, description='An optional description for this task.'
     )
     disable_auto_optimization: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="An option to disable auto optimization in serverless")
+    ] = Field(None, description='An option to disable auto optimization in serverless')
     email_notifications: Optional[JobsTasksEmailNotifications] = None
     environment_key: Optional[str] = Field(
         None,
-        description="The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute.",
+        description='The key that references an environment spec in a job. This field is required for Python script, Python wheel and dbt tasks when using serverless compute.',
     )
     existing_cluster_id: Optional[str] = Field(
         None,
-        description="If existing_cluster_id, the ID of an existing cluster that is used for all runs.\nWhen running jobs or tasks on an existing cluster, you may need to manually restart\nthe cluster if it stops responding. We suggest running jobs and tasks on new clusters for\ngreater reliability",
+        description='If existing_cluster_id, the ID of an existing cluster that is used for all runs.\nWhen running jobs or tasks on an existing cluster, you may need to manually restart\nthe cluster if it stops responding. We suggest running jobs and tasks on new clusters for\ngreater reliability',
     )
     for_each_task: Optional[JobsTasksForEachTask] = None
     health: Optional[JobsTasksHealth] = None
     job_cluster_key: Optional[str] = Field(
         None,
-        description="If job_cluster_key, this task is executed reusing the cluster specified in `job.settings.job_clusters`.",
+        description='If job_cluster_key, this task is executed reusing the cluster specified in `job.settings.job_clusters`.',
     )
     libraries: Optional[List[JobsTasksLibraries]] = Field(
         None,
-        description="An optional list of libraries to be installed on the cluster.\nThe default value is an empty list.",
+        description='An optional list of libraries to be installed on the cluster.\nThe default value is an empty list.',
     )
     max_retries: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry.",
+        description='An optional maximum number of times to retry an unsuccessful run. A run is considered to be unsuccessful if it completes with the `FAILED` result_state or `INTERNAL_ERROR` `life_cycle_state`. The value `-1` means to retry indefinitely and the value `0` means to never retry.',
     )
     min_retry_interval_millis: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried.",
+        description='An optional minimal interval in milliseconds between the start of the failed run and the subsequent retry run. The default behavior is that unsuccessful runs are immediately retried.',
     )
     new_cluster: Optional[JobsTasksNewCluster] = None
     notebook_task: Optional[JobsTasksNotebookTask] = None
@@ -2289,16 +2290,16 @@ class JobsTasks(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="An optional policy to specify whether to retry a job when it times out. The default behavior\nis to not retry on timeout.",
+        description='An optional policy to specify whether to retry a job when it times out. The default behavior\nis to not retry on timeout.',
     )
     run_if: Optional[str] = Field(
         None,
-        description="An optional value specifying the condition determining whether the task is run once its dependencies have been completed.\n\n* `ALL_SUCCESS`: All dependencies have executed and succeeded\n* `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded\n* `NONE_FAILED`: None of the dependencies have failed and at least one was executed\n* `ALL_DONE`: All dependencies have been completed\n* `AT_LEAST_ONE_FAILED`: At least one dependency failed\n* `ALL_FAILED`: ALl dependencies have failed",
+        description='An optional value specifying the condition determining whether the task is run once its dependencies have been completed.\n\n* `ALL_SUCCESS`: All dependencies have executed and succeeded\n* `AT_LEAST_ONE_SUCCESS`: At least one dependency has succeeded\n* `NONE_FAILED`: None of the dependencies have failed and at least one was executed\n* `ALL_DONE`: All dependencies have been completed\n* `AT_LEAST_ONE_FAILED`: At least one dependency failed\n* `ALL_FAILED`: ALl dependencies have failed',
     )
     run_job_task: Optional[JobsTasksRunJobTask] = None
     spark_jar_task: Optional[JobsTasksSparkJarTask] = None
@@ -2307,18 +2308,18 @@ class JobsTasks(BaseModel):
     sql_task: Optional[JobsTasksSqlTask] = None
     task_key: str = Field(
         ...,
-        description="A unique name for the task. This field is used to refer to this task from other tasks.\nThis field is required and must be unique within its parent job.\nOn Update or Reset, this field is used to reference the tasks to be updated or reset.",
+        description='A unique name for the task. This field is used to refer to this task from other tasks.\nThis field is required and must be unique within its parent job.\nOn Update or Reset, this field is used to reference the tasks to be updated or reset.',
     )
     timeout_seconds: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="An optional timeout applied to each run of this job task. A value of `0` means no timeout.",
+        description='An optional timeout applied to each run of this job task. A value of `0` means no timeout.',
     )
     webhook_notifications: Optional[JobsTasksWebhookNotifications] = None
 
@@ -2332,27 +2333,27 @@ class JobsTriggerFileArrival(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If set, the trigger starts a run only after the specified amount of time passed since\nthe last time the trigger fired. The minimum allowed value is 60 seconds",
+        description='If set, the trigger starts a run only after the specified amount of time passed since\nthe last time the trigger fired. The minimum allowed value is 60 seconds',
     )
     url: str = Field(
         ...,
-        description="URL to be monitored for file arrivals. The path must point to the root or a subpath of the external location.",
+        description='URL to be monitored for file arrivals. The path must point to the root or a subpath of the external location.',
     )
     wait_after_last_change_seconds: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If set, the trigger starts a run only after no file activity has occurred for the specified amount of time.\nThis makes it possible to wait for a batch of incoming files to arrive before triggering a run. The\nminimum allowed value is 60 seconds.",
+        description='If set, the trigger starts a run only after no file activity has occurred for the specified amount of time.\nThis makes it possible to wait for a batch of incoming files to arrive before triggering a run. The\nminimum allowed value is 60 seconds.',
     )
 
 
@@ -2364,10 +2365,10 @@ class JobsTriggerPeriodic(BaseModel):
     interval: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
-    ] = Field(..., description="The interval at which the trigger should run.")
-    unit: str = Field(..., description="The unit of time for the interval.")
+    ] = Field(..., description='The interval at which the trigger should run.')
+    unit: str = Field(..., description='The unit of time for the interval.')
 
 
 class JobsTriggerTable(BaseModel):
@@ -2376,33 +2377,33 @@ class JobsTriggerTable(BaseModel):
         protected_namespaces = ()
 
     condition: Optional[str] = Field(
-        None, description="The table(s) condition based on which to trigger a job run."
+        None, description='The table(s) condition based on which to trigger a job run.'
     )
     min_time_between_triggers_seconds: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If set, the trigger starts a run only after the specified amount of time has passed since\nthe last time the trigger fired. The minimum allowed value is 60 seconds.",
+        description='If set, the trigger starts a run only after the specified amount of time has passed since\nthe last time the trigger fired. The minimum allowed value is 60 seconds.',
     )
     table_names: Optional[List[str]] = Field(
         None,
-        description="A list of Delta tables to monitor for changes. The table name must be in the format `catalog_name.schema_name.table_name`.",
+        description='A list of Delta tables to monitor for changes. The table name must be in the format `catalog_name.schema_name.table_name`.',
     )
     wait_after_last_change_seconds: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If set, the trigger starts a run only after no table updates have occurred for the specified time\nand can be used to wait for a series of table updates before triggering a run. The\nminimum allowed value is 60 seconds.",
+        description='If set, the trigger starts a run only after no table updates have occurred for the specified time\nand can be used to wait for a series of table updates before triggering a run. The\nminimum allowed value is 60 seconds.',
     )
 
 
@@ -2412,33 +2413,33 @@ class JobsTriggerTableUpdate(BaseModel):
         protected_namespaces = ()
 
     condition: Optional[str] = Field(
-        None, description="The table(s) condition based on which to trigger a job run."
+        None, description='The table(s) condition based on which to trigger a job run.'
     )
     min_time_between_triggers_seconds: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If set, the trigger starts a run only after the specified amount of time has passed since\nthe last time the trigger fired. The minimum allowed value is 60 seconds.",
+        description='If set, the trigger starts a run only after the specified amount of time has passed since\nthe last time the trigger fired. The minimum allowed value is 60 seconds.',
     )
     table_names: Optional[List[str]] = Field(
         None,
-        description="A list of Delta tables to monitor for changes. The table name must be in the format `catalog_name.schema_name.table_name`.",
+        description='A list of Delta tables to monitor for changes. The table name must be in the format `catalog_name.schema_name.table_name`.',
     )
     wait_after_last_change_seconds: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If set, the trigger starts a run only after no table updates have occurred for the specified time\nand can be used to wait for a series of table updates before triggering a run. The\nminimum allowed value is 60 seconds.",
+        description='If set, the trigger starts a run only after no table updates have occurred for the specified time\nand can be used to wait for a series of table updates before triggering a run. The\nminimum allowed value is 60 seconds.',
     )
 
 
@@ -2449,7 +2450,7 @@ class JobsTrigger(BaseModel):
 
     file_arrival: Optional[JobsTriggerFileArrival] = None
     pause_status: Optional[str] = Field(
-        None, description="Whether this trigger is paused or not."
+        None, description='Whether this trigger is paused or not.'
     )
     periodic: Optional[JobsTriggerPeriodic] = None
     table: Optional[JobsTriggerTable] = None
@@ -2505,25 +2506,25 @@ class JobsWebhookNotifications(BaseModel):
         List[JobsWebhookNotificationsOnDurationWarningThresholdExceeded]
     ] = Field(
         None,
-        description="An optional list of system notification IDs to call when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. A maximum of 3 destinations can be specified for the `on_duration_warning_threshold_exceeded` property.",
+        description='An optional list of system notification IDs to call when the duration of a run exceeds the threshold specified for the `RUN_DURATION_SECONDS` metric in the `health` field. A maximum of 3 destinations can be specified for the `on_duration_warning_threshold_exceeded` property.',
     )
     on_failure: Optional[List[JobsWebhookNotificationsOnFailure]] = Field(
         None,
-        description="An optional list of system notification IDs to call when the run fails. A maximum of 3 destinations can be specified for the `on_failure` property.",
+        description='An optional list of system notification IDs to call when the run fails. A maximum of 3 destinations can be specified for the `on_failure` property.',
     )
     on_start: Optional[List[JobsWebhookNotificationsOnStart]] = Field(
         None,
-        description="An optional list of system notification IDs to call when the run starts. A maximum of 3 destinations can be specified for the `on_start` property.",
+        description='An optional list of system notification IDs to call when the run starts. A maximum of 3 destinations can be specified for the `on_start` property.',
     )
     on_streaming_backlog_exceeded: Optional[
         List[JobsWebhookNotificationsOnStreamingBacklogExceeded]
     ] = Field(
         None,
-        description="An optional list of system notification IDs to call when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.\nA maximum of 3 destinations can be specified for the `on_streaming_backlog_exceeded` property.",
+        description='An optional list of system notification IDs to call when any streaming backlog thresholds are exceeded for any stream.\nStreaming backlog thresholds can be set in the `health` field using the following metrics: `STREAMING_BACKLOG_BYTES`, `STREAMING_BACKLOG_RECORDS`, `STREAMING_BACKLOG_SECONDS`, or `STREAMING_BACKLOG_FILES`.\nAlerting is based on the 10-minute average of these metrics. If the issue persists, notifications are resent every 30 minutes.\nA maximum of 3 destinations can be specified for the `on_streaming_backlog_exceeded` property.',
     )
     on_success: Optional[List[JobsWebhookNotificationsOnSuccess]] = Field(
         None,
-        description="An optional list of system notification IDs to call when the run completes successfully. A maximum of 3 destinations can be specified for the `on_success` property.",
+        description='An optional list of system notification IDs to call when the run completes successfully. A maximum of 3 destinations can be specified for the `on_success` property.',
     )
 
 
@@ -2536,16 +2537,16 @@ class Jobs(BaseModel):
     deployment: Optional[JobsDeployment] = None
     description: Optional[str] = Field(
         None,
-        description="An optional description for the job. The maximum length is 27700 characters in UTF-8 encoding.",
+        description='An optional description for the job. The maximum length is 27700 characters in UTF-8 encoding.',
     )
     edit_mode: Optional[str] = Field(
         None,
-        description="Edit mode of the job.\n\n* `UI_LOCKED`: The job is in a locked UI state and cannot be modified.\n* `EDITABLE`: The job is in an editable state and can be modified.",
+        description='Edit mode of the job.\n\n* `UI_LOCKED`: The job is in a locked UI state and cannot be modified.\n* `EDITABLE`: The job is in an editable state and can be modified.',
     )
     email_notifications: Optional[JobsEmailNotifications] = None
     environments: Optional[List[JobsEnvironments]] = Field(
         None,
-        description="A list of task execution environment specifications that can be referenced by tasks of this job.",
+        description='A list of task execution environment specifications that can be referenced by tasks of this job.',
     )
     format: Optional[str] = Field(
         None,
@@ -2555,26 +2556,26 @@ class Jobs(BaseModel):
     health: Optional[JobsHealth] = None
     job_clusters: Optional[List[JobsJobClusters]] = Field(
         None,
-        description="A list of job cluster specifications that can be shared and reused by tasks of this job. Libraries cannot be declared in a shared job cluster. You must declare dependent libraries in task settings.",
+        description='A list of job cluster specifications that can be shared and reused by tasks of this job. Libraries cannot be declared in a shared job cluster. You must declare dependent libraries in task settings.',
     )
     max_concurrent_runs: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="An optional maximum allowed number of concurrent runs of the job.\nSet this value if you want to be able to execute multiple runs of the same job concurrently.\nThis is useful for example if you trigger your job on a frequent schedule and want to allow consecutive runs to overlap with each other, or if you want to trigger multiple runs which differ by their input parameters.\nThis setting affects only new runs. For example, suppose the job’s concurrency is 4 and there are 4 concurrent active runs. Then setting the concurrency to 3 won’t kill any of the active runs.\nHowever, from then on, new runs are skipped unless there are fewer than 3 active runs.\nThis value cannot exceed 1000. Setting this value to `0` causes all new runs to be skipped.",
+        description='An optional maximum allowed number of concurrent runs of the job.\nSet this value if you want to be able to execute multiple runs of the same job concurrently.\nThis is useful for example if you trigger your job on a frequent schedule and want to allow consecutive runs to overlap with each other, or if you want to trigger multiple runs which differ by their input parameters.\nThis setting affects only new runs. For example, suppose the job’s concurrency is 4 and there are 4 concurrent active runs. Then setting the concurrency to 3 won’t kill any of the active runs.\nHowever, from then on, new runs are skipped unless there are fewer than 3 active runs.\nThis value cannot exceed 1000. Setting this value to `0` causes all new runs to be skipped.',
     )
     name: Optional[str] = Field(
         None,
-        description="An optional name for the job. The maximum length is 4096 bytes in UTF-8 encoding.",
+        description='An optional name for the job. The maximum length is 4096 bytes in UTF-8 encoding.',
     )
     notification_settings: Optional[JobsNotificationSettings] = None
     parameters: Optional[List[JobsParameters]] = Field(
-        None, description="Job-level parameter definitions"
+        None, description='Job-level parameter definitions'
     )
     permissions: Optional[List[JobsPermissions]] = None
     queue: Optional[JobsQueue] = None
@@ -2582,18 +2583,18 @@ class Jobs(BaseModel):
     schedule: Optional[JobsSchedule] = None
     tags: Optional[Dict[str, str]] = None
     tasks: Optional[List[JobsTasks]] = Field(
-        None, description="A list of task specifications to be executed by this job."
+        None, description='A list of task specifications to be executed by this job.'
     )
     timeout_seconds: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="An optional timeout applied to each run of this job. A value of `0` means no timeout.",
+        description='An optional timeout applied to each run of this job. A value of `0` means no timeout.',
     )
     trigger: Optional[JobsTrigger] = None
     webhook_notifications: Optional[JobsWebhookNotifications] = None
@@ -2606,23 +2607,23 @@ class ModelServingEndpointsConfigAutoCaptureConfig(BaseModel):
 
     catalog_name: Optional[str] = Field(
         None,
-        description="The name of the catalog in Unity Catalog. NOTE: On update, you cannot change the catalog name if the inference table is already enabled.",
+        description='The name of the catalog in Unity Catalog. NOTE: On update, you cannot change the catalog name if the inference table is already enabled.',
     )
     enabled: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="Indicates whether the inference table is enabled.")
+    ] = Field(None, description='Indicates whether the inference table is enabled.')
     schema_name: Optional[str] = Field(
         None,
-        description="The name of the schema in Unity Catalog. NOTE: On update, you cannot change the schema name if the inference table is already enabled.",
+        description='The name of the schema in Unity Catalog. NOTE: On update, you cannot change the schema name if the inference table is already enabled.',
     )
     table_name_prefix: Optional[str] = Field(
         None,
-        description="The prefix of the table in Unity Catalog. NOTE: On update, you cannot change the prefix name if the inference table is already enabled.",
+        description='The prefix of the table in Unity Catalog. NOTE: On update, you cannot change the prefix name if the inference table is already enabled.',
     )
 
 
@@ -2633,11 +2634,11 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelAi21labsConfig(BaseM
 
     ai21labs_api_key: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for an AI21 Labs API key. If you prefer to paste your API key directly, see `ai21labs_api_key_plaintext`. You must provide an API key using one of the following fields: `ai21labs_api_key` or `ai21labs_api_key_plaintext`.",
+        description='The Databricks secret key reference for an AI21 Labs API key. If you prefer to paste your API key directly, see `ai21labs_api_key_plaintext`. You must provide an API key using one of the following fields: `ai21labs_api_key` or `ai21labs_api_key_plaintext`.',
     )
     ai21labs_api_key_plaintext: Optional[str] = Field(
         None,
-        description="An AI21 Labs API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `ai21labs_api_key`. You must provide an API key using one of the following fields: `ai21labs_api_key` or `ai21labs_api_key_plaintext`.",
+        description='An AI21 Labs API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `ai21labs_api_key`. You must provide an API key using one of the following fields: `ai21labs_api_key` or `ai21labs_api_key_plaintext`.',
     )
 
 
@@ -2650,26 +2651,26 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelAmazonBedrockConfig(
 
     aws_access_key_id: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for an AWS access key ID with permissions to interact with Bedrock services. If you prefer to paste your API key directly, see `aws_access_key_id`. You must provide an API key using one of the following fields: `aws_access_key_id` or `aws_access_key_id_plaintext`.",
+        description='The Databricks secret key reference for an AWS access key ID with permissions to interact with Bedrock services. If you prefer to paste your API key directly, see `aws_access_key_id`. You must provide an API key using one of the following fields: `aws_access_key_id` or `aws_access_key_id_plaintext`.',
     )
     aws_access_key_id_plaintext: Optional[str] = Field(
         None,
-        description="An AWS access key ID with permissions to interact with Bedrock services provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `aws_access_key_id`. You must provide an API key using one of the following fields: `aws_access_key_id` or `aws_access_key_id_plaintext`.",
+        description='An AWS access key ID with permissions to interact with Bedrock services provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `aws_access_key_id`. You must provide an API key using one of the following fields: `aws_access_key_id` or `aws_access_key_id_plaintext`.',
     )
     aws_region: str = Field(
-        ..., description="The AWS region to use. Bedrock has to be enabled there."
+        ..., description='The AWS region to use. Bedrock has to be enabled there.'
     )
     aws_secret_access_key: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for an AWS secret access key paired with the access key ID, with permissions to interact with Bedrock services. If you prefer to paste your API key directly, see `aws_secret_access_key_plaintext`. You must provide an API key using one of the following fields: `aws_secret_access_key` or `aws_secret_access_key_plaintext`.",
+        description='The Databricks secret key reference for an AWS secret access key paired with the access key ID, with permissions to interact with Bedrock services. If you prefer to paste your API key directly, see `aws_secret_access_key_plaintext`. You must provide an API key using one of the following fields: `aws_secret_access_key` or `aws_secret_access_key_plaintext`.',
     )
     aws_secret_access_key_plaintext: Optional[str] = Field(
         None,
-        description="An AWS secret access key paired with the access key ID, with permissions to interact with Bedrock services provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `aws_secret_access_key`. You must provide an API key using one of the following fields: `aws_secret_access_key` or `aws_secret_access_key_plaintext`.",
+        description='An AWS secret access key paired with the access key ID, with permissions to interact with Bedrock services provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `aws_secret_access_key`. You must provide an API key using one of the following fields: `aws_secret_access_key` or `aws_secret_access_key_plaintext`.',
     )
     bedrock_provider: str = Field(
         ...,
-        description="The underlying provider in Amazon Bedrock. Supported values (case insensitive) include: Anthropic, Cohere, AI21Labs, Amazon.",
+        description='The underlying provider in Amazon Bedrock. Supported values (case insensitive) include: Anthropic, Cohere, AI21Labs, Amazon.',
     )
 
 
@@ -2680,11 +2681,11 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelAnthropicConfig(Base
 
     anthropic_api_key: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for an Anthropic API key. If you prefer to paste your API key directly, see `anthropic_api_key_plaintext`. You must provide an API key using one of the following fields: `anthropic_api_key` or `anthropic_api_key_plaintext`.",
+        description='The Databricks secret key reference for an Anthropic API key. If you prefer to paste your API key directly, see `anthropic_api_key_plaintext`. You must provide an API key using one of the following fields: `anthropic_api_key` or `anthropic_api_key_plaintext`.',
     )
     anthropic_api_key_plaintext: Optional[str] = Field(
         None,
-        description="The Anthropic API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `anthropic_api_key`. You must provide an API key using one of the following fields: `anthropic_api_key` or `anthropic_api_key_plaintext`.",
+        description='The Anthropic API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `anthropic_api_key`. You must provide an API key using one of the following fields: `anthropic_api_key` or `anthropic_api_key_plaintext`.',
     )
 
 
@@ -2695,15 +2696,15 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelCohereConfig(BaseMod
 
     cohere_api_base: Optional[str] = Field(
         None,
-        description="This is an optional field to provide a customized base URL for the Cohere API. \nIf left unspecified, the standard Cohere base URL is used.\n",
+        description='This is an optional field to provide a customized base URL for the Cohere API. \nIf left unspecified, the standard Cohere base URL is used.\n',
     )
     cohere_api_key: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for a Cohere API key. If you prefer to paste your API key directly, see `cohere_api_key_plaintext`. You must provide an API key using one of the following fields: `cohere_api_key` or `cohere_api_key_plaintext`.",
+        description='The Databricks secret key reference for a Cohere API key. If you prefer to paste your API key directly, see `cohere_api_key_plaintext`. You must provide an API key using one of the following fields: `cohere_api_key` or `cohere_api_key_plaintext`.',
     )
     cohere_api_key_plaintext: Optional[str] = Field(
         None,
-        description="The Cohere API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `cohere_api_key`. You must provide an API key using one of the following fields: `cohere_api_key` or `cohere_api_key_plaintext`.",
+        description='The Cohere API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `cohere_api_key`. You must provide an API key using one of the following fields: `cohere_api_key` or `cohere_api_key_plaintext`.',
     )
 
 
@@ -2716,15 +2717,15 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelDatabricksModelServi
 
     databricks_api_token: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for a Databricks API token that corresponds to a user or service\nprincipal with Can Query access to the model serving endpoint pointed to by this external model.\nIf you prefer to paste your API key directly, see `databricks_api_token_plaintext`.\nYou must provide an API key using one of the following fields: `databricks_api_token` or `databricks_api_token_plaintext`.\n",
+        description='The Databricks secret key reference for a Databricks API token that corresponds to a user or service\nprincipal with Can Query access to the model serving endpoint pointed to by this external model.\nIf you prefer to paste your API key directly, see `databricks_api_token_plaintext`.\nYou must provide an API key using one of the following fields: `databricks_api_token` or `databricks_api_token_plaintext`.\n',
     )
     databricks_api_token_plaintext: Optional[str] = Field(
         None,
-        description="The Databricks API token that corresponds to a user or service\nprincipal with Can Query access to the model serving endpoint pointed to by this external model provided as a plaintext string.\nIf you prefer to reference your key using Databricks Secrets, see `databricks_api_token`.\nYou must provide an API key using one of the following fields: `databricks_api_token` or `databricks_api_token_plaintext`.\n",
+        description='The Databricks API token that corresponds to a user or service\nprincipal with Can Query access to the model serving endpoint pointed to by this external model provided as a plaintext string.\nIf you prefer to reference your key using Databricks Secrets, see `databricks_api_token`.\nYou must provide an API key using one of the following fields: `databricks_api_token` or `databricks_api_token_plaintext`.\n',
     )
     databricks_workspace_url: str = Field(
         ...,
-        description="The URL of the Databricks workspace containing the model serving endpoint pointed to by this external model.\n",
+        description='The URL of the Databricks workspace containing the model serving endpoint pointed to by this external model.\n',
     )
 
 
@@ -2737,19 +2738,19 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelGoogleCloudVertexAiC
 
     private_key: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for a private key for the service account which has access to the Google Cloud Vertex AI Service. See [Best practices for managing service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys). If you prefer to paste your API key directly, see `private_key_plaintext`. You must provide an API key using one of the following fields: `private_key` or `private_key_plaintext`",
+        description='The Databricks secret key reference for a private key for the service account which has access to the Google Cloud Vertex AI Service. See [Best practices for managing service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys). If you prefer to paste your API key directly, see `private_key_plaintext`. You must provide an API key using one of the following fields: `private_key` or `private_key_plaintext`',
     )
     private_key_plaintext: Optional[str] = Field(
         None,
-        description="The private key for the service account which has access to the Google Cloud Vertex AI Service provided as a plaintext secret. See [Best practices for managing service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys). If you prefer to reference your key using Databricks Secrets, see `private_key`. You must provide an API key using one of the following fields: `private_key` or `private_key_plaintext`.",
+        description='The private key for the service account which has access to the Google Cloud Vertex AI Service provided as a plaintext secret. See [Best practices for managing service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys). If you prefer to reference your key using Databricks Secrets, see `private_key`. You must provide an API key using one of the following fields: `private_key` or `private_key_plaintext`.',
     )
     project_id: Optional[str] = Field(
         None,
-        description="This is the Google Cloud project id that the service account is associated with.",
+        description='This is the Google Cloud project id that the service account is associated with.',
     )
     region: Optional[str] = Field(
         None,
-        description="This is the region for the Google Cloud Vertex AI Service. See [supported regions](https://cloud.google.com/vertex-ai/docs/general/locations) for more details. Some models are only available in specific regions.",
+        description='This is the region for the Google Cloud Vertex AI Service. See [supported regions](https://cloud.google.com/vertex-ai/docs/general/locations) for more details. Some models are only available in specific regions.',
     )
 
 
@@ -2760,47 +2761,47 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelOpenaiConfig(BaseMod
 
     microsoft_entra_client_id: Optional[str] = Field(
         None,
-        description="This field is only required for Azure AD OpenAI and is the Microsoft Entra Client ID.\n",
+        description='This field is only required for Azure AD OpenAI and is the Microsoft Entra Client ID.\n',
     )
     microsoft_entra_client_secret: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for a client secret used for Microsoft Entra ID authentication.\nIf you prefer to paste your client secret directly, see `microsoft_entra_client_secret_plaintext`.\nYou must provide an API key using one of the following fields: `microsoft_entra_client_secret` or `microsoft_entra_client_secret_plaintext`.\n",
+        description='The Databricks secret key reference for a client secret used for Microsoft Entra ID authentication.\nIf you prefer to paste your client secret directly, see `microsoft_entra_client_secret_plaintext`.\nYou must provide an API key using one of the following fields: `microsoft_entra_client_secret` or `microsoft_entra_client_secret_plaintext`.\n',
     )
     microsoft_entra_client_secret_plaintext: Optional[str] = Field(
         None,
-        description="The client secret used for Microsoft Entra ID authentication provided as a plaintext string.\nIf you prefer to reference your key using Databricks Secrets, see `microsoft_entra_client_secret`.\nYou must provide an API key using one of the following fields: `microsoft_entra_client_secret` or `microsoft_entra_client_secret_plaintext`.\n",
+        description='The client secret used for Microsoft Entra ID authentication provided as a plaintext string.\nIf you prefer to reference your key using Databricks Secrets, see `microsoft_entra_client_secret`.\nYou must provide an API key using one of the following fields: `microsoft_entra_client_secret` or `microsoft_entra_client_secret_plaintext`.\n',
     )
     microsoft_entra_tenant_id: Optional[str] = Field(
         None,
-        description="This field is only required for Azure AD OpenAI and is the Microsoft Entra Tenant ID.\n",
+        description='This field is only required for Azure AD OpenAI and is the Microsoft Entra Tenant ID.\n',
     )
     openai_api_base: Optional[str] = Field(
         None,
-        description="This is a field to provide a customized base URl for the OpenAI API.\nFor Azure OpenAI, this field is required, and is the base URL for the Azure OpenAI API service\nprovided by Azure.\nFor other OpenAI API types, this field is optional, and if left unspecified, the standard OpenAI base URL is used.\n",
+        description='This is a field to provide a customized base URl for the OpenAI API.\nFor Azure OpenAI, this field is required, and is the base URL for the Azure OpenAI API service\nprovided by Azure.\nFor other OpenAI API types, this field is optional, and if left unspecified, the standard OpenAI base URL is used.\n',
     )
     openai_api_key: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for an OpenAI API key using the OpenAI or Azure service. If you prefer to paste your API key directly, see `openai_api_key_plaintext`. You must provide an API key using one of the following fields: `openai_api_key` or `openai_api_key_plaintext`.",
+        description='The Databricks secret key reference for an OpenAI API key using the OpenAI or Azure service. If you prefer to paste your API key directly, see `openai_api_key_plaintext`. You must provide an API key using one of the following fields: `openai_api_key` or `openai_api_key_plaintext`.',
     )
     openai_api_key_plaintext: Optional[str] = Field(
         None,
-        description="The OpenAI API key using the OpenAI or Azure service provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `openai_api_key`. You must provide an API key using one of the following fields: `openai_api_key` or `openai_api_key_plaintext`.",
+        description='The OpenAI API key using the OpenAI or Azure service provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `openai_api_key`. You must provide an API key using one of the following fields: `openai_api_key` or `openai_api_key_plaintext`.',
     )
     openai_api_type: Optional[str] = Field(
         None,
-        description="This is an optional field to specify the type of OpenAI API to use.\nFor Azure OpenAI, this field is required, and adjust this parameter to represent the preferred security\naccess validation protocol. For access token validation, use azure. For authentication using Azure Active\nDirectory (Azure AD) use, azuread.\n",
+        description='This is an optional field to specify the type of OpenAI API to use.\nFor Azure OpenAI, this field is required, and adjust this parameter to represent the preferred security\naccess validation protocol. For access token validation, use azure. For authentication using Azure Active\nDirectory (Azure AD) use, azuread.\n',
     )
     openai_api_version: Optional[str] = Field(
         None,
-        description="This is an optional field to specify the OpenAI API version.\nFor Azure OpenAI, this field is required, and is the version of the Azure OpenAI service to\nutilize, specified by a date.\n",
+        description='This is an optional field to specify the OpenAI API version.\nFor Azure OpenAI, this field is required, and is the version of the Azure OpenAI service to\nutilize, specified by a date.\n',
     )
     openai_deployment_name: Optional[str] = Field(
         None,
-        description="This field is only required for Azure OpenAI and is the name of the deployment resource for the\nAzure OpenAI service.\n",
+        description='This field is only required for Azure OpenAI and is the name of the deployment resource for the\nAzure OpenAI service.\n',
     )
     openai_organization: Optional[str] = Field(
         None,
-        description="This is an optional field to specify the organization in OpenAI or Azure OpenAI.\n",
+        description='This is an optional field to specify the organization in OpenAI or Azure OpenAI.\n',
     )
 
 
@@ -2811,11 +2812,11 @@ class ModelServingEndpointsConfigServedEntitiesExternalModelPalmConfig(BaseModel
 
     palm_api_key: Optional[str] = Field(
         None,
-        description="The Databricks secret key reference for a PaLM API key. If you prefer to paste your API key directly, see `palm_api_key_plaintext`. You must provide an API key using one of the following fields: `palm_api_key` or `palm_api_key_plaintext`.",
+        description='The Databricks secret key reference for a PaLM API key. If you prefer to paste your API key directly, see `palm_api_key_plaintext`. You must provide an API key using one of the following fields: `palm_api_key` or `palm_api_key_plaintext`.',
     )
     palm_api_key_plaintext: Optional[str] = Field(
         None,
-        description="The PaLM API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `palm_api_key`. You must provide an API key using one of the following fields: `palm_api_key` or `palm_api_key_plaintext`.",
+        description='The PaLM API key provided as a plaintext string. If you prefer to reference your key using Databricks Secrets, see `palm_api_key`. You must provide an API key using one of the following fields: `palm_api_key` or `palm_api_key_plaintext`.',
     )
 
 
@@ -2842,7 +2843,7 @@ class ModelServingEndpointsConfigServedEntitiesExternalModel(BaseModel):
     google_cloud_vertex_ai_config: Optional[
         ModelServingEndpointsConfigServedEntitiesExternalModelGoogleCloudVertexAiConfig
     ] = None
-    name: str = Field(..., description="The name of the external model.")
+    name: str = Field(..., description='The name of the external model.')
     openai_config: Optional[
         ModelServingEndpointsConfigServedEntitiesExternalModelOpenaiConfig
     ] = None
@@ -2851,9 +2852,9 @@ class ModelServingEndpointsConfigServedEntitiesExternalModel(BaseModel):
     ] = None
     provider: str = Field(
         ...,
-        description="The name of the provider for the external model. Currently, the supported providers are 'ai21labs', 'anthropic',\n'amazon-bedrock', 'cohere', 'databricks-model-serving', 'google-cloud-vertex-ai', 'openai', and 'palm'.\",\n",
+        description='The name of the provider for the external model. Currently, the supported providers are \'ai21labs\', \'anthropic\',\n\'amazon-bedrock\', \'cohere\', \'databricks-model-serving\', \'google-cloud-vertex-ai\', \'openai\', and \'palm\'.",\n',
     )
-    task: str = Field(..., description="The task type of the external model.")
+    task: str = Field(..., description='The task type of the external model.')
 
 
 class ModelServingEndpointsConfigServedEntities(BaseModel):
@@ -2863,41 +2864,41 @@ class ModelServingEndpointsConfigServedEntities(BaseModel):
 
     entity_name: Optional[str] = Field(
         None,
-        description="The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC),\nor a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object should be given in the form of\n__catalog_name__.__schema_name__.__model_name__.\n",
+        description='The name of the entity to be served. The entity may be a model in the Databricks Model Registry, a model in the Unity Catalog (UC),\nor a function of type FEATURE_SPEC in the UC. If it is a UC object, the full name of the object should be given in the form of\n__catalog_name__.__schema_name__.__model_name__.\n',
     )
     entity_version: Optional[str] = Field(
         None,
-        description="The version of the model in Databricks Model Registry to be served or empty if the entity is a FEATURE_SPEC.",
+        description='The version of the model in Databricks Model Registry to be served or empty if the entity is a FEATURE_SPEC.',
     )
     environment_vars: Optional[Dict[str, str]] = None
-    external_model: Optional[ModelServingEndpointsConfigServedEntitiesExternalModel] = (
-        None
-    )
+    external_model: Optional[
+        ModelServingEndpointsConfigServedEntitiesExternalModel
+    ] = None
     instance_profile_arn: Optional[str] = Field(
         None,
-        description="ARN of the instance profile that the served entity uses to access AWS resources.",
+        description='ARN of the instance profile that the served entity uses to access AWS resources.',
     )
     max_provisioned_throughput: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The maximum tokens per second that the endpoint can scale up to.",
+        description='The maximum tokens per second that the endpoint can scale up to.',
     )
     min_provisioned_throughput: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The minimum tokens per second that the endpoint can scale down to.",
+        description='The minimum tokens per second that the endpoint can scale down to.',
     )
     name: Optional[str] = Field(
         None,
@@ -2907,12 +2908,12 @@ class ModelServingEndpointsConfigServedEntities(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Whether the compute resources for the served entity should scale down to zero.",
+        description='Whether the compute resources for the served entity should scale down to zero.',
     )
     workload_size: Optional[str] = Field(
         None,
@@ -2932,28 +2933,28 @@ class ModelServingEndpointsConfigServedModels(BaseModel):
     environment_vars: Optional[Dict[str, str]] = None
     instance_profile_arn: Optional[str] = Field(
         None,
-        description="ARN of the instance profile that the served model will use to access AWS resources.",
+        description='ARN of the instance profile that the served model will use to access AWS resources.',
     )
     model_name: str = Field(
         ...,
-        description="The name of the model in Databricks Model Registry to be served or if the model resides in Unity Catalog, the full name of model,\nin the form of __catalog_name__.__schema_name__.__model_name__.\n",
+        description='The name of the model in Databricks Model Registry to be served or if the model resides in Unity Catalog, the full name of model,\nin the form of __catalog_name__.__schema_name__.__model_name__.\n',
     )
     model_version: str = Field(
         ...,
-        description="The version of the model in Databricks Model Registry or Unity Catalog to be served.",
+        description='The version of the model in Databricks Model Registry or Unity Catalog to be served.',
     )
     name: Optional[str] = Field(
         None,
-        description="The name of a served model. It must be unique across an endpoint. If not specified, this field will default to <model-name>-<model-version>.\nA served model name can consist of alphanumeric characters, dashes, and underscores.\n",
+        description='The name of a served model. It must be unique across an endpoint. If not specified, this field will default to <model-name>-<model-version>.\nA served model name can consist of alphanumeric characters, dashes, and underscores.\n',
     )
     scale_to_zero_enabled: Union[
         bool,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="Whether the compute resources for the served model should scale down to zero.",
+        description='Whether the compute resources for the served model should scale down to zero.',
     )
     workload_size: str = Field(
         ...,
@@ -2972,16 +2973,16 @@ class ModelServingEndpointsConfigTrafficConfigRoutes(BaseModel):
 
     served_model_name: str = Field(
         ...,
-        description="The name of the served model this route configures traffic for.",
+        description='The name of the served model this route configures traffic for.',
     )
     traffic_percentage: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="The percentage of endpoint traffic to send to this route. It must be an integer between 0 and 100 inclusive.",
+        description='The percentage of endpoint traffic to send to this route. It must be an integer between 0 and 100 inclusive.',
     )
 
 
@@ -2992,7 +2993,7 @@ class ModelServingEndpointsConfigTrafficConfig(BaseModel):
 
     routes: Optional[List[ModelServingEndpointsConfigTrafficConfigRoutes]] = Field(
         None,
-        description="The list of routes that define traffic to each served entity.",
+        description='The list of routes that define traffic to each served entity.',
     )
 
 
@@ -3004,11 +3005,11 @@ class ModelServingEndpointsConfig(BaseModel):
     auto_capture_config: Optional[ModelServingEndpointsConfigAutoCaptureConfig] = None
     served_entities: Optional[List[ModelServingEndpointsConfigServedEntities]] = Field(
         None,
-        description="A list of served entities for the endpoint to serve. A serving endpoint can have up to 15 served entities.",
+        description='A list of served entities for the endpoint to serve. A serving endpoint can have up to 15 served entities.',
     )
     served_models: Optional[List[ModelServingEndpointsConfigServedModels]] = Field(
         None,
-        description="(Deprecated, use served_entities instead) A list of served models for the endpoint to serve. A serving endpoint can have up to 15 served models.",
+        description='(Deprecated, use served_entities instead) A list of served models for the endpoint to serve. A serving endpoint can have up to 15 served models.',
     )
     traffic_config: Optional[ModelServingEndpointsConfigTrafficConfig] = None
 
@@ -3032,11 +3033,11 @@ class ModelServingEndpointsRateLimits(BaseModel):
     calls: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="Used to specify how many calls are allowed for a key within the renewal_period.",
+        description='Used to specify how many calls are allowed for a key within the renewal_period.',
     )
     key: Optional[str] = Field(
         None,
@@ -3053,9 +3054,9 @@ class ModelServingEndpointsTags(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    key: str = Field(..., description="Key field for a serving endpoint tag.")
+    key: str = Field(..., description='Key field for a serving endpoint tag.')
     value: Optional[str] = Field(
-        None, description="Optional value field for a serving endpoint tag."
+        None, description='Optional value field for a serving endpoint tag.'
     )
 
 
@@ -3067,24 +3068,24 @@ class ModelServingEndpoints(BaseModel):
     config: ModelServingEndpointsConfig
     name: str = Field(
         ...,
-        description="The name of the serving endpoint. This field is required and must be unique across a Databricks workspace.\nAn endpoint name can consist of alphanumeric characters, dashes, and underscores.\n",
+        description='The name of the serving endpoint. This field is required and must be unique across a Databricks workspace.\nAn endpoint name can consist of alphanumeric characters, dashes, and underscores.\n',
     )
     permissions: Optional[List[ModelServingEndpointsPermissions]] = None
     rate_limits: Optional[List[ModelServingEndpointsRateLimits]] = Field(
         None,
-        description="Rate limits to be applied to the serving endpoint. NOTE: only external and foundation model endpoints are supported as of now.",
+        description='Rate limits to be applied to the serving endpoint. NOTE: only external and foundation model endpoints are supported as of now.',
     )
     route_optimized: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="Enable route optimization for the serving endpoint.")
+    ] = Field(None, description='Enable route optimization for the serving endpoint.')
     tags: Optional[List[ModelServingEndpointsTags]] = Field(
         None,
-        description="Tags to be attached to the serving endpoint and automatically propagated to billing logs.",
+        description='Tags to be attached to the serving endpoint and automatically propagated to billing logs.',
     )
 
 
@@ -3093,8 +3094,8 @@ class ModelsLatestVersionsTags(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    key: Optional[str] = Field(None, description="The tag key.")
-    value: Optional[str] = Field(None, description="The tag value.")
+    key: Optional[str] = Field(None, description='The tag key.')
+    value: Optional[str] = Field(None, description='The tag value.')
 
 
 class ModelsLatestVersions(BaseModel):
@@ -3106,51 +3107,51 @@ class ModelsLatestVersions(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="Timestamp recorded when this `model_version` was created."
+        None, description='Timestamp recorded when this `model_version` was created.'
     )
     current_stage: Optional[str] = Field(
-        None, description="Current stage for this `model_version`."
+        None, description='Current stage for this `model_version`.'
     )
     description: Optional[str] = Field(
-        None, description="Description of this `model_version`."
+        None, description='Description of this `model_version`.'
     )
     last_updated_timestamp: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Timestamp recorded when metadata for this `model_version` was last updated.",
+        description='Timestamp recorded when metadata for this `model_version` was last updated.',
     )
-    name: Optional[str] = Field(None, description="Unique name of the model")
+    name: Optional[str] = Field(None, description='Unique name of the model')
     run_id: Optional[str] = Field(
         None,
-        description="MLflow run ID used when creating `model_version`, if `source` was generated by an\nexperiment run stored in MLflow tracking server.",
+        description='MLflow run ID used when creating `model_version`, if `source` was generated by an\nexperiment run stored in MLflow tracking server.',
     )
     run_link: Optional[str] = Field(
-        None, description="Run Link: Direct link to the run that generated this version"
+        None, description='Run Link: Direct link to the run that generated this version'
     )
     source: Optional[str] = Field(
         None,
-        description="URI indicating the location of the source model artifacts, used when creating `model_version`",
+        description='URI indicating the location of the source model artifacts, used when creating `model_version`',
     )
-    status: Optional[str] = Field(None, description="Current status of `model_version`")
+    status: Optional[str] = Field(None, description='Current status of `model_version`')
     status_message: Optional[str] = Field(
-        None, description="Details on current `status`, if it is pending or failed."
+        None, description='Details on current `status`, if it is pending or failed.'
     )
     tags: Optional[List[ModelsLatestVersionsTags]] = Field(
         None,
-        description="Tags: Additional metadata key-value pairs for this `model_version`.",
+        description='Tags: Additional metadata key-value pairs for this `model_version`.',
     )
     user_id: Optional[str] = Field(
-        None, description="User that created this `model_version`."
+        None, description='User that created this `model_version`.'
     )
     version: Optional[str] = Field(None, description="Model's version number.")
 
@@ -3171,8 +3172,8 @@ class ModelsTags(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    key: Optional[str] = Field(None, description="The tag key.")
-    value: Optional[str] = Field(None, description="The tag value.")
+    key: Optional[str] = Field(None, description='The tag key.')
+    value: Optional[str] = Field(None, description='The tag value.')
 
 
 class Models(BaseModel):
@@ -3184,38 +3185,38 @@ class Models(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="Timestamp recorded when this `registered_model` was created."
+        None, description='Timestamp recorded when this `registered_model` was created.'
     )
     description: Optional[str] = Field(
-        None, description="Description of this `registered_model`."
+        None, description='Description of this `registered_model`.'
     )
     last_updated_timestamp: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Timestamp recorded when metadata for this `registered_model` was last updated.",
+        description='Timestamp recorded when metadata for this `registered_model` was last updated.',
     )
     latest_versions: Optional[List[ModelsLatestVersions]] = Field(
         None,
-        description="Collection of latest model versions for each stage.\nOnly contains models with current `READY` status.",
+        description='Collection of latest model versions for each stage.\nOnly contains models with current `READY` status.',
     )
-    name: Optional[str] = Field(None, description="Unique name for the model.")
+    name: Optional[str] = Field(None, description='Unique name for the model.')
     permissions: Optional[List[ModelsPermissions]] = None
     tags: Optional[List[ModelsTags]] = Field(
         None,
-        description="Tags: Additional metadata key-value pairs for this `registered_model`.",
+        description='Tags: Additional metadata key-value pairs for this `registered_model`.',
     )
     user_id: Optional[str] = Field(
-        None, description="User that created this `registered_model`"
+        None, description='User that created this `registered_model`'
     )
 
 
@@ -3227,24 +3228,24 @@ class PipelinesClustersAutoscale(BaseModel):
     max_workers: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="The maximum number of workers to which the cluster can scale up when overloaded. `max_workers` must be strictly greater than `min_workers`.",
+        description='The maximum number of workers to which the cluster can scale up when overloaded. `max_workers` must be strictly greater than `min_workers`.',
     )
     min_workers: Union[
         float,
         constr(
-            pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+            pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
         ),
     ] = Field(
         ...,
-        description="The minimum number of workers the cluster can scale down to when underutilized.\nIt is also the initial number of workers the cluster will have after creation.",
+        description='The minimum number of workers the cluster can scale down to when underutilized.\nIt is also the initial number of workers the cluster will have after creation.',
     )
     mode: Optional[str] = Field(
         None,
-        description="Databricks Enhanced Autoscaling optimizes cluster utilization by automatically\nallocating cluster resources based on workload volume, with minimal impact to\nthe data processing latency of your pipelines. Enhanced Autoscaling is available\nfor `updates` clusters only. The legacy autoscaling feature is used for `maintenance`\nclusters.\n",
+        description='Databricks Enhanced Autoscaling optimizes cluster utilization by automatically\nallocating cluster resources based on workload volume, with minimal impact to\nthe data processing latency of your pipelines. Enhanced Autoscaling is available\nfor `updates` clusters only. The legacy autoscaling feature is used for `maintenance`\nclusters.\n',
     )
 
 
@@ -3258,67 +3259,67 @@ class PipelinesClustersAwsAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.",
+        description='The number of volumes launched for each instance. Users can choose up to 10 volumes.\nThis feature is only enabled for supported node types. Legacy node types cannot specify\ncustom EBS volumes.\nFor node types with no instance store, at least one EBS volume needs to be specified;\notherwise, cluster creation will fail.\n\nThese EBS volumes will be mounted at `/ebs0`, `/ebs1`, and etc.\nInstance store volumes will be mounted at `/local_disk0`, `/local_disk1`, and etc.\n\nIf EBS volumes are attached, Databricks will configure Spark to use only the EBS volumes for\nscratch storage because heterogenously sized scratch devices can lead to inefficient disk\nutilization. If no EBS volumes are attached, Databricks will configure Spark to use instance\nstore volumes.\n\nPlease note that if EBS volumes are specified, then the Spark configuration `spark.local.dir`\nwill be overridden.',
     )
     ebs_volume_iops: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If using gp3 volumes, what IOPS to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.",
+        description='If using gp3 volumes, what IOPS to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.',
     )
     ebs_volume_size: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.",
+        description='The size of each EBS volume (in GiB) launched for each instance. For general purpose\nSSD, this value must be within the range 100 - 4096. For throughput optimized HDD,\nthis value must be within the range 500 - 4096.',
     )
     ebs_volume_throughput: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If using gp3 volumes, what throughput to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.",
+        description='If using gp3 volumes, what throughput to use for the disk. If this is not set, the maximum performance of a gp2 volume with the same volume size will be used.',
     )
     ebs_volume_type: Optional[str] = None
     first_on_demand: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.",
+        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nIf this value is greater than 0, the cluster driver node in particular will be placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
     )
     instance_profile_arn: Optional[str] = Field(
         None,
-        description="Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.",
+        description='Nodes for this cluster will only be placed on AWS instances with this instance profile. If\nommitted, nodes will be placed on instances without an IAM instance profile. The instance\nprofile must have previously been added to the Databricks environment by an account\nadministrator.\n\nThis feature may only be available to certain customer plans.\n\nIf this field is ommitted, we will pull in the default from the conf if it exists.',
     )
     spot_bid_price_percent: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
@@ -3337,10 +3338,10 @@ class PipelinesClustersAzureAttributesLogAnalyticsInfo(BaseModel):
         protected_namespaces = ()
 
     log_analytics_primary_key: Optional[str] = Field(
-        None, description="<needs content added>"
+        None, description='<needs content added>'
     )
     log_analytics_workspace_id: Optional[str] = Field(
-        None, description="<needs content added>"
+        None, description='<needs content added>'
     )
 
 
@@ -3354,26 +3355,26 @@ class PipelinesClustersAzureAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.",
+        description='The first `first_on_demand` nodes of the cluster will be placed on on-demand instances.\nThis value should be greater than 0, to make sure the cluster driver node is placed on an\non-demand instance. If this value is greater than or equal to the current cluster size, all\nnodes will be placed on on-demand instances. If this value is less than the current cluster\nsize, `first_on_demand` nodes will be placed on on-demand instances and the remainder will\nbe placed on `availability` instances. Note that this value does not affect\ncluster size and cannot currently be mutated over the lifetime of a cluster.',
     )
-    log_analytics_info: Optional[PipelinesClustersAzureAttributesLogAnalyticsInfo] = (
-        None
-    )
+    log_analytics_info: Optional[
+        PipelinesClustersAzureAttributesLogAnalyticsInfo
+    ] = None
     spot_bid_max_price: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.",
+        description='The max bid price to be used for Azure spot instances.\nThe Max price for the bid cannot be higher than the on-demand price of the instance.\nIf not specified, the default value is -1, which specifies that the instance cannot be evicted\non the basis of price, and only on the basis of availability. Further, the value should > 0 or -1.',
     )
 
 
@@ -3382,7 +3383,7 @@ class PipelinesClustersClusterLogConfDbfs(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    destination: str = Field(..., description="dbfs destination, e.g. `dbfs:/my/path`")
+    destination: str = Field(..., description='dbfs destination, e.g. `dbfs:/my/path`')
 
 
 class PipelinesClustersClusterLogConfS(BaseModel):
@@ -3392,38 +3393,38 @@ class PipelinesClustersClusterLogConfS(BaseModel):
 
     canned_acl: Optional[str] = Field(
         None,
-        description="(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.",
+        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
     )
     destination: str = Field(
         ...,
-        description="S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.",
+        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
     )
     enable_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="(Optional) Flag to enable server side encryption, `false` by default.",
+        description='(Optional) Flag to enable server side encryption, `false` by default.',
     )
     encryption_type: Optional[str] = Field(
         None,
-        description="(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.",
+        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
     )
     endpoint: Optional[str] = Field(
         None,
-        description="S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.",
+        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
     )
     kms_key: Optional[str] = Field(
         None,
-        description="(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.",
+        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
     )
     region: Optional[str] = Field(
         None,
-        description="S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.",
+        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
     )
 
 
@@ -3446,35 +3447,35 @@ class PipelinesClustersGcpAttributes(BaseModel):
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="boot disk size in GB")
+    ] = Field(None, description='boot disk size in GB')
     google_service_account: Optional[str] = Field(
         None,
-        description="If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.",
+        description='If provided, the cluster will impersonate the google service account when accessing\ngcloud services (like GCS). The google service account\nmust have previously been added to the Databricks environment by an account\nadministrator.',
     )
     local_ssd_count: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.",
+        description='If provided, each node (workers and driver) in the cluster will have this number of local SSDs attached. Each local SSD is 375GB in size. Refer to [GCP documentation](https://cloud.google.com/compute/docs/disks/local-ssd#choose_number_local_ssds) for the supported number of local SSDs for each instance type.',
     )
     use_preemptible_executors: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="This field determines whether the spark executors will be scheduled to run on preemptible VMs (when set to true) versus standard compute engine VMs (when set to false; default).\nNote: Soon to be deprecated, use the availability field instead.",
+        description='This field determines whether the spark executors will be scheduled to run on preemptible VMs (when set to true) versus standard compute engine VMs (when set to false; default).\nNote: Soon to be deprecated, use the availability field instead.',
     )
     zone_id: Optional[str] = Field(
         None,
@@ -3489,7 +3490,7 @@ class PipelinesClustersInitScriptsAbfss(BaseModel):
 
     destination: str = Field(
         ...,
-        description="abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.",
+        description='abfss destination, e.g. `abfss://<container-name>@<storage-account-name>.dfs.core.windows.net/<directory-name>`.',
     )
 
 
@@ -3498,7 +3499,7 @@ class PipelinesClustersInitScriptsDbfs(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    destination: str = Field(..., description="dbfs destination, e.g. `dbfs:/my/path`")
+    destination: str = Field(..., description='dbfs destination, e.g. `dbfs:/my/path`')
 
 
 class PipelinesClustersInitScriptsFile(BaseModel):
@@ -3507,7 +3508,7 @@ class PipelinesClustersInitScriptsFile(BaseModel):
         protected_namespaces = ()
 
     destination: str = Field(
-        ..., description="local file destination, e.g. `file:/my/local/file.sh`"
+        ..., description='local file destination, e.g. `file:/my/local/file.sh`'
     )
 
 
@@ -3517,7 +3518,7 @@ class PipelinesClustersInitScriptsGcs(BaseModel):
         protected_namespaces = ()
 
     destination: str = Field(
-        ..., description="GCS destination/URI, e.g. `gs://my-bucket/some-prefix`"
+        ..., description='GCS destination/URI, e.g. `gs://my-bucket/some-prefix`'
     )
 
 
@@ -3528,38 +3529,38 @@ class PipelinesClustersInitScriptsS(BaseModel):
 
     canned_acl: Optional[str] = Field(
         None,
-        description="(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.",
+        description='(Optional) Set canned access control list for the logs, e.g. `bucket-owner-full-control`.\nIf `canned_cal` is set, please make sure the cluster iam role has `s3:PutObjectAcl` permission on\nthe destination bucket and prefix. The full list of possible canned acl can be found at\nhttp://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.\nPlease also note that by default only the object owner gets full controls. If you are using cross account\nrole for writing data, you may want to set `bucket-owner-full-control` to make bucket owner able to\nread the logs.',
     )
     destination: str = Field(
         ...,
-        description="S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.",
+        description='S3 destination, e.g. `s3://my-bucket/some-prefix` Note that logs will be delivered using\ncluster iam role, please make sure you set cluster iam role and the role has write access to the\ndestination. Please also note that you cannot use AWS keys to deliver logs.',
     )
     enable_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="(Optional) Flag to enable server side encryption, `false` by default.",
+        description='(Optional) Flag to enable server side encryption, `false` by default.',
     )
     encryption_type: Optional[str] = Field(
         None,
-        description="(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.",
+        description='(Optional) The encryption type, it could be `sse-s3` or `sse-kms`. It will be used only when\nencryption is enabled and the default type is `sse-s3`.',
     )
     endpoint: Optional[str] = Field(
         None,
-        description="S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.",
+        description='S3 endpoint, e.g. `https://s3-us-west-2.amazonaws.com`. Either region or endpoint needs to be set.\nIf both are set, endpoint will be used.',
     )
     kms_key: Optional[str] = Field(
         None,
-        description="(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.",
+        description='(Optional) Kms key which will be used if encryption is enabled and encryption type is set to `sse-kms`.',
     )
     region: Optional[str] = Field(
         None,
-        description="S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.",
+        description='S3 region, e.g. `us-west-2`. Either region or endpoint needs to be set. If both are set,\nendpoint will be used.',
     )
 
 
@@ -3570,7 +3571,7 @@ class PipelinesClustersInitScriptsVolumes(BaseModel):
 
     destination: str = Field(
         ...,
-        description="Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`",
+        description='Unity Catalog Volumes file destination, e.g. `/Volumes/my-init.sh`',
     )
 
 
@@ -3581,7 +3582,7 @@ class PipelinesClustersInitScriptsWorkspace(BaseModel):
 
     destination: str = Field(
         ...,
-        description="workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`",
+        description='workspace files destination, e.g. `/Users/user1@databricks.com/my-init.sh`',
     )
 
 
@@ -3608,7 +3609,7 @@ class PipelinesClusters(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
@@ -3622,59 +3623,59 @@ class PipelinesClusters(BaseModel):
     custom_tags: Optional[Dict[str, str]] = None
     driver_instance_pool_id: Optional[str] = Field(
         None,
-        description="The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.",
+        description='The optional ID of the instance pool for the driver of the cluster belongs.\nThe pool cluster uses the instance pool with id (instance_pool_id) if the driver pool is not\nassigned.',
     )
     driver_node_type_id: Optional[str] = Field(
         None,
-        description="The node type of the Spark driver.\nNote that this field is optional; if unset, the driver node type will be set as the same value\nas `node_type_id` defined above.",
+        description='The node type of the Spark driver.\nNote that this field is optional; if unset, the driver node type will be set as the same value\nas `node_type_id` defined above.',
     )
     enable_local_disk_encryption: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="Whether to enable local disk encryption for the cluster."
+        None, description='Whether to enable local disk encryption for the cluster.'
     )
     gcp_attributes: Optional[PipelinesClustersGcpAttributes] = None
     init_scripts: Optional[List[PipelinesClustersInitScripts]] = Field(
         None,
-        description="The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.",
+        description='The configuration for storing init scripts. Any number of destinations can be specified. The scripts are executed sequentially in the order provided. If `cluster_log_conf` is specified, init script logs are sent to `<destination>/<cluster-ID>/init_scripts`.',
     )
     instance_pool_id: Optional[str] = Field(
         None,
-        description="The optional ID of the instance pool to which the cluster belongs.",
+        description='The optional ID of the instance pool to which the cluster belongs.',
     )
     label: Optional[str] = Field(
         None,
-        description="A label for the cluster specification, either `default` to configure the default cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`.",
+        description='A label for the cluster specification, either `default` to configure the default cluster, or `maintenance` to configure the maintenance cluster. This field is optional. The default value is `default`.',
     )
     node_type_id: Optional[str] = Field(
         None,
-        description="This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n",
+        description='This field encodes, through a single value, the resources available to each of\nthe Spark nodes in this cluster. For example, the Spark nodes can be provisioned\nand optimized for memory or compute intensive workloads. A list of available node\ntypes can be retrieved by using the :method:clusters/listNodeTypes API call.\n',
     )
     num_workers: Optional[
         Union[
             float,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.",
+        description='Number of worker nodes that this cluster should have. A cluster has one Spark Driver\nand `num_workers` Executors for a total of `num_workers` + 1 Spark nodes.\n\nNote: When reading the properties of a cluster, this field reflects the desired number\nof workers rather than the actual current number of workers. For instance, if a cluster\nis resized from 5 to 10 workers, this field will immediately be updated to reflect\nthe target size of 10 workers, whereas the workers listed in `spark_info` will gradually\nincrease from 5 to 10 as the new nodes are provisioned.',
     )
     policy_id: Optional[str] = Field(
         None,
-        description="The ID of the cluster policy used to create the cluster if applicable.",
+        description='The ID of the cluster policy used to create the cluster if applicable.',
     )
     spark_conf: Optional[Dict[str, str]] = None
     spark_env_vars: Optional[Dict[str, str]] = None
     ssh_public_keys: Optional[List[str]] = Field(
         None,
-        description="SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.",
+        description='SSH public key contents that will be added to each Spark node in this cluster. The\ncorresponding private keys can be used to login with the user name `ubuntu` on port `2200`.\nUp to 10 keys can be specified.',
     )
 
 
@@ -3684,11 +3685,11 @@ class PipelinesDeployment(BaseModel):
         protected_namespaces = ()
 
     kind: Optional[str] = Field(
-        None, description="The deployment method that manages the pipeline."
+        None, description='The deployment method that manages the pipeline.'
     )
     metadata_file_path: Optional[str] = Field(
         None,
-        description="The path to the file containing metadata about the deployment.",
+        description='The path to the file containing metadata about the deployment.',
     )
 
 
@@ -3697,8 +3698,8 @@ class PipelinesFilters(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    exclude: Optional[List[str]] = Field(None, description="Paths to exclude.")
-    include: Optional[List[str]] = Field(None, description="Paths to include.")
+    exclude: Optional[List[str]] = Field(None, description='Paths to exclude.')
+    include: Optional[List[str]] = Field(None, description='Paths to include.')
 
 
 class PipelinesGatewayDefinition(BaseModel):
@@ -3708,7 +3709,7 @@ class PipelinesGatewayDefinition(BaseModel):
 
     connection_id: Optional[str] = Field(
         None,
-        description="Immutable. The Unity Catalog connection this gateway pipeline uses to communicate with the source.",
+        description='Immutable. The Unity Catalog connection this gateway pipeline uses to communicate with the source.',
     )
     gateway_storage_catalog: Optional[str] = Field(
         None,
@@ -3716,7 +3717,7 @@ class PipelinesGatewayDefinition(BaseModel):
     )
     gateway_storage_name: Optional[str] = Field(
         None,
-        description="Optional. The Unity Catalog-compatible name for the gateway storage location.\nThis is the destination to use for the data that is extracted by the gateway.\nDelta Live Tables system will automatically create the storage location under the catalog and schema.\n",
+        description='Optional. The Unity Catalog-compatible name for the gateway storage location.\nThis is the destination to use for the data that is extracted by the gateway.\nDelta Live Tables system will automatically create the storage location under the catalog and schema.\n',
     )
     gateway_storage_schema: Optional[str] = Field(
         None,
@@ -3730,21 +3731,21 @@ class PipelinesIngestionDefinitionObjectsSchemaTableConfiguration(BaseModel):
         protected_namespaces = ()
 
     primary_keys: Optional[List[str]] = Field(
-        None, description="The primary key of the table used to apply changes."
+        None, description='The primary key of the table used to apply changes.'
     )
     salesforce_include_formula_fields: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector",
+        description='If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector',
     )
     scd_type: Optional[str] = Field(
-        None, description="The SCD type to use to ingest the table."
+        None, description='The SCD type to use to ingest the table.'
     )
 
 
@@ -3754,18 +3755,18 @@ class PipelinesIngestionDefinitionObjectsSchema(BaseModel):
         protected_namespaces = ()
 
     destination_catalog: Optional[str] = Field(
-        None, description="Required. Destination catalog to store tables."
+        None, description='Required. Destination catalog to store tables.'
     )
     destination_schema: Optional[str] = Field(
         None,
-        description="Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists.",
+        description='Required. Destination schema to store tables in. Tables with the same name as the source tables are created in this destination schema. The pipeline fails If a table with the same name already exists.',
     )
     source_catalog: Optional[str] = Field(
         None,
-        description="The source catalog name. Might be optional depending on the type of source.",
+        description='The source catalog name. Might be optional depending on the type of source.',
     )
     source_schema: Optional[str] = Field(
-        None, description="Required. Schema name in the source database."
+        None, description='Required. Schema name in the source database.'
     )
     table_configuration: Optional[
         PipelinesIngestionDefinitionObjectsSchemaTableConfiguration
@@ -3778,21 +3779,21 @@ class PipelinesIngestionDefinitionObjectsTableTableConfiguration(BaseModel):
         protected_namespaces = ()
 
     primary_keys: Optional[List[str]] = Field(
-        None, description="The primary key of the table used to apply changes."
+        None, description='The primary key of the table used to apply changes.'
     )
     salesforce_include_formula_fields: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector",
+        description='If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector',
     )
     scd_type: Optional[str] = Field(
-        None, description="The SCD type to use to ingest the table."
+        None, description='The SCD type to use to ingest the table.'
     )
 
 
@@ -3802,25 +3803,25 @@ class PipelinesIngestionDefinitionObjectsTable(BaseModel):
         protected_namespaces = ()
 
     destination_catalog: Optional[str] = Field(
-        None, description="Required. Destination catalog to store table."
+        None, description='Required. Destination catalog to store table.'
     )
     destination_schema: Optional[str] = Field(
-        None, description="Required. Destination schema to store table."
+        None, description='Required. Destination schema to store table.'
     )
     destination_table: Optional[str] = Field(
         None,
-        description="Optional. Destination table name. The pipeline fails If a table with that name already exists. If not set, the source table name is used.",
+        description='Optional. Destination table name. The pipeline fails If a table with that name already exists. If not set, the source table name is used.',
     )
     source_catalog: Optional[str] = Field(
         None,
-        description="Source catalog name. Might be optional depending on the type of source.",
+        description='Source catalog name. Might be optional depending on the type of source.',
     )
     source_schema: Optional[str] = Field(
         None,
-        description="Schema name in the source database. Might be optional depending on the type of source.",
+        description='Schema name in the source database. Might be optional depending on the type of source.',
     )
     source_table: Optional[str] = Field(
-        None, description="Required. Table name in the source database."
+        None, description='Required. Table name in the source database.'
     )
     table_configuration: Optional[
         PipelinesIngestionDefinitionObjectsTableTableConfiguration
@@ -3833,7 +3834,7 @@ class PipelinesIngestionDefinitionObjects(BaseModel):
         protected_namespaces = ()
 
     schema_: Optional[PipelinesIngestionDefinitionObjectsSchema] = Field(
-        None, alias="schema"
+        None, alias='schema'
     )
     table: Optional[PipelinesIngestionDefinitionObjectsTable] = None
 
@@ -3844,21 +3845,21 @@ class PipelinesIngestionDefinitionTableConfiguration(BaseModel):
         protected_namespaces = ()
 
     primary_keys: Optional[List[str]] = Field(
-        None, description="The primary key of the table used to apply changes."
+        None, description='The primary key of the table used to apply changes.'
     )
     salesforce_include_formula_fields: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector",
+        description='If true, formula fields defined in the table are included in the ingestion. This setting is only valid for the Salesforce connector',
     )
     scd_type: Optional[str] = Field(
-        None, description="The SCD type to use to ingest the table."
+        None, description='The SCD type to use to ingest the table.'
     )
 
 
@@ -3869,15 +3870,15 @@ class PipelinesIngestionDefinition(BaseModel):
 
     connection_name: Optional[str] = Field(
         None,
-        description="Immutable. The Unity Catalog connection this ingestion pipeline uses to communicate with the source. Specify either ingestion_gateway_id or connection_name.",
+        description='Immutable. The Unity Catalog connection this ingestion pipeline uses to communicate with the source. Specify either ingestion_gateway_id or connection_name.',
     )
     ingestion_gateway_id: Optional[str] = Field(
         None,
-        description="Immutable. Identifier for the ingestion gateway used by this ingestion pipeline to communicate with the source. Specify either ingestion_gateway_id or connection_name.",
+        description='Immutable. Identifier for the ingestion gateway used by this ingestion pipeline to communicate with the source. Specify either ingestion_gateway_id or connection_name.',
     )
     objects: Optional[List[PipelinesIngestionDefinitionObjects]] = Field(
         None,
-        description="Required. Settings specifying tables to replicate and the destination for the replicated tables.",
+        description='Required. Settings specifying tables to replicate and the destination for the replicated tables.',
     )
     table_configuration: Optional[PipelinesIngestionDefinitionTableConfiguration] = None
 
@@ -3887,7 +3888,7 @@ class PipelinesLibrariesFile(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    path: Optional[str] = Field(None, description="The absolute path of the file.")
+    path: Optional[str] = Field(None, description='The absolute path of the file.')
 
 
 class PipelinesLibrariesMaven(BaseModel):
@@ -3905,7 +3906,7 @@ class PipelinesLibrariesMaven(BaseModel):
     )
     repo: Optional[str] = Field(
         None,
-        description="Maven repo to install the Maven package from. If omitted, both Maven Central Repository\nand Spark Packages are searched.",
+        description='Maven repo to install the Maven package from. If omitted, both Maven Central Repository\nand Spark Packages are searched.',
     )
 
 
@@ -3914,7 +3915,7 @@ class PipelinesLibrariesNotebook(BaseModel):
         extra = "forbid"
         protected_namespaces = ()
 
-    path: Optional[str] = Field(None, description="The absolute path of the notebook.")
+    path: Optional[str] = Field(None, description='The absolute path of the notebook.')
 
 
 class PipelinesLibraries(BaseModel):
@@ -3925,11 +3926,11 @@ class PipelinesLibraries(BaseModel):
     file: Optional[PipelinesLibrariesFile] = None
     jar: Optional[str] = Field(
         None,
-        description="URI of the jar to be installed. Currently only DBFS is supported.\n",
+        description='URI of the jar to be installed. Currently only DBFS is supported.\n',
     )
     maven: Optional[PipelinesLibrariesMaven] = None
     notebook: Optional[PipelinesLibrariesNotebook] = None
-    whl: Optional[str] = Field(None, description="URI of the whl to be installed.")
+    whl: Optional[str] = Field(None, description='URI of the whl to be installed.')
 
 
 class PipelinesNotifications(BaseModel):
@@ -3939,11 +3940,11 @@ class PipelinesNotifications(BaseModel):
 
     alerts: Optional[List[str]] = Field(
         None,
-        description="A list of alerts that trigger the sending of notifications to the configured\ndestinations. The supported alerts are:\n\n* `on-update-success`: A pipeline update completes successfully.\n* `on-update-failure`: Each time a pipeline update fails.\n* `on-update-fatal-failure`: A pipeline update fails with a non-retryable (fatal) error.\n* `on-flow-failure`: A single data flow fails.\n",
+        description='A list of alerts that trigger the sending of notifications to the configured\ndestinations. The supported alerts are:\n\n* `on-update-success`: A pipeline update completes successfully.\n* `on-update-failure`: Each time a pipeline update fails.\n* `on-update-fatal-failure`: A pipeline update fails with a non-retryable (fatal) error.\n* `on-flow-failure`: A single data flow fails.\n',
     )
     email_recipients: Optional[List[str]] = Field(
         None,
-        description="A list of email addresses notified when a configured alert is triggered.\n",
+        description='A list of email addresses notified when a configured alert is triggered.\n',
     )
 
 
@@ -3991,77 +3992,77 @@ class Pipelines(BaseModel):
 
     catalog: Optional[str] = Field(
         None,
-        description="A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog.",
+        description='A catalog in Unity Catalog to publish data from this pipeline to. If `target` is specified, tables in this pipeline are published to a `target` schema inside `catalog` (for example, `catalog`.`target`.`table`). If `target` is not specified, no data is published to Unity Catalog.',
     )
     channel: Optional[str] = Field(
-        None, description="DLT Release Channel that specifies which version to use."
+        None, description='DLT Release Channel that specifies which version to use.'
     )
     clusters: Optional[List[PipelinesClusters]] = Field(
-        None, description="Cluster settings for this pipeline deployment."
+        None, description='Cluster settings for this pipeline deployment.'
     )
     configuration: Optional[Dict[str, str]] = None
     continuous: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Whether the pipeline is continuous or triggered. This replaces `trigger`.",
+        description='Whether the pipeline is continuous or triggered. This replaces `trigger`.',
     )
     deployment: Optional[PipelinesDeployment] = None
     development: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
         None,
-        description="Whether the pipeline is in Development mode. Defaults to false.",
+        description='Whether the pipeline is in Development mode. Defaults to false.',
     )
-    edition: Optional[str] = Field(None, description="Pipeline product edition.")
+    edition: Optional[str] = Field(None, description='Pipeline product edition.')
     filters: Optional[PipelinesFilters] = None
     gateway_definition: Optional[PipelinesGatewayDefinition] = None
-    id: Optional[str] = Field(None, description="Unique identifier for this pipeline.")
+    id: Optional[str] = Field(None, description='Unique identifier for this pipeline.')
     ingestion_definition: Optional[PipelinesIngestionDefinition] = None
     libraries: Optional[List[PipelinesLibraries]] = Field(
-        None, description="Libraries or code needed by this deployment."
+        None, description='Libraries or code needed by this deployment.'
     )
     name: Optional[str] = Field(
-        None, description="Friendly identifier for this pipeline."
+        None, description='Friendly identifier for this pipeline.'
     )
     notifications: Optional[List[PipelinesNotifications]] = Field(
-        None, description="List of notification settings for this pipeline."
+        None, description='List of notification settings for this pipeline.'
     )
     permissions: Optional[List[PipelinesPermissions]] = None
     photon: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
-    ] = Field(None, description="Whether Photon is enabled for this pipeline.")
+    ] = Field(None, description='Whether Photon is enabled for this pipeline.')
     serverless: Optional[
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = Field(
-        None, description="Whether serverless compute is enabled for this pipeline."
+        None, description='Whether serverless compute is enabled for this pipeline.'
     )
     storage: Optional[str] = Field(
-        None, description="DBFS root directory for storing checkpoints and tables."
+        None, description='DBFS root directory for storing checkpoints and tables.'
     )
     target: Optional[str] = Field(
         None,
-        description="Target schema (database) to add tables in this pipeline to. If not specified, no data is published to the Hive metastore or Unity Catalog. To publish to Unity Catalog, also specify `catalog`.",
+        description='Target schema (database) to add tables in this pipeline to. If not specified, no data is published to the Hive metastore or Unity Catalog. To publish to Unity Catalog, also specify `catalog`.',
     )
     trigger: Optional[PipelinesTrigger] = None
 
@@ -4087,7 +4088,7 @@ class QualityMonitorsDataClassificationConfig(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -4178,7 +4179,7 @@ class QualityMonitors(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -4204,19 +4205,19 @@ class RegisteredModels(BaseModel):
 
     catalog_name: str = Field(
         ...,
-        description="The name of the catalog where the schema and the registered model reside",
+        description='The name of the catalog where the schema and the registered model reside',
     )
     comment: Optional[str] = Field(
-        None, description="The comment attached to the registered model"
+        None, description='The comment attached to the registered model'
     )
     grants: Optional[List[RegisteredModelsGrants]] = None
-    name: str = Field(..., description="The name of the registered model")
+    name: str = Field(..., description='The name of the registered model')
     schema_name: str = Field(
-        ..., description="The name of the schema where the registered model resides"
+        ..., description='The name of the schema where the registered model resides'
     )
     storage_location: Optional[str] = Field(
         None,
-        description="The storage location on the cloud under which model version data files are stored",
+        description='The storage location on the cloud under which model version data files are stored',
     )
 
 
@@ -4320,7 +4321,7 @@ class Workspace(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
@@ -4346,7 +4347,7 @@ class Targets(BaseModel):
         Union[
             bool,
             constr(
-                pattern=r"\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}"
+                pattern=r'\$\{([a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\.[a-zA-Z]+([-_]?[a-zA-Z0-9]+)*(\[[0-9]+\])*)*(\[[0-9]+\])*)\}'
             ),
         ]
     ] = None
