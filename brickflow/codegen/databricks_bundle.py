@@ -60,6 +60,8 @@ from brickflow.codegen import (
 )
 from brickflow.engine.task import (
     DLTPipeline,
+    ForEachTask,
+    IfElseConditionTask,
     NotebookTask,
     RunJobTask,
     SparkJarTask,
@@ -69,8 +71,6 @@ from brickflow.engine.task import (
     TaskSettings,
     filter_bf_related_libraries,
     get_brickflow_libraries,
-    ForEachTask,
-    IfElseConditionTask,
 )
 
 if typing.TYPE_CHECKING:
@@ -808,9 +808,15 @@ class DatabricksBundleCodegen(CodegenInterface):
             depends_on=[],
         )
 
+        if task.for_each_task_conf is None:
+            raise ValueError(
+                f"Error while building for each task {task_name}. "
+                f"Make sure {task_name} has a for_each_task_conf attribute."
+            )
+
         for_each_task = ForEachTask(
-            inputs=task.for_each_task_inputs,
-            concurrency=task.for_each_task_concurrency,
+            inputs=task.for_each_task_conf.inputs,
+            concurrency=task.for_each_task_conf.concurrency,
             task=nested_task_jt,
         )
 

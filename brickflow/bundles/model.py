@@ -4,9 +4,10 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, constr, field_validator
 from typing_extensions import Literal
 
 
@@ -1178,6 +1179,18 @@ class JobsTasksForEachTask(BaseModel):
     concurrency: int
     task: JobsTasks
 
+class JobsTasksForEachTaskConfigs(BaseModel):
+    inputs: str = Field(..., description="The input data for the task.")
+    concurrency: Optional[int] = Field(
+        default=1, description="Number of iterations that can run in parallel,"
+    )
+
+    @field_validator("inputs", mode="before")
+    @classmethod
+    def validate_inputs(cls, inputs: Any) -> str:
+        if not isinstance(inputs, str):
+            inputs = json.dumps(inputs)
+        return inputs
 
 
 class JobsTasksHealthRules(BaseModel):

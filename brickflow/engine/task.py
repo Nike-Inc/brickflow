@@ -28,7 +28,7 @@ from typing import (
 
 import pluggy
 from decouple import config
-from pydantic import field_validator
+
 from brickflow import (
     BrickflowDefaultEnvs,
     BrickflowEnvVars,
@@ -39,6 +39,7 @@ from brickflow import (
 from brickflow.bundles.model import (
     JobsTasksConditionTask,
     JobsTasksForEachTask,
+    JobsTasksForEachTaskConfigs,
     JobsTasksHealthRules,
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
@@ -509,13 +510,6 @@ class ForEachTask(JobsTasksForEachTask):
     TODO riccamini: Add examples
     """
 
-    @field_validator("inputs", mode="before")
-    @classmethod
-    def validate_inputs(cls, inputs: Any) -> str:
-        if not isinstance(inputs, str):
-            inputs = json.dumps(inputs)
-        return inputs
-
 
 class RunJobTask(JobsTasksRunJobTask):
     """
@@ -831,10 +825,7 @@ class Task:
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
-    foreach_task_inputs: Optional[str] = None
-    concurrency: Optional[int] = 1
-    for_each_task_inputs: Optional[str] = None
-    for_each_task_concurrency: Optional[int] = 1
+    for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
