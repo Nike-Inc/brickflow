@@ -24,9 +24,11 @@ from brickflow.engine.task import (
     CranTaskLibrary,
     EggTaskLibrary,
     EmailNotifications,
+    ForEachTask,
     InvalidTaskLibraryError,
     InvalidTaskSignatureDefinition,
     JarTaskLibrary,
+    JobsTasksForEachTaskConfigs,
     MavenTaskLibrary,
     PypiTaskLibrary,
     TaskLibrary,
@@ -36,7 +38,6 @@ from brickflow.engine.task import (
     get_brickflow_libraries,
     get_brickflow_tasks_hook,
     get_plugin_manager,
-    ForEachTask,
 )
 from brickflow.engine.utils import get_job_id
 from tests.engine.sample_workflow import (
@@ -636,8 +637,9 @@ class TestTask:
 
     def test_for_each_task_validation(self):
         for_each_task = ForEachTask(
-            inputs=["input1", "input2"],
-            concurrency=2,
+            configs=JobsTasksForEachTaskConfigs(
+                inputs=["input1", "input2"], concurrency=2
+            ),
             task=JobsTasks(task_key="task_key"),
         )
 

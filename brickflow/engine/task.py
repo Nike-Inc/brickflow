@@ -28,7 +28,8 @@ from typing import (
 
 import pluggy
 from decouple import config
-from pydantic import field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
+
 from brickflow import (
     BrickflowDefaultEnvs,
     BrickflowEnvVars,
@@ -495,6 +496,20 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         self.python_file = kwargs.get("python_file", None)
 
 
+class JobsTasksForEachTaskConfigs(BaseModel):
+    inputs: str = Field(..., description="The input data for the task.")
+    concurrency: int = Field(
+        default=1, description="Number of iterations that can run in parallel,"
+    )
+
+    @field_validator("inputs", mode="before")
+    @classmethod
+    def validate_inputs(cls, inputs: Any) -> str:
+        if not isinstance(inputs, str):
+            inputs = json.dumps(inputs)
+        return inputs
+
+
 class ForEachTask(JobsTasksForEachTask):
     """
     The ForEachTask class provides iteration of a task over a list of inputs. The looped task can be executed
@@ -509,12 +524,15 @@ class ForEachTask(JobsTasksForEachTask):
     TODO riccamini: Add examples
     """
 
-    @field_validator("inputs", mode="before")
-    @classmethod
-    def validate_inputs(cls, inputs: Any) -> str:
-        if not isinstance(inputs, str):
-            inputs = json.dumps(inputs)
-        return inputs
+    configs: JobsTasksForEachTaskConfigs
+    task: Any
+
+    @model_validator(mode="before")
+    def validate_configs(self) -> "ForEachTask":
+        self["inputs"] = self["configs"].inputs  # type: ignore
+        self["concurrency"] = self["configs"].concurrency  # type: ignore
+
+        return self
 
 
 class RunJobTask(JobsTasksRunJobTask):
@@ -832,8 +850,7 @@ class Task:
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
-    for_each_task_inputs: Optional[str] = None
-    for_each_task_concurrency: Optional[int] = 1
+    for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
