@@ -28,6 +28,7 @@ from typing import (
 
 import pluggy
 from decouple import config
+from pydantic import BaseModel, Field, field_validator
 
 from brickflow import (
     BrickflowDefaultEnvs,
@@ -39,7 +40,6 @@ from brickflow import (
 from brickflow.bundles.model import (
     JobsTasksConditionTask,
     JobsTasksForEachTask,
-    JobsTasksForEachTaskConfigs,
     JobsTasksHealthRules,
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
@@ -496,6 +496,20 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         self.python_file = kwargs.get("python_file", None)
 
 
+class JobsTasksForEachTaskConfigs(BaseModel):
+    inputs: str = Field(..., description="The input data for the task.")
+    concurrency: int = Field(
+        default=1, description="Number of iterations that can run in parallel,"
+    )
+
+    @field_validator("inputs", mode="before")
+    @classmethod
+    def validate_inputs(cls, inputs: Any) -> str:
+        if not isinstance(inputs, str):
+            inputs = json.dumps(inputs)
+        return inputs
+
+
 class ForEachTask(JobsTasksForEachTask):
     """
     The ForEachTask class provides iteration of a task over a list of inputs. The looped task can be executed
@@ -509,6 +523,14 @@ class ForEachTask(JobsTasksForEachTask):
 
     TODO riccamini: Add examples
     """
+
+    configs: JobsTasksForEachTaskConfigs
+    task: Any
+
+    def __init__(self, configs: JobsTasksForEachTaskConfigs, task: Any) -> None:
+        super().__init__(
+            inputs=configs.inputs, concurrency=configs.concurrency, task=task
+        )
 
 
 class RunJobTask(JobsTasksRunJobTask):

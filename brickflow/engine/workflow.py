@@ -10,12 +10,12 @@ from brickflow import BrickflowEnvVars, env_chain
 from brickflow.bundles.model import (
     JobsContinuous,
     JobsEmailNotifications,
+    JobsEnvironments,
     JobsHealthRules,
     JobsNotificationSettings,
     JobsParameters,
     JobsTrigger,
     JobsWebhookNotifications,
-    JobsEnvironments,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -23,14 +23,15 @@ from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
     AnotherActiveTaskError,
     BrickflowTriggerRule,
+    JobsTasksForEachTaskConfigs,
     NoCallableTaskError,
+    PypiTaskLibrary,
     Task,
     TaskAlreadyExistsError,
     TaskLibrary,
     TaskNotFoundError,
     TaskSettings,
     TaskType,
-    PypiTaskLibrary,
     WheelTaskLibrary,
 )
 from brickflow.engine.utils import wraps_keyerror
@@ -378,8 +379,7 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
-        for_each_task_inputs: Optional[str] = None,
-        for_each_task_concurrency: Optional[int] = 1,
+        for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -446,8 +446,7 @@ class Workflow:
             custom_execute_callback=custom_execute_callback,
             ensure_brickflow_plugins=ensure_plugins,
             if_else_outcome=if_else_outcome,
-            for_each_task_inputs=for_each_task_inputs,
-            for_each_task_concurrency=for_each_task_concurrency,
+            for_each_task_conf=for_each_task_conf,
         )
 
         # attempt to create task object before adding to graph
@@ -595,8 +594,7 @@ class Workflow:
         depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
         libraries: Optional[List[TaskLibrary]] = None,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
-        for_each_task_inputs: Optional[str] = None,
-        for_each_task_concurrency: Optional[int] = 1,
+        for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None,
     ) -> Callable:
         return self.task(
             task_func,
@@ -606,8 +604,7 @@ class Workflow:
             depends_on=depends_on,
             libraries=libraries,
             if_else_outcome=if_else_outcome,
-            for_each_task_inputs=for_each_task_inputs,
-            for_each_task_concurrency=for_each_task_concurrency,
+            for_each_task_conf=for_each_task_conf,
         )
 
     def task(
@@ -623,8 +620,7 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
-        for_each_task_inputs: Optional[str] = None,
-        for_each_task_concurrency: Optional[int] = 1,
+        for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -648,8 +644,7 @@ class Workflow:
                 task_settings=task_settings,
                 ensure_brickflow_plugins=ensure_brickflow_plugins,
                 if_else_outcome=if_else_outcome,
-                for_each_task_inputs=for_each_task_inputs,
-                for_each_task_concurrency=for_each_task_concurrency,
+                for_each_task_conf=for_each_task_conf,
             )
 
             @functools.wraps(f)
