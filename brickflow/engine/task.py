@@ -28,7 +28,7 @@ from typing import (
 
 import pluggy
 from decouple import config
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from brickflow import (
     BrickflowDefaultEnvs,
@@ -527,10 +527,12 @@ class ForEachTask(JobsTasksForEachTask):
     configs: JobsTasksForEachTaskConfigs
     task: Any
 
-    def __init__(self, configs: JobsTasksForEachTaskConfigs, task: Any) -> None:
-        super().__init__(
-            inputs=configs.inputs, concurrency=configs.concurrency, task=task
-        )
+    @model_validator(mode="before")
+    def validate_configs(self) -> "ForEachTask":
+        self["inputs"] = self["configs"].inputs  # type: ignore
+        self["concurrency"] = self["configs"].concurrency  # type: ignore
+
+        return self
 
 
 class RunJobTask(JobsTasksRunJobTask):
