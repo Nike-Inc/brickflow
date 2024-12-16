@@ -815,8 +815,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             )
 
         for_each_task = ForEachTask(
-            inputs=task.for_each_task_conf.inputs,
-            concurrency=task.for_each_task_conf.concurrency,
+            configs=task.for_each_task_conf,
             task=nested_task_jt,
         )
 
