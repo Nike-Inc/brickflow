@@ -7,20 +7,13 @@ readme = "README.md"
 license = "Apache License 2.0"
 homepage = "https://github.com/Nike-Inc/brickflow"
 repository = "https://github.com/Nike-Inc/brickflow"
-packages = [
-    { include = "brickflow"},
-    { include = "brickflow_plugins"},
-]
-include = [
-    "LICENSE",
-    "entrypoint.template",
-    "gitignore_template.txt",
-]
+packages = [{ include = "brickflow" }, { include = "brickflow_plugins" }]
+include = ["LICENSE", "entrypoint.template", "gitignore_template.txt"]
 exclude = ["sample_workflows", "tests"]
 
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py39', 'py310']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -34,7 +27,7 @@ extend-exclude = '''
 '''
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"  # pyspark <3.5 does not play happy with python 3.11
+python = ">=3.9,<3.12"            # pyspark <3.5 does not play happy with python 3.11
 Jinja2 = "3.1.2"
 click = "^8.1.3"
 databricks-sdk = ">=0.1.8 <1.0.0"
@@ -59,11 +52,11 @@ datamodel-code-generator = "^0.25.2"
 deepdiff = "^6.3.0"
 mypy = "^1.3.0"
 pre-commit = "^3.3.1"
-prospector = "*"
+prospector = "^1.10.3"
 py4j = "^0.10.9.7"
 pytest = ">=7.3.1 <8.0.0"
 pytest-mock = "^3.10.0"
-types-PyYAML = "*" # only for development purposes no need to make installation req
+types-PyYAML = "*"                       # only for development purposes no need to make installation req
 types-requests = ">=2.28.11.16 <3.0.0.0" # only for development purposes no need to make installation req
 apache-airflow = "^2.7.3"
 snowflake = "^0.6.0"
@@ -82,7 +75,7 @@ mkdocs-autorefs = "0.4.1"
 mkdocs-click = "0.8.0"
 mkdocs-markdownextradata-plugin = "0.2.5"
 mkdocs-material = "9.1.12"
-mkdocstrings = {version = "0.20.0", extras=["python"]}
+mkdocstrings = { version = "0.20.0", extras = ["python"] }
 
 [build-system]
 requires = ["poetry-core", "poetry-dynamic-versioning"]
@@ -95,20 +88,20 @@ bump = true
 style = "semver"
 
 [tool.coverage]
-    [tool.coverage.run]
-    omit = [
-        # omit anything in a .local directory anywhere
-        '*/.local/*',
-        '**',
-        'tests/*',
-        '*/tests/*',
-        # omit anything in a .venv directory anywhere
-        '.venv/*',
-        "*/site-packages/*"
-    ]
+[tool.coverage.run]
+omit = [
+    # omit anything in a .local directory anywhere
+    '*/.local/*',
+    '**',
+    'tests/*',
+    '*/tests/*',
+    # omit anything in a .venv directory anywhere
+    '.venv/*',
+    "*/site-packages/*",
+]
 
-    [tool.coverage.report]
-    skip_empty = true
+[tool.coverage.report]
+skip_empty = true
 
 [tool.mypy]
 disallow_untyped_defs = true
@@ -123,17 +116,9 @@ files = [
 ]
 follow_imports = "skip"
 
-[tool.pylint]
-    [tool.pylint."MASTER"]
-    fail-under = 9.0
+[tool.pylint.main]
+fail-under = 9.0
 
-    [tool.pylint.'FORMAT']
-    max-line-length = 120
-    # Regexp for a line that is allowed to be longer than the limit.
-    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
-    [tool.pylint.'MESSAGES CONTROL']
-    disable = """
-    django-not-configured,
-    too-many-lines
-    """
+[tool.pylint."messages control"]
+disable = ["too-many-lines", "too-many-positional-arguments"]

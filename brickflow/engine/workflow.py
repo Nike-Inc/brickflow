@@ -306,8 +306,7 @@ class Workflow:
         return list(nx.bfs_layers(self.graph, ROOT_NODE))[1:]
 
     def task_iter(self) -> Iterator[Task]:
-        for task in self.bfs_task_iter():
-            yield task
+        yield from self.bfs_task_iter()
 
     def bfs_task_iter(self) -> Iterator[Task]:
         for layer in self.bfs_layers:
