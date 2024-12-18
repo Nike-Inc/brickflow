@@ -28,6 +28,7 @@ from typing import (
 
 import pluggy
 from decouple import config
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from brickflow import (
     BrickflowDefaultEnvs,
@@ -38,6 +39,7 @@ from brickflow import (
 )
 from brickflow.bundles.model import (
     JobsTasksConditionTask,
+    JobsTasksForEachTask,
     JobsTasksHealthRules,
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
@@ -123,6 +125,7 @@ class TaskType(Enum):
     SPARK_PYTHON_TASK = "spark_python_task"
     RUN_JOB_TASK = "run_job_task"
     IF_ELSE_CONDITION_TASK = "condition_task"
+    FOR_EACH_TASK = "for_each_task"
 
 
 class TaskRunCondition(Enum):
@@ -493,6 +496,44 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         self.python_file = kwargs.get("python_file", None)
 
 
+class JobsTasksForEachTaskConfigs(BaseModel):
+    inputs: str = Field(..., description="The input data for the task.")
+    concurrency: int = Field(
+        default=1, description="Number of iterations that can run in parallel,"
+    )
+
+    @field_validator("inputs", mode="before")
+    @classmethod
+    def validate_inputs(cls, inputs: Any) -> str:
+        if not isinstance(inputs, str):
+            inputs = json.dumps(inputs)
+        return inputs
+
+
+class ForEachTask(JobsTasksForEachTask):
+    """
+    The ForEachTask class provides iteration of a task over a list of inputs. The looped task can be executed
+    concurrently based on the concurrency value provided.
+
+    Attributes:
+        inputs (str): Array for task to iterate on. This can be a JSON string or a reference to an array parameter.
+        concurrency (int): An optional maximum allowed number of concurrent runs of the task. Set this value if you want
+                           to be able to execute multiple runs of the task concurrently
+        task (Any): The task that will be run for each element in the array
+
+    """
+
+    configs: JobsTasksForEachTaskConfigs
+    task: Any
+
+    @model_validator(mode="before")
+    def validate_configs(self) -> "ForEachTask":
+        self["inputs"] = self["configs"].inputs  # type: ignore
+        self["concurrency"] = self["configs"].concurrency  # type: ignore
+
+        return self
+
+
 class RunJobTask(JobsTasksRunJobTask):
     """
     The RunJobTask class is designed to handle the execution of a specific job in a Databricks workspace.
@@ -704,10 +745,11 @@ class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
         else:
             kwargs = task.get_runtime_parameter_values()
             try:
+                # Task return value cannot be pushed if we are in a for each task (now allowed by Databricks)
                 return TaskResponse(
                     task.task_func(**kwargs),
                     user_code_error=None,
-                    push_return_value=True,
+                    push_return_value=not task.task_type == TaskType.FOR_EACH_TASK,
                     input_kwargs=kwargs,
                 )
             except Exception as e:
@@ -807,6 +849,7 @@ class Task:
     ensure_brickflow_plugins: bool = False
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
+    for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()

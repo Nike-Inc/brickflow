@@ -1,0 +1,4 @@
+project_roots:
+  for_each_task_examples:
+    root_yaml_rel_path: .
+version: v1

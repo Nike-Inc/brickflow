@@ -10,12 +10,12 @@ from brickflow import BrickflowEnvVars, env_chain
 from brickflow.bundles.model import (
     JobsContinuous,
     JobsEmailNotifications,
+    JobsEnvironments,
     JobsHealthRules,
     JobsNotificationSettings,
     JobsParameters,
     JobsTrigger,
     JobsWebhookNotifications,
-    JobsEnvironments,
 )
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
@@ -23,14 +23,15 @@ from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
     AnotherActiveTaskError,
     BrickflowTriggerRule,
+    JobsTasksForEachTaskConfigs,
     NoCallableTaskError,
+    PypiTaskLibrary,
     Task,
     TaskAlreadyExistsError,
     TaskLibrary,
     TaskNotFoundError,
     TaskSettings,
     TaskType,
-    PypiTaskLibrary,
     WheelTaskLibrary,
 )
 from brickflow.engine.utils import wraps_keyerror
@@ -305,8 +306,7 @@ class Workflow:
         return list(nx.bfs_layers(self.graph, ROOT_NODE))[1:]
 
     def task_iter(self) -> Iterator[Task]:
-        for task in self.bfs_task_iter():
-            yield task
+        yield from self.bfs_task_iter()
 
     def bfs_task_iter(self) -> Iterator[Task]:
         for layer in self.bfs_layers:
@@ -378,6 +378,7 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -444,6 +445,7 @@ class Workflow:
             custom_execute_callback=custom_execute_callback,
             ensure_brickflow_plugins=ensure_plugins,
             if_else_outcome=if_else_outcome,
+            for_each_task_conf=for_each_task_conf,
         )
 
         # attempt to create task object before adding to graph
@@ -583,6 +585,27 @@ class Workflow:
             if_else_outcome=if_else_outcome,
         )
 
+    def for_each_task(
+        self,
+        task_func: Optional[Callable] = None,
+        name: Optional[str] = None,
+        task_settings: Optional[TaskSettings] = None,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]] = None,
+        libraries: Optional[List[TaskLibrary]] = None,
+        if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None,
+    ) -> Callable:
+        return self.task(
+            task_func,
+            name,
+            task_type=TaskType.FOR_EACH_TASK,
+            task_settings=task_settings,
+            depends_on=depends_on,
+            libraries=libraries,
+            if_else_outcome=if_else_outcome,
+            for_each_task_conf=for_each_task_conf,
+        )
+
     def task(
         self,
         task_func: Optional[Callable] = None,
@@ -596,6 +619,7 @@ class Workflow:
         task_settings: Optional[TaskSettings] = None,
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
+        for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None,
     ) -> Callable:
         if len(self.tasks) >= self.max_tasks_in_workflow:
             raise ValueError(
@@ -619,6 +643,7 @@ class Workflow:
                 task_settings=task_settings,
                 ensure_brickflow_plugins=ensure_brickflow_plugins,
                 if_else_outcome=if_else_outcome,
+                for_each_task_conf=for_each_task_conf,
             )
 
             @functools.wraps(f)

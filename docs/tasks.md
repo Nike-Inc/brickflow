@@ -502,6 +502,109 @@ def sample_sql_alert() ->any:
 # Note: Since SQL task doesn't return any bool, we can't make use of if_else_outcome params for the tasks that depends on sql Task
 ```
 
+#### For each Task
+The for each task is used to iterate the execution of a task over a set of input values. Iteration of a task over a set of input values can be achieved decorating your task function with the `for_each_task` method of the `Workflow` instance.
+
+Iteration of tasks is possible only for task types:
+
+- Notebook
+- Spark Jar
+- Python
+- Run Job
+- Sql
+
+The `for_each_task` decorator can be configured by providing in the `for_each_task_conf` param a `JobsTasksForEachTaskConfigs` config in which you specify:
+
+- **inputs: Optional[str]**: the list of input values to iterate over. This can be a python iterable, or a string representing a JSON formatted array of values.
+- **for_each_task_concurrency: Optional[int]**: the number of concurrent executions of the task. Default is 1.
+
+A reference to the current input value we are iterating on can be accessed using `{{input}}` databricks workflow parameter.
+
+Here are some examples of how to use the for each task type:
+
+```python
+
+@wf.for_each_task(
+    depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        # Inputs can be provided by either a python iterable or a json-string
+        inputs=[
+            "AZ",
+            "CA",
+            "IL",
+        ],
+        concurrency=3,
+    ),
+)
+def example_notebook():
+    return NotebookTask(
+        notebook_path="notebooks/example_notebook.py",
+        base_parameters={"looped_parameter": "{{input}}"},
+    )
+
+
+@wf.for_each_task(
+    depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs='["1", "2", "3"]', concurrency=3
+    ),
+)
+def example_brickflow_task(*, test_param="{{input}}"):
+    print(f"Test param: {test_param}")
+    param = ctx.get_parameter("looped_parameter")
+    print(f"Nested brickflow task running with input: {param}")
+
+
+@wf.for_each_task(
+    depends_on=example_task,
+    libraries=[
+        JarTaskLibrary(
+            jar="<dbfs:/some/path/to/The.jar>"
+        ) 
+    ],
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
+)
+def for_each_spark_jar():
+    return SparkJarTask(
+        main_class_name="com.example.MainClass", 
+        parameters=["{{input}}"],
+    )
+
+
+@wf.for_each_task(
+    depends_on=example_task,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
+)
+def for_each_spark_python():
+    return SparkPythonTask(
+        python_file="src/python/print_args.py",
+        source="WORKSPACE",
+        parameters=["{{input}}"],
+    )
+
+
+@wf.for_each_task(
+    depends_on=example_notebook,
+    for_each_task_conf=JobsTasksForEachTaskConfigs(
+        inputs="[1,2,3]",
+        concurrency=1,
+    ),
+)
+def for_each_sql_task() -> any:
+    return SqlTask(
+        query_id="<some-query-id>", 
+        warehouse_id="<some-warehouse-id>", 
+        parameters={"looped_parameter": "{{input}}"},
+    )
+
+```
+
 ### Trigger rules
 
 There are two types of trigger rules that can be applied on a task. It can be either ALL_SUCCESS or NONE_FAILED
