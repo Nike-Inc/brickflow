@@ -100,7 +100,7 @@ def for_each_spark_jar():
 )
 def for_each_spark_python():
     return SparkPythonTask(
-        python_file="src/python/print_args.py",
+        python_file="examples/brickflow_for_each_task_examples/src/python/print_args.py",
         source="WORKSPACE",
         parameters=["{{input}}"],
     )

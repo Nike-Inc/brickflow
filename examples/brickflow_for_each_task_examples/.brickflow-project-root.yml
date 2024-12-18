@@ -5,6 +5,6 @@ projects:
     deployment_mode: bundle
     enable_plugins: true
     name: for_each_task_examples
-    path_from_repo_root_to_project_root: .
+    path_from_repo_root_to_project_root: examples/brickflow_for_each_task_examples
     path_project_root_to_workflows_dir: workflows
 version: v1
