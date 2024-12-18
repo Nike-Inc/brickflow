@@ -506,6 +506,7 @@ def sample_sql_alert() ->any:
 The for each task is used to iterate the execution of a task over a set of input values. Iteration of a task over a set of input values can be achieved decorating your task function with the `for_each_task` method of the `Workflow` instance.
 
 Iteration of tasks is possible only for task types:
+
 - Notebook
 - Spark Jar
 - Python
@@ -513,6 +514,7 @@ Iteration of tasks is possible only for task types:
 - Sql
 
 The `for_each_task` decorator can be configured by providing in the `for_each_task_conf` param a `JobsTasksForEachTaskConfigs` config in which you specify:
+
 - **inputs: Optional[str]**: the list of input values to iterate over. This can be a python iterable, or a string representing a JSON formatted array of values.
 - **for_each_task_concurrency: Optional[int]**: the number of concurrent executions of the task. Default is 1.
 
