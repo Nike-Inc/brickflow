@@ -399,7 +399,7 @@ class Context:
                 )
                 return debug
             return value
-        except KeyError:
+        except (KeyError, IndexError):
             # todo: log error
             _ilog.debug("Could not find the key in %s project params", project_params)
             return debug

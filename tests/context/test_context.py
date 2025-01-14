@@ -204,7 +204,6 @@ class TestContext:
         dbutils.widgets.get.return_value = expected_value
 
         result = ctx.get_parameter(parameter_name)
-
         dbutils.widgets.get.assert_called_with(parameter_name)
         assert result == expected_value
 
@@ -219,3 +218,22 @@ class TestContext:
 
         result = ctx.get_project_parameter("k3", "v3")
         assert result == "v3"
+
+    @patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value: "",
+        },
+    )
+    @patch("brickflow.context.ctx._dbutils")
+    def test_get_project_parameter_when_empty(self, dbutils: Mock):
+        parameter_name = BrickflowEnvVars.BRICKFLOW_PROJECT_PARAMS.value.lower()
+        expected_value = ""
+        dbutils.widgets.get.return_value = expected_value
+
+        result = ctx.get_parameter(parameter_name)
+        dbutils.widgets.get.assert_called_with(parameter_name)
+        assert result == expected_value
+
+        result = ctx.get_project_parameter("k1")
+        assert result is None
