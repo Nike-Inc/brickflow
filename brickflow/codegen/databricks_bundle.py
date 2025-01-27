@@ -43,6 +43,7 @@ from brickflow.bundles.model import (
     JobsTasksPipelineTask,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
+    JobsTasksDbtTask,
     JobsTasksSparkPythonTask,
     JobsTasksSqlTask,
     Pipelines,
@@ -608,6 +609,36 @@ class DatabricksBundleCodegen(CodegenInterface):
             # existing cluster id
             **task.cluster.job_task_field_dict,
         )
+    
+    def _build_native_dbt_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_libraries: List[JobsTasksLibraries],
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
+    ) -> JobsTasks:
+        dbt_task: JobsTasksDbtTask = task.task_func()
+
+        try:
+            assert isinstance(dbt_task, JobsTasksDbtTask)
+        except AssertionError as e:
+            raise ValueError(
+                f"Error while building jar task {task_name}. "
+                f"Make sure {task_name} returns a DbtTask object."
+            ) from e
+
+        return JobsTasks(
+            **task_settings.to_tf_dict(),
+            dbt_task=dbt_task,
+            libraries=task_libraries,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id
+            **task.cluster.job_task_field_dict,
+        )
 
     def _build_native_spark_python_task(
         self,
@@ -777,6 +808,7 @@ class DatabricksBundleCodegen(CodegenInterface):
     ) -> JobsTasks:
         supported_task_types = (
             TaskType.NOTEBOOK_TASK,
+            TaskType.DBT_TASK,
             TaskType.SPARK_JAR_TASK,
             TaskType.SPARK_PYTHON_TASK,
             TaskType.RUN_JOB_TASK,
@@ -884,6 +916,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.DLT: self._build_dlt_task,
             TaskType.NOTEBOOK_TASK: self._build_native_notebook_task,
             TaskType.SPARK_JAR_TASK: self._build_native_spark_jar_task,
+            TaskType.DBT_TASK: self._build_native_dbt_task,
             TaskType.SPARK_PYTHON_TASK: self._build_native_spark_python_task,
             TaskType.RUN_JOB_TASK: self._build_native_run_job_task,
             TaskType.SQL: self._build_native_sql_file_task,

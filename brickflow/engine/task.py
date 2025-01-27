@@ -42,6 +42,7 @@ from brickflow.bundles.model import (
     JobsTasksForEachTask,
     JobsTasksHealthRules,
     JobsTasksNotebookTask,
+    JobsTasksDbtTask,
     JobsTasksNotificationSettings,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
@@ -121,6 +122,7 @@ class TaskType(Enum):
     DLT = "pipeline_task"
     CUSTOM_PYTHON_TASK = "custom_python_task"
     NOTEBOOK_TASK = "notebook_task"
+    DBT_TASK = "dbt_task"
     SPARK_JAR_TASK = "spark_jar_task"
     SPARK_PYTHON_TASK = "spark_python_task"
     RUN_JOB_TASK = "run_job_task"
@@ -719,6 +721,38 @@ class IfElseConditionTask(JobsTasksConditionTask):
         self.right = kwds["right"]
         self.op = str(Operator(self.op).name)
 
+class DbtTask(JobsTasksDbtTask):
+    """
+    catalog: Optional name of the catalog to use. The value is the top level in the 3-level namespace of Unity Catalog (catalog / schema / relation). The catalog value can only be specified if a warehouse_id is specified. Requires dbt-databricks >= 1.1.1.
+    commands: A list of dbt commands to execute. All commands must start with `dbt`. This parameter must not be empty. A maximum of up to 10 commands can be provided.'
+    profiles_directory: Optional (relative) path to the profiles directory. Can only be specified if no warehouse_id is specified. If no warehouse_id is specified and this folder is unset, the root directory is used.
+    project_directory: Path to the project directory. Optional for Git sourced tasks, in which\ncase if no value is provided, the root of the Git repository is used.'
+    schema_: Optional schema to write to. This parameter is only used when a warehouse_id is also provided. If not provided, the `default` schema is used.
+    source: Optional location type of the project directory. When set to `WORKSPACE`, the project will be retrieved\nfrom the local Databricks workspace. When set to `GIT`, the project will be retrieved from a Git repository\ndefined in `git_source`. 
+            If the value is empty, the task will use `GIT` if `git_source` is defined and `WORKSPACE` otherwise.\n\n* `WORKSPACE`: Project is located in Databricks workspace.\n* `GIT`: Project is located in cloud Git provider.
+    warehouse_id: ID of the SQL warehouse to connect to. If provided, we automatically generate and provide the profile and connection details to dbt. It can be overridden on a per-command basis by using the `--profiles-dir` command line argument.
+    """
+    catalog: Optional[str] = None
+    commands: List[str] = [str]
+    profiles_directory: Optional[str] = None
+    project_directory: Optional[str] = None
+    schema_: Optional[str] = None
+    source: Optional[str] = None
+    warehouse_id: Optional[str] = None
+    git_source: Optional[Dict] = None
+    print(f"dbt task: {catalog} {commands} {profiles_directory} {project_directory} {schema_} {source} {warehouse_id}")
+
+    def __init__(self, *args: Any, **kwds: Any):
+        print(f"dbt task: {kwds}")
+        super().__init__(*args, **kwds)
+        self.catalog = kwds.get("catalog", None)
+        self.commands = kwds.get("commands", [])
+        self.profiles_directory = kwds.get("profiles_directory", None)
+        self.project_directory = kwds.get("project_directory", None)
+        self.schema_ = kwds.get("schema_", None)
+        self.source = kwds.get("source", None)
+        self.warehouse_id = kwds.get("warehouse_id", None)
+        self.git_source = kwds.get("git_source", None)
 
 class DefaultBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
     @staticmethod
