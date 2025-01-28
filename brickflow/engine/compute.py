@@ -104,6 +104,14 @@ class Runtimes:
 @dataclass(frozen=True)
 class DataSecurityMode:
     SINGLE_USER: str = "SINGLE_USER"
+    SHARED: str = "USER_ISOLATION"
+    NO_ISOLATION_SHARED: str = "NONE"
+
+    # The following modes are deprecated starting from dbr 15.0 and will be removed in future versions
+    LEGACY_TABLE_ACL: str = "LEGACY_TABLE_ACL"
+    LEGACY_PASSTHROUGH: str = "LEGACY_PASSTHROUGH"
+    LEGACY_SINGLE_USER: str = "LEGACY_SINGLE_USER"
+    LEGACY_SINGLE_USER_STANDARD: str = "LEGACY_SINGLE_USER_STANDARD"
 
 
 @dataclass(eq=True, frozen=True)
