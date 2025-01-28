@@ -71,11 +71,9 @@ def bundle_sync(
     if watch is True:
         additional_args.append("--watch")
     if interval_duration is not None:
-        additional_args.append("--interval-duration")
-        additional_args.append(str(interval_duration))
+        additional_args.append(f"--interval-duration {interval_duration}")
     if debug is True:
-        additional_args.append("--log-level")
-        additional_args.append("debug")
+        additional_args.append("--debug")
 
     exec_command(
         get_valid_bundle_cli(bundle_cli),
@@ -98,13 +96,21 @@ def get_force_lock_flag() -> str:
 
 @pre_bundle_hook
 def bundle_deploy(
-    bundle_cli: Optional[str] = None, force_acquire_lock: bool = False, **_: Any
+    bundle_cli: Optional[str] = None,
+    force_acquire_lock: bool = False,
+    auto_approve: bool = False,
+    debug: bool = False,
+    **_: Any,
 ) -> None:
     """CLI deploy the bundle."""
     deploy_args = ["deploy", ENV_FLAG, get_bundles_project_env()]
     if force_acquire_lock is True:
         # fix/issue-32
         deploy_args.append(get_force_lock_flag())
+    if auto_approve is True:
+        deploy_args.append("--auto-approve")
+    if debug is True:
+        deploy_args.append("--debug")
     exec_command(get_valid_bundle_cli(bundle_cli), "bundle", deploy_args)
 
 
@@ -113,6 +119,7 @@ def bundle_destroy(
     bundle_cli: Optional[str] = None,
     force_acquire_lock: bool = False,
     auto_approve: bool = False,
+    debug: bool = False,
     **_: Any,
 ) -> None:
     """CLI destroy the bundle."""
@@ -121,6 +128,8 @@ def bundle_destroy(
         destroy_args.append("--auto-approve")
     if force_acquire_lock is True:
         destroy_args.append(get_force_lock_flag())
+    if debug is True:
+        destroy_args.append("--debug")
 
     exec_command(get_valid_bundle_cli(bundle_cli), "bundle", destroy_args)
 

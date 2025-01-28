@@ -490,6 +490,14 @@ def apply_bundles_deployment_options(
             default=False,
             help="Force acquire lock for databricks bundles destroy.",
         ),
+        "debug": click.option(
+            "--debug",
+            type=bool,
+            is_flag=True,
+            show_default=True,
+            default=False,
+            help="Enable debug logs.",
+        ),
         "workflow": click.option(
             "--workflow",
             "-w",
@@ -586,14 +594,6 @@ def project_synth(**_: Any) -> None:
     default=None,
     help="File system polling interval (for --watch).",
 )
-@click.option(
-    "--debug",
-    type=bool,
-    is_flag=True,
-    show_default=True,
-    default=False,
-    help="Enable debug logs",
-)
 @apply_bundles_deployment_options
 def sync_project(project: str, **kwargs: Any) -> None:
     """Sync project file tree into databricks workspace from local.
@@ -609,10 +609,7 @@ def sync_project(project: str, **kwargs: Any) -> None:
 
 @projects.command(name="synth")
 @apply_bundles_deployment_options(
-    exclude_options=[
-        "auto-approve",
-        "force-acquire-lock",
-    ]
+    exclude_options=["auto-approve", "force-acquire-lock", "debug"]
 )
 def synth_bundles_for_project(project: str, **kwargs: Any) -> None:
     """Synth the bundle.yml for project"""
