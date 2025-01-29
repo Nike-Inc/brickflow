@@ -740,10 +740,8 @@ class DbtTask(JobsTasksDbtTask):
     source: Optional[str] = None
     warehouse_id: Optional[str] = None
     git_source: Optional[Dict] = None
-    print(f"dbt task: {catalog} {commands} {profiles_directory} {project_directory} {schema_} {source} {warehouse_id}")
 
     def __init__(self, *args: Any, **kwds: Any):
-        print(f"dbt task: {kwds}")
         super().__init__(*args, **kwds)
         self.catalog = kwds.get("catalog", None)
         self.commands = kwds.get("commands", [])

@@ -134,6 +134,8 @@ def get_arch() -> str:
         architecture = "amd64"
     elif architecture.startswith("arm"):
         architecture = "arm64"
+    elif architecture.startswith("aarch64"):
+        architecture = "arm64"
     return architecture
 
 

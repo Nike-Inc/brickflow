@@ -64,6 +64,7 @@ from brickflow.engine.task import (
     ForEachTask,
     IfElseConditionTask,
     NotebookTask,
+    DbtTask,
     RunJobTask,
     SparkJarTask,
     SparkPythonTask,
@@ -899,6 +900,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         map_task_class_to_task_type: Dict[typing.Type, TaskType] = {
             DLTPipeline: TaskType.DLT,
             NotebookTask: TaskType.NOTEBOOK_TASK,
+            DbtTask: TaskType.DBT_TASK,
             SparkJarTask: TaskType.SPARK_JAR_TASK,
             SparkPythonTask: TaskType.SPARK_PYTHON_TASK,
             RunJobTask: TaskType.RUN_JOB_TASK,
