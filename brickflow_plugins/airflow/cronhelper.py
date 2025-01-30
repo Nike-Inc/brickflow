@@ -95,6 +95,9 @@ class CronHelper:
         if len(parts) != 7:
             raise ValueError("Invalid Quartz cron expression")
 
+        if "L" in quartz_cron or "W" in quartz_cron or "#" in quartz_cron:
+            raise ValueError("Support for 'L, W, #' in Quartz cron is not implemented")
+
         # Unix cron expression does not support '?'
         parts = [part.replace("?", "*") for part in parts]
 

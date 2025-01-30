@@ -74,3 +74,18 @@ class TestBrickflowPlugins:
             converted_unix_cron == converted_unix_cron_second
         ), "cron conversion should be idempotent"
         assert converted_unix_cron == expected_unix_cron
+
+    @pytest.mark.parametrize(
+        "quartz_cron",
+        [
+            "0 0 12 ? * L *",
+            "0 0 12 ? * 1L *",
+            "0 0 12 ? * 1W *",
+            "0 0 12 ? * 1#5 *",
+        ],
+    )
+    def test_unsupported_cron_expressions(self, quartz_cron):
+        import brickflow_plugins.airflow.cronhelper as cronhelper  # noqa
+
+        with pytest.raises(ValueError):
+            cronhelper.cron_helper.quartz_to_unix(quartz_cron)
