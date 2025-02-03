@@ -713,7 +713,7 @@ class DatabricksBundleCodegen(CodegenInterface):
 
         return JobsTasks(
             **task_settings.to_tf_dict(),  # type: ignore
-            run_job_task=JobsTasksRunJobTask(job_id=run_job_task.job_id),
+            run_job_task=JobsTasksRunJobTask(job_id=run_job_task.job_id, job_parameters=run_job_task.job_parameters),
             depends_on=depends_on,
             task_key=task_name,
         )
