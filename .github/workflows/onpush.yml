@@ -45,7 +45,6 @@ jobs:
       - name: Install dependencies
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          poetry env use 3.10
           make poetry
 
       - name: Install, lint and test
