@@ -54,6 +54,11 @@ from brickflow.bundles.model import (
     JobsTasksSqlTaskDashboardSubscriptions,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
+    JobsWebhookNotificationsOnFailure,
+    JobsWebhookNotificationsOnStart,
+    JobsWebhookNotificationsOnSuccess,
+    JobsWebhookNotificationsOnStreamingBacklogExceeded,
+    JobsWebhookNotificationsOnDurationWarningThresholdExceeded,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -277,7 +282,24 @@ class EmailNotifications:
             "on_failure": self.on_failure,
             "on_success": self.on_success,
         }
+    
+@dataclass(frozen=True)    
+class WebhookNotifications:
+    on_failure: Optional[List[JobsWebhookNotificationsOnFailure]] = None
+    on_start: Optional[List[JobsWebhookNotificationsOnStart]] = None
+    on_success: Optional[List[JobsWebhookNotificationsOnSuccess]] = None
+    on_streaming_backlog_exceeded: Optional[List[JobsWebhookNotificationsOnStreamingBacklogExceeded]] = None
+    on_duration_warning_threshold_exceeded: Optional[List[JobsWebhookNotificationsOnDurationWarningThresholdExceeded]] = None
 
+
+    def to_tf_dict(self) -> Dict[str, Optional[List[JobsWebhookNotificationsOnFailure|JobsWebhookNotificationsOnStart|JobsWebhookNotificationsOnSuccess|JobsWebhookNotificationsOnStreamingBacklogExceeded|JobsWebhookNotificationsOnDurationWarningThresholdExceeded]]]:
+        return {
+            "on_start": self.on_start,
+            "on_failure": self.on_failure,
+            "on_success": self.on_success,
+            "on_streaming_backlog_exceeded": self.on_streaming_backlog_exceeded,
+            "on_duration_warning_threshold_exceeded": self.on_duration_warning_threshold_exceeded,
+        }
 
 class TaskNotificationSettings(JobsTasksNotificationSettings):
     pass
@@ -286,6 +308,7 @@ class TaskNotificationSettings(JobsTasksNotificationSettings):
 @dataclass(frozen=True)
 class TaskSettings:
     email_notifications: Optional[EmailNotifications] = None
+    webhook_notifications: Optional[WebhookNotifications] = None
     notification_settings: Optional[TaskNotificationSettings] = None
     timeout_seconds: Optional[int] = None
     max_retries: Optional[int] = None
@@ -299,6 +322,7 @@ class TaskSettings:
             return self
         return TaskSettings(
             other.email_notifications or self.email_notifications,
+            other.webhook_notifications or self.webhook_notifications,
             other.notification_settings or self.notification_settings,
             other.timeout_seconds or self.timeout_seconds or 0,
             other.max_retries or self.max_retries,
@@ -321,6 +345,11 @@ class TaskSettings:
             if self.email_notifications is not None
             else {}
         )
+        webhook_not = (
+            self.webhook_notifications.to_tf_dict()
+            if self.webhook_notifications is not None
+            else {}
+        )
         notification_settings = (
             {}
             if self.notification_settings is None
@@ -329,6 +358,7 @@ class TaskSettings:
         return {
             **notification_settings,
             "email_notifications": email_not,
+            "webhook_notifications": webhook_not,
             "timeout_seconds": self.timeout_seconds,
             "max_retries": self.max_retries,
             "min_retry_interval_millis": self.min_retry_interval_millis,
