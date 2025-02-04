@@ -67,6 +67,8 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - uses: actions/checkout@v3 # use latest version of the checkout action
+        with:
+          python-version: "3.10"
 
       - name: Set up JDK # used for py4j for cronutils
         uses: actions/setup-java@v3
