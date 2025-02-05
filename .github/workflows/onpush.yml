@@ -21,7 +21,7 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v3 # use latest version of the checkout action
+      - uses: actions/checkout@v3
 
       - name: Set up JDK # used for py4j for cronutils
         uses: actions/setup-java@v3
@@ -59,7 +59,15 @@ jobs:
 
   deploy:
     name: Deploy to PyPi
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    container:
+      image: python:${{ matrix.python-version }}
+      options: --user 1001 # run as the runner user instead of root
+    strategy:
+      max-parallel: 2
+      matrix:
+        python-version: [ '3.9' ]
+        os: [ ubuntu-latest ]
     needs:
       - test-pipeline
     if: github.event_name == 'release'
