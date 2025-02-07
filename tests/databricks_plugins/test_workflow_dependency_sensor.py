@@ -31,8 +31,8 @@ class TestWorkflowDependencySensor:
             with pytest.raises(WorkflowDependencySensorException) as ex:
                 sensor.execute()
 
-            assert any(
-                "Job with id '1' does not exist or you don't have permission to view it."
-                in arg
-                for arg in ex.value.args
-            )
+                assert any(
+                    "Job with id '1' does not exist or you don't have permission to view it."
+                    in arg
+                    for arg in ex.value.args
+                )
