@@ -5,7 +5,6 @@ from requests_mock.mocker import Mocker as RequestsMocker
 
 from brickflow_plugins.databricks.workflow_dependency_sensor import (
     WorkflowDependencySensor,
-    WorkflowDependencySensorException,
 )
 
 
@@ -18,6 +17,10 @@ class TestWorkflowDependencySensor:
         api = RequestsMocker()
         api.get(self.endpoint_url, json=self.response, status_code=int(403))
 
+        # Databricks SDK will throw PermissionDenied exception if the job_id is not found or
+        # user doesn't have permission
+        from databricks.sdk.errors.platform import PermissionDenied
+
         with api:
             sensor = WorkflowDependencySensor(
                 databricks_host=self.workspace_url,
@@ -28,11 +31,5 @@ class TestWorkflowDependencySensor:
                 poke_interval_seconds=1,
             )
 
-            with pytest.raises(WorkflowDependencySensorException) as ex:
+            with pytest.raises(PermissionDenied):
                 sensor.execute()
-
-                assert any(
-                    "Job with id '1' does not exist or you don't have permission to view it."
-                    in arg
-                    for arg in ex.value.args
-                )
