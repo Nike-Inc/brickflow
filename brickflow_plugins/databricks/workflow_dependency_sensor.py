@@ -153,6 +153,16 @@ class WorkflowDependencySensor:
         )
 
     def execute(self):
+        if self.dependency_job_id:
+            # DBX API always returns PermissionDenied, even if the job_id doesn't exist
+            try:
+                self._workspace_obj.jobs.get(job_id=self.dependency_job_id)
+            except AttributeError as ex:
+                if any("PermissionDenied" in arg for arg in ex.args):
+                    raise WorkflowDependencySensorException(
+                        f"Job '{self.dependency_job_id}' does not exist or you don't have permission to view it."
+                    )
+
         if not self.dependency_job_id:
             self.dependency_job_id = self._get_job_id
 
