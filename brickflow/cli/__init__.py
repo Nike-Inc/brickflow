@@ -97,9 +97,9 @@ def bundle_env_set_options(f: Callable) -> Callable:
                 "Configuring environment to %s...",
                 BrickflowDefaultEnvs.LOCAL.value,
             )
-            os.environ[
-                BrickflowEnvVars.BRICKFLOW_ENV.value
-            ] = BrickflowDefaultEnvs.LOCAL.value
+            os.environ[BrickflowEnvVars.BRICKFLOW_ENV.value] = (
+                BrickflowDefaultEnvs.LOCAL.value
+            )
 
     def set_up_bundle_for_workflow_dir(
         ctx: click.Context, param: str, value: Any  # pylint: disable=unused-argument
