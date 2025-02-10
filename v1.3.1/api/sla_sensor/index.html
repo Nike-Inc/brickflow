@@ -1,0 +1,3221 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Brickflow is a tool for managing and deploying scalable workflows on Databricks.">
+      
+      
+      
+        <link rel="canonical" href="https://brickflow.readthedocs.io/en/latest/v1.3.1/api/sla_sensor/">
+      
+      
+      
+      <link rel="icon" href="../../img/bf_logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.12">
+    
+    
+      
+        <title>Sla sensor - BrickFlow</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../css/custom.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#brickflow_plugins.databricks.sla_sensor-classes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="BrickFlow" class="md-header__button md-logo" aria-label="BrickFlow" data-md-component="logo">
+      
+  <img src="../../img/bf_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            BrickFlow
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sla sensor
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Nike-Inc/brickflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nike/brickflow
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../bundles-quickstart/" class="md-tabs__link">
+        Quickstart
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../highlevel/" class="md-tabs__link">
+        Concepts
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../faq/faq/" class="md-tabs__link">
+      FAQ
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../cli/reference/" class="md-tabs__link">
+        CLI
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../project/" class="md-tabs__link">
+        Python API
+      </a>
+    </li>
+  
+
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="BrickFlow" class="md-nav__button md-logo" aria-label="BrickFlow" data-md-component="logo">
+      
+  <img src="../../img/bf_logo.png" alt="logo">
+
+    </a>
+    BrickFlow
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Nike-Inc/brickflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nike/brickflow
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          Quickstart
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Quickstart
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../bundles-quickstart/" class="md-nav__link">
+        Brickflow Projects
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_2" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+          Upgrading Versions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Upgrading Versions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../upgrades/upgrade-pre-0-10-0-to-0-10-0/" class="md-nav__link">
+        Upgrading to v0.10.x
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../highlevel/" class="md-nav__link">
+        HighLevel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workflows/" class="md-nav__link">
+        Workflows
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tasks/" class="md-nav__link">
+        Tasks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../projects/" class="md-nav__link">
+        Projects
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../environment-variables/" class="md-nav__link">
+        ENV Variables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-imports-work/" class="md-nav__link">
+        Importing Modules
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          CLI
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          CLI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/reference/" class="md-nav__link">
+        Commands
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Python API
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Python API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_1" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+          Engine
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Engine
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../project/" class="md-nav__link">
+        Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow/" class="md-nav__link">
+        Workflow
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compute/" class="md-nav__link">
+        Compute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task/" class="md-nav__link">
+        Task
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../context/" class="md-nav__link">
+        Context
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        CLI
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_4" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+          Brickflow Plugins
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          Brickflow Plugins
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_external_task_dependency/" class="md-nav__link">
+        AirflowTaskDependencySensor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_native_operators/" class="md-nav__link">
+        AirflowNativeOperators
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow_dependency_sensor/" class="md-nav__link">
+        WorkflowDependencySensor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uc_to_snowflake_operator/" class="md-nav__link">
+        SnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uc_to_snowflake_operator/" class="md-nav__link">
+        UcToSnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../secrets/" class="md-nav__link">
+        Secrets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshDataSourceOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshWorkbookOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../box_operator/" class="md-nav__link">
+        BoxToVolumeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../box_operator/" class="md-nav__link">
+        VolumeToBoxOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../box_operator/" class="md-nav__link">
+        BoxOperator
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor" class="md-nav__link">
+    SLASensor
+  </a>
+  
+    <nav class="md-nav" aria-label="SLASensor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor--example-usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor-attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.alert_email_list" class="md-nav__link">
+    alert_email_list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.cc" class="md-nav__link">
+    cc
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.custom_description" class="md-nav__link">
+    custom_description
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.data_product" class="md-nav__link">
+    data_product
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.databricks_host" class="md-nav__link">
+    databricks_host
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.databricks_token" class="md-nav__link">
+    databricks_token
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.dependency_job_id" class="md-nav__link">
+    dependency_job_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.dependency_job_name" class="md-nav__link">
+    dependency_job_name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.display_start_timestamp" class="md-nav__link">
+    display_start_timestamp
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_host" class="md-nav__link">
+    email_host
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_params" class="md-nav__link">
+    email_params
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_port" class="md-nav__link">
+    email_port
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_priority" class="md-nav__link">
+    email_priority
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.env" class="md-nav__link">
+    env
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.expected_sla_timestamp_utc" class="md-nav__link">
+    expected_sla_timestamp_utc
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.monitored_task_name" class="md-nav__link">
+    monitored_task_name
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.run_date" class="md-nav__link">
+    run_date
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.run_id" class="md-nav__link">
+    run_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.run_start_timestamp" class="md-nav__link">
+    run_start_timestamp
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.running_tasks" class="md-nav__link">
+    running_tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.sender" class="md-nav__link">
+    sender
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.sla_missed" class="md-nav__link">
+    sla_missed
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.sla_sensor_task_names" class="md-nav__link">
+    sla_sensor_task_names
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.slack_webhook_url" class="md-nav__link">
+    slack_webhook_url
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.start_time" class="md-nav__link">
+    start_time
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.timeout" class="md-nav__link">
+    timeout
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor-functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.construct_email" class="md-nav__link">
+    construct_email
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_current_timestamp" class="md-nav__link">
+    get_current_timestamp
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_execution_start_timestamp" class="md-nav__link">
+    get_execution_start_timestamp
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_job_configuration" class="md-nav__link">
+    get_job_configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_target_run_id" class="md-nav__link">
+    get_target_run_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.monitor" class="md-nav__link">
+    monitor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.parse_tagged_sla" class="md-nav__link">
+    parse_tagged_sla
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.send_email_alert" class="md-nav__link">
+    send_email_alert
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.send_slack_message" class="md-nav__link">
+    send_slack_message
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<div class="doc doc-object doc-module">
+
+
+
+
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+<h1 id="brickflow_plugins.databricks.sla_sensor-classes">Classes<a href="#brickflow_plugins.databricks.sla_sensor-classes" class="headerlink" title="Permanent link">&para;</a></h1>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="brickflow_plugins.databricks.sla_sensor.SLASensor" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">brickflow_plugins</span><span class="o">.</span><span class="n">databricks</span><span class="o">.</span><span class="n">sla_sensor</span><span class="o">.</span><span class="n">SLASensor</span><span class="p">(</span><span class="n">monitored_task_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_product</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">run_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sla_sensor_task_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dependency_job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sla_tag_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">expected_sla_timestamp_utc</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">databricks_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">databricks_token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SecretStr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">poke_interval_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">custom_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">slack_webhook_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">email_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="brickflow_plugins.databricks.workflow_dependency_sensor.WorkflowTaskDependencySensor" href="../workflow_dependency_sensor/#brickflow_plugins.databricks.workflow_dependency_sensor.WorkflowTaskDependencySensor">WorkflowTaskDependencySensor</a></code></p>
+
+  
+      <p>A special case of a WorkflowTaskDependencySensor that monitors a workflow's end task and expected completion time in UTC.
+Alerts specified users if end time is beyond <code>expected_sla_timestamp_utc</code>.</p>
+
+<details class="two-options-to-provide-an-sla" open>
+  <summary>Two options to provide an SLA</summary>
+  <ol>
+<li>pass a datetime object with utc timezone specification as <code>expected_sla_timestamp_utc</code><ul>
+<li><code>expected_sla_timestamp_utc</code> must be passed as a datetime object in UTC. it will not be converted.</li>
+</ul>
+</li>
+<li>tag the workflow with a key-value tag. pass the key to <code>sla_tag_key</code> and ensure that the value ENDS with a 5-place quartz cron expression (e.g. 0 10 @ @ @)</li>
+</ol>
+<p>If both options are provided, the sensor will default to using the datetime object in <code>expected_sla_timestamp_utc</code></p>
+</details>      <p>This task should not be a dependency of the workflow it's monitoring. It should run concurrently with tasks in the monitored workflow:</p>
+<div class="highlight"><pre><span></span><code>sla_sensor_task
+
+start -&gt; task_1 -&gt; task_2 -&gt; end
+</code></pre></div>
+<p>Parameters
+    ----------
+monitored_task_name : str
+    final task of target workflow
+env : str
+    environment sensor is running in
+data_product : str
+    name of data product
+run_date : str
+    date that sensor is running for alert
+sla_sensor_task_names : List[str]
+    name of tasks with SLASensor, to omit from reporting running tasks
+sla_tag_key : str
+    key for tag that contains a quartz cron schedule indicating SLA time
+    defaults to None
+expected_sla_timestamp_utc : datetime
+    time workflow is expected to have been completed. datetime object with UTC timezone
+    defaults to None
+dependency_job_name : str
+    name of the databricks job the sensor is monitoring.  can be current workflow or other
+databricks_host : str
+    databricks host url to find workflow
+databricks_token : Union[str, SecretStr]
+    databricks token for authentication
+poke_interval_seconds : int
+    frequency in seconds between status checks
+    defaults to 60
+custom_description : str
+    text to include in an additional context field.
+    defaults to "SLA Missed"
+slack_webhook_url : str
+    slack url to send notifications
+email_params : dict
+    parameters to send emails:
+        email_list : list of email recipients
+        sender_address : email of sender
+        cc : list of recipients to cc (optional)
+        port : integer port number
+        host : email host url
+        priority : string priority level of email where 1 is highest and 5 is lowest. defaults to 3 (normal)
+timeout_seconds : int
+    how long in seconds to check for a running workflow to monitor. if a task is found, the timeout seconds are ignored thereafter.
+    defaults to an hour.</p>
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor--returns">Returns<a class="headerlink" href="#brickflow_plugins.databricks.sla_sensor.SLASensor--returns" title="Permanent link">&para;</a></h4>
+<p>str: "SLA Met" or "SLA Missed"</p>
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor--example-usage">Example Usage<a class="headerlink" href="#brickflow_plugins.databricks.sla_sensor.SLASensor--example-usage" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>service_principal_pat = ctx.dbutils.secrets.get(&quot;scope&quot;, &quot;service_principal_id&quot;)
+
+sensor = SLASensor(
+            expected_sla_timestamp=datetime(2024, 1, 1, 10, 0, 0, tzinfo=pytz.utc),
+            monitored_task_name=&quot;end&quot;,
+            env=&quot;dev&quot;,
+            data_product=&quot;product_name&quot;,
+            run_date=&quot;2024-01-01&quot;,
+            sla_sensor_task_names=[&quot;sla_sensor_task&quot;],
+            dependency_job_name=&quot;target_job_name&quot;,
+            databricks_host=&quot;https://your_workspace_url.cloud.databricks.com&quot;,
+            databricks_token=service_principle_pat,
+            custom_description=&quot;message to provide additional context&quot;,
+            slack_webhook_url=&quot;https://hooks.slack.com/your/webhook/url&quot;,
+            email_params={
+                &quot;email_list&quot;: [&quot;recipient_1@email.com&quot;, &quot;recipient_2@email.com&quot;],
+                &quot;sender_address&quot;: &quot;sender@email.com&quot;,
+                &quot;cc&quot;: [&quot;cc_1@email.com&quot;,&quot;cc_2@email.com&quot;],
+                &quot;port&quot;: 25,
+                &quot;host&quot;: &quot;your.email.host&quot;,
+                &quot;priority&quot;: &quot;1&quot;
+            },
+            timeout_seconds=120
+        )
+
+result = sensor.monitor()
+</code></pre></div>
+<p>In the above snippet Databricks secrets are used as a secure service to store the databricks token.
+If you get your token from another secret management service, like AWS Secrets Manager, GCP Secret Manager
+or Azure Key Vault, just pass it in the databricks_token argument.</p>
+
+                <details class="quote">
+                  <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-139">139</a></span>
+<span class="normal"><a href="#__codelineno-0-140">140</a></span>
+<span class="normal"><a href="#__codelineno-0-141">141</a></span>
+<span class="normal"><a href="#__codelineno-0-142">142</a></span>
+<span class="normal"><a href="#__codelineno-0-143">143</a></span>
+<span class="normal"><a href="#__codelineno-0-144">144</a></span>
+<span class="normal"><a href="#__codelineno-0-145">145</a></span>
+<span class="normal"><a href="#__codelineno-0-146">146</a></span>
+<span class="normal"><a href="#__codelineno-0-147">147</a></span>
+<span class="normal"><a href="#__codelineno-0-148">148</a></span>
+<span class="normal"><a href="#__codelineno-0-149">149</a></span>
+<span class="normal"><a href="#__codelineno-0-150">150</a></span>
+<span class="normal"><a href="#__codelineno-0-151">151</a></span>
+<span class="normal"><a href="#__codelineno-0-152">152</a></span>
+<span class="normal"><a href="#__codelineno-0-153">153</a></span>
+<span class="normal"><a href="#__codelineno-0-154">154</a></span>
+<span class="normal"><a href="#__codelineno-0-155">155</a></span>
+<span class="normal"><a href="#__codelineno-0-156">156</a></span>
+<span class="normal"><a href="#__codelineno-0-157">157</a></span>
+<span class="normal"><a href="#__codelineno-0-158">158</a></span>
+<span class="normal"><a href="#__codelineno-0-159">159</a></span>
+<span class="normal"><a href="#__codelineno-0-160">160</a></span>
+<span class="normal"><a href="#__codelineno-0-161">161</a></span>
+<span class="normal"><a href="#__codelineno-0-162">162</a></span>
+<span class="normal"><a href="#__codelineno-0-163">163</a></span>
+<span class="normal"><a href="#__codelineno-0-164">164</a></span>
+<span class="normal"><a href="#__codelineno-0-165">165</a></span>
+<span class="normal"><a href="#__codelineno-0-166">166</a></span>
+<span class="normal"><a href="#__codelineno-0-167">167</a></span>
+<span class="normal"><a href="#__codelineno-0-168">168</a></span>
+<span class="normal"><a href="#__codelineno-0-169">169</a></span>
+<span class="normal"><a href="#__codelineno-0-170">170</a></span>
+<span class="normal"><a href="#__codelineno-0-171">171</a></span>
+<span class="normal"><a href="#__codelineno-0-172">172</a></span>
+<span class="normal"><a href="#__codelineno-0-173">173</a></span>
+<span class="normal"><a href="#__codelineno-0-174">174</a></span>
+<span class="normal"><a href="#__codelineno-0-175">175</a></span>
+<span class="normal"><a href="#__codelineno-0-176">176</a></span>
+<span class="normal"><a href="#__codelineno-0-177">177</a></span>
+<span class="normal"><a href="#__codelineno-0-178">178</a></span>
+<span class="normal"><a href="#__codelineno-0-179">179</a></span>
+<span class="normal"><a href="#__codelineno-0-180">180</a></span>
+<span class="normal"><a href="#__codelineno-0-181">181</a></span>
+<span class="normal"><a href="#__codelineno-0-182">182</a></span>
+<span class="normal"><a href="#__codelineno-0-183">183</a></span>
+<span class="normal"><a href="#__codelineno-0-184">184</a></span>
+<span class="normal"><a href="#__codelineno-0-185">185</a></span>
+<span class="normal"><a href="#__codelineno-0-186">186</a></span>
+<span class="normal"><a href="#__codelineno-0-187">187</a></span>
+<span class="normal"><a href="#__codelineno-0-188">188</a></span>
+<span class="normal"><a href="#__codelineno-0-189">189</a></span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span>
+<span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span>
+<span class="normal"><a href="#__codelineno-0-195">195</a></span>
+<span class="normal"><a href="#__codelineno-0-196">196</a></span>
+<span class="normal"><a href="#__codelineno-0-197">197</a></span>
+<span class="normal"><a href="#__codelineno-0-198">198</a></span>
+<span class="normal"><a href="#__codelineno-0-199">199</a></span>
+<span class="normal"><a href="#__codelineno-0-200">200</a></span>
+<span class="normal"><a href="#__codelineno-0-201">201</a></span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span>
+<span class="normal"><a href="#__codelineno-0-205">205</a></span>
+<span class="normal"><a href="#__codelineno-0-206">206</a></span>
+<span class="normal"><a href="#__codelineno-0-207">207</a></span>
+<span class="normal"><a href="#__codelineno-0-208">208</a></span>
+<span class="normal"><a href="#__codelineno-0-209">209</a></span>
+<span class="normal"><a href="#__codelineno-0-210">210</a></span>
+<span class="normal"><a href="#__codelineno-0-211">211</a></span>
+<span class="normal"><a href="#__codelineno-0-212">212</a></span>
+<span class="normal"><a href="#__codelineno-0-213">213</a></span>
+<span class="normal"><a href="#__codelineno-0-214">214</a></span>
+<span class="normal"><a href="#__codelineno-0-215">215</a></span>
+<span class="normal"><a href="#__codelineno-0-216">216</a></span>
+<span class="normal"><a href="#__codelineno-0-217">217</a></span>
+<span class="normal"><a href="#__codelineno-0-218">218</a></span>
+<span class="normal"><a href="#__codelineno-0-219">219</a></span>
+<span class="normal"><a href="#__codelineno-0-220">220</a></span>
+<span class="normal"><a href="#__codelineno-0-221">221</a></span>
+<span class="normal"><a href="#__codelineno-0-222">222</a></span>
+<span class="normal"><a href="#__codelineno-0-223">223</a></span>
+<span class="normal"><a href="#__codelineno-0-224">224</a></span>
+<span class="normal"><a href="#__codelineno-0-225">225</a></span>
+<span class="normal"><a href="#__codelineno-0-226">226</a></span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span>
+<span class="normal"><a href="#__codelineno-0-228">228</a></span>
+<span class="normal"><a href="#__codelineno-0-229">229</a></span>
+<span class="normal"><a href="#__codelineno-0-230">230</a></span>
+<span class="normal"><a href="#__codelineno-0-231">231</a></span>
+<span class="normal"><a href="#__codelineno-0-232">232</a></span>
+<span class="normal"><a href="#__codelineno-0-233">233</a></span>
+<span class="normal"><a href="#__codelineno-0-234">234</a></span>
+<span class="normal"><a href="#__codelineno-0-235">235</a></span>
+<span class="normal"><a href="#__codelineno-0-236">236</a></span>
+<span class="normal"><a href="#__codelineno-0-237">237</a></span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span>
+<span class="normal"><a href="#__codelineno-0-242">242</a></span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span>
+<span class="normal"><a href="#__codelineno-0-252">252</a></span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-139" name="__codelineno-0-139"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-140" name="__codelineno-0-140"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-141" name="__codelineno-0-141"></a>    <span class="n">monitored_task_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-142" name="__codelineno-0-142"></a>    <span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-143" name="__codelineno-0-143"></a>    <span class="n">data_product</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-144" name="__codelineno-0-144"></a>    <span class="n">run_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-145" name="__codelineno-0-145"></a>    <span class="n">sla_sensor_task_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<a id="__codelineno-0-146" name="__codelineno-0-146"></a>    <span class="n">dependency_job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-147" name="__codelineno-0-147"></a>    <span class="n">sla_tag_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-148" name="__codelineno-0-148"></a>    <span class="n">expected_sla_timestamp_utc</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-149" name="__codelineno-0-149"></a>    <span class="n">databricks_host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-150" name="__codelineno-0-150"></a>    <span class="n">databricks_token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SecretStr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-151" name="__codelineno-0-151"></a>    <span class="n">poke_interval_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+<a id="__codelineno-0-152" name="__codelineno-0-152"></a>    <span class="n">custom_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-153" name="__codelineno-0-153"></a>    <span class="n">slack_webhook_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-154" name="__codelineno-0-154"></a>    <span class="n">email_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-155" name="__codelineno-0-155"></a>    <span class="n">timeout_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="p">):</span>
+<a id="__codelineno-0-157" name="__codelineno-0-157"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-0-158" name="__codelineno-0-158"></a>
+<a id="__codelineno-0-159" name="__codelineno-0-159"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-160" name="__codelineno-0-160"></a>        <span class="n">dependency_job_name</span><span class="o">=</span><span class="n">dependency_job_name</span><span class="p">,</span>
+<a id="__codelineno-0-161" name="__codelineno-0-161"></a>        <span class="n">dependency_task_name</span><span class="o">=</span><span class="n">monitored_task_name</span><span class="p">,</span>
+<a id="__codelineno-0-162" name="__codelineno-0-162"></a>        <span class="n">delta</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(),</span>
+<a id="__codelineno-0-163" name="__codelineno-0-163"></a>        <span class="n">timeout_seconds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-164" name="__codelineno-0-164"></a>        <span class="n">databricks_host</span><span class="o">=</span><span class="n">databricks_host</span><span class="p">,</span>
+<a id="__codelineno-0-165" name="__codelineno-0-165"></a>        <span class="n">databricks_token</span><span class="o">=</span><span class="n">databricks_token</span><span class="p">,</span>
+<a id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="n">poke_interval_seconds</span><span class="o">=</span><span class="n">poke_interval_seconds</span><span class="p">,</span>
+<a id="__codelineno-0-167" name="__codelineno-0-167"></a>    <span class="p">)</span>
+<a id="__codelineno-0-168" name="__codelineno-0-168"></a>
+<a id="__codelineno-0-169" name="__codelineno-0-169"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_id</span>
+<a id="__codelineno-0-170" name="__codelineno-0-170"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">monitored_task_name</span> <span class="o">=</span> <span class="n">monitored_task_name</span>
+<a id="__codelineno-0-171" name="__codelineno-0-171"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_name</span> <span class="o">=</span> <span class="n">dependency_job_name</span>
+<a id="__codelineno-0-172" name="__codelineno-0-172"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">databricks_host</span> <span class="o">=</span> <span class="n">databricks_host</span>
+<a id="__codelineno-0-173" name="__codelineno-0-173"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">databricks_token</span> <span class="o">=</span> <span class="n">databricks_token</span>
+<a id="__codelineno-0-174" name="__codelineno-0-174"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">sla_sensor_task_names</span> <span class="o">=</span> <span class="n">sla_sensor_task_names</span>
+<a id="__codelineno-0-175" name="__codelineno-0-175"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
+<a id="__codelineno-0-176" name="__codelineno-0-176"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">data_product</span> <span class="o">=</span> <span class="n">data_product</span>
+<a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">run_date</span> <span class="o">=</span> <span class="n">run_date</span>
+<a id="__codelineno-0-178" name="__codelineno-0-178"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">sla_missed</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-179" name="__codelineno-0-179"></a>
+<a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="k">if</span> <span class="n">sla_tag_key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">expected_sla_timestamp_utc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-181" name="__codelineno-0-181"></a>        <span class="k">raise</span> <span class="n">SLASensorException</span><span class="p">(</span>
+<a id="__codelineno-0-182" name="__codelineno-0-182"></a>            <span class="s2">&quot;No SLA provided. Either provide a tag with a cron expression in sla_tag or a datetime object in expected_sla_timestamp_utc&quot;</span>
+<a id="__codelineno-0-183" name="__codelineno-0-183"></a>        <span class="p">)</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184"></a>
+<a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="k">if</span> <span class="n">expected_sla_timestamp_utc</span><span class="p">:</span>
+<a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="k">if</span> <span class="n">expected_sla_timestamp_utc</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187"></a>            <span class="n">warn</span><span class="p">(</span>
+<a id="__codelineno-0-188" name="__codelineno-0-188"></a>                <span class="s2">&quot;The provided expected_sla_timestamp_utc datetime object does not have any timezone information. It will be assumed to be UTC. If this is not the case, please add timezone information to your datetime object&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-189" name="__codelineno-0-189"></a>                <span class="ne">RuntimeWarning</span><span class="p">,</span>
+<a id="__codelineno-0-190" name="__codelineno-0-190"></a>                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-0-191" name="__codelineno-0-191"></a>            <span class="p">)</span>
+<a id="__codelineno-0-192" name="__codelineno-0-192"></a>
+<a id="__codelineno-0-193" name="__codelineno-0-193"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-194" name="__codelineno-0-194"></a>            <span class="sa">f</span><span class="s2">&quot;Datetime object provided for SLA: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">expected_sla_timestamp_utc</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="p">)</span>
+<a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">expected_sla_timestamp_utc</span> <span class="o">=</span> <span class="n">expected_sla_timestamp_utc</span>
+<a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-198" name="__codelineno-0-198"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-199" name="__codelineno-0-199"></a>            <span class="sa">f</span><span class="s2">&quot;Retrieving expected SLA time from provided workflow tag: </span><span class="si">{</span><span class="n">sla_tag_key</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-200" name="__codelineno-0-200"></a>        <span class="p">)</span>
+<a id="__codelineno-0-201" name="__codelineno-0-201"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">expected_sla_timestamp_utc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_tagged_sla</span><span class="p">(</span><span class="n">sla_tag_key</span><span class="p">)</span>
+<a id="__codelineno-0-202" name="__codelineno-0-202"></a>
+<a id="__codelineno-0-203" name="__codelineno-0-203"></a>    <span class="c1"># check the timezone of provided timestamp</span>
+<a id="__codelineno-0-204" name="__codelineno-0-204"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_sla_timestamp_utc</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-205" name="__codelineno-0-205"></a>        <span class="n">warn</span><span class="p">(</span>
+<a id="__codelineno-0-206" name="__codelineno-0-206"></a>            <span class="s2">&quot;The provided expected_sla_timestamp_utc datetime object does not have any timezone information. It will be assumed to be UTC. If this is not the case, please add timezone information to your datetime object&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-207" name="__codelineno-0-207"></a>            <span class="ne">RuntimeWarning</span><span class="p">,</span>
+<a id="__codelineno-0-208" name="__codelineno-0-208"></a>            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-0-209" name="__codelineno-0-209"></a>        <span class="p">)</span>
+<a id="__codelineno-0-210" name="__codelineno-0-210"></a>
+<a id="__codelineno-0-211" name="__codelineno-0-211"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieving an active run id for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-212" name="__codelineno-0-212"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-213" name="__codelineno-0-213"></a>        <span class="n">timeout_seconds</span> <span class="k">if</span> <span class="n">timeout_seconds</span> <span class="k">else</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">seconds</span>
+<a id="__codelineno-0-214" name="__codelineno-0-214"></a>    <span class="p">)</span>
+<a id="__codelineno-0-215" name="__codelineno-0-215"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">run_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_run_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_name</span><span class="p">)</span>
+<a id="__codelineno-0-216" name="__codelineno-0-216"></a>
+<a id="__codelineno-0-217" name="__codelineno-0-217"></a>    <span class="c1"># get the start timestamp (unix) for the current job</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">run_start_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_execution_start_timestamp</span><span class="p">()</span>
+<a id="__codelineno-0-219" name="__codelineno-0-219"></a>
+<a id="__codelineno-0-220" name="__codelineno-0-220"></a>    <span class="c1"># convert start timestamp to human readable</span>
+<a id="__codelineno-0-221" name="__codelineno-0-221"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">display_start_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
+<a id="__codelineno-0-222" name="__codelineno-0-222"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">run_start_timestamp</span> <span class="o">/</span> <span class="mi">1000</span>
+<a id="__codelineno-0-223" name="__codelineno-0-223"></a>    <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-224" name="__codelineno-0-224"></a>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a>    <span class="c1"># hold for task list running if/when sla sensor fires</span>
+<a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">running_tasks</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a>
+<a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="c1"># where to send slack notifications</span>
+<a id="__codelineno-0-229" name="__codelineno-0-229"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">slack_webhook_url</span> <span class="o">=</span> <span class="n">slack_webhook_url</span>
+<a id="__codelineno-0-230" name="__codelineno-0-230"></a>
+<a id="__codelineno-0-231" name="__codelineno-0-231"></a>    <span class="c1"># email configuration</span>
+<a id="__codelineno-0-232" name="__codelineno-0-232"></a>    <span class="k">if</span> <span class="n">email_params</span><span class="p">:</span>
+<a id="__codelineno-0-233" name="__codelineno-0-233"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-234" name="__codelineno-0-234"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span> <span class="o">=</span> <span class="n">EmailParams</span><span class="p">(</span><span class="o">**</span><span class="n">email_params</span><span class="p">)</span>
+<a id="__codelineno-0-235" name="__codelineno-0-235"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alert_email_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">email_list</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">sender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">sender_address</span>
+<a id="__codelineno-0-237" name="__codelineno-0-237"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">cc</span>
+<a id="__codelineno-0-238" name="__codelineno-0-238"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">email_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">port</span>
+<a id="__codelineno-0-239" name="__codelineno-0-239"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">email_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">host</span>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">email_priority</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">priority</span>
+<a id="__codelineno-0-241" name="__codelineno-0-241"></a>        <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-242" name="__codelineno-0-242"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error with email_params: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span> <span class="o">=</span> <span class="n">email_params</span>  <span class="c1"># will be None</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="c1"># warn if no alert destinations provided. sensor will work, will not have any alert sent.</span>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slack_webhook_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="p">):</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="n">warn</span><span class="p">(</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>            <span class="s2">&quot;There is no one set to receive SLA notifications. Please add at least one of &#39;slack_webhook_url&#39; or &#39;alert_email_list&#39; to receive notifications from this sensor&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a>            <span class="ne">RuntimeWarning</span><span class="p">,</span>
+<a id="__codelineno-0-251" name="__codelineno-0-251"></a>            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-0-252" name="__codelineno-0-252"></a>        <span class="p">)</span>
+<a id="__codelineno-0-253" name="__codelineno-0-253"></a>
+<a id="__codelineno-0-254" name="__codelineno-0-254"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">custom_description</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-255" name="__codelineno-0-255"></a>        <span class="n">custom_description</span> <span class="k">if</span> <span class="n">custom_description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;SLA Missed&quot;</span>
+<a id="__codelineno-0-256" name="__codelineno-0-256"></a>    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+                </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+<h3 id="brickflow_plugins.databricks.sla_sensor.SLASensor-attributes">Attributes<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor-attributes" class="headerlink" title="Permanent link">&para;</a></h3>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.alert_email_list" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">alert_email_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">email_list</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.alert_email_list" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.cc" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">cc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">cc</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.cc" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.custom_description" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">custom_description</span> <span class="o">=</span> <span class="n">custom_description</span> <span class="k">if</span> <span class="n">custom_description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;SLA Missed&#39;</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.custom_description" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.data_product" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">data_product</span> <span class="o">=</span> <span class="n">data_product</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.data_product" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.databricks_host" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">databricks_host</span> <span class="o">=</span> <span class="n">databricks_host</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.databricks_host" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.databricks_token" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">databricks_token</span> <span class="o">=</span> <span class="n">databricks_token</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.databricks_token" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.dependency_job_id" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">dependency_job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job_id</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.dependency_job_id" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.dependency_job_name" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">dependency_job_name</span> <span class="o">=</span> <span class="n">dependency_job_name</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.dependency_job_name" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.display_start_timestamp" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">display_start_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_start_timestamp</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.display_start_timestamp" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.email_host" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">email_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">host</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_host" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.email_params" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">email_params</span> <span class="o">=</span> <span class="n">EmailParams</span><span class="p">(</span><span class="o">**</span><span class="n">email_params</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_params" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.email_port" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">email_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">port</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_port" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.email_priority" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">email_priority</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">priority</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.email_priority" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.env" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">env</span> <span class="o">=</span> <span class="n">env</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.env" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.expected_sla_timestamp_utc" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">expected_sla_timestamp_utc</span> <span class="o">=</span> <span class="n">expected_sla_timestamp_utc</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.expected_sla_timestamp_utc" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.monitored_task_name" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">monitored_task_name</span> <span class="o">=</span> <span class="n">monitored_task_name</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.monitored_task_name" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.run_date" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run_date</span> <span class="o">=</span> <span class="n">run_date</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.run_date" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.run_id" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_run_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_name</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.run_id" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.run_start_timestamp" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">run_start_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_execution_start_timestamp</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.run_start_timestamp" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.running_tasks" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">running_tasks</span> <span class="o">=</span> <span class="kc">None</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.running_tasks" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.sender" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">sender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="o">.</span><span class="n">sender_address</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.sender" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.sla_missed" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">sla_missed</span> <span class="o">=</span> <span class="kc">False</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.sla_missed" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.sla_sensor_task_names" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">sla_sensor_task_names</span> <span class="o">=</span> <span class="n">sla_sensor_task_names</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.sla_sensor_task_names" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.slack_webhook_url" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">slack_webhook_url</span> <span class="o">=</span> <span class="n">slack_webhook_url</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.slack_webhook_url" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.start_time" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.start_time" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.timeout" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout_seconds</span> <span class="k">if</span> <span class="n">timeout_seconds</span> <span class="k">else</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">seconds</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.timeout" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<h3 id="brickflow_plugins.databricks.sla_sensor.SLASensor-functions">Functions<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor-functions" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.construct_email" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">construct_email</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">data_product</span><span class="p">,</span> <span class="n">dep_job_name</span><span class="p">,</span> <span class="n">run_date</span><span class="p">,</span> <span class="n">start_timestamp</span><span class="p">,</span> <span class="n">monitored_task_name</span><span class="p">,</span> <span class="n">expected_sla_timestamp_utc</span><span class="p">,</span> <span class="n">custom_description</span><span class="p">,</span> <span class="n">running_tasks</span><span class="p">)</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.construct_email" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Constructs email for SLA Alert</p>
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-295">295</a></span>
+<span class="normal"><a href="#__codelineno-0-296">296</a></span>
+<span class="normal"><a href="#__codelineno-0-297">297</a></span>
+<span class="normal"><a href="#__codelineno-0-298">298</a></span>
+<span class="normal"><a href="#__codelineno-0-299">299</a></span>
+<span class="normal"><a href="#__codelineno-0-300">300</a></span>
+<span class="normal"><a href="#__codelineno-0-301">301</a></span>
+<span class="normal"><a href="#__codelineno-0-302">302</a></span>
+<span class="normal"><a href="#__codelineno-0-303">303</a></span>
+<span class="normal"><a href="#__codelineno-0-304">304</a></span>
+<span class="normal"><a href="#__codelineno-0-305">305</a></span>
+<span class="normal"><a href="#__codelineno-0-306">306</a></span>
+<span class="normal"><a href="#__codelineno-0-307">307</a></span>
+<span class="normal"><a href="#__codelineno-0-308">308</a></span>
+<span class="normal"><a href="#__codelineno-0-309">309</a></span>
+<span class="normal"><a href="#__codelineno-0-310">310</a></span>
+<span class="normal"><a href="#__codelineno-0-311">311</a></span>
+<span class="normal"><a href="#__codelineno-0-312">312</a></span>
+<span class="normal"><a href="#__codelineno-0-313">313</a></span>
+<span class="normal"><a href="#__codelineno-0-314">314</a></span>
+<span class="normal"><a href="#__codelineno-0-315">315</a></span>
+<span class="normal"><a href="#__codelineno-0-316">316</a></span>
+<span class="normal"><a href="#__codelineno-0-317">317</a></span>
+<span class="normal"><a href="#__codelineno-0-318">318</a></span>
+<span class="normal"><a href="#__codelineno-0-319">319</a></span>
+<span class="normal"><a href="#__codelineno-0-320">320</a></span>
+<span class="normal"><a href="#__codelineno-0-321">321</a></span>
+<span class="normal"><a href="#__codelineno-0-322">322</a></span>
+<span class="normal"><a href="#__codelineno-0-323">323</a></span>
+<span class="normal"><a href="#__codelineno-0-324">324</a></span>
+<span class="normal"><a href="#__codelineno-0-325">325</a></span>
+<span class="normal"><a href="#__codelineno-0-326">326</a></span>
+<span class="normal"><a href="#__codelineno-0-327">327</a></span>
+<span class="normal"><a href="#__codelineno-0-328">328</a></span>
+<span class="normal"><a href="#__codelineno-0-329">329</a></span>
+<span class="normal"><a href="#__codelineno-0-330">330</a></span>
+<span class="normal"><a href="#__codelineno-0-331">331</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-295" name="__codelineno-0-295"></a><span class="k">def</span> <span class="nf">construct_email</span><span class="p">(</span>
+<a id="__codelineno-0-296" name="__codelineno-0-296"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-297" name="__codelineno-0-297"></a>    <span class="n">env</span><span class="p">,</span>
+<a id="__codelineno-0-298" name="__codelineno-0-298"></a>    <span class="n">data_product</span><span class="p">,</span>
+<a id="__codelineno-0-299" name="__codelineno-0-299"></a>    <span class="n">dep_job_name</span><span class="p">,</span>
+<a id="__codelineno-0-300" name="__codelineno-0-300"></a>    <span class="n">run_date</span><span class="p">,</span>
+<a id="__codelineno-0-301" name="__codelineno-0-301"></a>    <span class="n">start_timestamp</span><span class="p">,</span>
+<a id="__codelineno-0-302" name="__codelineno-0-302"></a>    <span class="n">monitored_task_name</span><span class="p">,</span>
+<a id="__codelineno-0-303" name="__codelineno-0-303"></a>    <span class="n">expected_sla_timestamp_utc</span><span class="p">,</span>
+<a id="__codelineno-0-304" name="__codelineno-0-304"></a>    <span class="n">custom_description</span><span class="p">,</span>
+<a id="__codelineno-0-305" name="__codelineno-0-305"></a>    <span class="n">running_tasks</span><span class="p">,</span>
+<a id="__codelineno-0-306" name="__codelineno-0-306"></a><span class="p">):</span>
+<a id="__codelineno-0-307" name="__codelineno-0-307"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-308" name="__codelineno-0-308"></a><span class="sd">    Constructs email for SLA Alert</span>
+<a id="__codelineno-0-309" name="__codelineno-0-309"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-310" name="__codelineno-0-310"></a>    <span class="n">subject</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-0-311" name="__codelineno-0-311"></a>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">: SLA Missed for Workflow </span><span class="si">{</span><span class="n">dep_job_name</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">run_date</span><span class="si">}</span><span class="s2"> Run!&quot;</span>
+<a id="__codelineno-0-312" name="__codelineno-0-312"></a>    <span class="p">)</span>
+<a id="__codelineno-0-313" name="__codelineno-0-313"></a>    <span class="n">body</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-314" name="__codelineno-0-314"></a><span class="s2">                &lt;br&gt;&lt;br&gt; This Databricks workflow is running behind schedule and missed SLA on </span><span class="si">{</span><span class="n">run_date</span><span class="si">}</span><span class="s2"> &lt;br&gt;&lt;br&gt;</span>
+<a id="__codelineno-0-315" name="__codelineno-0-315"></a><span class="s2">                &lt;table&gt;</span>
+<a id="__codelineno-0-316" name="__codelineno-0-316"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Data product: </span><span class="si">{</span><span class="n">data_product</span><span class="si">}</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;</span>
+<a id="__codelineno-0-317" name="__codelineno-0-317"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Workflow name:&lt;/td&gt; &lt;td&gt;</span><span class="si">{</span><span class="n">dep_job_name</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt;</span>
+<a id="__codelineno-0-318" name="__codelineno-0-318"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Workflow execution time:&lt;/td&gt; &lt;td&gt; &lt;b&gt; </span><span class="si">{</span><span class="n">start_timestamp</span><span class="si">}</span><span class="s2"> &lt;/b&gt; &lt;/td&gt; &lt;/tr&gt;</span>
+<a id="__codelineno-0-319" name="__codelineno-0-319"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Workflow started at:&lt;/td&gt; &lt;td&gt; </span><span class="si">{</span><span class="n">start_timestamp</span><span class="si">}</span><span class="s2"> &lt;/td&gt; &lt;/tr&gt;</span>
+<a id="__codelineno-0-320" name="__codelineno-0-320"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Task name:&lt;/td&gt; &lt;td&gt; </span><span class="si">{</span><span class="n">monitored_task_name</span><span class="si">}</span><span class="s2"> &lt;/td&gt; &lt;/tr&gt;</span>
+<a id="__codelineno-0-321" name="__codelineno-0-321"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Expected Workflow end timestamp:&lt;/td&gt; &lt;td&gt; </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">expected_sla_timestamp_utc</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt;</span>
+<a id="__codelineno-0-322" name="__codelineno-0-322"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Additional context:&lt;/td&gt; &lt;td&gt; </span><span class="si">{</span><span class="n">custom_description</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt;</span>
+<a id="__codelineno-0-323" name="__codelineno-0-323"></a><span class="s2">                &lt;tr&gt;&lt;td&gt;Running tasks:&lt;/td&gt; &lt;td&gt; </span><span class="si">{</span><span class="n">running_tasks</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt;</span>
+<a id="__codelineno-0-324" name="__codelineno-0-324"></a><span class="s2">                &lt;/table&gt;</span>
+<a id="__codelineno-0-325" name="__codelineno-0-325"></a><span class="s2">                &lt;br&gt;</span>
+<a id="__codelineno-0-326" name="__codelineno-0-326"></a><span class="s2">                Please check your production support channels for next steps on &lt;b&gt;</span><span class="si">{</span><span class="n">dep_job_name</span><span class="si">}</span><span class="s2">&lt;/b&gt;&lt;br&gt;</span>
+<a id="__codelineno-0-327" name="__codelineno-0-327"></a><span class="s2">                This is an auto-generated email. Please do not reply. &lt;br&gt;&lt;br&gt;</span>
+<a id="__codelineno-0-328" name="__codelineno-0-328"></a><span class="s2">                Thank you! &lt;br&gt;</span>
+<a id="__codelineno-0-329" name="__codelineno-0-329"></a><span class="s2">            &quot;&quot;&quot;</span>
+<a id="__codelineno-0-330" name="__codelineno-0-330"></a>
+<a id="__codelineno-0-331" name="__codelineno-0-331"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="n">subject</span><span class="p">,</span> <span class="s2">&quot;body&quot;</span><span class="p">:</span> <span class="n">body</span><span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.get_current_timestamp" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">get_current_timestamp</span><span class="p">()</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_current_timestamp" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-438">438</a></span>
+<span class="normal"><a href="#__codelineno-0-439">439</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-438" name="__codelineno-0-438"></a><span class="k">def</span> <span class="nf">get_current_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-439" name="__codelineno-0-439"></a>    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.get_execution_start_timestamp" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">get_execution_start_timestamp</span><span class="p">()</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_execution_start_timestamp" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get the unix timestamp of the current job given the job run id</p>
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-425">425</a></span>
+<span class="normal"><a href="#__codelineno-0-426">426</a></span>
+<span class="normal"><a href="#__codelineno-0-427">427</a></span>
+<span class="normal"><a href="#__codelineno-0-428">428</a></span>
+<span class="normal"><a href="#__codelineno-0-429">429</a></span>
+<span class="normal"><a href="#__codelineno-0-430">430</a></span>
+<span class="normal"><a href="#__codelineno-0-431">431</a></span>
+<span class="normal"><a href="#__codelineno-0-432">432</a></span>
+<span class="normal"><a href="#__codelineno-0-433">433</a></span>
+<span class="normal"><a href="#__codelineno-0-434">434</a></span>
+<span class="normal"><a href="#__codelineno-0-435">435</a></span>
+<span class="normal"><a href="#__codelineno-0-436">436</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-425" name="__codelineno-0-425"></a><span class="k">def</span> <span class="nf">get_execution_start_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-426" name="__codelineno-0-426"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-427" name="__codelineno-0-427"></a><span class="sd">    Get the unix timestamp of the current job given the job run id</span>
+<a id="__codelineno-0-428" name="__codelineno-0-428"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-429" name="__codelineno-0-429"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-430" name="__codelineno-0-430"></a>        <span class="k">raise</span> <span class="n">SLASensorException</span><span class="p">(</span>
+<a id="__codelineno-0-431" name="__codelineno-0-431"></a>            <span class="s2">&quot;run_id is empty, job with provided name was not found&quot;</span>
+<a id="__codelineno-0-432" name="__codelineno-0-432"></a>        <span class="p">)</span>
+<a id="__codelineno-0-433" name="__codelineno-0-433"></a>
+<a id="__codelineno-0-434" name="__codelineno-0-434"></a>    <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workspace_obj</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<a id="__codelineno-0-435" name="__codelineno-0-435"></a>
+<a id="__codelineno-0-436" name="__codelineno-0-436"></a>    <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">start_time</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.get_job_configuration" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">get_job_configuration</span><span class="p">()</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_job_configuration" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-258">258</a></span>
+<span class="normal"><a href="#__codelineno-0-259">259</a></span>
+<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+<span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="k">def</span> <span class="nf">get_job_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-259" name="__codelineno-0-259"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workspace_obj</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">job_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_id</span><span class="p">)</span>
+<a id="__codelineno-0-261" name="__codelineno-0-261"></a>    <span class="k">except</span> <span class="n">SLASensorException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-262" name="__codelineno-0-262"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error retrieving job configuration: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.get_target_run_id" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">get_target_run_id</span><span class="p">(</span><span class="n">run_date</span><span class="p">,</span> <span class="n">dependency_job_name</span><span class="p">)</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.get_target_run_id" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Looks for an actively running job for a given workflow on a given run_date.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-441">441</a></span>
+<span class="normal"><a href="#__codelineno-0-442">442</a></span>
+<span class="normal"><a href="#__codelineno-0-443">443</a></span>
+<span class="normal"><a href="#__codelineno-0-444">444</a></span>
+<span class="normal"><a href="#__codelineno-0-445">445</a></span>
+<span class="normal"><a href="#__codelineno-0-446">446</a></span>
+<span class="normal"><a href="#__codelineno-0-447">447</a></span>
+<span class="normal"><a href="#__codelineno-0-448">448</a></span>
+<span class="normal"><a href="#__codelineno-0-449">449</a></span>
+<span class="normal"><a href="#__codelineno-0-450">450</a></span>
+<span class="normal"><a href="#__codelineno-0-451">451</a></span>
+<span class="normal"><a href="#__codelineno-0-452">452</a></span>
+<span class="normal"><a href="#__codelineno-0-453">453</a></span>
+<span class="normal"><a href="#__codelineno-0-454">454</a></span>
+<span class="normal"><a href="#__codelineno-0-455">455</a></span>
+<span class="normal"><a href="#__codelineno-0-456">456</a></span>
+<span class="normal"><a href="#__codelineno-0-457">457</a></span>
+<span class="normal"><a href="#__codelineno-0-458">458</a></span>
+<span class="normal"><a href="#__codelineno-0-459">459</a></span>
+<span class="normal"><a href="#__codelineno-0-460">460</a></span>
+<span class="normal"><a href="#__codelineno-0-461">461</a></span>
+<span class="normal"><a href="#__codelineno-0-462">462</a></span>
+<span class="normal"><a href="#__codelineno-0-463">463</a></span>
+<span class="normal"><a href="#__codelineno-0-464">464</a></span>
+<span class="normal"><a href="#__codelineno-0-465">465</a></span>
+<span class="normal"><a href="#__codelineno-0-466">466</a></span>
+<span class="normal"><a href="#__codelineno-0-467">467</a></span>
+<span class="normal"><a href="#__codelineno-0-468">468</a></span>
+<span class="normal"><a href="#__codelineno-0-469">469</a></span>
+<span class="normal"><a href="#__codelineno-0-470">470</a></span>
+<span class="normal"><a href="#__codelineno-0-471">471</a></span>
+<span class="normal"><a href="#__codelineno-0-472">472</a></span>
+<span class="normal"><a href="#__codelineno-0-473">473</a></span>
+<span class="normal"><a href="#__codelineno-0-474">474</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-441" name="__codelineno-0-441"></a><span class="k">def</span> <span class="nf">get_target_run_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_date</span><span class="p">,</span> <span class="n">dependency_job_name</span><span class="p">):</span>
+<a id="__codelineno-0-442" name="__codelineno-0-442"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-443" name="__codelineno-0-443"></a><span class="sd">    Looks for an actively running job for a given workflow on a given run_date.</span>
+<a id="__codelineno-0-444" name="__codelineno-0-444"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-445" name="__codelineno-0-445"></a>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<a id="__codelineno-0-446" name="__codelineno-0-446"></a>        <span class="n">jobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workspace_obj</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">dependency_job_name</span><span class="p">)</span>
+<a id="__codelineno-0-447" name="__codelineno-0-447"></a>
+<a id="__codelineno-0-448" name="__codelineno-0-448"></a>        <span class="n">job_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">job_id</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">]</span>
+<a id="__codelineno-0-449" name="__codelineno-0-449"></a>
+<a id="__codelineno-0-450" name="__codelineno-0-450"></a>        <span class="n">runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workspace_obj</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">list_runs</span><span class="p">(</span><span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-0-451" name="__codelineno-0-451"></a>
+<a id="__codelineno-0-452" name="__codelineno-0-452"></a>        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
+<a id="__codelineno-0-453" name="__codelineno-0-453"></a>            <span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">start_time</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+<a id="__codelineno-0-454" name="__codelineno-0-454"></a>                <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-455" name="__codelineno-0-455"></a>            <span class="p">)</span>
+<a id="__codelineno-0-456" name="__codelineno-0-456"></a>
+<a id="__codelineno-0-457" name="__codelineno-0-457"></a>            <span class="k">if</span> <span class="n">start_date</span> <span class="o">==</span> <span class="n">run_date</span><span class="p">:</span>
+<a id="__codelineno-0-458" name="__codelineno-0-458"></a>                <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">end_time</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-459" name="__codelineno-0-459"></a>                    <span class="c1"># there&#39;s an active run</span>
+<a id="__codelineno-0-460" name="__codelineno-0-460"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found an active run! id: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-461" name="__codelineno-0-461"></a>                    <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">run_id</span>
+<a id="__codelineno-0-462" name="__codelineno-0-462"></a>
+<a id="__codelineno-0-463" name="__codelineno-0-463"></a>        <span class="k">if</span> <span class="p">(</span>
+<a id="__codelineno-0-464" name="__codelineno-0-464"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<a id="__codelineno-0-465" name="__codelineno-0-465"></a>            <span class="ow">and</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span>
+<a id="__codelineno-0-466" name="__codelineno-0-466"></a>        <span class="p">):</span>
+<a id="__codelineno-0-467" name="__codelineno-0-467"></a>            <span class="k">raise</span> <span class="n">SLASensorTimeoutException</span><span class="p">(</span>
+<a id="__codelineno-0-468" name="__codelineno-0-468"></a>                <span class="sa">f</span><span class="s2">&quot;No running instances of dependency workflow found. The job has timed out.&quot;</span>
+<a id="__codelineno-0-469" name="__codelineno-0-469"></a>            <span class="p">)</span>
+<a id="__codelineno-0-470" name="__codelineno-0-470"></a>
+<a id="__codelineno-0-471" name="__codelineno-0-471"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-472" name="__codelineno-0-472"></a>            <span class="sa">f</span><span class="s2">&quot;No running instance of dependency workflow. Sleeping for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">poke_interval</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-473" name="__codelineno-0-473"></a>        <span class="p">)</span>
+<a id="__codelineno-0-474" name="__codelineno-0-474"></a>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poke_interval</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.monitor" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">monitor</span><span class="p">()</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.monitor" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Monitors the current workflow, specifically a monitored task to use as an indicator for meeting SLA</p>
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-476">476</a></span>
+<span class="normal"><a href="#__codelineno-0-477">477</a></span>
+<span class="normal"><a href="#__codelineno-0-478">478</a></span>
+<span class="normal"><a href="#__codelineno-0-479">479</a></span>
+<span class="normal"><a href="#__codelineno-0-480">480</a></span>
+<span class="normal"><a href="#__codelineno-0-481">481</a></span>
+<span class="normal"><a href="#__codelineno-0-482">482</a></span>
+<span class="normal"><a href="#__codelineno-0-483">483</a></span>
+<span class="normal"><a href="#__codelineno-0-484">484</a></span>
+<span class="normal"><a href="#__codelineno-0-485">485</a></span>
+<span class="normal"><a href="#__codelineno-0-486">486</a></span>
+<span class="normal"><a href="#__codelineno-0-487">487</a></span>
+<span class="normal"><a href="#__codelineno-0-488">488</a></span>
+<span class="normal"><a href="#__codelineno-0-489">489</a></span>
+<span class="normal"><a href="#__codelineno-0-490">490</a></span>
+<span class="normal"><a href="#__codelineno-0-491">491</a></span>
+<span class="normal"><a href="#__codelineno-0-492">492</a></span>
+<span class="normal"><a href="#__codelineno-0-493">493</a></span>
+<span class="normal"><a href="#__codelineno-0-494">494</a></span>
+<span class="normal"><a href="#__codelineno-0-495">495</a></span>
+<span class="normal"><a href="#__codelineno-0-496">496</a></span>
+<span class="normal"><a href="#__codelineno-0-497">497</a></span>
+<span class="normal"><a href="#__codelineno-0-498">498</a></span>
+<span class="normal"><a href="#__codelineno-0-499">499</a></span>
+<span class="normal"><a href="#__codelineno-0-500">500</a></span>
+<span class="normal"><a href="#__codelineno-0-501">501</a></span>
+<span class="normal"><a href="#__codelineno-0-502">502</a></span>
+<span class="normal"><a href="#__codelineno-0-503">503</a></span>
+<span class="normal"><a href="#__codelineno-0-504">504</a></span>
+<span class="normal"><a href="#__codelineno-0-505">505</a></span>
+<span class="normal"><a href="#__codelineno-0-506">506</a></span>
+<span class="normal"><a href="#__codelineno-0-507">507</a></span>
+<span class="normal"><a href="#__codelineno-0-508">508</a></span>
+<span class="normal"><a href="#__codelineno-0-509">509</a></span>
+<span class="normal"><a href="#__codelineno-0-510">510</a></span>
+<span class="normal"><a href="#__codelineno-0-511">511</a></span>
+<span class="normal"><a href="#__codelineno-0-512">512</a></span>
+<span class="normal"><a href="#__codelineno-0-513">513</a></span>
+<span class="normal"><a href="#__codelineno-0-514">514</a></span>
+<span class="normal"><a href="#__codelineno-0-515">515</a></span>
+<span class="normal"><a href="#__codelineno-0-516">516</a></span>
+<span class="normal"><a href="#__codelineno-0-517">517</a></span>
+<span class="normal"><a href="#__codelineno-0-518">518</a></span>
+<span class="normal"><a href="#__codelineno-0-519">519</a></span>
+<span class="normal"><a href="#__codelineno-0-520">520</a></span>
+<span class="normal"><a href="#__codelineno-0-521">521</a></span>
+<span class="normal"><a href="#__codelineno-0-522">522</a></span>
+<span class="normal"><a href="#__codelineno-0-523">523</a></span>
+<span class="normal"><a href="#__codelineno-0-524">524</a></span>
+<span class="normal"><a href="#__codelineno-0-525">525</a></span>
+<span class="normal"><a href="#__codelineno-0-526">526</a></span>
+<span class="normal"><a href="#__codelineno-0-527">527</a></span>
+<span class="normal"><a href="#__codelineno-0-528">528</a></span>
+<span class="normal"><a href="#__codelineno-0-529">529</a></span>
+<span class="normal"><a href="#__codelineno-0-530">530</a></span>
+<span class="normal"><a href="#__codelineno-0-531">531</a></span>
+<span class="normal"><a href="#__codelineno-0-532">532</a></span>
+<span class="normal"><a href="#__codelineno-0-533">533</a></span>
+<span class="normal"><a href="#__codelineno-0-534">534</a></span>
+<span class="normal"><a href="#__codelineno-0-535">535</a></span>
+<span class="normal"><a href="#__codelineno-0-536">536</a></span>
+<span class="normal"><a href="#__codelineno-0-537">537</a></span>
+<span class="normal"><a href="#__codelineno-0-538">538</a></span>
+<span class="normal"><a href="#__codelineno-0-539">539</a></span>
+<span class="normal"><a href="#__codelineno-0-540">540</a></span>
+<span class="normal"><a href="#__codelineno-0-541">541</a></span>
+<span class="normal"><a href="#__codelineno-0-542">542</a></span>
+<span class="normal"><a href="#__codelineno-0-543">543</a></span>
+<span class="normal"><a href="#__codelineno-0-544">544</a></span>
+<span class="normal"><a href="#__codelineno-0-545">545</a></span>
+<span class="normal"><a href="#__codelineno-0-546">546</a></span>
+<span class="normal"><a href="#__codelineno-0-547">547</a></span>
+<span class="normal"><a href="#__codelineno-0-548">548</a></span>
+<span class="normal"><a href="#__codelineno-0-549">549</a></span>
+<span class="normal"><a href="#__codelineno-0-550">550</a></span>
+<span class="normal"><a href="#__codelineno-0-551">551</a></span>
+<span class="normal"><a href="#__codelineno-0-552">552</a></span>
+<span class="normal"><a href="#__codelineno-0-553">553</a></span>
+<span class="normal"><a href="#__codelineno-0-554">554</a></span>
+<span class="normal"><a href="#__codelineno-0-555">555</a></span>
+<span class="normal"><a href="#__codelineno-0-556">556</a></span>
+<span class="normal"><a href="#__codelineno-0-557">557</a></span>
+<span class="normal"><a href="#__codelineno-0-558">558</a></span>
+<span class="normal"><a href="#__codelineno-0-559">559</a></span>
+<span class="normal"><a href="#__codelineno-0-560">560</a></span>
+<span class="normal"><a href="#__codelineno-0-561">561</a></span>
+<span class="normal"><a href="#__codelineno-0-562">562</a></span>
+<span class="normal"><a href="#__codelineno-0-563">563</a></span>
+<span class="normal"><a href="#__codelineno-0-564">564</a></span>
+<span class="normal"><a href="#__codelineno-0-565">565</a></span>
+<span class="normal"><a href="#__codelineno-0-566">566</a></span>
+<span class="normal"><a href="#__codelineno-0-567">567</a></span>
+<span class="normal"><a href="#__codelineno-0-568">568</a></span>
+<span class="normal"><a href="#__codelineno-0-569">569</a></span>
+<span class="normal"><a href="#__codelineno-0-570">570</a></span>
+<span class="normal"><a href="#__codelineno-0-571">571</a></span>
+<span class="normal"><a href="#__codelineno-0-572">572</a></span>
+<span class="normal"><a href="#__codelineno-0-573">573</a></span>
+<span class="normal"><a href="#__codelineno-0-574">574</a></span>
+<span class="normal"><a href="#__codelineno-0-575">575</a></span>
+<span class="normal"><a href="#__codelineno-0-576">576</a></span>
+<span class="normal"><a href="#__codelineno-0-577">577</a></span>
+<span class="normal"><a href="#__codelineno-0-578">578</a></span>
+<span class="normal"><a href="#__codelineno-0-579">579</a></span>
+<span class="normal"><a href="#__codelineno-0-580">580</a></span>
+<span class="normal"><a href="#__codelineno-0-581">581</a></span>
+<span class="normal"><a href="#__codelineno-0-582">582</a></span>
+<span class="normal"><a href="#__codelineno-0-583">583</a></span>
+<span class="normal"><a href="#__codelineno-0-584">584</a></span>
+<span class="normal"><a href="#__codelineno-0-585">585</a></span>
+<span class="normal"><a href="#__codelineno-0-586">586</a></span>
+<span class="normal"><a href="#__codelineno-0-587">587</a></span>
+<span class="normal"><a href="#__codelineno-0-588">588</a></span>
+<span class="normal"><a href="#__codelineno-0-589">589</a></span>
+<span class="normal"><a href="#__codelineno-0-590">590</a></span>
+<span class="normal"><a href="#__codelineno-0-591">591</a></span>
+<span class="normal"><a href="#__codelineno-0-592">592</a></span>
+<span class="normal"><a href="#__codelineno-0-593">593</a></span>
+<span class="normal"><a href="#__codelineno-0-594">594</a></span>
+<span class="normal"><a href="#__codelineno-0-595">595</a></span>
+<span class="normal"><a href="#__codelineno-0-596">596</a></span>
+<span class="normal"><a href="#__codelineno-0-597">597</a></span>
+<span class="normal"><a href="#__codelineno-0-598">598</a></span>
+<span class="normal"><a href="#__codelineno-0-599">599</a></span>
+<span class="normal"><a href="#__codelineno-0-600">600</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-476" name="__codelineno-0-476"></a><span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-0-477" name="__codelineno-0-477"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-478" name="__codelineno-0-478"></a><span class="sd">    Monitors the current workflow, specifically a monitored task to use as an indicator for meeting SLA</span>
+<a id="__codelineno-0-479" name="__codelineno-0-479"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-480" name="__codelineno-0-480"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-481" name="__codelineno-0-481"></a>        <span class="n">dedent</span><span class="p">(</span>
+<a id="__codelineno-0-482" name="__codelineno-0-482"></a>            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-483" name="__codelineno-0-483"></a><span class="s2">                  ********************</span>
+<a id="__codelineno-0-484" name="__codelineno-0-484"></a><span class="s2">                  Starting SLA Sensor</span>
+<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="s2">                  Job Name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_name</span><span class="si">}</span>
+<a id="__codelineno-0-486" name="__codelineno-0-486"></a><span class="s2">                  Run ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span>
+<a id="__codelineno-0-487" name="__codelineno-0-487"></a><span class="s2">                  Run Date: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_date</span><span class="si">}</span>
+<a id="__codelineno-0-488" name="__codelineno-0-488"></a><span class="s2">                  SLA Time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_sla_timestamp_utc</span><span class="si">}</span><span class="s2"> UTC</span>
+<a id="__codelineno-0-489" name="__codelineno-0-489"></a><span class="s2">                  ********************</span>
+<a id="__codelineno-0-490" name="__codelineno-0-490"></a><span class="s2">                  &quot;&quot;&quot;</span>
+<a id="__codelineno-0-491" name="__codelineno-0-491"></a>        <span class="p">)</span>
+<a id="__codelineno-0-492" name="__codelineno-0-492"></a>    <span class="p">)</span>
+<a id="__codelineno-0-493" name="__codelineno-0-493"></a>
+<a id="__codelineno-0-494" name="__codelineno-0-494"></a>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<a id="__codelineno-0-495" name="__codelineno-0-495"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-496" name="__codelineno-0-496"></a><span class="sd">        Poke the workspace object for status check</span>
+<a id="__codelineno-0-497" name="__codelineno-0-497"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-498" name="__codelineno-0-498"></a>        <span class="n">current_run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workspace_obj</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+<a id="__codelineno-0-499" name="__codelineno-0-499"></a>
+<a id="__codelineno-0-500" name="__codelineno-0-500"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-501" name="__codelineno-0-501"></a><span class="sd">        Check SLA first in event workflow started late. Notification should be sent ASAP.</span>
+<a id="__codelineno-0-502" name="__codelineno-0-502"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-503" name="__codelineno-0-503"></a>        <span class="n">current_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_timestamp</span><span class="p">()</span>
+<a id="__codelineno-0-504" name="__codelineno-0-504"></a>
+<a id="__codelineno-0-505" name="__codelineno-0-505"></a>        <span class="k">if</span> <span class="p">(</span>
+<a id="__codelineno-0-506" name="__codelineno-0-506"></a>            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sla_missed</span>
+<a id="__codelineno-0-507" name="__codelineno-0-507"></a>            <span class="ow">and</span> <span class="n">current_timestamp</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_sla_timestamp_utc</span>
+<a id="__codelineno-0-508" name="__codelineno-0-508"></a>        <span class="p">):</span>
+<a id="__codelineno-0-509" name="__codelineno-0-509"></a>            <span class="c1"># get running tasks, ignoring the sla sensor tasks</span>
+<a id="__codelineno-0-510" name="__codelineno-0-510"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">running_tasks</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-0-511" name="__codelineno-0-511"></a>                <span class="n">t</span><span class="o">.</span><span class="n">task_key</span>
+<a id="__codelineno-0-512" name="__codelineno-0-512"></a>                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">current_run</span><span class="o">.</span><span class="n">tasks</span>
+<a id="__codelineno-0-513" name="__codelineno-0-513"></a>                <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">life_cycle_state</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;RUNNING&quot;</span>
+<a id="__codelineno-0-514" name="__codelineno-0-514"></a>                <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">task_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sla_sensor_task_names</span>
+<a id="__codelineno-0-515" name="__codelineno-0-515"></a>            <span class="p">]</span>
+<a id="__codelineno-0-516" name="__codelineno-0-516"></a>
+<a id="__codelineno-0-517" name="__codelineno-0-517"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SLA HAS BEEN MISSED. SEND NOTIFICATION.&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-518" name="__codelineno-0-518"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RUNNING TASKS: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running_tasks</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-519" name="__codelineno-0-519"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">sla_missed</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-520" name="__codelineno-0-520"></a>
+<a id="__codelineno-0-521" name="__codelineno-0-521"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="p">:</span>
+<a id="__codelineno-0-522" name="__codelineno-0-522"></a>                <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-523" name="__codelineno-0-523"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-524" name="__codelineno-0-524"></a>                        <span class="sa">f</span><span class="s2">&quot;Attemtping to send email notification to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alert_email_list</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-525" name="__codelineno-0-525"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-526" name="__codelineno-0-526"></a>                    <span class="n">email_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">construct_email</span><span class="p">(</span>
+<a id="__codelineno-0-527" name="__codelineno-0-527"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+<a id="__codelineno-0-528" name="__codelineno-0-528"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">data_product</span><span class="p">,</span>
+<a id="__codelineno-0-529" name="__codelineno-0-529"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_name</span><span class="p">,</span>
+<a id="__codelineno-0-530" name="__codelineno-0-530"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">run_date</span><span class="p">,</span>
+<a id="__codelineno-0-531" name="__codelineno-0-531"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">display_start_timestamp</span><span class="p">,</span>
+<a id="__codelineno-0-532" name="__codelineno-0-532"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">monitored_task_name</span><span class="p">,</span>
+<a id="__codelineno-0-533" name="__codelineno-0-533"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">expected_sla_timestamp_utc</span><span class="p">,</span>
+<a id="__codelineno-0-534" name="__codelineno-0-534"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">custom_description</span><span class="p">,</span>
+<a id="__codelineno-0-535" name="__codelineno-0-535"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">running_tasks</span><span class="p">,</span>
+<a id="__codelineno-0-536" name="__codelineno-0-536"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-537" name="__codelineno-0-537"></a>
+<a id="__codelineno-0-538" name="__codelineno-0-538"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">send_email_alert</span><span class="p">(</span><span class="n">email_content</span><span class="p">)</span>
+<a id="__codelineno-0-539" name="__codelineno-0-539"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Email sent successfully&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-540" name="__codelineno-0-540"></a>                <span class="k">except</span> <span class="n">SLASensorException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-541" name="__codelineno-0-541"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-542" name="__codelineno-0-542"></a>                        <span class="sa">f</span><span class="s2">&quot;Problem sending notification email: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">Review your email parameters: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">email_params</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-543" name="__codelineno-0-543"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-544" name="__codelineno-0-544"></a>
+<a id="__codelineno-0-545" name="__codelineno-0-545"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slack_webhook_url</span><span class="p">:</span>
+<a id="__codelineno-0-546" name="__codelineno-0-546"></a>                <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-547" name="__codelineno-0-547"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Attempting to send slack notification&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-548" name="__codelineno-0-548"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">send_slack_message</span><span class="p">(</span>
+<a id="__codelineno-0-549" name="__codelineno-0-549"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+<a id="__codelineno-0-550" name="__codelineno-0-550"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">data_product</span><span class="p">,</span>
+<a id="__codelineno-0-551" name="__codelineno-0-551"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_job_name</span><span class="p">,</span>
+<a id="__codelineno-0-552" name="__codelineno-0-552"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">run_date</span><span class="p">,</span>
+<a id="__codelineno-0-553" name="__codelineno-0-553"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">display_start_timestamp</span><span class="p">,</span>
+<a id="__codelineno-0-554" name="__codelineno-0-554"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">monitored_task_name</span><span class="p">,</span>
+<a id="__codelineno-0-555" name="__codelineno-0-555"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">expected_sla_timestamp_utc</span><span class="p">,</span>
+<a id="__codelineno-0-556" name="__codelineno-0-556"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">custom_description</span><span class="p">,</span>
+<a id="__codelineno-0-557" name="__codelineno-0-557"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">running_tasks</span><span class="p">,</span>
+<a id="__codelineno-0-558" name="__codelineno-0-558"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-559" name="__codelineno-0-559"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Slack message sent successfully&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-560" name="__codelineno-0-560"></a>                <span class="k">except</span> <span class="n">SLASensorException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-561" name="__codelineno-0-561"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-562" name="__codelineno-0-562"></a>                        <span class="sa">f</span><span class="s2">&quot;Problem sending slack message: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">Check your slack configuration for webhook: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slack_webhook_url</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-563" name="__codelineno-0-563"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-564" name="__codelineno-0-564"></a>
+<a id="__codelineno-0-565" name="__codelineno-0-565"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sla_missed</span><span class="p">:</span>
+<a id="__codelineno-0-566" name="__codelineno-0-566"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;SLA Alert has fired. Finishing task.&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-567" name="__codelineno-0-567"></a>            <span class="k">return</span> <span class="s2">&quot;SLA Missed&quot;</span>
+<a id="__codelineno-0-568" name="__codelineno-0-568"></a>
+<a id="__codelineno-0-569" name="__codelineno-0-569"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-570" name="__codelineno-0-570"></a><span class="sd">        SLA alert has not fired. Check for task completion</span>
+<a id="__codelineno-0-571" name="__codelineno-0-571"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-572" name="__codelineno-0-572"></a>        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">current_run</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
+<a id="__codelineno-0-573" name="__codelineno-0-573"></a>            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">task_key</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitored_task_name</span><span class="p">:</span>
+<a id="__codelineno-0-574" name="__codelineno-0-574"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found target task: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">monitored_task_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-575" name="__codelineno-0-575"></a>                <span class="n">task_state</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">result_state</span>
+<a id="__codelineno-0-576" name="__codelineno-0-576"></a>                <span class="n">task_life_cycle_state</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">life_cycle_state</span>
+<a id="__codelineno-0-577" name="__codelineno-0-577"></a>
+<a id="__codelineno-0-578" name="__codelineno-0-578"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-579" name="__codelineno-0-579"></a>                    <span class="sa">f</span><span class="s2">&quot;Current life cycle state: </span><span class="si">{</span><span class="n">task_life_cycle_state</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-580" name="__codelineno-0-580"></a>                <span class="p">)</span>
+<a id="__codelineno-0-581" name="__codelineno-0-581"></a>
+<a id="__codelineno-0-582" name="__codelineno-0-582"></a>                <span class="k">if</span> <span class="n">task_state</span><span class="p">:</span>
+<a id="__codelineno-0-583" name="__codelineno-0-583"></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target task is in a terminated state!&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-584" name="__codelineno-0-584"></a>                    <span class="k">if</span> <span class="n">task_state</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;SUCCESS&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-585" name="__codelineno-0-585"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-586" name="__codelineno-0-586"></a>                            <span class="sa">f</span><span class="s2">&quot;Monitored task </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">monitored_task_name</span><span class="si">}</span><span class="s2"> for SLA sensor found in </span><span class="si">{</span><span class="n">task_state</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> state</span><span class="se">\n</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-587" name="__codelineno-0-587"></a>                            <span class="sa">f</span><span class="s2">&quot;Workflow has completed at </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span><span class="si">}</span><span class="s2"> UTC&quot;</span>
+<a id="__codelineno-0-588" name="__codelineno-0-588"></a>                        <span class="p">)</span>
+<a id="__codelineno-0-589" name="__codelineno-0-589"></a>                        <span class="k">return</span> <span class="s2">&quot;SLA Missed&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sla_missed</span> <span class="k">else</span> <span class="s2">&quot;SLA Met&quot;</span>
+<a id="__codelineno-0-590" name="__codelineno-0-590"></a>                    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-591" name="__codelineno-0-591"></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<a id="__codelineno-0-592" name="__codelineno-0-592"></a>                            <span class="sa">f</span><span class="s2">&quot;Monitored task </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">monitored_task_name</span><span class="si">}</span><span class="s2"> for SLA sensor found in </span><span class="si">{</span><span class="n">task_state</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> state</span><span class="se">\n</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-593" name="__codelineno-0-593"></a>                            <span class="sa">f</span><span class="s2">&quot;Workflow is no longer running as of </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span><span class="si">}</span><span class="s2"> UTC&quot;</span>
+<a id="__codelineno-0-594" name="__codelineno-0-594"></a>                        <span class="p">)</span>
+<a id="__codelineno-0-595" name="__codelineno-0-595"></a>                        <span class="k">return</span> <span class="s2">&quot;SLA Missed&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sla_missed</span> <span class="k">else</span> <span class="s2">&quot;SLA Met&quot;</span>
+<a id="__codelineno-0-596" name="__codelineno-0-596"></a>
+<a id="__codelineno-0-597" name="__codelineno-0-597"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Monitored task is still running...&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-598" name="__codelineno-0-598"></a>
+<a id="__codelineno-0-599" name="__codelineno-0-599"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sleeping for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">poke_interval</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-600" name="__codelineno-0-600"></a>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poke_interval</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.parse_tagged_sla" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">parse_tagged_sla</span><span class="p">(</span><span class="n">sla_tag_key</span><span class="p">)</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.parse_tagged_sla" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Accepts a tag key to retrieve from job settings.
+Assumes it ends with a 5-place quartz cron expression and extracts the time only (first 2 positions)
+Must be a fixed time.
+Returns a datetime object using the extracted time and the current date.</p>
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-264">264</a></span>
+<span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span>
+<span class="normal"><a href="#__codelineno-0-267">267</a></span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span>
+<span class="normal"><a href="#__codelineno-0-269">269</a></span>
+<span class="normal"><a href="#__codelineno-0-270">270</a></span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span>
+<span class="normal"><a href="#__codelineno-0-272">272</a></span>
+<span class="normal"><a href="#__codelineno-0-273">273</a></span>
+<span class="normal"><a href="#__codelineno-0-274">274</a></span>
+<span class="normal"><a href="#__codelineno-0-275">275</a></span>
+<span class="normal"><a href="#__codelineno-0-276">276</a></span>
+<span class="normal"><a href="#__codelineno-0-277">277</a></span>
+<span class="normal"><a href="#__codelineno-0-278">278</a></span>
+<span class="normal"><a href="#__codelineno-0-279">279</a></span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span>
+<span class="normal"><a href="#__codelineno-0-281">281</a></span>
+<span class="normal"><a href="#__codelineno-0-282">282</a></span>
+<span class="normal"><a href="#__codelineno-0-283">283</a></span>
+<span class="normal"><a href="#__codelineno-0-284">284</a></span>
+<span class="normal"><a href="#__codelineno-0-285">285</a></span>
+<span class="normal"><a href="#__codelineno-0-286">286</a></span>
+<span class="normal"><a href="#__codelineno-0-287">287</a></span>
+<span class="normal"><a href="#__codelineno-0-288">288</a></span>
+<span class="normal"><a href="#__codelineno-0-289">289</a></span>
+<span class="normal"><a href="#__codelineno-0-290">290</a></span>
+<span class="normal"><a href="#__codelineno-0-291">291</a></span>
+<span class="normal"><a href="#__codelineno-0-292">292</a></span>
+<span class="normal"><a href="#__codelineno-0-293">293</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-264" name="__codelineno-0-264"></a><span class="k">def</span> <span class="nf">parse_tagged_sla</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sla_tag_key</span><span class="p">):</span>
+<a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-266" name="__codelineno-0-266"></a><span class="sd">    Accepts a tag key to retrieve from job settings.</span>
+<a id="__codelineno-0-267" name="__codelineno-0-267"></a><span class="sd">    Assumes it ends with a 5-place quartz cron expression and extracts the time only (first 2 positions)</span>
+<a id="__codelineno-0-268" name="__codelineno-0-268"></a><span class="sd">    Must be a fixed time.</span>
+<a id="__codelineno-0-269" name="__codelineno-0-269"></a><span class="sd">    Returns a datetime object using the extracted time and the current date.</span>
+<a id="__codelineno-0-270" name="__codelineno-0-270"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-271" name="__codelineno-0-271"></a>    <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_job_configuration</span><span class="p">()</span>
+<a id="__codelineno-0-272" name="__codelineno-0-272"></a>
+<a id="__codelineno-0-273" name="__codelineno-0-273"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-274" name="__codelineno-0-274"></a>        <span class="n">tag_value</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">sla_tag_key</span><span class="p">]</span>
+<a id="__codelineno-0-275" name="__codelineno-0-275"></a>    <span class="k">except</span><span class="p">:</span>
+<a id="__codelineno-0-276" name="__codelineno-0-276"></a>        <span class="k">raise</span> <span class="n">SLASensorException</span><span class="p">(</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a>            <span class="sa">f</span><span class="s2">&quot;Workflow tag </span><span class="si">{</span><span class="n">sla_tag_key</span><span class="si">}</span><span class="s2"> returns None. Cannot create an SLA timestamp. Please ensure this tag key has been added to your workflow&quot;</span>
+<a id="__codelineno-0-278" name="__codelineno-0-278"></a>        <span class="p">)</span>
+<a id="__codelineno-0-279" name="__codelineno-0-279"></a>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a>    <span class="n">cron_expression</span> <span class="o">=</span> <span class="n">tag_value</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span>
+<a id="__codelineno-0-281" name="__codelineno-0-281"></a>        <span class="o">-</span><span class="mi">5</span><span class="p">:</span>
+<a id="__codelineno-0-282" name="__codelineno-0-282"></a>    <span class="p">]</span>  <span class="c1"># remove any inadvertent right side whitespace</span>
+<a id="__codelineno-0-283" name="__codelineno-0-283"></a>
+<a id="__codelineno-0-284" name="__codelineno-0-284"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-285" name="__codelineno-0-285"></a>        <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cron_expression</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-0-286" name="__codelineno-0-286"></a>        <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cron_expression</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="__codelineno-0-287" name="__codelineno-0-287"></a>        <span class="n">sla_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+<a id="__codelineno-0-288" name="__codelineno-0-288"></a>            <span class="n">hour</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span>
+<a id="__codelineno-0-289" name="__codelineno-0-289"></a>        <span class="p">)</span>
+<a id="__codelineno-0-290" name="__codelineno-0-290"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SLA read from </span><span class="si">{</span><span class="n">sla_tag_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">sla_datetime</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-291" name="__codelineno-0-291"></a>        <span class="k">return</span> <span class="n">sla_datetime</span>
+<a id="__codelineno-0-292" name="__codelineno-0-292"></a>    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+<a id="__codelineno-0-293" name="__codelineno-0-293"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error converting SLA time fields to datetime object: </span><span class="si">{</span><span class="n">ve</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.send_email_alert" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">send_email_alert</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.send_email_alert" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Sends constructed email</p>
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-406">406</a></span>
+<span class="normal"><a href="#__codelineno-0-407">407</a></span>
+<span class="normal"><a href="#__codelineno-0-408">408</a></span>
+<span class="normal"><a href="#__codelineno-0-409">409</a></span>
+<span class="normal"><a href="#__codelineno-0-410">410</a></span>
+<span class="normal"><a href="#__codelineno-0-411">411</a></span>
+<span class="normal"><a href="#__codelineno-0-412">412</a></span>
+<span class="normal"><a href="#__codelineno-0-413">413</a></span>
+<span class="normal"><a href="#__codelineno-0-414">414</a></span>
+<span class="normal"><a href="#__codelineno-0-415">415</a></span>
+<span class="normal"><a href="#__codelineno-0-416">416</a></span>
+<span class="normal"><a href="#__codelineno-0-417">417</a></span>
+<span class="normal"><a href="#__codelineno-0-418">418</a></span>
+<span class="normal"><a href="#__codelineno-0-419">419</a></span>
+<span class="normal"><a href="#__codelineno-0-420">420</a></span>
+<span class="normal"><a href="#__codelineno-0-421">421</a></span>
+<span class="normal"><a href="#__codelineno-0-422">422</a></span>
+<span class="normal"><a href="#__codelineno-0-423">423</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-406" name="__codelineno-0-406"></a><span class="k">def</span> <span class="nf">send_email_alert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+<a id="__codelineno-0-407" name="__codelineno-0-407"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-408" name="__codelineno-0-408"></a><span class="sd">    Sends constructed email</span>
+<a id="__codelineno-0-409" name="__codelineno-0-409"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-410" name="__codelineno-0-410"></a>    <span class="n">email</span> <span class="o">=</span> <span class="n">MIMEMultipart</span><span class="p">(</span><span class="s2">&quot;alternative&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-411" name="__codelineno-0-411"></a>    <span class="n">email</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;subject&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-412" name="__codelineno-0-412"></a>    <span class="n">email</span><span class="p">[</span><span class="s2">&quot;From&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender</span>
+<a id="__codelineno-0-413" name="__codelineno-0-413"></a>    <span class="n">email</span><span class="p">[</span><span class="s2">&quot;To&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alert_email_list</span><span class="p">)</span>
+<a id="__codelineno-0-414" name="__codelineno-0-414"></a>    <span class="n">email</span><span class="p">[</span><span class="s2">&quot;Cc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="p">)</span>
+<a id="__codelineno-0-415" name="__codelineno-0-415"></a>    <span class="n">email</span><span class="p">[</span><span class="s2">&quot;X-Priority&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_priority</span>
+<a id="__codelineno-0-416" name="__codelineno-0-416"></a>
+<a id="__codelineno-0-417" name="__codelineno-0-417"></a>    <span class="n">receiver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alert_email_list</span>
+<a id="__codelineno-0-418" name="__codelineno-0-418"></a>    <span class="n">email_body</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-419" name="__codelineno-0-419"></a>    <span class="n">html</span> <span class="o">=</span> <span class="n">MIMEText</span><span class="p">(</span><span class="n">email_body</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-420" name="__codelineno-0-420"></a>    <span class="n">email</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+<a id="__codelineno-0-421" name="__codelineno-0-421"></a>    <span class="n">smtp_obj</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">email_host</span><span class="p">),</span> <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">email_port</span><span class="p">)</span>
+<a id="__codelineno-0-422" name="__codelineno-0-422"></a>    <span class="n">smtp_obj</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">email</span><span class="o">.</span><span class="n">as_string</span><span class="p">())</span>
+<a id="__codelineno-0-423" name="__codelineno-0-423"></a>    <span class="n">smtp_obj</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="brickflow_plugins.databricks.sla_sensor.SLASensor.send_slack_message" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">send_slack_message</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">data_product</span><span class="p">,</span> <span class="n">dep_job_name</span><span class="p">,</span> <span class="n">run_date</span><span class="p">,</span> <span class="n">start_timestamp</span><span class="p">,</span> <span class="n">monitored_task_name</span><span class="p">,</span> <span class="n">expected_sla_timestamp_utc</span><span class="p">,</span> <span class="n">custom_description</span><span class="p">,</span> <span class="n">running_tasks</span><span class="p">)</span></code>
+
+<a href="#brickflow_plugins.databricks.sla_sensor.SLASensor.send_slack_message" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Sends Slack message to provided webhook for SLA Alert</p>
+
+          <details class="quote">
+            <summary>Source code in <code>brickflow_plugins/databricks/sla_sensor.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-333">333</a></span>
+<span class="normal"><a href="#__codelineno-0-334">334</a></span>
+<span class="normal"><a href="#__codelineno-0-335">335</a></span>
+<span class="normal"><a href="#__codelineno-0-336">336</a></span>
+<span class="normal"><a href="#__codelineno-0-337">337</a></span>
+<span class="normal"><a href="#__codelineno-0-338">338</a></span>
+<span class="normal"><a href="#__codelineno-0-339">339</a></span>
+<span class="normal"><a href="#__codelineno-0-340">340</a></span>
+<span class="normal"><a href="#__codelineno-0-341">341</a></span>
+<span class="normal"><a href="#__codelineno-0-342">342</a></span>
+<span class="normal"><a href="#__codelineno-0-343">343</a></span>
+<span class="normal"><a href="#__codelineno-0-344">344</a></span>
+<span class="normal"><a href="#__codelineno-0-345">345</a></span>
+<span class="normal"><a href="#__codelineno-0-346">346</a></span>
+<span class="normal"><a href="#__codelineno-0-347">347</a></span>
+<span class="normal"><a href="#__codelineno-0-348">348</a></span>
+<span class="normal"><a href="#__codelineno-0-349">349</a></span>
+<span class="normal"><a href="#__codelineno-0-350">350</a></span>
+<span class="normal"><a href="#__codelineno-0-351">351</a></span>
+<span class="normal"><a href="#__codelineno-0-352">352</a></span>
+<span class="normal"><a href="#__codelineno-0-353">353</a></span>
+<span class="normal"><a href="#__codelineno-0-354">354</a></span>
+<span class="normal"><a href="#__codelineno-0-355">355</a></span>
+<span class="normal"><a href="#__codelineno-0-356">356</a></span>
+<span class="normal"><a href="#__codelineno-0-357">357</a></span>
+<span class="normal"><a href="#__codelineno-0-358">358</a></span>
+<span class="normal"><a href="#__codelineno-0-359">359</a></span>
+<span class="normal"><a href="#__codelineno-0-360">360</a></span>
+<span class="normal"><a href="#__codelineno-0-361">361</a></span>
+<span class="normal"><a href="#__codelineno-0-362">362</a></span>
+<span class="normal"><a href="#__codelineno-0-363">363</a></span>
+<span class="normal"><a href="#__codelineno-0-364">364</a></span>
+<span class="normal"><a href="#__codelineno-0-365">365</a></span>
+<span class="normal"><a href="#__codelineno-0-366">366</a></span>
+<span class="normal"><a href="#__codelineno-0-367">367</a></span>
+<span class="normal"><a href="#__codelineno-0-368">368</a></span>
+<span class="normal"><a href="#__codelineno-0-369">369</a></span>
+<span class="normal"><a href="#__codelineno-0-370">370</a></span>
+<span class="normal"><a href="#__codelineno-0-371">371</a></span>
+<span class="normal"><a href="#__codelineno-0-372">372</a></span>
+<span class="normal"><a href="#__codelineno-0-373">373</a></span>
+<span class="normal"><a href="#__codelineno-0-374">374</a></span>
+<span class="normal"><a href="#__codelineno-0-375">375</a></span>
+<span class="normal"><a href="#__codelineno-0-376">376</a></span>
+<span class="normal"><a href="#__codelineno-0-377">377</a></span>
+<span class="normal"><a href="#__codelineno-0-378">378</a></span>
+<span class="normal"><a href="#__codelineno-0-379">379</a></span>
+<span class="normal"><a href="#__codelineno-0-380">380</a></span>
+<span class="normal"><a href="#__codelineno-0-381">381</a></span>
+<span class="normal"><a href="#__codelineno-0-382">382</a></span>
+<span class="normal"><a href="#__codelineno-0-383">383</a></span>
+<span class="normal"><a href="#__codelineno-0-384">384</a></span>
+<span class="normal"><a href="#__codelineno-0-385">385</a></span>
+<span class="normal"><a href="#__codelineno-0-386">386</a></span>
+<span class="normal"><a href="#__codelineno-0-387">387</a></span>
+<span class="normal"><a href="#__codelineno-0-388">388</a></span>
+<span class="normal"><a href="#__codelineno-0-389">389</a></span>
+<span class="normal"><a href="#__codelineno-0-390">390</a></span>
+<span class="normal"><a href="#__codelineno-0-391">391</a></span>
+<span class="normal"><a href="#__codelineno-0-392">392</a></span>
+<span class="normal"><a href="#__codelineno-0-393">393</a></span>
+<span class="normal"><a href="#__codelineno-0-394">394</a></span>
+<span class="normal"><a href="#__codelineno-0-395">395</a></span>
+<span class="normal"><a href="#__codelineno-0-396">396</a></span>
+<span class="normal"><a href="#__codelineno-0-397">397</a></span>
+<span class="normal"><a href="#__codelineno-0-398">398</a></span>
+<span class="normal"><a href="#__codelineno-0-399">399</a></span>
+<span class="normal"><a href="#__codelineno-0-400">400</a></span>
+<span class="normal"><a href="#__codelineno-0-401">401</a></span>
+<span class="normal"><a href="#__codelineno-0-402">402</a></span>
+<span class="normal"><a href="#__codelineno-0-403">403</a></span>
+<span class="normal"><a href="#__codelineno-0-404">404</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-333" name="__codelineno-0-333"></a><span class="k">def</span> <span class="nf">send_slack_message</span><span class="p">(</span>
+<a id="__codelineno-0-334" name="__codelineno-0-334"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-335" name="__codelineno-0-335"></a>    <span class="n">env</span><span class="p">,</span>
+<a id="__codelineno-0-336" name="__codelineno-0-336"></a>    <span class="n">data_product</span><span class="p">,</span>
+<a id="__codelineno-0-337" name="__codelineno-0-337"></a>    <span class="n">dep_job_name</span><span class="p">,</span>
+<a id="__codelineno-0-338" name="__codelineno-0-338"></a>    <span class="n">run_date</span><span class="p">,</span>
+<a id="__codelineno-0-339" name="__codelineno-0-339"></a>    <span class="n">start_timestamp</span><span class="p">,</span>
+<a id="__codelineno-0-340" name="__codelineno-0-340"></a>    <span class="n">monitored_task_name</span><span class="p">,</span>
+<a id="__codelineno-0-341" name="__codelineno-0-341"></a>    <span class="n">expected_sla_timestamp_utc</span><span class="p">,</span>
+<a id="__codelineno-0-342" name="__codelineno-0-342"></a>    <span class="n">custom_description</span><span class="p">,</span>
+<a id="__codelineno-0-343" name="__codelineno-0-343"></a>    <span class="n">running_tasks</span><span class="p">,</span>
+<a id="__codelineno-0-344" name="__codelineno-0-344"></a><span class="p">):</span>
+<a id="__codelineno-0-345" name="__codelineno-0-345"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="sd">    Sends Slack message to provided webhook for SLA Alert</span>
+<a id="__codelineno-0-347" name="__codelineno-0-347"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-348" name="__codelineno-0-348"></a>    <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SLA Missed for </span><span class="si">{</span><span class="n">dep_job_name</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-349" name="__codelineno-0-349"></a>
+<a id="__codelineno-0-350" name="__codelineno-0-350"></a>    <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;This Databricks workflow has missed SLA for the </span><span class="si">{</span><span class="n">run_date</span><span class="si">}</span><span class="s2"> Run!</span>
+<a id="__codelineno-0-351" name="__codelineno-0-351"></a>
+<a id="__codelineno-0-352" name="__codelineno-0-352"></a><span class="s2">                ====================Details====================</span>
+<a id="__codelineno-0-353" name="__codelineno-0-353"></a><span class="s2">                Data product: </span><span class="si">{</span><span class="n">data_product</span><span class="si">}</span>
+<a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="s2">                Workflow name: </span><span class="si">{</span><span class="n">dep_job_name</span><span class="si">}</span>
+<a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="s2">                Workflow execution time: </span><span class="si">{</span><span class="n">start_timestamp</span><span class="si">}</span>
+<a id="__codelineno-0-356" name="__codelineno-0-356"></a><span class="s2">                Workflow started at: </span><span class="si">{</span><span class="n">start_timestamp</span><span class="si">}</span>
+<a id="__codelineno-0-357" name="__codelineno-0-357"></a><span class="s2">                Task name: </span><span class="si">{</span><span class="n">monitored_task_name</span><span class="si">}</span>
+<a id="__codelineno-0-358" name="__codelineno-0-358"></a><span class="s2">                Expected Workflow end timestamp: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">expected_sla_timestamp_utc</span><span class="p">)</span><span class="si">}</span>
+<a id="__codelineno-0-359" name="__codelineno-0-359"></a><span class="s2">                Additional context: </span><span class="si">{</span><span class="n">custom_description</span><span class="si">}</span>
+<a id="__codelineno-0-360" name="__codelineno-0-360"></a><span class="s2">                Running tasks: </span><span class="si">{</span><span class="n">running_tasks</span><span class="si">}</span>
+<a id="__codelineno-0-361" name="__codelineno-0-361"></a><span class="s2">                ================================================</span>
+<a id="__codelineno-0-362" name="__codelineno-0-362"></a>
+<a id="__codelineno-0-363" name="__codelineno-0-363"></a><span class="s2">                Please check your production support channels for next steps on </span><span class="si">{</span><span class="n">dep_job_name</span><span class="si">}</span><span class="s2">.</span>
+<a id="__codelineno-0-364" name="__codelineno-0-364"></a>
+<a id="__codelineno-0-365" name="__codelineno-0-365"></a><span class="s2">                This is an auto-generated message. Please do not reply.</span>
+<a id="__codelineno-0-366" name="__codelineno-0-366"></a>
+<a id="__codelineno-0-367" name="__codelineno-0-367"></a><span class="s2">                Thank you!</span>
+<a id="__codelineno-0-368" name="__codelineno-0-368"></a><span class="s2">                &quot;&quot;&quot;</span>
+<a id="__codelineno-0-369" name="__codelineno-0-369"></a>
+<a id="__codelineno-0-370" name="__codelineno-0-370"></a>    <span class="n">message</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span>
+<a id="__codelineno-0-371" name="__codelineno-0-371"></a>        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-372" name="__codelineno-0-372"></a><span class="s2">                :large_yellow_circle:   *</span><span class="si">{</span><span class="s2">&quot;WARN&quot;</span><span class="si">}</span><span class="s2">:*  </span><span class="si">{</span><span class="n">title</span><span class="si">}</span>
+<a id="__codelineno-0-373" name="__codelineno-0-373"></a><span class="s2">                *Environment:* </span><span class="si">{</span><span class="n">env</span><span class="si">}</span>
+<a id="__codelineno-0-374" name="__codelineno-0-374"></a><span class="s2">                *Application:* </span><span class="si">{</span><span class="n">data_product</span><span class="si">}</span>
+<a id="__codelineno-0-375" name="__codelineno-0-375"></a><span class="s2">                *Message:* </span><span class="si">{</span><span class="n">content</span><span class="si">}</span>
+<a id="__codelineno-0-376" name="__codelineno-0-376"></a><span class="s2">                *Timestamp:* </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="si">}</span>
+<a id="__codelineno-0-377" name="__codelineno-0-377"></a><span class="s2">            &quot;&quot;&quot;</span>
+<a id="__codelineno-0-378" name="__codelineno-0-378"></a>    <span class="p">)</span>
+<a id="__codelineno-0-379" name="__codelineno-0-379"></a>
+<a id="__codelineno-0-380" name="__codelineno-0-380"></a>    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-0-381" name="__codelineno-0-381"></a>        <span class="s2">&quot;attachments&quot;</span><span class="p">:</span> <span class="p">[</span>
+<a id="__codelineno-0-382" name="__codelineno-0-382"></a>            <span class="p">{</span>
+<a id="__codelineno-0-383" name="__codelineno-0-383"></a>                <span class="s2">&quot;blocks&quot;</span><span class="p">:</span> <span class="p">[</span>
+<a id="__codelineno-0-384" name="__codelineno-0-384"></a>                    <span class="p">{</span>
+<a id="__codelineno-0-385" name="__codelineno-0-385"></a>                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;section&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-386" name="__codelineno-0-386"></a>                        <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-0-387" name="__codelineno-0-387"></a>                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mrkdwn&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-388" name="__codelineno-0-388"></a>                            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-389" name="__codelineno-0-389"></a>                        <span class="p">},</span>
+<a id="__codelineno-0-390" name="__codelineno-0-390"></a>                        <span class="s2">&quot;expand&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-0-391" name="__codelineno-0-391"></a>                    <span class="p">}</span>
+<a id="__codelineno-0-392" name="__codelineno-0-392"></a>                <span class="p">],</span>
+<a id="__codelineno-0-393" name="__codelineno-0-393"></a>            <span class="p">}</span>
+<a id="__codelineno-0-394" name="__codelineno-0-394"></a>        <span class="p">]</span>
+<a id="__codelineno-0-395" name="__codelineno-0-395"></a>    <span class="p">}</span>
+<a id="__codelineno-0-396" name="__codelineno-0-396"></a>
+<a id="__codelineno-0-397" name="__codelineno-0-397"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+<a id="__codelineno-0-398" name="__codelineno-0-398"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">slack_webhook_url</span><span class="p">,</span>
+<a id="__codelineno-0-399" name="__codelineno-0-399"></a>        <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span>
+<a id="__codelineno-0-400" name="__codelineno-0-400"></a>        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
+<a id="__codelineno-0-401" name="__codelineno-0-401"></a>    <span class="p">)</span>
+<a id="__codelineno-0-402" name="__codelineno-0-402"></a>
+<a id="__codelineno-0-403" name="__codelineno-0-403"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-404" name="__codelineno-0-404"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Response status code: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "content.tooltips", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.expand", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c2be25ad.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1735 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Brickflow is a tool for managing and deploying scalable workflows on Databricks.">
+      
+      
+      
+        <link rel="canonical" href="https://brickflow.readthedocs.io/en/latest/v1.3.1/bundles-quickstart/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../upgrades/upgrade-pre-0-10-0-to-0-10-0/">
+      
+      <link rel="icon" href="../img/bf_logo.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.12">
+    
+    
+      
+        <title>Brickflow Projects - BrickFlow</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prerequisites" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="BrickFlow" class="md-header__button md-logo" aria-label="BrickFlow" data-md-component="logo">
+      
+  <img src="../img/bf_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            BrickFlow
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Brickflow Projects
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Nike-Inc/brickflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nike/brickflow
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        Quickstart
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../highlevel/" class="md-tabs__link">
+        Concepts
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../faq/faq/" class="md-tabs__link">
+      FAQ
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../cli/reference/" class="md-tabs__link">
+        CLI
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/project/" class="md-tabs__link">
+        Python API
+      </a>
+    </li>
+  
+
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="BrickFlow" class="md-nav__button md-logo" aria-label="BrickFlow" data-md-component="logo">
+      
+  <img src="../img/bf_logo.png" alt="logo">
+
+    </a>
+    BrickFlow
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Nike-Inc/brickflow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nike/brickflow
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          Quickstart
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Quickstart
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Brickflow Projects
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Brickflow Projects
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confirming-the-installation" class="md-nav__link">
+    Confirming the installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow-projects-setup" class="md-nav__link">
+    Brickflow Projects Setup
+  </a>
+  
+    <nav class="md-nav" aria-label="Brickflow Projects Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    Concepts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monorepo-style" class="md-nav__link">
+    Monorepo Style
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyrepo-style" class="md-nav__link">
+    Polyrepo Style
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialize-project" class="md-nav__link">
+    Initialize Project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validating-your-project" class="md-nav__link">
+    Validating your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitignore" class="md-nav__link">
+    gitignore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-your-project" class="md-nav__link">
+    Deploying your Project
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying your Project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployments-by-release-candidates-or-prs" class="md-nav__link">
+    Deployments By Release Candidates or PRs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#destroying-your-project" class="md-nav__link">
+    Destroying your project
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_2" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+          Upgrading Versions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Upgrading Versions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrades/upgrade-pre-0-10-0-to-0-10-0/" class="md-nav__link">
+        Upgrading to v0.10.x
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../highlevel/" class="md-nav__link">
+        HighLevel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflows/" class="md-nav__link">
+        Workflows
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/" class="md-nav__link">
+        Tasks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../projects/" class="md-nav__link">
+        Projects
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environment-variables/" class="md-nav__link">
+        ENV Variables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-imports-work/" class="md-nav__link">
+        Importing Modules
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          CLI
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          CLI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/reference/" class="md-nav__link">
+        Commands
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Python API
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Python API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_1" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+          Engine
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Engine
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/project/" class="md-nav__link">
+        Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/workflow/" class="md-nav__link">
+        Workflow
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/compute/" class="md-nav__link">
+        Compute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/task/" class="md-nav__link">
+        Task
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/context/" class="md-nav__link">
+        Context
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/cli/" class="md-nav__link">
+        CLI
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_4" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+          Brickflow Plugins
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          Brickflow Plugins
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/airflow_external_task_dependency/" class="md-nav__link">
+        AirflowTaskDependencySensor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/airflow_native_operators/" class="md-nav__link">
+        AirflowNativeOperators
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/workflow_dependency_sensor/" class="md-nav__link">
+        WorkflowDependencySensor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/uc_to_snowflake_operator/" class="md-nav__link">
+        SnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/uc_to_snowflake_operator/" class="md-nav__link">
+        UcToSnowflakeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/secrets/" class="md-nav__link">
+        Secrets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshDataSourceOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/airflow_tableau_operators/" class="md-nav__link">
+        TableauRefreshWorkbookOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/box_operator/" class="md-nav__link">
+        BoxToVolumeOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/box_operator/" class="md-nav__link">
+        VolumeToBoxOperator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/box_operator/" class="md-nav__link">
+        BoxOperator
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confirming-the-installation" class="md-nav__link">
+    Confirming the installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brickflow-projects-setup" class="md-nav__link">
+    Brickflow Projects Setup
+  </a>
+  
+    <nav class="md-nav" aria-label="Brickflow Projects Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    Concepts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monorepo-style" class="md-nav__link">
+    Monorepo Style
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyrepo-style" class="md-nav__link">
+    Polyrepo Style
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialize-project" class="md-nav__link">
+    Initialize Project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validating-your-project" class="md-nav__link">
+    Validating your project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitignore" class="md-nav__link">
+    gitignore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-your-project" class="md-nav__link">
+    Deploying your Project
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying your Project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployments-by-release-candidates-or-prs" class="md-nav__link">
+    Deployments By Release Candidates or PRs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#destroying-your-project" class="md-nav__link">
+    Destroying your project
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Brickflow Projects</h1>
+
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Install Locally (optional):</p>
+<ol>
+<li>Python &gt;= 3.8</li>
+</ol>
+</li>
+<li>
+<p>Configure the databricks cli cfg file. <code>pip install databricks-cli</code> and then <code>databricks configure -t</code> which 
+  will configure the databricks cli with a token. </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip install databricks-cli
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>databricks configure -t
+</code></pre></div>
+</li>
+<li>
+<p>Install brickflow cli</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip install brickflows
+</code></pre></div>
+</li>
+</ol>
+<h2 id="confirming-the-installation">Confirming the installation<a class="headerlink" href="#confirming-the-installation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>To confirm the setup run the following command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bf<span class="w"> </span>--help
+</code></pre></div>
+</li>
+<li>
+<p>Also confirm the connectivity to databricks:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>databricks<span class="w"> </span>workspace<span class="w"> </span>list<span class="w"> </span>/
+</code></pre></div>
+  or if you have specific profile</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>databricks<span class="w"> </span>workspace<span class="w"> </span>list<span class="w"> </span>/<span class="w">  </span>--profile<span class="w"> </span>&lt;profile&gt;
+</code></pre></div>
+</li>
+</ul>
+<h2 id="brickflow-projects-setup">Brickflow Projects Setup<a class="headerlink" href="#brickflow-projects-setup" title="Permanent link">&para;</a></h2>
+<p>Brickflow introduced projects in version 0.9.2 for managing mono repos with multiple projects or workflows that need
+to be deployed in groups. It helps with the following things:</p>
+<ol>
+<li>It helps manage statefiles and simplifies deployment.</li>
+<li>It helps you manage clean up of state, etc.</li>
+<li>It also helps the framework resolve imports for python modules, etc in your repo.</li>
+</ol>
+<h3 id="concepts">Concepts<a class="headerlink" href="#concepts" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Project</strong> - A project is a collection of workflows that are deployed together. A project is a folder with a
+   entrypoint and a set of workflows.</li>
+<li><strong>Workflow</strong> - A workflow is a collection of tasks that are deployed together which may be DLT pipelines, notebooks,
+   wheels, jars, etc.</li>
+</ol>
+<h3 id="monorepo-style">Monorepo Style<a class="headerlink" href="#monorepo-style" title="Permanent link">&para;</a></h3>
+<p>A monorepo style project is a repository that has multiple folders and modules that can contain multiple brickflow
+projects. Learn more <a href="https://en.wikipedia.org/wiki/Monorepo">here</a>.</p>
+<p>Folder structure:</p>
+<div class="highlight"><pre><span></span><code>repo-root/
+├── .git
+├── projects/
+│   ├── project_abc/
+│   │   ├── lib/
+│   │   │   ├── __init__.py
+│   │   │   └── shared_functions.py
+│   │   ├── workflows/
+│   │   │   ├── __init__.py
+│   │   │   ├── entrypoint.py
+│   │   │   └── workflow_abc.py
+│   │   ├── setup.py
+│   │   └── .brickflow-project-root.yml
+│   └── project_xyz/
+│       ├── workflows_geo_b/
+│       │   ├── entrypoint.py
+│       │   └── workflow_xyz.py
+│       ├── workflows_geo_a/
+│       │   ├── entrypoint.py
+│       │   └── workflow_xyz.py
+│       └── .brickflow-project-root.yml
+├── .gitignore
+├── brickflow-multi-project.yml
+└── README.md
+</code></pre></div>
+<ol>
+<li><strong>entrypoint.py</strong>: This is the entrypoint for your project. It is the file that will be used to identify all the
+   workflows to be deployed.</li>
+<li><strong>brickflow-multi-project.yml</strong>: This is the project file that will be generated by brickflow. It will contain the
+   list of projects and a path to the project root config. <strong>This will be created in the git repository root (where your
+   .git folder is).</strong></li>
+</ol>
+<p>Example for <strong>monorepo</strong> with multiple projects:</p>
+<div class="highlight"><pre><span></span><code>```yaml
+project_roots:
+  project_abc:
+    root_yaml_rel_path: projects/project_abc
+  project_xyz_geo_a:
+    root_yaml_rel_path: projects/project_xyz
+  project_xyz_geo_b:
+    root_yaml_rel_path: projects/project_xyz
+version: v1
+```
+</code></pre></div>
+<ol>
+<li><strong>brickflow-project-root.yml</strong>: This is the project root config file. It will contain the list of workflows and a
+   path to the workflows root config.</li>
+</ol>
+<p>Example for monorepo with multiple projects for <code>repo-root/projects/project_xyz/.brickflow-project-root.yml</code>:</p>
+<div class="highlight"><pre><span></span><code>```yaml
+# DO NOT MODIFY THIS FILE - IT IS AUTO GENERATED BY BRICKFLOW AND RESERVED FOR FUTURE USAGE
+projects:
+  project_xyz_geo_a:
+    brickflow_version: auto # automatically determine the brickflow version based on cli version
+    deployment_mode: bundle
+    name: project_xyz_geo_a
+    path_from_repo_root_to_project_root: projects/project_xyz # path from the repo root (where your .git folder is) to the project root
+    path_project_root_to_workflows_dir: workflows_geo_a
+  project_xyz_geo_b:
+    brickflow_version: auto  # automatically determine the brickflow version based on cli version
+    deployment_mode: bundle
+    name: project_xyz_geo_b
+    path_from_repo_root_to_project_root: projects/project_xyz
+    path_project_root_to_workflows_dir: workflows_geo_b
+version: v1
+```
+</code></pre></div>
+<p>The important fields are:</p>
+<ul>
+<li><strong>path_from_repo_root_to_project_root</strong>: This is the path from the repo root to the project root. This is the path
+  that will be used to find the entrypoint file.</li>
+<li><strong>path_project_root_to_workflows_dir</strong>: This is the path from the project .git root and is used to find and load
+  modules into python<ul>
+<li>This is what helps you make your imports work in your notebooks. It is the path from the project root to the
+  workflows directory.</li>
+</ul>
+</li>
+</ul>
+<h3 id="polyrepo-style">Polyrepo Style<a class="headerlink" href="#polyrepo-style" title="Permanent link">&para;</a></h3>
+<p>A polyrepo style project is a repository that has multiple repositories that can contain multiple brickflow projects.</p>
+<p>Folder structure</p>
+<div class="highlight"><pre><span></span><code>repo-root/
+├── .git
+├── src/
+│   ├── lib/
+│   │   ├── __init__.py
+│   │   └── shared_functions.py
+│   ├── workflows_a/
+│   │   ├── __init__.py
+│   │   ├── entrypoint.py
+│   │   └── workflow_a.py
+│   ├── workflows_b/
+│   │   ├── __init__.py
+│   │   ├── entrypoint.py
+│   │   └── workflow_b.py
+│   └── __init__.py
+├── .gitignore
+├── .brickflow-project-root.yml
+├── brickflow-multi-project.yml
+└── README.md
+</code></pre></div>
+<ol>
+<li><strong>entrypoint.py</strong>: This is the entrypoint for your project. It is the file that will be used to identify all the
+   workflows to be deployed.</li>
+<li><strong>brickflow-multi-project.yml</strong>: This is the project file that will be generated by brickflow. It will contain the
+   list of projects and a path to the project root config. <strong>This will be created in the git repository root (where your
+   .git folder is).</strong></li>
+</ol>
+<p>Example for <strong>polyrepo</strong> with multiple projects:</p>
+<div class="highlight"><pre><span></span><code>```yaml
+project_roots:
+  project_abc:
+    root_yaml_rel_path: .
+  project_abc_workflows_2:
+    root_yaml_rel_path: .
+  project_xyz:
+    root_yaml_rel_path: .
+version: v1
+```
+</code></pre></div>
+<ol>
+<li><strong>brickflow-project-root.yml</strong>: This is the project root config file. It will contain the list of workflows and a
+   path to the workflows root config.</li>
+</ol>
+<p>Example for polyrepo with multiple projects:</p>
+<div class="highlight"><pre><span></span><code>```yaml
+# DO NOT MODIFY THIS FILE - IT IS AUTO GENERATED BY BRICKFLOW AND RESERVED FOR FUTURE USAGE
+projects:
+  project_abc:
+    brickflow_version: auto # automatically determine the brickflow version based on cli version
+    deployment_mode: bundle
+    name: project_abc
+    path_from_repo_root_to_project_root: . # path from the repo root (where your .git folder is) to the project root
+    path_project_root_to_workflows_dir: workflows
+  project_abc_workflows_2:
+    brickflow_version: auto  # automatically determine the brickflow version based on cli version
+    deployment_mode: bundle
+    name: project_abc_workflows_2
+    path_from_repo_root_to_project_root: .
+    path_project_root_to_workflows_dir: workflows2
+version: v1
+```
+</code></pre></div>
+<p>The important fields are:</p>
+<div class="highlight"><pre><span></span><code>* path_from_repo_root_to_project_root: This is the path from the repo root to the project root. This is the path
+  that will be used to find the entrypoint file.
+* path_project_root_to_workflows_dir: This is the path from the project .git root and is used to find and load
+  modules into python
+    * This is what helps you make your imports work in your notebooks. It is the path from the project root to the
+      workflows directory.
+</code></pre></div>
+<h3 id="initialize-project">Initialize Project<a class="headerlink" href="#initialize-project" title="Permanent link">&para;</a></h3>
+<p>The first step is to create a new project.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure you are in repository root (where your .git folder is) to do this! Otherwise you will run into validation issues.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please note that if you are an advanced user and understand the concepts of both files described above, 
+you can manually create the files thats brickflow projects add creates.</p>
+</div>
+<ol>
+<li>Run the following command:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>bf projects add
+</code></pre></div></li>
+<li>
+<p>Update your .gitignore file with the correct directories to ignore. <code>.databricks</code> and <code>bundle.yml</code> should be ignored.</p>
+</li>
+<li>
+<p>It will prompt you for the:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">Project</span> <span class="n">Name</span><span class="p">:</span> <span class="c1"># (1)!</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">Path</span> <span class="kn">from</span> <span class="nn">repo</span> <span class="n">root</span> <span class="n">to</span> <span class="n">project</span> <span class="n">root</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span> <span class="p">[</span><span class="o">.</span><span class="p">]:</span> <span class="c1"># (2)!</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">Path</span> <span class="kn">from</span> <span class="nn">project</span> <span class="n">root</span> <span class="n">to</span> <span class="n">workflows</span> <span class="nb">dir</span><span class="p">:</span> <span class="c1"># (3)!</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">Git</span> <span class="n">https</span> <span class="n">url</span><span class="p">:</span> <span class="c1"># (4)!</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">Brickflow</span> <span class="n">version</span> <span class="p">[</span><span class="n">auto</span><span class="p">]:</span> <span class="c1"># (5)!</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">Spark</span> <span class="n">expectations</span> <span class="n">version</span> <span class="p">[</span><span class="mf">0.8.0</span><span class="p">]:</span> <span class="c1"># (6)!  </span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">Skip</span> <span class="n">entrypoint</span> <span class="p">[</span><span class="n">y</span><span class="o">/</span><span class="n">N</span><span class="p">]:</span> <span class="c1"># (7)!</span>
+</code></pre></div>
+<ol>
+<li>A name thats not already used please only use alphanumeric characters</li>
+<li>If you have a polyrepo leave this a <code>.</code>. Look above for <a href="#polyrepo-style">polyrepo sections</a>
+   and <a href="#monorepo-style">monorepo sections</a> for guidance.</li>
+<li>Look above for <a href="#polyrepo-style">polyrepo sections</a> and monorepo sections for guidance.</li>
+<li>Used to populate entrypoint and used for deployment to higher environments</li>
+<li>Auto or hard code specific version to be shipped with the project during deployment</li>
+<li>If you want to use spark expectations. Visit <a href="https://github.com/nike-inc/spark-expectations">spark-expectations</a> for
+   more information.</li>
+<li>If you already have an entrypoint in that folder you can skip this step.</li>
+</ol>
+<h3 id="validating-your-project">Validating your project<a class="headerlink" href="#validating-your-project" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>To test your configuration run the following command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>bf<span class="w"> </span>projects<span class="w"> </span>synth<span class="w"> </span>--project<span class="w"> </span>&lt;project_name&gt;<span class="w"> </span>--profile<span class="w"> </span>&lt;profile&gt;<span class="w"> </span><span class="c1"># profile is optional its your databricks profile</span>
+</code></pre></div>
+</li>
+<li>
+<p>This will generate the following output at the end:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>SUCCESSFULLY SYNTHESIZED BUNDLE.YML FOR PROJECT: &lt;project_name&gt;
+</code></pre></div>
+</li>
+<li>
+<p>This should create a bundle.yml file in your project root and it should contain all the information for your workflow.</p>
+</li>
+<li>
+<p>Anything else would indicate an error.</p>
+</li>
+</ul>
+<h3 id="gitignore">gitignore<a class="headerlink" href="#gitignore" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>For now all the bundle.yml files will be code generated so you can add the following to your .gitignore file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>**/bundle.yml
+</code></pre></div>
+</li>
+</ul>
+<h2 id="deploying-your-project">Deploying your Project<a class="headerlink" href="#deploying-your-project" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>To deploy the workflow run the following command</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>bf<span class="w"> </span>projects<span class="w"> </span>deploy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+</li>
+</ul>
+<p>By default this will deploy to local.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Keep in mind that environments are logical, your profile controls where the workflows are deployed and your code 
+may have business logic based on which environment you are on.</p>
+</div>
+<p>If you want to deploy to a higher environment you can use the following command:</p>
+<ul>
+<li>
+<p>dev:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>bf<span class="w"> </span>projects<span class="w"> </span>deploy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>-e<span class="w"> </span>dev<span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+</li>
+<li>
+<p>test:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>bf<span class="w"> </span>projects<span class="w"> </span>deploy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+</li>
+<li>
+<p>prod:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>bf<span class="w"> </span>projects<span class="w"> </span>deploy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>-e<span class="w"> </span>prod<span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+</li>
+</ul>
+<h4 id="deployments-by-release-candidates-or-prs">Deployments By Release Candidates or PRs<a class="headerlink" href="#deployments-by-release-candidates-or-prs" title="Permanent link">&para;</a></h4>
+<p>Sometimes you may want to deploy multiple RC branches into the same "test" environment. Your objective will be to:</p>
+<ol>
+<li>Deploy the workflows</li>
+<li>Run and test the workflows</li>
+<li>Destroy the workflows after confirming the tests pass</li>
+</ol>
+<p>To do this you can use the <code>BRICKFLOW_WORKFLOW_PREFIX</code> and <code>BRICKFLOW_WORKFLOW_SUFFIX</code> environment variables.</p>
+<ul>
+<li>Doing it based on release candidates</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nv">BRICKFLOW_WORKFLOW_SUFFIX</span><span class="o">=</span><span class="s2">&quot;0.1.0-rc1&quot;</span><span class="w"> </span>bf<span class="w"> </span>projects<span class="w"> </span>deploy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+<ul>
+<li>Doing it based on PRs</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nv">BRICKFLOW_WORKFLOW_SUFFIX</span><span class="o">=</span><span class="s2">&quot;0.1.0-pr34&quot;</span><span class="w"> </span>bf<span class="w"> </span>projects<span class="w"> </span>deploy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+<p>Make sure when using the suffix and prefix that you destroy them, they are considered independent deployments and have
+their own state.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="nv">BRICKFLOW_WORKFLOW_SUFFIX</span><span class="o">=</span><span class="s2">&quot;0.1.0-rc1&quot;</span><span class="w"> </span>bf<span class="w"> </span>projects<span class="w"> </span>destroy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+<ul>
+<li>Doing it based on PRs</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nv">BRICKFLOW_WORKFLOW_SUFFIX</span><span class="o">=</span><span class="s2">&quot;0.1.0-pr34&quot;</span><span class="w"> </span>bf<span class="w"> </span>projects<span class="w"> </span>destroy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>-e<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+<h2 id="destroying-your-project">Destroying your project<a class="headerlink" href="#destroying-your-project" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>To destroy the workflow run the following command</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>bf<span class="w"> </span>projects<span class="w"> </span>destroy<span class="w"> </span>--project<span class="w"> </span>&lt;project&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;profile&gt;<span class="w"> </span>--force-acquire-lock<span class="w"> </span><span class="c1"># force acquire lock is optional</span>
+</code></pre></div>
+</li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.tooltips", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.expand", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c2be25ad.min.js"></script>
+      
+    
+  </body>
+</html>
