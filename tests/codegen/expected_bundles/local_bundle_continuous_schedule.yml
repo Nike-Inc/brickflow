@@ -64,6 +64,7 @@
           "tasks":
           - "depends_on": []
             "email_notifications": {}
+            "webhook_notifications": {}
             "job_cluster_key": "sample_job_cluster"
             "libraries": []
             "max_retries": null

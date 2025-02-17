@@ -34,6 +34,7 @@
           "tasks":
           - "depends_on": []
             "email_notifications": {}
+            "webhook_notifications": {}
             "max_retries": null
             "min_retry_interval_millis": null
             "notebook_task":
@@ -58,6 +59,7 @@
             "timeout_seconds": null
           - "depends_on": []
             "email_notifications": {}
+            "webhook_notifications": {}
             "max_retries": null
             "min_retry_interval_millis": null
             "notebook_task":
@@ -69,6 +71,7 @@
             "timeout_seconds": null
           - "depends_on": []
             "email_notifications": {}
+            "webhook_notifications": {}
             "environment_key": "Default"
             "max_retries": null
             "min_retry_interval_millis": null

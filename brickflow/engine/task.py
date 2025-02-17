@@ -322,6 +322,9 @@ class TaskSettings:
             if self.email_notifications is not None
             else {}
         )
+        webhook_not = (
+            self.webhook_notifications if self.webhook_notifications is not None else {}
+        )
         notification_settings = (
             {}
             if self.notification_settings is None
@@ -330,6 +333,7 @@ class TaskSettings:
         return {
             **notification_settings,
             "email_notifications": email_not,
+            "webhook_notifications": webhook_not,
             "timeout_seconds": self.timeout_seconds,
             "max_retries": self.max_retries,
             "min_retry_interval_millis": self.min_retry_interval_millis,
