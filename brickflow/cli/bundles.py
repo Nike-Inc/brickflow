@@ -82,6 +82,11 @@ def bundle_sync(
     )
 
 
+def should_deploy() -> bool:
+    """This has been added mostly for testing purposes as directly mocking os.path.exists has broader impacts"""
+    return os.path.exists("bundle.yml")
+
+
 def get_force_lock_flag() -> str:
     version_parts = get_bundle_cli_version().split(".")
     # TODO: remove this logic on the major version
@@ -103,6 +108,11 @@ def bundle_deploy(
     **_: Any,
 ) -> None:
     """CLI deploy the bundle."""
+    # If the bundle.yml has not been synthesized, there's nothing to deploy!
+    if not should_deploy():
+        _ilog.warning("No bundle.yml found, skipping deployment.")
+        return
+
     deploy_args = ["deploy", ENV_FLAG, get_bundles_project_env()]
     if force_acquire_lock is True:
         # fix/issue-32
