@@ -54,6 +54,7 @@ targets:
           tasks:
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -82,16 +83,19 @@ targets:
               timeout_seconds: null
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               pipeline_task:
                 pipeline_id: ${resources.pipelines.test_hello_world.id}
               task_key: dlt_pipeline
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               pipeline_task:
                 pipeline_id: ${resources.pipelines.test_hello_world.id}
               task_key: dlt_pipeline_2
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -107,6 +111,7 @@ targets:
             - depends_on:
                 - task_key: notebook_task_a
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries:
                 - jar: dbfs:/Volumes/development/global_sustainability_dev/raju_spark_jar_test/PrintArgs.jar
@@ -122,6 +127,7 @@ targets:
             - depends_on:
                 - task_key: spark_jar_task_a
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries:
                 - pypi: 
@@ -140,6 +146,7 @@ targets:
                 - outcome: "false"
                   task_key: condition_task_test2
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries:
                 - pypi:
@@ -160,6 +167,7 @@ targets:
                 - outcome: "false"
                   task_key: condition_task_test2
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries:
                 - pypi:
@@ -177,6 +185,7 @@ targets:
             - depends_on:
                 - task_key: notebook_task_a
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: null
               max_retries: null
               min_retry_interval_millis: null
@@ -189,6 +198,7 @@ targets:
               - "outcome": null
                 "task_key": "notebook_task_a"
               "email_notifications": {}
+              "webhook_notifications": {}
               "existing_cluster_id": "existing_cluster_id"
               "libraries": []
               "max_retries": null
@@ -217,6 +227,7 @@ targets:
               "timeout_seconds": null
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -247,6 +258,7 @@ targets:
             - depends_on:
                 - task_key: task_function
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -276,6 +288,7 @@ targets:
             - depends_on:
                 - task_key: task_function_2
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -305,6 +318,7 @@ targets:
             - depends_on:
                 - task_key: task_function_3
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -334,6 +348,7 @@ targets:
             - depends_on:
                 - task_key: task_function_4
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -363,6 +378,7 @@ targets:
               timeout_seconds: 0.0
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -392,6 +408,7 @@ targets:
               timeout_seconds: null
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries: []
               max_retries: null
@@ -421,6 +438,7 @@ targets:
             - depends_on:
               - task_key: "notebook_task_a"
               email_notifications: {}
+              webhook_notifications: {}
               max_retries: null
               min_retry_interval_millis: null
               retry_on_timeout: null
@@ -436,6 +454,7 @@ targets:
               timeout_seconds: null
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               max_retries: null
               min_retry_interval_millis: null
               retry_on_timeout: null
@@ -453,6 +472,7 @@ targets:
               timeout_seconds: null
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               max_retries: null
               min_retry_interval_millis: null
               retry_on_timeout: null
@@ -464,6 +484,7 @@ targets:
               timeout_seconds: null
             - depends_on: []
               email_notifications: {}
+              webhook_notifications: {}
               max_retries: null
               min_retry_interval_millis: null
               retry_on_timeout: null
@@ -476,6 +497,7 @@ targets:
             - depends_on:
               - task_key: "sample_sql_task_query"
               email_notifications: {}
+              webhook_notifications: {}
               max_retries: null
               min_retry_interval_millis: null
               retry_on_timeout: null
@@ -488,6 +510,7 @@ targets:
             - depends_on:
               - task_key: "sample_sql_task_query"
               email_notifications: {}
+              webhook_notifications: {}
               max_retries: null
               min_retry_interval_millis: null
               retry_on_timeout: null

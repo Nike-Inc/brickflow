@@ -53,6 +53,7 @@ from brickflow.bundles.model import (
     JobsTasksSqlTaskDashboardSubscriptions,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
+    JobsTasksWebhookNotifications,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -290,6 +291,7 @@ class TaskSettings:
     min_retry_interval_millis: Optional[int] = None
     retry_on_timeout: Optional[bool] = None
     run_if: Optional[TaskRunCondition] = None
+    webhook_notifications: Optional[JobsTasksWebhookNotifications] = None
 
     def merge(self, other: Optional["TaskSettings"]) -> "TaskSettings":
         # overrides top level values
@@ -303,6 +305,7 @@ class TaskSettings:
             other.min_retry_interval_millis or self.min_retry_interval_millis,
             other.retry_on_timeout or self.retry_on_timeout,
             other.run_if or self.run_if,
+            other.webhook_notifications or self.webhook_notifications,
         )
 
     def to_tf_dict(
@@ -319,6 +322,9 @@ class TaskSettings:
             if self.email_notifications is not None
             else {}
         )
+        webhook_not = (
+            self.webhook_notifications if self.webhook_notifications is not None else {}
+        )
         notification_settings = (
             {}
             if self.notification_settings is None
@@ -327,6 +333,7 @@ class TaskSettings:
         return {
             **notification_settings,
             "email_notifications": email_not,
+            "webhook_notifications": webhook_not,
             "timeout_seconds": self.timeout_seconds,
             "max_retries": self.max_retries,
             "min_retry_interval_millis": self.min_retry_interval_millis,

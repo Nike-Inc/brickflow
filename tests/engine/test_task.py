@@ -12,7 +12,10 @@ from brickflow import (
     SparkJarTask,
     SparkPythonTask,
 )
-from brickflow.bundles.model import JobsTasks
+from brickflow.bundles.model import (
+    JobsTasks,
+    JobsTasksWebhookNotifications,
+)
 from brickflow.context import (
     BRANCH_SKIP_EXCEPT,
     RETURN_VALUE_KEY,
@@ -294,6 +297,13 @@ class TestTask:
 
     def test_task_settings_tf_dict(self):
         email_arr = ["abc@abc.com"]
+        wn = JobsTasksWebhookNotifications(
+            on_duration_warning_threshold_exceeded=[{"id": "123"}],
+            on_failure=[{"id": "123"}],
+            on_start=[{"id": "123"}],
+            on_streaming_backlog_exceeded=[{"id": "123"}],
+            on_success=[{"id": "123"}],
+        )
         default_int = 10
         default_bool = True
         en = EmailNotifications(
@@ -307,6 +317,7 @@ class TestTask:
             max_retries=default_int,
             min_retry_interval_millis=default_int,
             retry_on_timeout=default_bool,
+            webhook_notifications=wn,
         )
         assert ts.to_tf_dict() == {
             "email_notifications": en.to_tf_dict(),
@@ -314,6 +325,7 @@ class TestTask:
             "max_retries": default_int,
             "min_retry_interval_millis": default_int,
             "retry_on_timeout": default_bool,
+            "webhook_notifications": wn,
         }
 
     def test_task_settings_merge(self):
@@ -331,18 +343,34 @@ class TestTask:
             on_start=other_email_arr,
             on_failure=other_email_arr,
         )
+        wn = JobsTasksWebhookNotifications(
+            on_duration_warning_threshold_exceeded=[{"id": "123"}],
+            on_failure=[{"id": "123"}],
+            on_start=[{"id": "123"}],
+            on_streaming_backlog_exceeded=[{"id": "123"}],
+            on_success=[{"id": "123"}],
+        )
+        other_wn = JobsTasksWebhookNotifications(
+            on_duration_warning_threshold_exceeded=[{"id": "124"}],
+            on_failure=[{"id": "124"}],
+            on_start=[{"id": "124"}],
+            on_streaming_backlog_exceeded=[{"id": "124"}],
+            on_success=[{"id": "124"}],
+        )
         ts = TaskSettings(
             email_notifications=en,
             timeout_seconds=default_int,
             max_retries=default_int,
             min_retry_interval_millis=default_int,
             retry_on_timeout=default_bool,
+            webhook_notifications=wn,
         )
         other_ts = TaskSettings(
             email_notifications=other_en,
             timeout_seconds=other_default_int,
             max_retries=other_default_int,
             retry_on_timeout=default_bool,
+            webhook_notifications=other_wn,
         )
 
         final_ts = ts.merge(other_ts)
@@ -352,6 +380,7 @@ class TestTask:
             "max_retries": other_default_int,
             "min_retry_interval_millis": default_int,
             "retry_on_timeout": default_bool,
+            "webhook_notifications": other_wn,
         }
 
         final_ts = ts.merge(None)
@@ -361,6 +390,7 @@ class TestTask:
             "max_retries": default_int,
             "min_retry_interval_millis": default_int,
             "retry_on_timeout": default_bool,
+            "webhook_notifications": wn,
         }
 
     def test_task_settings_small_timeout(self):
