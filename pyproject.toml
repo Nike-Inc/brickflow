@@ -28,7 +28,7 @@ extend-exclude = '''
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"            # pyspark <3.5 does not play happy with python 3.11
-Jinja2 = "3.1.2"
+Jinja2 = ">=3.1.5"
 click = "^8.1.3"
 databricks-sdk = ">=0.1.8 <1.0.0"
 networkx = "3.1"
@@ -47,7 +47,7 @@ bf = "brickflow.cli:cli"
 brickflow = "brickflow.cli:cli"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
+black = "^24.3.0"
 coverage = "^7.2.5"
 datamodel-code-generator = "^0.25.2"
 deepdiff = "^6.3.0"
@@ -67,6 +67,7 @@ cerberus-python-client = "^2.5.4"
 watchdog = "<4.0.0"
 requests-mock = "1.12.1"
 pyspark = "^3.0.0"
+apache-airflow-providers-fab = ">=1.5.2"
 
 [tool.poetry.group.docs.dependencies]
 mdx-include = "^1.4.2"

@@ -244,9 +244,10 @@ class TestBoxToVolumesOperator(unittest.TestCase):
         self.operator.execute()
 
         # Assert
-        with open(
-            os.path.join(self.operator.volume_path, "file1.txt"), "rb"
-        ) as f1, open(os.path.join(self.operator.volume_path, "file2.txt"), "rb") as f2:
+        with (
+            open(os.path.join(self.operator.volume_path, "file1.txt"), "rb") as f1,
+            open(os.path.join(self.operator.volume_path, "file2.txt"), "rb") as f2,
+        ):
             self.assertEqual(f1.read(), b"Test file content")
             self.assertEqual(f2.read(), b"Test file content")
 
@@ -298,9 +299,10 @@ class TestBoxToVolumesOperator(unittest.TestCase):
         self.operator.execute()
 
         # Assert
-        with open(
-            os.path.join(self.operator.volume_path, "file1.txt"), "rb"
-        ) as f1, open(os.path.join(self.operator.volume_path, "file3.txt"), "rb") as f3:
+        with (
+            open(os.path.join(self.operator.volume_path, "file1.txt"), "rb") as f1,
+            open(os.path.join(self.operator.volume_path, "file3.txt"), "rb") as f3,
+        ):
             self.assertEqual(f1.read(), b"Test file content")
             self.assertEqual(f3.read(), b"Test file content")
         self.assertFalse(
@@ -326,9 +328,10 @@ class TestBoxToVolumesOperator(unittest.TestCase):
         self.operator.execute()
 
         # Assert
-        with open(
-            os.path.join(self.operator.volume_path, "file1.txt"), "rb"
-        ) as f1, open(os.path.join(self.operator.volume_path, "file2.txt"), "rb") as f2:
+        with (
+            open(os.path.join(self.operator.volume_path, "file1.txt"), "rb") as f1,
+            open(os.path.join(self.operator.volume_path, "file2.txt"), "rb") as f2,
+        ):
             self.assertEqual(f1.read(), b"Test file content")
             self.assertEqual(f2.read(), b"Test file content")
 
