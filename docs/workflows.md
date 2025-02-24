@@ -7,6 +7,7 @@ Click the plus buttons to understand all the parts of the workflow file.
 from datetime import timedelta
 from brickflow import (Workflow, Cluster, WorkflowPermissions, User, 
     TaskSettings, EmailNotifications, PypiTaskLibrary, MavenTaskLibrary, JobsParameters)
+from brickflow.engine.workflow import WorkflowNotificationSettings
 
 wf = Workflow(  # (1)!
     "wf_test",  # (2)!
@@ -25,6 +26,10 @@ wf = Workflow(  # (1)!
         ),
         timeout_seconds=timedelta(hours=2).seconds
     ),
+   notification_settings=WorkflowNotificationSettings( # (19)!
+      no_alert_for_canceled_runs=True,
+      no_alert_for_skipped_runs=True
+   ),
     libraries=[  # (7)!
         PypiTaskLibrary(package="requests"),
         MavenTaskLibrary(coordinates="com.cronutils:cron-utils:9.2.0"),
@@ -77,6 +82,7 @@ def task_function(*, test="var"):
 16. Define health check condition that triggers duration warning threshold exceeded notifications
 17. Define timeout_seconds check condition that triggers workflow failure if duration exceeds threshold
 18. Define the parameters on workflow level [databricks docs](https://docs.databricks.com/en/jobs/settings.html#job-parameters)
+19. Define the notification settings for the workflow
 
 ### Clusters
 
