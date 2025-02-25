@@ -323,4 +323,34 @@ Serverless compute is supported for: Brickflow entrypoint task, Notebook task an
          )
         ```
 
+## How do I add notification settings to my workflow?
+```python
+from datetime import timedelta
+from brickflow import (Workflow, Cluster, TaskSettings, EmailNotifications)
+from brickflow.engine.workflow import WorkflowNotificationSettings
+
+wf = Workflow(
+    "wf_test",
+    default_cluster=Cluster.from_existing_cluster("your_existing_cluster_id"),
+    
+    # Optional parameters below
+    schedule_quartz_expression="0 0/20 0 ? * * *",
+    timezone="UTC",
+    schedule_pause_status="PAUSED",
+    default_task_settings=TaskSettings(
+        email_notifications=EmailNotifications(
+            on_start=["email@nike.com"],
+            on_success=["email@nike.com"],
+            on_failure=["email@nike.com"],
+            on_duration_warning_threshold_exceeded=["email@nike.com"]
+        ),
+        timeout_seconds=timedelta(hours=2).seconds
+    ),
+   notification_settings=WorkflowNotificationSettings(
+      no_alert_for_canceled_runs=True,
+      no_alert_for_skipped_runs=True
+   )
+)
+```
+
 Refer to the full workflow example in `/examples/brickflow_serverless_examples` folder.
