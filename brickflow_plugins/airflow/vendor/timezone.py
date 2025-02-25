@@ -7,8 +7,6 @@ import pendulum
 from dateutil.relativedelta import relativedelta
 from pendulum.datetime import DateTime
 
-# from airflow.settings import TIMEZONE
-
 # UTC time zone as a tzinfo instance.
 utc = pendulum.tz.timezone("UTC")
 

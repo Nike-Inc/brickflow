@@ -18,9 +18,9 @@ from brickflow import (
     get_bundles_project_env,
     get_entrypoint_python,
 )
-from brickflow.cli.constants import BrickflowDeployMode
 from brickflow.cli.commands import exec_command
 from brickflow.cli.configure import get_entrypoint, log_important_versions
+from brickflow.cli.constants import BrickflowDeployMode
 
 ENV_FLAG = "-t"
 
