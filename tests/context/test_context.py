@@ -61,6 +61,20 @@ class TestContext:
         assert task_comms.get(task_id, key) == value2
         assert task_comms.get(task_id)[key] == value2
 
+    def test_brickflow_task_comms_string_serialization(self):
+        task_comms = BrickflowTaskComs()
+        task_id = "test-task"
+        key = "test-key"
+        value1 = "value 1"
+        value2 = "value 2"
+        task_comms.put(task_id, key, value1, string_serialization=True)
+        assert task_comms.get(task_id, key, string_serialization=True) == value1
+        task_comms.put(task_id, key, value2, string_serialization=True)
+        assert task_comms.get(task_id, key, string_serialization=True) == value2
+        # This will work anyway even without providing string_serialization as there's a fallback mechanism to string
+        # in BrickflowTaskComsObject.from_encoded_value
+        assert task_comms.get(task_id)[key] == value2
+
     def test_brickflow_task_comms_dbutils(self):
         dbutils_mock = Mock()
         task_comms = BrickflowTaskComs(dbutils_mock)
@@ -81,6 +95,26 @@ class TestContext:
             f"{key}", task_comms_v2.to_encoded_value
         )
         dbutils_mock.jobs.taskValues.get.return_value = task_comms_v2.to_encoded_value
+        assert task_comms.get(task_id, key) == value2
+        assert task_comms.get(task_id)[key] == value2
+
+    def test_brickflow_task_comms_dbutils_string_serialization(self):
+        dbutils_mock = Mock()
+        task_comms = BrickflowTaskComs(dbutils_mock)
+        task_id = "test-task"
+        key = "test-key"
+        value1 = "value 1"
+        value2 = "value 2"
+
+        dbutils_mock.jobs.taskValues.get.return_value = value1
+        task_comms.put(task_id, key, value1, string_serialization=True)
+        dbutils_mock.jobs.taskValues.set.assert_called_once_with(f"{key}", value1)
+        assert task_comms.get(task_id, key) == value1
+
+        dbutils_mock.jobs.taskValues.get.return_value = value2
+        task_comms.put(task_id, key, value2, string_serialization=True)
+        dbutils_mock.jobs.taskValues.set.assert_called_with(f"{key}", value2)
+        dbutils_mock.jobs.taskValues.get.return_value = value2
         assert task_comms.get(task_id, key) == value2
         assert task_comms.get(task_id)[key] == value2
 
@@ -237,3 +271,35 @@ class TestContext:
 
         result = ctx.get_project_parameter("k1")
         assert result is None
+
+    @pytest.mark.parametrize(
+        "value,expected_value,string_serialization",
+        [
+            (
+                "hello-world",
+                BrickflowTaskComsObject("hello-world").to_encoded_value,
+                False,
+            ),
+            ("hello-world", "hello-world", True),
+        ],
+    )
+    def test_encode_value(self, value, expected_value, string_serialization):
+        actual_value = BrickflowTaskComs._encode_value(value, string_serialization)
+        assert actual_value == expected_value
+
+    @pytest.mark.parametrize(
+        "encoded_value,expected_value,string_serialization",
+        [
+            (
+                BrickflowTaskComsObject("hello-world").to_encoded_value,
+                "hello-world",
+                False,
+            ),
+            ("hello-world", "hello-world", True),
+        ],
+    )
+    def test_decode_value(self, encoded_value, expected_value, string_serialization):
+        actual_value = BrickflowTaskComs._decode_value(
+            encoded_value, string_serialization
+        )
+        assert actual_value == expected_value

@@ -501,6 +501,9 @@ def sample_sql_alert() ->any:
     return SqlTask(alert_id="ALERT_ID", pause_subscriptions=False, subscriptions={"usernames":["YOUR_EMAIL", 'YOUR_EMAIL']} ,warehouse_id="WAREHOUSE_ID")
 # Note: Since SQL task doesn't return any bool, we can't make use of if_else_outcome params for the tasks that depends on sql Task
 ```
+You can set the left and right operands to task values too (e.g. **{{tasks.<some_task_name>.values.<some_key>}}**). If you are setting them through the brickflow context using `context.task_coms.put`, make sure
+to provide the `string_serialization=True` parameter. This is because the brickflow context by default serializes the values using pickle + base64 when setting them as 
+task values, so you need to serialize it as a string to make comparisons work in the if/else task. 
 
 #### For each Task
 The for each task is used to iterate the execution of a task over a set of input values. Iteration of a task over a set of input values can be achieved decorating your task function with the `for_each_task` method of the `Workflow` instance.
