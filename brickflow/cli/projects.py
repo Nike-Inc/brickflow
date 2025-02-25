@@ -167,9 +167,9 @@ class MultiProjectManager:
             BrickflowRootProjectConfig(projects={}),
         )
         project_root_config.projects[project.name] = project
-        self._project_config_dict[project.path_from_repo_root_to_project_root] = (
-            project_root_config
-        )
+        self._project_config_dict[
+            project.path_from_repo_root_to_project_root
+        ] = project_root_config
 
     def project_exists(self, project: BrickflowProject) -> bool:
         return project.name in self._brickflow_multi_project_config.project_roots
