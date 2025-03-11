@@ -729,7 +729,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 f"Make sure {task_name} returns a JobsTasksConditionTask object."
             ) from e
         return JobsTasks(
-            **task_settings.to_tf_dict(),  # type: ignore
+            **task_settings.to_tf_dict(TaskType.IF_ELSE_CONDITION_TASK),  # type: ignore
             condition_task=condition_task,
             depends_on=depends_on,
             task_key=task_name,
@@ -822,7 +822,7 @@ class DatabricksBundleCodegen(CodegenInterface):
 
         # We are not specifying any cluster or libraries as for_each_task cannot have them!
         jt = JobsTasks(
-            **task_settings.to_tf_dict(),
+            **task_settings.to_tf_dict(TaskType.FOR_EACH_TASK),
             for_each_task=for_each_task,
             depends_on=depends_on,
             task_key=task_name,

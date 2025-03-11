@@ -41,6 +41,7 @@ from brickflow.engine.task import (
     get_brickflow_libraries,
     get_brickflow_tasks_hook,
     get_plugin_manager,
+    TaskType,
 )
 from brickflow.engine.utils import get_job_id
 from tests.engine.sample_workflow import (
@@ -674,3 +675,31 @@ class TestTask:
         )
 
         assert for_each_task.inputs == '["input1", "input2"]'
+
+    @pytest.mark.parametrize(
+        "task_type", [(TaskType.IF_ELSE_CONDITION_TASK,), (TaskType.FOR_EACH_TASK,)]
+    )
+    def task_settings_filtered_out(self, task_type):
+        """timeout settings and retry settings should be filtered out for if/else and for-each tasks"""
+        task_settings = TaskSettings(
+            timeout_seconds=30,
+            max_retries=3,
+            min_retry_interval_millis=1000,
+            retry_on_timeout=True,
+        )
+
+        actual = task_settings.to_tf_dict(task_type)
+        assert "timeout_seconds" not in actual
+        assert "max_retries" not in actual
+
+    def task_settings_not_filtered(self):
+        task_settings = TaskSettings(
+            timeout_seconds=30,
+            max_retries=3,
+            min_retry_interval_millis=1000,
+            retry_on_timeout=True,
+        )
+
+        actual = task_settings.to_tf_dict()
+        assert "timeout_seconds" in actual
+        assert "max_retries" in actual
