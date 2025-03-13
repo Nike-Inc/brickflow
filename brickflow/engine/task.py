@@ -1255,7 +1255,7 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
         bf_lib = PypiTaskLibrary(f"brickflows=={bf_version}")
     else:
         bf_lib = PypiTaskLibrary(
-            f"brickflows @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
+            f"brickflows @ git+https://github.com/kaminrunde/brickflow@develop"
         )
 
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
