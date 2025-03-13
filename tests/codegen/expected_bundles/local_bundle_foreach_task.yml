@@ -44,6 +44,7 @@
             - task_key: first_notebook
               "depends_on": [ ]
               "email_notifications": { }
+              "webhook_notifications": {}
               "libraries": [ ]
               notebook_task:
                 notebook_path: notebooks/notebook_a
@@ -53,6 +54,7 @@
               depends_on:
                 - task_key: first_notebook
               "email_notifications": { }
+              "webhook_notifications": {}
               for_each_task:
                 inputs: "[1, 2, 3]"
                 concurrency: 3
@@ -60,6 +62,7 @@
                   task_key: for_each_notebook_nested
                   "depends_on": [ ]
                   "email_notifications": { }
+                  "webhook_notifications": {}
                   "libraries": [ ]
                   notebook_task:
                     notebook_path: notebooks/notebook_b
@@ -71,6 +74,7 @@
               depends_on:
                 - task_key: first_notebook
               "email_notifications": { }
+              "webhook_notifications": {}
               for_each_task:
                 inputs: "[\"1\", \"2\", \"3\"]"
                 concurrency: 1
@@ -78,6 +82,7 @@
                   task_key: for_each_bf_task_nested
                   "depends_on": [ ]
                   "email_notifications": { }
+                  "webhook_notifications": {}
                   "libraries": [ ]
                   notebook_task:
                     base_parameters:
@@ -102,12 +107,14 @@
               depends_on:
                 - task_key: for_each_bf_task
               email_notifications: {}
+              "webhook_notifications": {}
               for_each_task:
                 inputs: "[1,2,3]"
                 concurrency: 1
                 task:
                   "depends_on": [ ]
                   "email_notifications": { }
+                  "webhook_notifications": {}
                   task_key: for_each_spark_jar_nested
                   spark_jar_task:
                     main_class_name: com.example.MainClass
@@ -120,11 +127,13 @@
               depends_on:
                   - task_key: first_notebook
               email_notifications: {}
+              "webhook_notifications": {}
               for_each_task:
                 inputs: "[1,2,3]"
                 concurrency: 1
                 task:
                   "email_notifications": { }
+                  "webhook_notifications": {}
                   "depends_on": [ ]
                   task_key: for_each_spark_python_nested
                   "libraries": []
@@ -138,12 +147,14 @@
               depends_on:
                 - task_key: first_notebook
               email_notifications: {}
+              "webhook_notifications": {}
               for_each_task:
                 inputs: "[\"job_param_1\",\"job_param_2\"]"
                 concurrency: 1
                 task:
                   "depends_on": [ ]
                   "email_notifications": { }
+                  "webhook_notifications": {}
                   task_key: for_each_run_job_nested
                   run_job_task:
                     job_id: 12345678901234.0
@@ -151,12 +162,14 @@
               depends_on:
                   - task_key: first_notebook
               email_notifications: {}
+              "webhook_notifications": {}
               for_each_task:
                 inputs: "[1,2,3]"
                 concurrency: 1
                 task:
                   task_key: for_each_sql_task_nested
                   "email_notifications": { }
+                  "webhook_notifications": {}
                   "depends_on": [ ]
                   sql_task:
                     parameters:

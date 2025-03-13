@@ -129,26 +129,53 @@ class BrickflowTaskComs:
     def _key(task_id: str, key: str) -> str:
         return f"{task_id}::{key}"
 
-    def put(self, task_id: str, key: str, value: Any) -> None:
-        encoded_value = BrickflowTaskComsObject(value).to_encoded_value
+    @staticmethod
+    def _decode_value(value: Any, string_serialization: bool) -> Any:
+        return (
+            BrickflowTaskComsObject.from_encoded_value(value).value
+            if not string_serialization
+            else value
+        )
+
+    @staticmethod
+    def _encode_value(value: Any, string_serialization: bool) -> Any:
+        return (
+            BrickflowTaskComsObject(value).to_encoded_value
+            if not string_serialization
+            else value
+        )
+
+    def put(
+        self, task_id: str, key: str, value: Any, string_serialization: bool = False
+    ) -> None:
+        """Put a value in the task coms. Provide string_serialization=True if you do not want the value to be
+        serialized with pickle+base64"""
+        encoded_value = BrickflowTaskComs._encode_value(value, string_serialization)
         if self.dbutils is not None:
             self.dbutils.jobs.taskValues.set(key, encoded_value)
         else:
             # TODO: logging using local task coms
             self.storage[self._key(task_id, key)] = encoded_value
 
-    def get(self, task_id: str, key: Optional[str] = None) -> Any:
+    def get(
+        self,
+        task_id: str,
+        key: Optional[str] = None,
+        string_serialization: bool = False,
+    ) -> Any:
+        """Get a value from the task coms. Provide string_serialization=True if the task value you want to retrieve
+        was not serialized using pickle+base64 when it was added using the put method"""
         if key is None:
             return BrickflowTaskComsDict(task_id=task_id, task_coms=self)
         if self.dbutils is not None:
             encoded_value = self.dbutils.jobs.taskValues.get(
                 key=key, taskKey=task_id, debugValue="debug"
             )
-            return BrickflowTaskComsObject.from_encoded_value(encoded_value).value
+            return BrickflowTaskComs._decode_value(encoded_value, string_serialization)
         else:
             # TODO: logging using local task coms
             encoded_value = self.storage[self._key(task_id, key)]
-            return BrickflowTaskComsObject.from_encoded_value(encoded_value).value
+            return BrickflowTaskComs._decode_value(encoded_value, string_serialization)
 
 
 class Context:

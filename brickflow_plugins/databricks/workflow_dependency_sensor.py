@@ -153,6 +153,11 @@ class WorkflowDependencySensor:
         )
 
     def execute(self):
+        if self.dependency_job_id:
+            # Databricks SDK will throw PermissionDenied exception if the job_id is not found or
+            # user doesn't have permission
+            self._workspace_obj.jobs.get(job_id=self.dependency_job_id)
+
         if not self.dependency_job_id:
             self.dependency_job_id = self._get_job_id
 
