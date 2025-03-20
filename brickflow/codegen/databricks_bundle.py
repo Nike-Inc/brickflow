@@ -9,7 +9,29 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import yaml
+from databricks.bundles.jobs import (
+    Job as Jobs,
+    JobCluster as JobsJobClusters,
+    CronSchedule as JobsSchedule,
+    NotebookTask as JobsTasksNotebookTask,
+    TaskDependency as JobsTasksDependsOn,
+    Library as JobsTasksLibraries,
+    Task as JobsTasks,
+    SparkJarTask as JobsTasksSparkJarTask,
+    RunJobTask as JobsTasksRunJobTask,
+    SparkPythonTask as JobsTasksSparkPythonTask,
+    SqlTask as JobsTasksSqlTask,
+    ConditionTask as JobsTasksConditionTask,
+    PipelineTask as JobsTasksPipelineTask,
+    Permission as JobsPermissions,
+    JobRunAs as JobsRunAs,
+    GitSource as JobsGitSource,
+
+    PauseStatus,
+    Source
+)
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.jobs import GitProvider
 from databricks.sdk.service.pipelines import GetPipelineResponse
 from decouple import config
 from pydantic import BaseModel
@@ -27,30 +49,16 @@ from brickflow import (
     get_config_file_type,
 )
 from brickflow.bundles.model import (
-    Bundle,
-    DatabricksAssetBundles,
-    Jobs,
-    JobsGitSource,
-    JobsJobClusters,
-    JobsPermissions,
-    JobsRunAs,
-    JobsSchedule,
-    JobsTasks,
-    JobsTasksConditionTask,
-    JobsTasksDependsOn,
-    JobsTasksLibraries,
-    JobsTasksNotebookTask,
-    JobsTasksPipelineTask,
-    JobsTasksRunJobTask,
-    JobsTasksSparkJarTask,
-    JobsTasksSparkPythonTask,
-    JobsTasksSqlTask,
     Pipelines,
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
+)
+from brickflow.bundles.model_new import (
     Resources,
     Targets,
     Workspace,
+    Bundle,
+    DatabricksAssetBundles,
 )
 from brickflow.cli.projects import MultiProjectManager, get_brickflow_root
 from brickflow.codegen import (
@@ -200,13 +208,13 @@ class CurrentProjectDoesNotExistError(Exception):
 
 
 def belongs_to_current_project(
-    ref: ResourceReference, resource_project: Optional[str]
+        ref: ResourceReference, resource_project: Optional[str]
 ) -> bool:
     handle_project_validation = config(
         BrickflowEnvVars.BRICKFLOW_USE_PROJECT_NAME.value, default=True, cast=bool
     )
     belongs_to_project = (
-        ctx.current_project is not None and resource_project == ctx.current_project
+            ctx.current_project is not None and resource_project == ctx.current_project
     )
     _ilog.info(
         "Checking if resource %s: %s belongs to current project: %s; "
@@ -292,7 +300,7 @@ class PipelineResolver(ProjectResourceResolver):
     def _resolve(self, ref: ResourceReference) -> List[ImportBlock]:
         blocks = []
         for pipeline in self.databricks_client.pipelines.list_pipelines(
-            filter=f"name LIKE '{ref.name}'"
+                filter=f"name LIKE '{ref.name}'"
         ):
             pipeline_details: GetPipelineResponse = (
                 self.databricks_client.pipelines.get(pipeline_id=pipeline.pipeline_id)
@@ -352,7 +360,7 @@ class DatabricksBundleImportMutator(DatabricksBundleResourceMutator):
 
     def _imports_iter(self, resource: Resources) -> Iterator[ImportBlock]:
         for unresolved_ref in itertools.chain(
-            self._job_ref_iter(resource), self._pipeline_ref_iter(resource)
+                self._job_ref_iter(resource), self._pipeline_ref_iter(resource)
         ):
             resolved_ref = self.import_resolver_chain.resolve(unresolved_ref)
             if resolved_ref is not None:
@@ -414,12 +422,12 @@ class ImportManager:
 
 class DatabricksBundleCodegen(CodegenInterface):
     def __init__(
-        self,
-        project: "_Project",
-        id_: str,
-        env: str,
-        mutators: Optional[List[DatabricksBundleResourceMutator]] = None,
-        **_kwargs: Any,
+            self,
+            project: "_Project",
+            id_: str,
+            env: str,
+            mutators: Optional[List[DatabricksBundleResourceMutator]] = None,
+            **_kwargs: Any,
     ) -> None:
         super().__init__(project, id_, env, **_kwargs)
         self.imports: List[ImportBlock] = []
@@ -437,7 +445,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             return JobsSchedule(
                 quartz_cron_expression=workflow.schedule_quartz_expression,
                 timezone_id=workflow.timezone,
-                pause_status=workflow.schedule_pause_status,
+                pause_status=PauseStatus[workflow.schedule_pause_status] if workflow.schedule_pause_status else None,
             )
         return None
 
@@ -455,9 +463,9 @@ class DatabricksBundleCodegen(CodegenInterface):
             str: The adjusted file path.
         """
         if (
-            self.env == BrickflowDefaultEnvs.LOCAL.value
-            and self.project.bundle_base_path is not None
-            and self.project.bundle_obj_name is not None
+                self.env == BrickflowDefaultEnvs.LOCAL.value
+                and self.project.bundle_base_path is not None
+                and self.project.bundle_obj_name is not None
         ):
             bundle_files_local_path = "/".join(
                 [
@@ -493,10 +501,10 @@ class DatabricksBundleCodegen(CodegenInterface):
             #   - `+ len + 1`: Moves the start position to the character after the project root.
             # - Adjusts the file path by appending the local bundle path to the cut file path.
             cut_file_path = file_path[
-                start_index_of_project_root
-                + len(bf_project.path_from_repo_root_to_project_root)
-                + 1 :
-            ]
+                            start_index_of_project_root
+                            + len(bf_project.path_from_repo_root_to_project_root)
+                            + 1:
+                            ]
             file_path = (
                 bundle_files_local_path + file_path
                 if file_path.startswith("/")
@@ -508,7 +516,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         generated_path = handle_mono_repo_path(self.project, self.env)
         return JobsTasksNotebookTask(
             **task.get_obj_dict(generated_path),
-            source=self.adjust_source(),
+            source=Source[self.adjust_source()],
         )
 
     def workflow_obj_to_pipelines(self, workflow: Workflow) -> Dict[str, Pipelines]:
@@ -531,13 +539,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         return normalize_resource_name(f"{workflow.name}-{pipeline.name}")
 
     def _build_native_notebook_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_libraries: List[JobsTasksLibraries],
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **_kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_libraries: List[JobsTasksLibraries],
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **_kwargs: Any,
     ) -> JobsTasks:
         notebook_task: JobsTasksNotebookTask = task.task_func()
 
@@ -580,13 +588,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         return jt
 
     def _build_native_spark_jar_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_libraries: List[JobsTasksLibraries],
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **_kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_libraries: List[JobsTasksLibraries],
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **_kwargs: Any,
     ) -> JobsTasks:
         spark_jar_task: JobsTasksSparkJarTask = task.task_func()
 
@@ -610,13 +618,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
 
     def _build_native_spark_python_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_libraries: List[JobsTasksLibraries],
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_libraries: List[JobsTasksLibraries],
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **kwargs: Any,
     ) -> JobsTasks:
         spark_python_task = task.task_func()
 
@@ -633,11 +641,11 @@ class DatabricksBundleCodegen(CodegenInterface):
             file_path=spark_python_task.python_file
         )
         workflow: Optional[Workflow] = kwargs.get("workflow")
-        commom_task_parameters = workflow.common_task_parameters if workflow else None
+        common_task_parameters = workflow.common_task_parameters if workflow else None
 
-        if commom_task_parameters:
+        if common_task_parameters:
             spark_python_task.parameters = spark_python_task.parameters or []
-            for k, v in commom_task_parameters.items():
+            for k, v in common_task_parameters.items():
                 if k not in spark_python_task.parameters:
                     spark_python_task.parameters.append(k)
                     spark_python_task.parameters.append(v)
@@ -662,12 +670,12 @@ class DatabricksBundleCodegen(CodegenInterface):
         return jt
 
     def _build_native_run_job_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **_kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **_kwargs: Any,
     ) -> JobsTasks:
         run_job_task: JobsTasksRunJobTask = task.task_func()
 
@@ -687,12 +695,12 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
 
     def _build_native_sql_file_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **_kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **_kwargs: Any,
     ) -> JobsTasks:
         sql_task: JobsTasksSqlTask = task.task_func()
 
@@ -712,12 +720,12 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
 
     def _build_native_condition_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **_kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **_kwargs: Any,
     ) -> JobsTasks:
         condition_task: JobsTasksConditionTask = task.task_func()
 
@@ -736,13 +744,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
 
     def _build_dlt_task(
-        self,
-        task_name: str,
-        task: Task,
-        workflow: Workflow,
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **_kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            workflow: Workflow,
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **_kwargs: Any,
     ) -> JobsTasks:
         dlt_task: DLTPipeline = task.task_func()
 
@@ -767,13 +775,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         )
 
     def _build_native_for_each_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_libraries: List[JobsTasksLibraries],
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        **kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_libraries: List[JobsTasksLibraries],
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            **kwargs: Any,
     ) -> JobsTasks:
         supported_task_types = (
             TaskType.NOTEBOOK_TASK,
@@ -831,13 +839,13 @@ class DatabricksBundleCodegen(CodegenInterface):
         return jt
 
     def _build_brickflow_entrypoint_task(
-        self,
-        task_name: str,
-        task: Task,
-        task_settings: TaskSettings,
-        depends_on: List[JobsTasksDependsOn],
-        task_libraries: List[JobsTasksLibraries],
-        **_kwargs: Any,
+            self,
+            task_name: str,
+            task: Task,
+            task_settings: TaskSettings,
+            depends_on: List[JobsTasksDependsOn],
+            task_libraries: List[JobsTasksLibraries],
+            **_kwargs: Any,
     ) -> JobsTasks:
         task_obj = JobsTasks(
             **{
@@ -898,7 +906,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         return builder
 
     def _build_task(
-        self, build_func: Callable, workflow: Workflow, task_name: str, task: Task
+            self, build_func: Callable, workflow: Workflow, task_name: str, task: Task
     ) -> Union[JobsTasks, Pipelines]:
         # TODO: DLT
         # pipeline_task: Pipeline = self._create_dlt_notebooks(stack, task)
@@ -918,7 +926,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             libraries = filter_bf_related_libraries(libraries)
             libraries += get_brickflow_libraries(workflow.enable_plugins)
 
-        task_libraries = [JobsTasksLibraries(**library.dict) for library in libraries]  # type: ignore
+        task_libraries = [JobsTasksLibraries.from_dict(library.dict) for library in libraries]  # type: ignore
         task_settings = workflow.default_task_settings.merge(task.task_settings)  # type: ignore
         task = build_func(
             task_name=task_name,
@@ -932,7 +940,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         return task
 
     def workflow_obj_to_tasks(
-        self, workflow: Workflow
+            self, workflow: Workflow
     ) -> List[Union[JobsTasks, Pipelines]]:
         tasks = []
 
@@ -953,7 +961,7 @@ class DatabricksBundleCodegen(CodegenInterface):
 
     @staticmethod
     def workflow_obj_to_permissions(
-        workflow: Workflow,  # noqa
+            workflow: Workflow,  # noqa
     ) -> Optional[List[JobsPermissions]]:
         # TODO: add permissions
         perms = workflow.permissions.to_access_controls()
@@ -961,7 +969,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         for perm in perms:
             this_perm = perm.copy()
             this_perm["level"] = this_perm.pop("permission_level")
-            job_perms.append(JobsPermissions(**this_perm))
+            job_perms.append(JobsPermissions.from_dict(this_perm))
 
         if len(job_perms) == 0:
             return None
@@ -1021,7 +1029,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             git_conf = (
                 JobsGitSource(
                     git_url=self.project.git_repo or "",
-                    git_provider=self.project.provider,
+                    git_provider=GitProvider[self.project.provider],
                     **{ref_type: ref_value},
                 )
                 if self.env != BrickflowDefaultEnvs.LOCAL.value
@@ -1034,7 +1042,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 tasks=tasks,
                 tags=workflow.tags,
                 health=workflow.health,
-                job_clusters=[JobsJobClusters(**c) for c in workflow_clusters],
+                job_clusters=[JobsJobClusters.from_dict(cluster) for cluster in workflow_clusters],
                 schedule=self.workflow_obj_to_schedule(workflow),
                 max_concurrent_runs=workflow.max_concurrent_runs,
                 **self.workflow_handle_run_as(workflow),
@@ -1072,10 +1080,10 @@ class DatabricksBundleCodegen(CodegenInterface):
             raise ValueError("project.name is None")
 
         bundle_root_path = (
-            Path(self.project.bundle_base_path)
-            / self.project.bundle_obj_name
-            / self.project.name
-            / self.env
+                Path(self.project.bundle_base_path)
+                / self.project.bundle_obj_name
+                / self.project.name
+                / self.env
         )
 
         bundle_suffix = config(

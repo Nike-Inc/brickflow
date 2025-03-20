@@ -5,18 +5,19 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import networkx as nx
+from databricks.bundles.jobs import (
+    Continuous as JobsContinuous,
+    JobEmailNotifications as JobsEmailNotifications,
+    Environment as JobsEnvironments,
+    JobsHealthRules as JobsHealthRules,
+    JobNotificationSettings as JobsNotificationSettings,
+    JobParameterDefinition as JobsParameters,
+    TriggerSettings as JobsTrigger,
+    WebhookNotifications as JobsWebhookNotifications,
+    JobEnvironment as JobsEnvironments,
+)
 
 from brickflow import BrickflowEnvVars, env_chain
-from brickflow.bundles.model import (
-    JobsContinuous,
-    JobsEmailNotifications,
-    JobsEnvironments,
-    JobsHealthRules,
-    JobsNotificationSettings,
-    JobsParameters,
-    JobsTrigger,
-    JobsWebhookNotifications,
-)
 from brickflow.context import BrickflowInternalVariables
 from brickflow.engine import ROOT_NODE
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
@@ -157,7 +158,7 @@ class Workflow:
             logging.info(
                 "Default cluster details are not provided, switching to serverless compute."
             )
-            self.environments = self.convert_libraries_to_environments
+            self.environments = [JobsEnvironments(**env) for env in self.convert_libraries_to_environments]
             logging.debug(self.environments)
 
         if self.prefix is None:
@@ -251,7 +252,7 @@ class Workflow:
 
         if self.schedule_continuous is not None:
             self.schedule_continuous.pause_status = (
-                self.schedule_continuous.pause_status.upper()
+                self.schedule_continuous.pause_status
             )
 
             if (
@@ -670,3 +671,5 @@ class Workflow:
                 )
 
         return task_wrapper
+
+

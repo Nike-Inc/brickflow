@@ -2,7 +2,7 @@ from unittest.mock import patch
 import pytest
 
 import brickflow_plugins.databricks.run_job
-from brickflow.bundles.model import JobsContinuous
+from brickflow.engine.workflow import JobsContinuous
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
     Task,

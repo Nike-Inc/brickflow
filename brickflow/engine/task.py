@@ -27,6 +27,23 @@ from typing import (
 )
 
 import pluggy
+from databricks.bundles.jobs import (
+    ConditionTask as JobsTasksConditionTask,
+    ForEachTask as JobsTasksForEachTask,
+    JobsHealthRules as JobsTasksHealthRules,
+    NotebookTask as JobsTasksNotebookTask,
+    TaskNotificationSettings as JobsTasksNotificationSettings,
+    RunJobTask as JobsTasksRunJobTask,
+    SparkJarTask as JobsTasksSparkJarTask,
+    SparkPythonTask as JobsTasksSparkPythonTask,
+    SqlTask as JobsTasksSqlTask,
+    SqlTaskAlert as JobsTasksSqlTaskAlert,
+    SqlTaskSubscription as JobsTasksSqlTaskAlertSubscriptions,
+    SqlTaskDashboard as JobsTasksSqlTaskDashboard,
+    SqlTaskFile as JobsTasksSqlTaskFile,
+    SqlTaskQuery as JobsTasksSqlTaskQuery,
+    WebhookNotifications as JobsTasksWebhookNotifications,
+)
 from decouple import config
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -36,24 +53,6 @@ from brickflow import (
     BrickflowProjectDeploymentSettings,
     _ilog,
     get_brickflow_version,
-)
-from brickflow.bundles.model import (
-    JobsTasksConditionTask,
-    JobsTasksForEachTask,
-    JobsTasksHealthRules,
-    JobsTasksNotebookTask,
-    JobsTasksNotificationSettings,
-    JobsTasksRunJobTask,
-    JobsTasksSparkJarTask,
-    JobsTasksSparkPythonTask,
-    JobsTasksSqlTask,
-    JobsTasksSqlTaskAlert,
-    JobsTasksSqlTaskAlertSubscriptions,
-    JobsTasksSqlTaskDashboard,
-    JobsTasksSqlTaskDashboardSubscriptions,
-    JobsTasksSqlTaskFile,
-    JobsTasksSqlTaskQuery,
-    JobsTasksWebhookNotifications,
 )
 from brickflow.cli.projects import DEFAULT_BRICKFLOW_VERSION_MODE
 from brickflow.context import (
@@ -328,7 +327,7 @@ class TaskSettings:
         notification_settings = (
             {}
             if self.notification_settings is None
-            else {"notification_settings": self.notification_settings.dict()}
+            else {"notification_settings": self.notification_settings.as_dict()}
         )
         return {
             **notification_settings,
@@ -492,7 +491,7 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
                 )
     """
 
-    python_file: str
+    python_file: Optional[str]
     source: Optional[str] = None
     parameters: Optional[List[str]] = None
 
@@ -674,11 +673,11 @@ class SqlTask(JobsTasksSqlTask):
                         custom_subject=self.dashboard_custom_subject,
                         pause_subscriptions=self.pause_subscriptions,
                         subscriptions=[
-                            JobsTasksSqlTaskDashboardSubscriptions(user_name=username)
+                            JobsTasksSqlTaskAlertSubscriptions(user_name=username)
                             for username in self.subscriptions.get("usernames", "")
                         ]
                         + [
-                            JobsTasksSqlTaskDashboardSubscriptions(
+                            JobsTasksSqlTaskAlertSubscriptions(
                                 destination_id=destination_id
                             )
                             for destination_id in self.subscriptions.get(
