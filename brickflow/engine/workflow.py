@@ -158,7 +158,7 @@ class Workflow:
             logging.info(
                 "Default cluster details are not provided, switching to serverless compute."
             )
-            self.environments = [JobsEnvironments(**env) for env in self.convert_libraries_to_environments]
+            self.environments = [JobsEnvironments.from_dict(env) for env in self.convert_libraries_to_environments]
             logging.debug(self.environments)
 
         if self.prefix is None:
