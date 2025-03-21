@@ -10,7 +10,7 @@ from deepdiff import DeepDiff
 
 import pytest
 
-from brickflow import BrickflowEnvVars, Workflow
+from brickflow import BrickflowEnvVars
 from brickflow.bundles.model import (
     DatabricksAssetBundles,
     Jobs,
@@ -785,6 +785,9 @@ import {
     def test_queue(self):
         proj_name = "test-project"
         env_name = "local"
+
+        from brickflow import Workflow
+
         with Project(
             proj_name,
             entry_point_path="test_databricks_bundle.py",
@@ -811,8 +814,8 @@ import {
         bundle_codegen = DatabricksBundleCodegen(
             project=f, id_="test", env=env_name, mutators=[MagicMock()]
         )
-        bundle = bundle_codegen.proj_to_bundle()
-        jobs = bundle.targets[f"{proj_name}-{env_name}"].resources.jobs
+        this_bundle = bundle_codegen.proj_to_bundle()
+        jobs = this_bundle.targets.get(f"{proj_name}-{env_name}").resources.jobs
         assert (
             jobs["sample_wf_with_queue_true"].queue.enabled is True
         ), "Queue should be enabled"
