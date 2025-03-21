@@ -150,6 +150,7 @@ class Workflow:
     parameters: Optional[List[JobsParameters]] = None
     # environments should be defined for serverless workloads
     environments: Optional[List[JobsEnvironments]] = None
+    queue: Optional[bool] = None
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
