@@ -150,6 +150,8 @@ class Workflow:
     parameters: Optional[List[JobsParameters]] = None
     # environments should be defined for serverless workloads
     environments: Optional[List[JobsEnvironments]] = None
+    # enabled by databricks asset bundles by default if set to None
+    # Look at https://github.com/databricks/cli/pull/1385
     queue: Optional[bool] = None
 
     def __post_init__(self) -> None:
