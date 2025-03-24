@@ -41,6 +41,7 @@ from brickflow.engine.task import (
     get_brickflow_libraries,
     get_brickflow_tasks_hook,
     get_plugin_manager,
+    TaskType,
 )
 from brickflow.engine.utils import get_job_id
 from tests.engine.sample_workflow import (
@@ -674,3 +675,35 @@ class TestTask:
         )
 
         assert for_each_task.inputs == '["input1", "input2"]'
+
+    def test_for_each_task_validation_task_type(self):
+        # Valid task type
+        for_each_task = ForEachTask(
+            configs=JobsTasksForEachTaskConfigs(
+                inputs=["input1", "input2"],
+                concurrency=2,
+                task_type=TaskType.NOTEBOOK_TASK,
+            ),
+            task=JobsTasks(task_key="task_key"),
+        )
+        assert for_each_task.configs.task_type == TaskType.NOTEBOOK_TASK
+
+        # Not providing a task type should set task type to None
+        for_each_task = ForEachTask(
+            configs=JobsTasksForEachTaskConfigs(
+                inputs=["input1", "input2"], concurrency=2
+            ),
+            task=JobsTasks(task_key="task_key"),
+        )
+        assert for_each_task.configs.task_type is None
+
+        # Setting a task type with a value other than the valid ones should raise a ValueError
+        with pytest.raises(ValueError):
+            ForEachTask(
+                configs=JobsTasksForEachTaskConfigs(
+                    inputs=["input1", "input2"],
+                    concurrency=2,
+                    task_type=TaskType.IF_ELSE_CONDITION_TASK,
+                ),
+                task=JobsTasks(task_key="task_key"),
+            )

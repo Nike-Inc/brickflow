@@ -424,8 +424,7 @@ def first_notebook():
 @wf3.for_each_task(
     depends_on=first_notebook,
     for_each_task_conf=JobsTasksForEachTaskConfigs(
-        concurrency=3,
-        inputs="[1, 2, 3]",
+        concurrency=3, inputs="[1, 2, 3]", task_type=TaskType.NOTEBOOK_TASK
     ),
 )
 def for_each_notebook():
@@ -439,12 +438,14 @@ def for_each_notebook():
 @wf3.for_each_task(
     depends_on=first_notebook,
     for_each_task_conf=JobsTasksForEachTaskConfigs(
-        inputs=["1", "2", "3"],
-        concurrency=1,
+        inputs=["1", "2", "3"], concurrency=1, task_type=TaskType.BRICKFLOW_TASK
     ),
 )
 def for_each_bf_task(*, looped_parameter="{{input}}"):
     print(f"This is a nested bf task running with input: {looped_parameter}")
+    raise ValueError(
+        "This should not be raised during codegen if we provide the task_type!"
+    )
 
 
 @wf3.for_each_task(

@@ -503,10 +503,31 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         self.python_file = kwargs.get("python_file", None)
 
 
+def validate_for_each_task_type(value: TaskType) -> TaskType:
+    """For each task does not support all task types"""
+    supported_task_types = (
+        TaskType.NOTEBOOK_TASK,
+        TaskType.SPARK_JAR_TASK,
+        TaskType.SPARK_PYTHON_TASK,
+        TaskType.RUN_JOB_TASK,
+        TaskType.SQL,
+        TaskType.BRICKFLOW_TASK,  # Accounts for brickflow entrypoint tasks
+    )
+    if value not in supported_task_types:
+        raise ValueError(
+            f"Unsupported nested task type: only {','.join(task_type.name for task_type in supported_task_types)} "
+            f"are allowed"
+        )
+    return value
+
+
 class JobsTasksForEachTaskConfigs(BaseModel):
     inputs: str = Field(..., description="The input data for the task.")
     concurrency: int = Field(
         default=1, description="Number of iterations that can run in parallel,"
+    )
+    task_type: Optional[TaskType] = Field(
+        default=None, description="The type of the nested task"
     )
 
     @field_validator("inputs", mode="before")
@@ -515,6 +536,14 @@ class JobsTasksForEachTaskConfigs(BaseModel):
         if not isinstance(inputs, str):
             inputs = json.dumps(inputs)
         return inputs
+
+    @field_validator("task_type", mode="before")
+    @classmethod
+    def validate_task_type(cls, value: Optional[TaskType]) -> Optional[TaskType]:
+        """Task type can also be None (for backward compatibility), will validate only if provided"""
+        if value:
+            return validate_for_each_task_type(value)
+        return value
 
 
 class ForEachTask(JobsTasksForEachTask):
