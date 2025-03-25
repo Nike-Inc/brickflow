@@ -71,6 +71,7 @@ from brickflow.engine.task import (
     TaskSettings,
     filter_bf_related_libraries,
     get_brickflow_libraries,
+    validate_for_each_task_type,
 )
 
 if typing.TYPE_CHECKING:
@@ -775,14 +776,6 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **kwargs: Any,
     ) -> JobsTasks:
-        supported_task_types = (
-            TaskType.NOTEBOOK_TASK,
-            TaskType.SPARK_JAR_TASK,
-            TaskType.SPARK_PYTHON_TASK,
-            TaskType.RUN_JOB_TASK,
-            TaskType.SQL,
-            TaskType.BRICKFLOW_TASK,  # Accounts for brickflow entrypoint tasks
-        )
 
         if task.for_each_task_conf is None:
             raise ValueError(
@@ -790,21 +783,21 @@ class DatabricksBundleCodegen(CodegenInterface):
                 f"Make sure {task_name} has a for_each_task_conf attribute."
             )
 
-        nested_task = task.task_func()
-        task_type = self._get_task_type(nested_task)
+        # Validation of the nested task type: for tasks other than native brickflow ones, we execute the task function
+        # to get the actual Task Object and validate against it. If type is native brickflow, we can only trust
+        # what has been declared, otherwise we will end up executing the task itself
+        task_type = task.for_each_task_conf.task_type
+        if task_type is not TaskType.BRICKFLOW_TASK:
+            nested_task = task.task_func()
+            task_type = self._get_task_type(nested_task)
 
-        try:
-            assert task_type in supported_task_types
-        except AssertionError as e:
-            raise ValueError(
-                f"Error while building python task {task_name}. Make sure {task_name} is one of "
-                f"{', '.join(task_type.__name__ for task_type in supported_task_types)}."
-            ) from e
+        # Will raise ValueError if the task type is not supported
+        validate_for_each_task_type(task_type)
 
         builder_func = self._get_task_builder(task_type=task_type)
 
         workflow: Optional[Workflow] = kwargs.get("workflow")
-        # Currently the inner task name is not exposed, will have to add a parammeter to the for_each_task decorator to
+        # Currently the inner task name is not exposed, will have to add a parameter to the for_each_task decorator to
         # allow user to configure it
         nested_task_jt = builder_func(
             task_name=f"{task_name}_nested",

@@ -520,6 +520,7 @@ The `for_each_task` decorator can be configured by providing in the `for_each_ta
 
 - **inputs: Optional[str]**: the list of input values to iterate over. This can be a python iterable, or a string representing a JSON formatted array of values.
 - **for_each_task_concurrency: Optional[int]**: the number of concurrent executions of the task. Default is 1.
+- **task_type: Optional[TaskType]**: the type of task to iterate over. While this is not required, for nested brickflow type tasks it's recommended to set it accordingly otherwise the task could be unintentionally run during deployment. This attribute will likely be mandatory in a future minor release. 
 
 A reference to the current input value we are iterating on can be accessed using `{{input}}` databricks workflow parameter.
 
@@ -549,7 +550,7 @@ def example_notebook():
 @wf.for_each_task(
     depends_on=example_task,
     for_each_task_conf=JobsTasksForEachTaskConfigs(
-        inputs='["1", "2", "3"]', concurrency=3
+        inputs='["1", "2", "3"]', concurrency=3, task_type=TaskType.BRICKFLOW_TASK
     ),
 )
 def example_brickflow_task(*, test_param="{{input}}"):
