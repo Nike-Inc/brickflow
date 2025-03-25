@@ -308,9 +308,7 @@ class TaskSettings:
             other.webhook_notifications or self.webhook_notifications,
         )
 
-    def to_tf_dict(
-        self,
-    ) -> Dict[
+    def to_tf_dict(self, task_type: TaskType = TaskType.BRICKFLOW_TASK) -> Dict[
         str,
         Optional[str]
         | Optional[int]
@@ -330,7 +328,7 @@ class TaskSettings:
             if self.notification_settings is None
             else {"notification_settings": self.notification_settings.dict()}
         )
-        return {
+        task_settings = {
             **notification_settings,
             "email_notifications": email_not,
             "webhook_notifications": webhook_not,
@@ -340,6 +338,12 @@ class TaskSettings:
             "retry_on_timeout": self.retry_on_timeout,
             **({"run_if": self.run_if.value} if self.run_if else {}),
         }
+        if task_type in [TaskType.IF_ELSE_CONDITION_TASK, TaskType.FOR_EACH_TASK]:
+            # Setting timeout seconds or max_retires if/else and for-each task will cause deployment to fail
+            task_settings.pop("timeout_seconds", None)
+            task_settings.pop("max_retries", None)
+
+        return task_settings
 
 
 @dataclass
