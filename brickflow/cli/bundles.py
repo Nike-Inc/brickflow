@@ -5,7 +5,7 @@ import io
 import os
 import platform
 import zipfile
-from typing import Callable, Any, Optional
+from typing import Any, Callable, Optional
 
 import requests
 from click import ClickException
@@ -13,14 +13,14 @@ from decouple import config
 
 from brickflow import (
     BrickflowEnvVars,
-    ctx as brickflow_ctx,
     _ilog,
     get_bundles_project_env,
     get_entrypoint_python,
 )
-from brickflow.cli.constants import BrickflowDeployMode
+from brickflow import ctx as brickflow_ctx
 from brickflow.cli.commands import exec_command
 from brickflow.cli.configure import get_entrypoint, log_important_versions
+from brickflow.cli.constants import BrickflowDeployMode
 
 ENV_FLAG = "-t"
 
@@ -244,7 +244,7 @@ def bundle_synth(**kwargs: Any) -> None:
 
 
 def get_bundle_cli_version() -> str:
-    return config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.228.0")
+    return config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.236.0")
 
 
 def bundle_cli_setup() -> None:
