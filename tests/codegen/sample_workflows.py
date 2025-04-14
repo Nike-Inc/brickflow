@@ -352,6 +352,13 @@ class BadPythonModel(BaseModel):
     parameters: List[str]
 
 
+class BadPythonWheelModel(BaseModel):
+    package_name: str
+    entry_point: str
+    named_parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[List[str]] = None
+
+
 class BadSparkJar(BaseModel):
     jar_uri: str
     main_class_name: str
@@ -395,6 +402,15 @@ class BadDLT(BaseModel):
     schema_: Optional[str]
     source: Optional[str]
     warehouse_id: Optional[str]
+
+
+@wf_bad_tasks.task(task_type=TaskType.PYTHON_WHEEL_TASK)
+def task_python_wheel():
+    return BadPythonWheelModel(
+        package_name="data-mirror",
+        entry_point="datamirror",
+        parameters=["--configuration_file", "dbfs:/path/to/config.json"],
+    )
 
 
 @wf_bad_tasks.task(task_type=TaskType.SPARK_PYTHON_TASK)
