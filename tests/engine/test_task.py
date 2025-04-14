@@ -11,6 +11,7 @@ from brickflow import (
     IfElseConditionTask,
     SparkJarTask,
     SparkPythonTask,
+    PythonWheelTask,
 )
 from brickflow.bundles.model import (
     JobsTasks,
@@ -587,6 +588,25 @@ class TestTask:
         )
         assert task.python_file == "./products/test-project/path/to/python/file.py"
         assert task.source is None
+        assert task.parameters is None
+
+    def test_init_python_wheel(self):
+        task = PythonWheelTask(
+            package_name="test_package",
+            entry_point="test_entry_point",
+            parameters=["--param1", "test"],
+        )
+        assert task.package_name == "test_package"
+        assert task.entry_point == "test_entry_point"
+        assert task.parameters == ["--param1", "test"]
+
+    def test_without_params_python_wheel(self):
+        task = PythonWheelTask(
+            package_name="test_package",
+            entry_point="test_entry_point",
+        )
+        assert task.package_name == "test_package"
+        assert task.entry_point == "test_entry_point"
         assert task.parameters is None
 
     def if_else_condition_task(self):

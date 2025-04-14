@@ -10,6 +10,7 @@ from brickflow import (
     JarTaskLibrary,
     NotebookTask,
     PypiTaskLibrary,
+    PythonWheelTask,
     RunJobTask,
     SparkJarTask,
     SparkPythonTask,
@@ -442,6 +443,15 @@ def upload_volume_to_box():
         operation="upload",
     )
     upload_volumes_to_box_copy.execute()
+
+
+@wf.python_wheel_task(libraries=[PypiTaskLibrary("data-mirror")])
+def my_python_wheel_task():
+    return PythonWheelTask(
+        package_name="data-mirror",
+        entry_point="datamirror",
+        parameters=["--configuration_file", "dbfs:/path/to/config.json"],
+    )
 
 
 @wf.run_job_task

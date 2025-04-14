@@ -93,6 +93,21 @@ targets:
               pipeline_task:
                 pipeline_id: ${resources.pipelines.test_hello_world.id}
               task_key: dlt_pipeline_2
+            - depends_on:
+              - task_key: notebook_task_a
+              email_notifications: {}
+              existing_cluster_id: existing_cluster_id
+              libraries:
+              - pypi:
+                  package: data-mirror
+              python_wheel_task:
+                entry_point: datamirror
+                package_name: data-mirror
+                parameters:
+                - --configuration_file
+                - dbfs:/path/to/config.json
+              task_key: my_python_wheel_task
+              webhook_notifications: {}
             - depends_on: []
               email_notifications: {}
               webhook_notifications: {}

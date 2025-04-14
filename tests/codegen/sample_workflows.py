@@ -19,6 +19,7 @@ from brickflow.engine.task import (
     IfElseConditionTask,
     JobsTasksForEachTaskConfigs,
     NotebookTask,
+    PythonWheelTask,
     RunJobTask,
     SparkJarTask,
     SparkPythonTask,
@@ -78,6 +79,18 @@ def notebook_task_a(*, test="var"):
     return NotebookTask(
         notebook_path="notebooks/notebook_a",
     )  # type: ignore
+
+
+@wf.python_wheel_task(
+    libraries=[PypiTaskLibrary("data-mirror")],
+    depends_on=notebook_task_a,
+)
+def my_python_wheel_task():
+    return PythonWheelTask(
+        package_name="data-mirror",
+        entry_point="datamirror",
+        parameters=["--configuration_file", "dbfs:/path/to/config.json"],
+    )
 
 
 @wf.spark_jar_task(
