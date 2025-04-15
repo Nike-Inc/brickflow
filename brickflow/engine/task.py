@@ -43,6 +43,7 @@ from brickflow.bundles.model import (
     JobsTasksHealthRules,
     JobsTasksNotebookTask,
     JobsTasksNotificationSettings,
+    JobsTasksPythonWheelTask,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
     JobsTasksSparkPythonTask,
@@ -127,6 +128,7 @@ class TaskType(Enum):
     RUN_JOB_TASK = "run_job_task"
     IF_ELSE_CONDITION_TASK = "condition_task"
     FOR_EACH_TASK = "for_each_task"
+    PYTHON_WHEEL_TASK = "python_wheel_task"
 
 
 class TaskRunCondition(Enum):
@@ -415,6 +417,47 @@ class DLTPipeline:
 
 class NotebookTask(JobsTasksNotebookTask):
     pass
+
+
+class PythonWheelTask(JobsTasksPythonWheelTask):
+    """
+    The PythonWheelTask is designed to handle the execution of a Python Wheel
+    Job in databricks.
+
+    Attributes:
+        package_name (str): Name of the package to import. This should be the
+            name of the package as declared in the metadata in setup.py.
+        entry_point (str): Function to call to execute the wheel. This must be
+            present as one of keys in the entry_points dictionary in the
+            metadata setup (setup.py) of the package.
+        named_parameters (Dict[str, str], optional): Command-line parameters
+            passed to Python wheel task. Leave it empty if `parameters` is not
+            null.
+        parameters (List[str], optional): Command-line parameters passed to
+            Python wheel task. Leave it empty if `named_parameters` is not null.
+
+    Example:
+
+        @wf.python_wheel_task(libraries=[PypiTaskLibrary("data-mirror")])
+        def my_python_wheel_task():
+            return PythonWheelTask(
+                package_name="data-mirror",
+                entry_point="datamirror",
+                parameters=["--configuration_file", "dbfs:/path/to/config.json"],
+            )
+    """
+
+    package_name: str
+    entry_point: str
+    named_parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[List[str]] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.package_name = kwargs.get("package_name", None)
+        self.entry_point = kwargs.get("entry_point", None)
+        self.named_parameters = kwargs.get("named_parameters", None)
+        self.parameters = kwargs.get("parameters", None)
 
 
 class SparkJarTask(JobsTasksSparkJarTask):

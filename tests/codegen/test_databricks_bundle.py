@@ -635,6 +635,7 @@ import {
         wf_bad = deepcopy(wf_bad_tasks)
         map_task_name_to_erorr_part = {
             "task_python": ("python", "SparkPythonTask"),
+            "task_python_wheel": ("python wheel", "PythonWheelTask"),
             "task_spark_jar": ("jar", "SparkJarTask"),
         }
 

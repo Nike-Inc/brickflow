@@ -41,6 +41,7 @@ from brickflow.bundles.model import (
     JobsTasksLibraries,
     JobsTasksNotebookTask,
     JobsTasksPipelineTask,
+    JobsTasksPythonWheelTask,
     JobsTasksRunJobTask,
     JobsTasksSparkJarTask,
     JobsTasksSparkPythonTask,
@@ -580,6 +581,36 @@ class DatabricksBundleCodegen(CodegenInterface):
             )
         return jt
 
+    def _build_native_python_wheel_task(
+        self,
+        task_name: str,
+        task: Task,
+        task_libraries: List[JobsTasksLibraries],
+        task_settings: TaskSettings,
+        depends_on: List[JobsTasksDependsOn],
+        **_kwargs: Any,
+    ) -> JobsTasks:
+        python_wheel_task: JobsTasksPythonWheelTask = task.task_func()
+
+        try:
+            assert isinstance(python_wheel_task, JobsTasksPythonWheelTask)
+        except AssertionError as e:
+            raise ValueError(
+                f"Error while building python wheel task {task_name}. "
+                f"Make sure {task_name} returns a PythonWheelTask object."
+            ) from e
+
+        return JobsTasks(
+            **task_settings.to_tf_dict(),
+            python_wheel_task=python_wheel_task,
+            libraries=task_libraries,
+            depends_on=depends_on,
+            task_key=task_name,
+            # unpack dictionary provided by cluster object, will either be key or
+            # existing cluster id
+            **task.cluster.job_task_field_dict,
+        )
+
     def _build_native_spark_jar_task(
         self,
         task_name: str,
@@ -876,6 +907,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             TaskType.BRICKFLOW_TASK: self._build_brickflow_entrypoint_task,
             TaskType.DLT: self._build_dlt_task,
             TaskType.NOTEBOOK_TASK: self._build_native_notebook_task,
+            TaskType.PYTHON_WHEEL_TASK: self._build_native_python_wheel_task,
             TaskType.SPARK_JAR_TASK: self._build_native_spark_jar_task,
             TaskType.SPARK_PYTHON_TASK: self._build_native_spark_python_task,
             TaskType.RUN_JOB_TASK: self._build_native_run_job_task,
