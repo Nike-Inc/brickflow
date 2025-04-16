@@ -52,6 +52,7 @@ from brickflow.bundles.model import (
     Resources,
     Targets,
     Workspace,
+    JobsQueue,
 )
 from brickflow.cli.projects import MultiProjectManager, get_brickflow_root
 from brickflow.codegen import (
@@ -1075,6 +1076,11 @@ class DatabricksBundleCodegen(CodegenInterface):
                 parameters=workflow.parameters,
                 environments=workflow.environments,
                 git_source=git_conf,
+                queue=(
+                    JobsQueue(enabled=workflow.queue)
+                    if workflow.queue is not None
+                    else None
+                ),
             )
 
             jobs[workflow_name] = job
