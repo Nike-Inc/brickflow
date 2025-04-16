@@ -44,14 +44,19 @@ class TestTableauWrapper:
         mock_projects_pagination = mocker.MagicMock()
 
         def create_mock_project(
-            name_prefix: str, project_id: int, parent_id: int = None
+            name_prefix: str,
+            project_id: int,
+            parent_id: int = None,
+            name_override: str = None,
         ):
             mock_project = mocker.MagicMock()
-            mock_project.name = f"{name_prefix}-{project_id}"
+            mock_project.name = (
+                f"{name_prefix}-{project_id}" if not name_override else name_override
+            )
             mock_project.id = (
                 f"{project_id}" if not parent_id else f"{project_id * parent_id}"
             )
-            mock_project.parent_id = f"{parent_id}"
+            mock_project.parent_id = f"{parent_id}" if parent_id else None
             return mock_project
 
         # Parent Projects
@@ -67,6 +72,21 @@ class TestTableauWrapper:
                         name_prefix="project", project_id=ix, parent_id=i
                     )
                 )
+
+        # Two projects with the same name: one in root (no parent_id), the other under 'parent-project-1'
+        mock_projects.append(
+            create_mock_project(
+                name_prefix="project", project_id=100, name_override="project-foo"
+            )
+        )
+        mock_projects.append(
+            create_mock_project(
+                name_prefix="project",
+                project_id=101,
+                name_override="project-foo",
+                parent_id=1,
+            )
+        )
 
         mock_projects_pagination.total_available = len(mock_projects)
 
@@ -180,3 +200,9 @@ class TestTableauWrapper:
                 "job_status_details": "lorem ipsum" if s.finish_code == 1 else None,
             }
             assert result == expect
+
+    def test__get_working_project__with_root(self):
+        self.tableau_wrapper.project = "project-foo"
+        self.tableau_wrapper.parent_project = "/"
+        r = self.tableau_wrapper._get_working_project()
+        assert r.id == "100" and r.name == "project-foo"

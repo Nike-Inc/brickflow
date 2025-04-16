@@ -76,7 +76,7 @@ class TableauWrapper:
         project : str
             Tableau project
         parent_project : str
-            Name of the parent Tableau project
+            Name of the parent Tableau project, use "/" if the project is at the root level
         version : str
             Tableau server API version
         max_async_workers : int
@@ -324,9 +324,18 @@ class TableauWrapper:
             if project.name.strip() == self.project and not project_id:
                 lim_p.append(project)
 
+        if self.parent_project == "/" and not project_id:
+            parent = TSC.ProjectItem(name="ROOT")
+            self._logger.info("Site root will be treated as parent project.")
+
         # Further filter the list of projects by parent project id
         if self.parent_project and parent and not project_id:
-            lim_p = [p for p in lim_p if p.parent_id == parent.id]
+            lim_p = [
+                p
+                for p in lim_p
+                if (p.parent_id == parent.id)
+                or (not p.parent_id and parent.name == "ROOT")
+            ]
 
         if len(lim_p) > 1:
             raise self.MultipleWorkingProjectsException()
