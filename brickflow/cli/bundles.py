@@ -102,6 +102,7 @@ def get_force_lock_flag() -> str:
 @pre_bundle_hook
 def bundle_deploy(
     bundle_cli: Optional[str] = None,
+    fail_on_active_runs: bool = False,
     force_acquire_lock: bool = False,
     auto_approve: bool = False,
     debug: bool = False,
@@ -114,6 +115,13 @@ def bundle_deploy(
         return
 
     deploy_args = ["deploy", ENV_FLAG, get_bundles_project_env()]
+    if fail_on_active_runs is True:
+        # TODO: Remove the following message once the CLI is upgraded to >= 0.249.0.
+        _ilog.info(
+            "Note that, even with `fail-on-active-runs` being enabled, the deployment might fail, "
+            "in some edge cases (particularly if the bundle includes some wheel artifacts)."
+        )
+        deploy_args.append("--fail-on-active-runs")
     if force_acquire_lock is True:
         # fix/issue-32
         deploy_args.append(get_force_lock_flag())

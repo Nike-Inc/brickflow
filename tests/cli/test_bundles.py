@@ -17,12 +17,24 @@ class TestBundles:
         mock_exec_command.side_effect = lambda *args, **kwargs: None
         mock_exec_command.return_value = None
         # workflows_dir needed to make the function work due to bundle sync
-        bundle_deploy(force_acquire_lock=True, workflows_dir="somedir", debug=True)
+        bundle_deploy(
+            force_acquire_lock=True,
+            workflows_dir="somedir",
+            debug=True,
+            fail_on_active_runs=True,
+        )
         bundle_cli = os.environ[BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value]
         mock_exec_command.assert_called_with(
             bundle_cli,
             "bundle",
-            ["deploy", "-t", "local", "--force-lock", "--debug"],
+            [
+                "deploy",
+                "-t",
+                "local",
+                "--fail-on-active-runs",
+                "--force-lock",
+                "--debug",
+            ],
         )
         bundle_destroy(force_acquire_lock=True, workflows_dir="somedir", debug=True)
         bundle_cli = os.environ[BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value]
