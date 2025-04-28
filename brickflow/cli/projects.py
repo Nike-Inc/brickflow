@@ -482,6 +482,14 @@ def apply_bundles_deployment_options(
             default=False,
             help="Skip automatically adding brickflow libraries.",
         ),
+        "fail-on-active-runs": click.option(
+            "--fail-on-active-runs",
+            type=bool,
+            is_flag=True,
+            show_default=True,
+            default=False,
+            help="Fail if there are running jobs or pipelines in the deployment.",
+        ),
         "force-acquire-lock": click.option(
             "--force-acquire-lock",
             type=bool,
