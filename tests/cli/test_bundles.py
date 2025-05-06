@@ -1,7 +1,9 @@
 import logging
 import os
+from typing import Optional
 from unittest.mock import patch, Mock
 from pytest import LogCaptureFixture
+import pytest
 
 from brickflow import BrickflowEnvVars, _ilog
 from brickflow.cli.bundles import bundle_deploy, bundle_destroy
@@ -93,3 +95,31 @@ class TestBundles:
         assert "No bundle.yml found, skipping deployment." in [
             rec.message for rec in caplog.records
         ]
+
+    @pytest.mark.parametrize(
+        "input_arch,expected_arch",
+        [
+            ("x86_64", "amd64"),  # Test one x86_64 variant
+            ("amd64", "amd64"),  # Test alternative x86_64 name
+            ("i386", "386"),  # Test one 32-bit variant
+            ("i686", "386"),  # Test alternative 32-bit name
+            ("arm64", "arm64"),  # Test one ARM variant
+            ("aarch64", "arm64"),  # Test alternative ARM name
+            ("X86_64", "amd64"),  # Test case insensitivity
+            ("unsupported_arch", None),  # Test unsupported architecture
+        ],
+    )
+    def test_get_arch_mappings(
+        self, input_arch: str, expected_arch: Optional[str]
+    ) -> None:
+        from brickflow.cli.bundles import get_arch
+
+        with patch("platform.machine") as mock_machine:
+            mock_machine.return_value = input_arch
+
+            if expected_arch is None:
+                with pytest.raises(RuntimeError) as exc_info:
+                    get_arch()
+                assert f"Unsupported architecture: {input_arch}" in str(exc_info.value)
+            else:
+                assert get_arch() == expected_arch
