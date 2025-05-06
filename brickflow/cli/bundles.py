@@ -153,15 +153,18 @@ def bundle_destroy(
 
 
 def get_arch() -> str:
-    architecture = platform.machine()
-
-    if architecture in ("i386", "i686"):
-        architecture = "386"
-    elif architecture == "x86_64":
-        architecture = "amd64"
-    elif architecture.startswith("arm"):
-        architecture = "arm64"
-    return architecture
+    system = platform.machine().lower()
+    arch_map = {
+        "x86_64": "amd64",
+        "amd64": "amd64",
+        "i386": "386",
+        "i686": "386",
+        "arm64": "arm64",
+        "aarch64": "arm64",
+    }
+    if system not in arch_map:
+        raise RuntimeError(f"Unsupported architecture: {system}")
+    return arch_map[system]
 
 
 def bundle_download_path(version: str) -> str:
