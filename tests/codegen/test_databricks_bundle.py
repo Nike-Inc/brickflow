@@ -782,3 +782,47 @@ import {
         assert_equal_dicts(actual, expected)
         if os.path.exists(BUNDLE_FILE_NAME):
             os.remove(BUNDLE_FILE_NAME)
+
+    def test_queue(self):
+        proj_name = "test-project"
+        env_name = "local"
+
+        from brickflow import Workflow
+
+        with Project(
+            proj_name,
+            entry_point_path="test_databricks_bundle.py",
+            codegen_kwargs={
+                "mutators": [
+                    DatabricksBundleTagsAndNameMutator(databricks_client=MagicMock())
+                ]
+            },  # dont test import mutator
+        ) as f:
+
+            sample_wf_with_queue_true = Workflow(
+                "sample_wf_with_queue_true", queue=True
+            )
+            f.add_workflow(sample_wf_with_queue_true)
+            sample_wf_with_queue_false = Workflow(
+                "sample_wf_with_queue_false", queue=False
+            )
+            f.add_workflow(sample_wf_with_queue_false)
+            sample_wf_with_queue_none = Workflow(
+                "sample_wf_with_queue_none",
+            )
+            f.add_workflow(sample_wf_with_queue_none)
+
+        bundle_codegen = DatabricksBundleCodegen(
+            project=f, id_="test", env=env_name, mutators=[MagicMock()]
+        )
+        this_bundle = bundle_codegen.proj_to_bundle()
+        jobs = this_bundle.targets.get(f"{proj_name}-{env_name}").resources.jobs
+        assert (
+            jobs["sample_wf_with_queue_true"].queue.enabled is True
+        ), "Queue should be enabled"
+        assert (
+            jobs["sample_wf_with_queue_false"].queue.enabled is False
+        ), "Queue should be disabled"
+        assert (
+            jobs["sample_wf_with_queue_none"].queue is None
+        ), "Queue should be set to None"
