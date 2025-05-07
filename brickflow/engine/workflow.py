@@ -1,6 +1,7 @@
 import abc
 import functools
 import logging
+import os
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
@@ -156,6 +157,18 @@ class Workflow:
 
     def __post_init__(self) -> None:
         self.graph.add_node(ROOT_NODE)
+
+        # Set schedule_pause_status to PAUSED by default for non-prod environments
+        env = os.getenv(BrickflowEnvVars.BRICKFLOW_ENV.value, "local").lower()
+        envs_to_pause = ["local", "dev", "test"]
+
+        if env in envs_to_pause and self.schedule_pause_status == "UNPAUSED":
+            logging.info(
+                "Setting schedule_pause_status to PAUSED as default for %s environment",
+                env,
+            )
+            self.schedule_pause_status = "PAUSED"
+
         if self.default_cluster is None and self.clusters == []:
             logging.info(
                 "Default cluster details are not provided, switching to serverless compute."

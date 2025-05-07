@@ -1,7 +1,7 @@
 import os
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Callable
+from typing import Any, Dict, Callable, List
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
@@ -826,3 +826,103 @@ import {
         assert (
             jobs["sample_wf_with_queue_none"].queue is None
         ), "Queue should be set to None"
+
+    def test_schedule_pause_status(self):
+        from brickflow import Workflow, Cluster
+
+        proj_name = "test-project"
+        git_repo = "https://github.com/test/repo"
+        git_provider = "github"
+
+        test_cases: List[dict[str, Any]] = [
+            {
+                "env": "local",
+                "expected_status": "PAUSED",
+                "workflow_status": "UNPAUSED",  # Should be converted to PAUSED
+                "needs_git": False,
+            },
+            {
+                "env": "local",
+                "expected_status": "PAUSED",
+                "workflow_status": "PAUSED",  # Should stay PAUSED
+                "needs_git": False,
+            },
+            {
+                "env": "dev",
+                "expected_status": "PAUSED",
+                "workflow_status": "UNPAUSED",  # Should be converted to PAUSED
+                "needs_git": True,
+            },
+            {
+                "env": "test",
+                "expected_status": "PAUSED",
+                "workflow_status": "UNPAUSED",  # Should be converted to PAUSED
+                "needs_git": True,
+            },
+            {
+                "env": "prod",
+                "expected_status": "PAUSED",
+                "workflow_status": "PAUSED",  # Should stay PAUSED
+                "needs_git": True,
+            },
+            {
+                "env": "prod",
+                "expected_status": "UNPAUSED",
+                "workflow_status": "UNPAUSED",  # Should stay UNPAUSED
+                "needs_git": True,
+            },
+        ]
+
+        for case in test_cases:
+            with (
+                patch.dict("os.environ", {"BRICKFLOW_ENV": case["env"]}),
+                patch("subprocess.check_output", return_value=b"main"),
+            ):
+                project_kwargs: dict[str, Any] = {
+                    "name": proj_name,
+                    "entry_point_path": "test_databricks_bundle.py",
+                    "codegen_kwargs": {
+                        "mutators": [
+                            DatabricksBundleTagsAndNameMutator(
+                                databricks_client=MagicMock()
+                            )
+                        ]
+                    },
+                }
+
+                # Add git config for non-local environments
+                if case["needs_git"]:
+                    # Supply a valid git_reference to prevent empty extra fields.
+                    project_kwargs.update(
+                        {
+                            "git_repo": git_repo,
+                            "provider": git_provider,
+                            "git_reference": "git_branch/main",
+                        }
+                    )
+
+                with Project(**project_kwargs) as f:
+                    wf_pause_test = Workflow(
+                        f"test_workflow_{case['env']}",
+                        schedule_pause_status=case["workflow_status"],
+                        schedule_quartz_expression="0 0 * * * ?",  # Add schedule
+                        clusters=[Cluster("test-cluster", "spark", "vm-node")],
+                    )
+                    f.add_workflow(wf_pause_test)
+
+                    bundle_codegen = DatabricksBundleCodegen(
+                        project=f, id_="test", env=case["env"], mutators=[MagicMock()]
+                    )
+                    this_bundle = bundle_codegen.proj_to_bundle()
+                    jobs = this_bundle.targets.get(
+                        f"{proj_name}-{case['env']}"
+                    ).resources.jobs
+
+                    # Verify schedule exists and has correct pause status
+                    assert (
+                        jobs[f"test_workflow_{case['env']}"].schedule is not None
+                    ), "Schedule should not be None"
+                    assert (
+                        jobs[f"test_workflow_{case['env']}"].schedule.pause_status
+                        == case["expected_status"]
+                    ), f"Schedule pause status for {case['env']} environment should be {case['expected_status']}"
