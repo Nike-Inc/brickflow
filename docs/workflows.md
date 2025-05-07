@@ -78,7 +78,7 @@ def task_function(*, test="var"):
 12. Suffix for the name of the workflow
 13. Define the common task parameters that can be used in all the tasks
 14. Define a workflow task and associate it to the workflow
-15. Define the schedule pause status. It is defaulted to "UNPAUSED"
+15. Define the schedule pause status. For envs ["local", "dev", "test"] it is defaulted to "PAUSED", for other env's it is "UNPAUSED"
 16. Define health check condition that triggers duration warning threshold exceeded notifications
 17. Define timeout_seconds check condition that triggers workflow failure if duration exceeds threshold
 18. Define the parameters on workflow level [databricks docs](https://docs.databricks.com/en/jobs/settings.html#job-parameters)
