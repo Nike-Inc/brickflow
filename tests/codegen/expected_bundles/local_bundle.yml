@@ -29,7 +29,7 @@
           "run_as":
             "user_name": "abc@abc.com"
           "schedule":
-            "pause_status": "UNPAUSED"
+            "pause_status": "PAUSED"
             "quartz_cron_expression": "* * * * *"
             "timezone_id": "UTC"
           "tags":

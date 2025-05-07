@@ -264,22 +264,46 @@ class TestWorkflow:
         assert len(wf.graph.nodes) == 12
 
     def test_schedule_run_status_workflow(self):
-        this_wf = Workflow("test", clusters=[Cluster("name", "spark", "vm-node")])
-        assert this_wf.schedule_pause_status == "UNPAUSED"
+        envs_to_pause = ["local", "dev", "test"]
+        envs_to_unpause = ["qa", "uat", "non_prod", "prod"]
 
-        this_wf = Workflow(
-            "test",
-            clusters=[Cluster("name", "spark", "vm-node")],
-            schedule_pause_status="PAUSED",
-        )
-        assert this_wf.schedule_pause_status == "PAUSED"
+        for env in envs_to_pause:
+            with patch.dict("os.environ", {"BRICKFLOW_ENV": env}):
+                wf_to_pause = Workflow(
+                    "test", clusters=[Cluster("name", "spark", "vm-node")]
+                )
+                assert (
+                    wf_to_pause.schedule_pause_status == "PAUSED"
+                ), f"wf_to_pause failed for env: {env}"
 
-        this_wf = Workflow(
-            "test",
-            clusters=[Cluster("name", "spark", "vm-node")],
-            schedule_pause_status="paused",
-        )
-        assert this_wf.schedule_pause_status == "PAUSED"
+                # Test explicit UNPAUSED gets converted to PAUSED
+                wf_to_pause_override = Workflow(
+                    "test",
+                    clusters=[Cluster("name", "spark", "vm-node")],
+                    schedule_pause_status="UNPAUSED",
+                )
+                assert (
+                    wf_to_pause_override.schedule_pause_status == "PAUSED"
+                ), f"wf_to_pause_override failed for env: {env}"
+
+        for env in envs_to_unpause:
+            with patch.dict("os.environ", {"BRICKFLOW_ENV": env}):
+                wf_to_unpause = Workflow(
+                    "test", clusters=[Cluster("name", "spark", "vm-node")]
+                )
+                assert (
+                    wf_to_unpause.schedule_pause_status == "UNPAUSED"
+                ), f"wf_to_unpause failed for env: {env}"
+
+                # Test explicit PAUSED, doesn't get converted to UNPAUSED
+                wf_to_unpause_override = Workflow(
+                    "test",
+                    clusters=[Cluster("name", "spark", "vm-node")],
+                    schedule_pause_status="PAUSED",
+                )
+                assert (
+                    wf_to_unpause_override.schedule_pause_status == "PAUSED"
+                ), f"wf_to_unpause_override failed for env: {env}"
 
         with pytest.raises(WorkflowConfigError) as excinfo:
             Workflow(
