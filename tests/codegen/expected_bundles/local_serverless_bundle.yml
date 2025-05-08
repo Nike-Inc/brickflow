@@ -21,7 +21,7 @@
           "parameters": null
           "permissions": null
           "schedule":
-            "pause_status": "UNPAUSED"
+            "pause_status": "PAUSED"
             "quartz_cron_expression": "0 0/20 0 ? * * *"
             "timezone_id": "UTC"
           "tags":

@@ -36,7 +36,7 @@ targets:
           schedule:
             quartz_cron_expression: "* * * * *"
             timezone_id: UTC
-            pause_status: "UNPAUSED"
+            pause_status: "PAUSED"
           tags:
             brickflow_project_name: test-project
             brickflow_deployment_mode: Databricks Asset Bundles

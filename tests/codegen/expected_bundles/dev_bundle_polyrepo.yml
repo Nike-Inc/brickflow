@@ -39,7 +39,7 @@ targets:
           schedule:
             quartz_cron_expression: "* * * * *"
             timezone_id: UTC
-            pause_status: "UNPAUSED"
+            pause_status: "PAUSED"
           tags:
             brickflow_project_name: test-project
             brickflow_deployment_mode: Databricks Asset Bundles
@@ -94,18 +94,18 @@ targets:
                 pipeline_id: ${resources.pipelines.test_hello_world.id}
               task_key: dlt_pipeline_2
             - depends_on:
-              - task_key: notebook_task_a
+                - task_key: notebook_task_a
               email_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries:
-              - pypi:
-                  package: data-mirror
+                - pypi:
+                    package: data-mirror
               python_wheel_task:
                 entry_point: datamirror
                 package_name: data-mirror
                 parameters:
-                - --configuration_file
-                - dbfs:/path/to/config.json
+                  - --configuration_file
+                  - dbfs:/path/to/config.json
               task_key: my_python_wheel_task
               webhook_notifications: {}
             - depends_on: []
@@ -134,7 +134,7 @@ targets:
               min_retry_interval_millis: null
               spark_jar_task:
                 main_class_name: PrintArgs
-                parameters: ['Hello', 'World!']
+                parameters: ["Hello", "World!"]
                 jar_uri: null
               retry_on_timeout: null
               task_key: spark_jar_task_a
@@ -145,13 +145,21 @@ targets:
               webhook_notifications: {}
               existing_cluster_id: existing_cluster_id
               libraries:
-                - pypi: 
+                - pypi:
                     package: koheesio
               max_retries: null
               min_retry_interval_millis: null
               spark_python_task:
                 python_file: ./products/test-project/spark/python/src/run_task.py
-                parameters: ["--param1", "World!", "all_tasks1", "test", "all_tasks3", "123"]
+                parameters:
+                  [
+                    "--param1",
+                    "World!",
+                    "all_tasks1",
+                    "test",
+                    "all_tasks3",
+                    "123",
+                  ]
                 source: GIT
               retry_on_timeout: null
               task_key: spark_python_task_a
@@ -171,7 +179,15 @@ targets:
               min_retry_interval_millis: null
               retry_on_timeout: null
               spark_python_task:
-                parameters: ["--param1", "World!", "all_tasks1", "test", "all_tasks3", "123"]
+                parameters:
+                  [
+                    "--param1",
+                    "World!",
+                    "all_tasks1",
+                    "test",
+                    "all_tasks3",
+                    "123",
+                  ]
                 python_file: ./products/test-project/spark/python/src/run_task.py
                 source: GIT
               task_key: spark_python_task_depended
@@ -192,7 +208,15 @@ targets:
               min_retry_interval_millis: null
               retry_on_timeout: null
               spark_python_task:
-                parameters: ["--param1", "World!", "all_tasks1", "test", "all_tasks3", "123"]
+                parameters:
+                  [
+                    "--param1",
+                    "World!",
+                    "all_tasks1",
+                    "test",
+                    "all_tasks3",
+                    "123",
+                  ]
                 python_file: ./products/test-project/spark/python/src/run_task.py
                 source: GIT
               task_key: spark_python_task_depended2
@@ -210,8 +234,8 @@ targets:
               task_key: run_job_task_a
               timeout_seconds: null
             - "depends_on":
-              - "outcome": null
-                "task_key": "notebook_task_a"
+                - "outcome": null
+                  "task_key": "notebook_task_a"
               "email_notifications": {}
               "webhook_notifications": {}
               "existing_cluster_id": "existing_cluster_id"
@@ -451,7 +475,7 @@ targets:
               task_key: task_function_nokwargs
               timeout_seconds: null
             - depends_on:
-              - task_key: "notebook_task_a"
+                - task_key: "notebook_task_a"
               email_notifications: {}
               webhook_notifications: {}
               max_retries: null
@@ -462,8 +486,8 @@ targets:
                   alert_id: "Your_Alert_ID"
                   pause_subscriptions: false
                   subscriptions:
-                  - user_name: "YOUR_USERNAME"
-                  - user_name: "YOUR_USERNAME"
+                    - user_name: "YOUR_USERNAME"
+                    - user_name: "YOUR_USERNAME"
                 warehouse_id: "your_warehouse_id"
               task_key: "sample_sql_alert"
               timeout_seconds: null
@@ -479,9 +503,9 @@ targets:
                   dashboard_id: "Your_Dashboard_ID"
                   pause_subscriptions: true
                   subscriptions:
-                  - user_name: "YOUR_USERNAME"
-                  - user_name: "YOUR_USERNAME"
-                  - destination_id: "your_destination_id"
+                    - user_name: "YOUR_USERNAME"
+                    - user_name: "YOUR_USERNAME"
+                    - destination_id: "your_destination_id"
                 warehouse_id: "your_warehouse_id"
               task_key: "sample_sql_dashboard"
               timeout_seconds: null
@@ -510,7 +534,7 @@ targets:
               task_key: "sample_sql_task_query"
               timeout_seconds: null
             - depends_on:
-              - task_key: "sample_sql_task_query"
+                - task_key: "sample_sql_task_query"
               email_notifications: {}
               webhook_notifications: {}
               max_retries: null
@@ -523,7 +547,7 @@ targets:
               task_key: "condtion_task_test"
               timeout_seconds: null
             - depends_on:
-              - task_key: "sample_sql_task_query"
+                - task_key: "sample_sql_task_query"
               email_notifications: {}
               webhook_notifications: {}
               max_retries: null
