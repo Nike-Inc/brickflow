@@ -53,6 +53,7 @@ from brickflow.bundles.model import (
     Targets,
     Workspace,
     JobsQueue,
+    JobsHealth,
 )
 from brickflow.cli.projects import MultiProjectManager, get_brickflow_root
 from brickflow.codegen import (
@@ -1059,7 +1060,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 name=workflow_name,
                 tasks=tasks,
                 tags=workflow.tags,
-                health=workflow.health,
+                health=JobsHealth(rules=workflow.health),
                 job_clusters=[JobsJobClusters(**c) for c in workflow_clusters],
                 schedule=self.workflow_obj_to_schedule(workflow),
                 max_concurrent_runs=workflow.max_concurrent_runs,

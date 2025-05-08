@@ -11,6 +11,7 @@ from brickflow.bundles.model import (
     JobsTasksSqlTaskDashboard,
     JobsTasksSqlTaskFile,
     JobsTasksSqlTaskQuery,
+    JobsHealthRules,
 )
 from brickflow.engine.compute import Cluster
 from brickflow.engine.task import (
@@ -44,11 +45,9 @@ wf = Workflow(
     run_as_user="abc@abc.com",
     tags={"test": "test2"},
     common_task_parameters={"all_tasks1": "test", "all_tasks3": "123"},  # type: ignore
-    health={
-        "rules": [
-            {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
-        ]
-    },  # type: ignore
+    health=[
+        JobsHealthRules(metric="RUN_DURATION_SECONDS", op="GREATER_THAN", value=7200.0)
+    ],
     trigger={
         "file_arrival": {"url": "<my_url>"},
         "pause_status": "UNPAUSED",
@@ -312,11 +311,9 @@ wf2 = Workflow(
     run_as_user="abc@abc.com",
     tags={"test": "test2"},
     common_task_parameters={"all_tasks1": "test", "all_tasks3": "123"},  # type: ignore
-    health={
-        "rules": [
-            {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
-        ]
-    },  # type: ignore
+    health=[
+        JobsHealthRules(metric="RUN_DURATION_SECONDS", op="GREATER_THAN", value=7200.0)
+    ],
 )
 
 
@@ -338,11 +335,9 @@ wf_bad_tasks = Workflow(
     run_as_user="abc@abc.com",
     tags={"test": "test2"},
     common_task_parameters={"all_tasks1": "test", "all_tasks3": "123"},  # type: ignore
-    health={
-        "rules": [
-            {"metric": "RUN_DURATION_SECONDS", "op": "GREATER_THAN", "value": 7200.0}
-        ]
-    },  # type: ignore
+    health=[
+        JobsHealthRules(metric="RUN_DURATION_SECONDS", op="GREATER_THAN", value=7200.0)
+    ],
 )
 
 

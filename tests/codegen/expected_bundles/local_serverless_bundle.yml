@@ -13,7 +13,7 @@
               "client": "1"
               "dependencies":
               - "pytz==2024.2"
-          "health": null
+          "health": {}
           "job_clusters": []
           "max_concurrent_runs": 1.0
           "name": "test_user_brickflow-serverless-demo"
