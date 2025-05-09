@@ -5,6 +5,7 @@
     "resources":
       "jobs":
         "wf-foreach-task-test":
+          "health": {}
           "job_clusters":
             - "job_cluster_key": "sample_job_cluster"
               "new_cluster":
