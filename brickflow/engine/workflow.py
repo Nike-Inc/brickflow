@@ -431,7 +431,7 @@ class Workflow:
         # enforce notebook type execution and replacing the original callable function with the RunJobInRemoteWorkspace
         if task_type == TaskType.RUN_JOB_TASK:
             func = f()
-            if func.host:
+            if hasattr(func, "host") and func.host:
                 from brickflow_plugins.databricks.run_job import RunJobInRemoteWorkspace
 
                 task_type = TaskType.BRICKFLOW_TASK
