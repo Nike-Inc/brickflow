@@ -703,19 +703,34 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **_kwargs: Any,
     ) -> JobsTasks:
-        run_job_task: JobsTasksRunJobTask = task.task_func()
+        run_job_task: Union[JobsTasksRunJobTask, Workflow] = task.task_func()
 
         try:
-            assert isinstance(run_job_task, JobsTasksRunJobTask)
+            assert isinstance(run_job_task, (JobsTasksRunJobTask, Workflow))
         except AssertionError as e:
             raise ValueError(
                 f"Error while building run job task {task_name}. "
-                f"Make sure {task_name} returns a RunJobTask object."
+                f"Make sure {task_name} returns a RunJobTask or Workflow object."
             ) from e
+
+        job_id = None
+
+        if isinstance(run_job_task, JobsTasksRunJobTask):
+            job_id = run_job_task.job_id
+        elif isinstance(run_job_task, Workflow):
+            # If the task is a workflow, we need to set the job_id and job_name
+            # based on the workflow name. The job_id will be used in the JobsTasks.
+            # Uncomment the following lines if you want to handle workflow references
+            # in a specific way (e.g., using a custom naming convention).
+            if self.project.workflow_exists(run_job_task) is False:
+                raise ValueError(
+                    f"Workflow {run_job_task.name} does not exist in the current project."
+                )
+            job_id = f"${{resources.jobs.{run_job_task.name}.id}}"
 
         return JobsTasks(
             **task_settings.to_tf_dict(),  # type: ignore
-            run_job_task=JobsTasksRunJobTask(job_id=run_job_task.job_id),
+            run_job_task=JobsTasksRunJobTask(job_id=job_id),
             depends_on=depends_on,
             task_key=task_name,
         )

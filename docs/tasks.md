@@ -271,6 +271,12 @@ def run_job_task_a():
 @wf.task(task_type=TaskType.RUN_JOB_TASK)
 def run_job_task_a():
     return RunJobTask(job_name="run_job_task")
+
+# reference the job in the same Brickflow project
+@wf.run_job_task
+def run_job_task_a():
+    from workflows.workflow_a import wf
+    return wf
 ```
 
 RunJobTask class can accept the following as inputs:<br />
