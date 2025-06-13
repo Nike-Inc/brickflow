@@ -10,9 +10,9 @@ from pendulum.datetime import DateTime
 # from airflow.settings import TIMEZONE
 
 # UTC time zone as a tzinfo instance.
-utc = pendulum.tz.timezone("UTC")
+utc = pendulum.timezone("UTC")
 
-TIMEZONE = pendulum.tz.timezone("UTC")
+TIMEZONE = pendulum.timezone("UTC")
 
 
 def is_localized(value):
