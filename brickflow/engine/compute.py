@@ -12,6 +12,18 @@ class DuplicateClustersDefinitionError(Exception):
 
 # Not an enum but collection of constants, generated via script
 class Runtimes:
+    RUNTIME_16_4_X_SCALA2_13_LTS = "16.4.x-scala2.13"
+    RUNTIME_16_4_X_PHOTON_SCALA2_13_LTS = "16.4.x-photon-scala2.13"
+    RUNTIME_16_4_X_GPU_ML_SCALA2_13_LTS = "16.4.x-gpu-ml-scala2.13"
+    RUNTIME_16_4_X_CPU_ML_SCALA2_13_LTS = "16.4.x-cpu-ml-scala2.13"
+    RUNTIME_16_4_X_AARCH64_SCALA2_13_LTS = "16.4.x-aarch64-scala2.13"
+    RUNTIME_16_4_X_AARCH64_PHOTON_SCALA2_13_LTS = "16.4.x-aarch64-photon-scala2.13"
+    RUNTIME_16_4_X_SCALA2_12_LTS = "16.4.x-scala2.12"
+    RUNTIME_16_4_X_PHOTON_SCALA2_12_LTS = "16.4.x-photon-scala2.12"
+    RUNTIME_16_4_X_GPU_ML_SCALA2_12_LTS = "16.4.x-gpu-ml-scala2.12"
+    RUNTIME_16_4_X_CPU_ML_SCALA2_12_LTS = "16.4.x-cpu-ml-scala2.12"
+    RUNTIME_16_4_X_AARCH64_SCALA2_12_LTS = "16.4.x-aarch64-scala2.12"
+    RUNTIME_16_4_X_AARCH64_PHOTON_SCALA2_12_LTS = "16.4.x-aarch64-photon-scala2.12"
     RUNTIME_15_4_X_SCALA2_12_LTS = "15.4.x-scala2.12"
     RUNTIME_15_4_X_PHOTON_SCALA2_12_LTS = "15.4.x-photon-scala2.12"
     RUNTIME_15_4_X_GPU_ML_SCALA2_12_LTS = "15.4.x-gpu-ml-scala2.12"
