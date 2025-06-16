@@ -22,7 +22,7 @@ from brickflow_plugins.airflow.operators.external_tasks import (
     AutosysSensor,
     AirflowProxyOktaClusterAuth,
 )
-from brickflow_plugins.airflow.operators.external_tasks_tableau import (
+from brickflow_plugins.databricks.tableau_refresh_operator import (
     TableauRefreshDataSourceOperator,
     TableauRefreshWorkBookOperator,
 )

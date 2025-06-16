@@ -8,12 +8,12 @@ class TestTableauWrapper:
     @pytest.fixture(autouse=True, name="tableau_server")
     def tableau_server(self, mocker):
         _server = mocker.patch(
-            "brickflow_plugins.airflow.operators.external_tasks_tableau.TSC.Server"
+            "brickflow_plugins.databricks.tableau_refresh_operator.TSC.Server"
         )
         # pylint: disable=attribute-defined-outside-init
         self.mock_server = _server.return_value
 
-        from brickflow_plugins.airflow.operators.external_tasks_tableau import (
+        from brickflow_plugins.databricks.tableau_refresh_operator import (
             TableauWrapper,
         )
 

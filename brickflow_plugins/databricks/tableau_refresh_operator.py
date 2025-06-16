@@ -1,10 +1,12 @@
+"""
+Tableau refresh operator for Databricks
+"""
+
 import concurrent.futures
 import time
 from abc import abstractmethod
-from typing import Union
-
+from typing import Union, Optional
 import urllib3
-from airflow.operators.python import BaseOperator
 
 from brickflow_plugins import log
 
@@ -52,8 +54,8 @@ class TableauWrapper:
         username: str,
         password: str,
         site: str,
-        project: str = None,
-        parent_project: str = None,
+        project: Optional[str] = None,
+        parent_project: Optional[str] = None,
         version: str = "3.14",
         max_async_workers: int = 5,
         polling_required: bool = True,
@@ -105,12 +107,12 @@ class TableauWrapper:
         self._ip = None
 
     class MultipleWorkingProjectsException(Exception):
-        def __init__(self):
+        def __init__(self) -> None:
             self.message = "Multiple projects with the same name exist on the server! Set 'parent_project' parameter!"
             super().__init__(self.message)
 
     class UnidentifiedWorkingProjectException(Exception):
-        def __init__(self):
+        def __init__(self) -> None:
             self.message = "Could not identify working project, check that the spelling is correct!"
             super().__init__(self.message)
 
@@ -153,7 +155,7 @@ class TableauWrapper:
         response = None
         total_polling_time = 0
 
-        self._logger.debug(f"Retrieving execution status for job '{job_id}'...")
+        self._logger.debug("Retrieving execution status for job '%s'...", job_id)
         while finish_code == -1 and self.polling_required is True:
             response = self._server.jobs.get_by_id(job_id)
             finish_code = int(response.finish_code)
@@ -164,7 +166,8 @@ class TableauWrapper:
 
             if total_polling_time == self.polling_timeout:
                 self._logger.warning(
-                    f"The job '{job_id}' did not complete within expected time, exiting... "
+                    "The job '%s' did not complete within expected time, exiting... ",
+                    job_id,
                 )
                 finish_code, status = -2, "Timeout"
                 break
@@ -176,7 +179,7 @@ class TableauWrapper:
         elif finish_code == 2:
             status = "Cancelled"
 
-        self._logger.debug(f"Job '{job_id}' finished with code ({finish_code})...")
+        self._logger.debug("Job '%s' finished with code (%s)...", job_id, finish_code)
 
         return {
             "job_id": job_id,
@@ -213,10 +216,10 @@ class TableauWrapper:
         dict
             Dictionary with data source name and refresh result
         """
-        self._logger.info(f"Triggering refresh of '{ds.name}' datasource...")
+        self._logger.info("Triggering refresh of '%s' datasource...", ds.name)
         response = self._server.datasources.refresh(datasource_item=ds)
         job_status = self._get_job_status(job_id=response.id)
-        self._logger.info(f"Data source '{ds.name}' refresh status: {job_status}!")
+        self._logger.info("Data source '%s' refresh status: %s!", ds.name, job_status)
         return {"data_source": ds.name, **job_status}
 
     def _refresh_workbook(self, wb: TSC.WorkbookItem) -> dict:
@@ -233,10 +236,10 @@ class TableauWrapper:
         dict
             Dictionary with workbook name and refresh result
         """
-        self._logger.info(f"Triggering refresh of '{wb.name}' workbook...")
+        self._logger.info("Triggering refresh of '%s' workbook...", wb.name)
         response = self._server.workbooks.refresh(workbook_id=wb)
         job_status = self._get_job_status(job_id=response.id)
-        self._logger.info(f"Workbook '{wb.name}' refresh status: {job_status}!")
+        self._logger.info("Workbook '%s' refresh status: %s!", wb.name, job_status)
         return {"work_book": wb.name, **job_status}
 
     def _filter_datasources(self, data_sources: list) -> list:
@@ -268,7 +271,7 @@ class TableauWrapper:
         return lim_wb
 
     def _get_working_project(
-        self, project_id: str = None
+        self, project_id: Optional[str] = None
     ) -> Union[TSC.ProjectItem, None]:
         """
         Identify working project by using `project` and `parent_project` (if necessary) class properties.
@@ -309,7 +312,9 @@ class TableauWrapper:
             if project.id == project_id:
                 lim_p = [project]
                 self._logger.info(
-                    f"\nProject ID provided directly:\n\tName: {lim_p[0].name}\n\tID: {lim_p[0].id}"
+                    "\nProject ID provided directly:\n\tName: %s\n\tID: %s",
+                    lim_p[0].name,
+                    lim_p[0].id,
                 )
                 break
 
@@ -317,7 +322,9 @@ class TableauWrapper:
             if project.name.strip() == self.parent_project and not project_id:
                 parent = project
                 self._logger.info(
-                    f"\nParent project identified:\n\tName: {parent.name}\n\tID: {parent.id}"
+                    "\nParent project identified:\n\tName: %s\n\tID: %s",
+                    parent.name,
+                    parent.id,
                 )
 
             # Identify project(s)
@@ -343,7 +350,9 @@ class TableauWrapper:
             raise self.UnidentifiedWorkingProjectException()
         else:
             self._logger.info(
-                f"\nWorking project identified:\n\tName: {lim_p[0].name}\n\tID: {lim_p[0].id}"
+                "\nWorking project identified:\n\tName: %s\n\tID: %s",
+                lim_p[0].name,
+                lim_p[0].id,
             )
             return lim_p[0]
 
@@ -404,23 +413,21 @@ class TableauWrapper:
             return results
 
 
-class TableauRefreshABCOperator(BaseOperator):
+class TableauRefreshABCOperator:
     def __init__(
         self,
         server: str,
         username: str,
         password: str,
         site: str,
-        project: str = None,
-        parent_project: str = None,
+        project: Optional[str] = None,
+        parent_project: Optional[str] = None,
         version: str = "3.14",
         max_async_workers: int = 5,
         polling_required: bool = True,
         polling_interval: int = 30,
         polling_timeout: int = 600,
         fail_operator: bool = True,
-        *args,
-        **kwargs,
     ):
         """
         Abstract class that implements generic functionality for TableauRefresh operators.
@@ -454,8 +461,6 @@ class TableauRefreshABCOperator(BaseOperator):
         """
         self.__logger = log
 
-        super().__init__(*args, **kwargs)
-
         self.wrapper_options = {
             "server": server,
             "username": username,
@@ -470,7 +475,7 @@ class TableauRefreshABCOperator(BaseOperator):
             "polling_timeout": polling_timeout,
         }
 
-        self.__logger.info(f"Tableau wrapper options:{self.wrapper_options}")
+        self.__logger.info("Tableau wrapper options: %s", self.wrapper_options)
 
         self.tableau_wrapper = None
         self.fail_operator = fail_operator
@@ -519,12 +524,10 @@ class TableauRefreshDataSourceOperator(TableauRefreshABCOperator):
         self,
         data_sources: list,
         skip: bool = False,
-        task_id: str = "tableau_refresh_datasource",
-        *args,
         **kwargs,
     ):
         """
-        Airflow operator that handles refresh of Tableau data sources.
+        Databricks operator that handles refresh of Tableau data sources.
 
         Parameters
         ----------
@@ -532,10 +535,8 @@ class TableauRefreshDataSourceOperator(TableauRefreshABCOperator):
             List of data source names that will be refreshed
         skip : bool
             Skip execution
-        task_id : str
-            ID for Airflow task
         """
-        super().__init__(task_id=task_id, *args, **kwargs)
+        super().__init__(**kwargs)
         self.data_sources = data_sources
         self.__skip = skip
 
@@ -558,12 +559,10 @@ class TableauRefreshWorkBookOperator(TableauRefreshABCOperator):
         self,
         workbooks: list,
         skip: bool = False,
-        task_id: str = "tableau_refresh_workbooks",
-        *args,
         **kwargs,
     ):
         """
-        Airflow operator that handles refresh of Tableau workbooks.
+        Databricks operator that handles refresh of Tableau workbooks.
 
         Parameters
         ----------
@@ -571,10 +570,8 @@ class TableauRefreshWorkBookOperator(TableauRefreshABCOperator):
             List of workbook names that will be refreshed
         skip : bool
             Skip execution
-        task_id : str
-            ID for Airflow task
         """
-        super().__init__(task_id=task_id, *args, **kwargs)
+        super().__init__(**kwargs)
         self.workbooks = workbooks
         self.__skip = skip
 

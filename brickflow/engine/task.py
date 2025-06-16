@@ -454,8 +454,8 @@ class PythonWheelTask(JobsTasksPythonWheelTask):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.package_name = kwargs.get("package_name", None)
-        self.entry_point = kwargs.get("entry_point", None)
+        self.package_name = kwargs.get("package_name", None)  # type: ignore
+        self.entry_point = kwargs.get("entry_point", None)  # type: ignore
         self.named_parameters = kwargs.get("named_parameters", None)
         self.parameters = kwargs.get("parameters", None)
 
@@ -547,7 +547,7 @@ class SparkPythonTask(JobsTasksSparkPythonTask):
         super().__init__(**kwargs)
         self.source = kwargs.get("source", None)
         self.parameters = kwargs.get("parameters", None)
-        self.python_file = kwargs.get("python_file", None)
+        self.python_file = kwargs.get("python_file", None)  # type: ignore
 
 
 def validate_for_each_task_type(value: TaskType) -> TaskType:
