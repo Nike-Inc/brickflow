@@ -4,7 +4,7 @@ import pytest
 from requests.exceptions import HTTPError
 from requests_mock.mocker import Mocker as RequestsMocker
 
-from brickflow_plugins.airflow.operators.external_tasks import (
+from brickflow_plugins.databricks.external_tasks import (
     TaskDependencySensor,
     AirflowProxyOktaClusterAuth,
     log,

@@ -17,9 +17,8 @@ def setup_logger():
 
 log = setup_logger()
 
-from brickflow_plugins.airflow.operators.external_tasks import (
+from brickflow_plugins.databricks.external_tasks import (
     TaskDependencySensor,
-    AutosysSensor,
     AirflowProxyOktaClusterAuth,
 )
 from brickflow_plugins.databricks.tableau_refresh_operator import (
@@ -45,6 +44,7 @@ from brickflow_plugins.databricks.box_operator import (
     BoxOperator,
 )
 from brickflow_plugins.databricks.sla_sensor import SLASensor
+from brickflow_plugins.databricks.autosys_sensor import AutosysSensor
 
 
 def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:

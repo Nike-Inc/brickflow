@@ -2,7 +2,7 @@ import pytest
 from requests.exceptions import HTTPError
 from requests_mock.mocker import Mocker as RequestsMocker
 
-from brickflow_plugins.airflow.operators.external_tasks import AutosysSensor
+from brickflow_plugins.databricks.autosys_sensor import AutosysSensor
 
 
 class TestAutosysSensor:
@@ -47,7 +47,6 @@ class TestAutosysSensor:
     @pytest.fixture()
     def sensor(self):
         yield AutosysSensor(
-            task_id="test",
             url="https://42.autosys.my-org.com/",
             job_name="foo",
             poke_interval=1,
