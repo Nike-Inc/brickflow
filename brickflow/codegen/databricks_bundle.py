@@ -1075,7 +1075,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 name=workflow_name,
                 tasks=tasks,
                 tags=workflow.tags,
-                health=JobsHealth(rules=workflow.health),
+                health=JobsHealth(rules=workflow.health) if workflow.health else None,
                 job_clusters=[JobsJobClusters(**c) for c in workflow_clusters],
                 schedule=self.workflow_obj_to_schedule(workflow),
                 max_concurrent_runs=workflow.max_concurrent_runs,
