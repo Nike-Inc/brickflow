@@ -7,7 +7,7 @@ from requests.exceptions import HTTPError
 from requests_mock.mocker import Mocker as RequestsMocker
 from yarl import URL
 
-from brickflow_plugins.databricks.airflow_task_dependency_sensor import (
+from brickflow_plugins.sensors.airflow_task_dependency_sensor import (
     AirflowCluster,
     AirflowTaskDependencySensor,
     log,
@@ -23,11 +23,11 @@ class TestAirflowTaskDependencySensor:
     @pytest.fixture(autouse=True)
     def mock_brickflow_scaffolding(self, mocker):
         mocker.patch(
-            "brickflow_plugins.databricks.ctx.dbutils_widget_get_or_else",
+            "brickflow_plugins.sensors.ctx.dbutils_widget_get_or_else",
             return_value=1,
         )
         mocker.patch(
-            "brickflow_plugins.databricks.ctx.start_time",
+            "brickflow_plugins.sensors.ctx.start_time",
             return_value="1704078102000",
         )
 
@@ -156,7 +156,7 @@ class TestAirflowTaskDependencySensor:
 
     @pytest.fixture()
     def sensor(self, mocker):
-        mocker.patch("brickflow_plugins.databricks.WorkspaceClient", autospec=True)
+        mocker.patch("brickflow_plugins.sensors.WorkspaceClient", autospec=True)
         cluster = AirflowCluster(
             url=AIRFLOW_BASE_URL,
             version="2.0.2",

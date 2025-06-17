@@ -4,7 +4,7 @@ from datetime import timedelta
 import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
 
-from brickflow_plugins.databricks.workflow_dependency_sensor import (
+from brickflow_plugins.sensors.workflow_dependency_sensor import (
     WorkflowDependencySensor,
 )
 

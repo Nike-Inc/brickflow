@@ -1,18 +1,20 @@
-from pydantic import SecretStr, BaseModel, ValidationError
-from typing import Union, List, Optional, Literal
-from datetime import timedelta, datetime, timezone
-from warnings import warn
-from textwrap import dedent
-import requests
-import time
 import json
+import smtplib
+import time
+from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import smtplib
+from textwrap import dedent
+from typing import List, Literal, Optional, Union
+from warnings import warn
+
+import requests
+from pydantic import BaseModel, SecretStr, ValidationError
+
 from brickflow import ctx
-from brickflow_plugins.databricks.workflow_dependency_sensor import (
-    WorkflowTaskDependencySensor,
+from brickflow_plugins.sensors.workflow_dependency_sensor import (
     WorkflowDependencySensorException,
+    WorkflowTaskDependencySensor,
 )
 
 

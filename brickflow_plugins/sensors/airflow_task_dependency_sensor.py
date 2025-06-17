@@ -8,12 +8,12 @@ and can handle execution timestamps based on Quartz cron expressions.
 
 import time
 from datetime import datetime, timedelta
-from yarl import URL
 
 import requests
+from yarl import URL
 
 from brickflow_plugins import log
-from brickflow_plugins.databricks import Sensor
+from brickflow_plugins.sensors import Sensor
 
 
 class AirflowCluster:

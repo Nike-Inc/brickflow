@@ -1,33 +1,34 @@
 from unittest.mock import patch
+
 import pytest
 
-import brickflow_plugins.databricks.run_job
+import brickflow_plugins.operators.run_job
 from brickflow.bundles.model import JobsContinuous
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
-    Task,
-    TaskType,
-    BrickflowTriggerRule,
-    TaskAlreadyExistsError,
     AnotherActiveTaskError,
-    NoCallableTaskError,
-    TaskNotFoundError,
-    PypiTaskLibrary,
-    WheelTaskLibrary,
+    BrickflowTriggerRule,
     JarTaskLibrary,
+    NoCallableTaskError,
+    PypiTaskLibrary,
+    Task,
+    TaskAlreadyExistsError,
+    TaskNotFoundError,
+    TaskType,
+    WheelTaskLibrary,
 )
 from brickflow.engine.workflow import (
-    User,
     Group,
-    ServicePrincipal,
-    Workflow,
     NoWorkflowComputeError,
+    ServicePrincipal,
+    User,
+    Workflow,
     WorkflowConfigError,
 )
 
 # `get_job_id` is being called during workflow init, hence the patch
 with patch("brickflow.engine.task.get_job_id", return_value=12345678901234):
-    from tests.engine.sample_workflow import wf, task_function, run_job_task
+    from tests.engine.sample_workflow import run_job_task, task_function, wf
 
 
 class TestWorkflow:
@@ -355,9 +356,9 @@ class TestWorkflow:
         )
 
     def test_add_task_for_run_job_task(self, mocker):
-        with mocker.patch("brickflow_plugins.databricks.run_job.WorkspaceClient"):
+        with mocker.patch("brickflow_plugins.operators.run_job.WorkspaceClient"):
             with mocker.patch.object(
-                brickflow_plugins.databricks.run_job.RunJobInRemoteWorkspace,
+                brickflow_plugins.operators.run_job.RunJobInRemoteWorkspace,
                 "execute",
                 return_value="success",
             ):

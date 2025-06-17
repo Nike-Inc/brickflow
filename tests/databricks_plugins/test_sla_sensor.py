@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
 
-from brickflow_plugins.databricks.sla_sensor import SLASensor
+from brickflow_plugins.sensors.sla_sensor import SLASensor
 
 
 class TestSLASensor:

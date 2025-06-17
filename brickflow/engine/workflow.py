@@ -432,7 +432,7 @@ class Workflow:
         if task_type == TaskType.RUN_JOB_TASK:
             func = f()
             if hasattr(func, "host") and func.host:
-                from brickflow_plugins.databricks.run_job import RunJobInRemoteWorkspace
+                from brickflow_plugins.operators.run_job import RunJobInRemoteWorkspace
 
                 task_type = TaskType.BRICKFLOW_TASK
 

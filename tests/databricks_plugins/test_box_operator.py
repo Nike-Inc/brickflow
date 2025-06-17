@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 from boxsdk import Client, JWTAuth
 
-from brickflow_plugins.databricks.box_operator import (
+from brickflow_plugins.operators.box_operator import (
     BoxAuthenticator,
     BoxOperator,
     BoxOperatorException,
@@ -16,7 +16,7 @@ from brickflow_plugins.databricks.box_operator import (
 
 
 class TestBoxAuthenticator(unittest.TestCase):
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch.object(JWTAuth, "__init__", return_value=None)
     @patch.object(JWTAuth, "authenticate_instance", return_value=None)
     def test_get_box_dbutils_dtl(
@@ -118,7 +118,7 @@ class TestBoxAuthenticator(unittest.TestCase):
 
 
 class TestBoxToVolumesOperator(unittest.TestCase):
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -357,7 +357,7 @@ class TestBoxToVolumesOperator(unittest.TestCase):
 
 
 class TestVolumesToBoxOperator(unittest.TestCase):
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -537,7 +537,7 @@ class TestBoxOperator(unittest.TestCase):
         if hasattr(self, "temp_dir"):
             shutil.rmtree(self.temp_dir)
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -584,7 +584,7 @@ class TestBoxOperator(unittest.TestCase):
         # Assert
         mock_execute.assert_called_once()
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -631,7 +631,7 @@ class TestBoxOperator(unittest.TestCase):
         # Assert
         mock_execute.assert_called_once()
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -678,7 +678,7 @@ class TestBoxOperator(unittest.TestCase):
         # Assert
         mock_execute.assert_called_once()
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -724,7 +724,7 @@ class TestBoxOperator(unittest.TestCase):
         # Assert
         mock_execute.assert_called_once()
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -778,7 +778,7 @@ class TestBoxOperator(unittest.TestCase):
         # Assert
         mock_execute.assert_called_once()
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -833,7 +833,7 @@ class TestBoxOperator(unittest.TestCase):
         # Assert
         mock_execute.assert_called_once()
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -894,7 +894,7 @@ class TestBoxOperator(unittest.TestCase):
         # Assert
         mock_execute.assert_called_once()
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)
@@ -936,7 +936,7 @@ class TestBoxOperator(unittest.TestCase):
             operator.execute()
         self.assertEqual(str(context.exception), "Invalid operation: invalid_operation")
 
-    @patch("brickflow_plugins.databricks.box_operator.ctx", new_callable=MagicMock)
+    @patch("brickflow_plugins.operators.box_operator.ctx", new_callable=MagicMock)
     @patch("cerberus.client.CerberusClient.get_secrets_data")
     @patch("cerberus.client.CerberusClient.__init__", return_value=None)
     @patch.object(JWTAuth, "__init__", return_value=None)

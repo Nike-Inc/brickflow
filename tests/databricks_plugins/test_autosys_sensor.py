@@ -6,7 +6,7 @@ from requests.exceptions import HTTPError
 from requests_mock.mocker import Mocker as RequestsMocker
 from yarl import URL
 
-from brickflow_plugins.databricks.autosys_sensor import (
+from brickflow_plugins.sensors.autosys_sensor import (
     AutosysSensor,
     log,
 )
@@ -21,11 +21,11 @@ class TestAutosysSensor:
     @pytest.fixture(autouse=True)
     def mock_brickflow_scaffolding(self, mocker):
         mocker.patch(
-            "brickflow_plugins.databricks.ctx.dbutils_widget_get_or_else",
+            "brickflow_plugins.sensors.ctx.dbutils_widget_get_or_else",
             return_value=1,
         )
         mocker.patch(
-            "brickflow_plugins.databricks.ctx.start_time",
+            "brickflow_plugins.sensors.ctx.start_time",
             return_value="1704078102000",
         )
 
@@ -100,7 +100,7 @@ class TestAutosysSensor:
 
     @pytest.fixture()
     def sensor(self, mocker):
-        mocker.patch("brickflow_plugins.databricks.WorkspaceClient", autospec=True)
+        mocker.patch("brickflow_plugins.sensors.WorkspaceClient", autospec=True)
         sensor = AutosysSensor(
             url=AUTOSYS_BASE_URL,
             job_name="foo-x",

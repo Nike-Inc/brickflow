@@ -15,7 +15,7 @@ from requests import HTTPError
 from yarl import URL
 
 from brickflow_plugins import log
-from brickflow_plugins.databricks import Sensor
+from brickflow_plugins.sensors import Sensor
 
 
 class AutosysSensor(Sensor):

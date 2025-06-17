@@ -22,25 +22,25 @@ from brickflow_plugins.airflow.operators.native_operators import (
     BranchPythonOperator,
     ShortCircuitOperator,
 )
-from brickflow_plugins.databricks.airflow_task_dependency_sensor import (
-    AirflowTaskDependencySensor,
-)
-from brickflow_plugins.databricks.autosys_sensor import AutosysSensor
-from brickflow_plugins.databricks.box_operator import (
+from brickflow_plugins.operators.box_operator import (
     BoxOperator,
     BoxToVolumesOperator,
     VolumesToBoxOperator,
 )
-from brickflow_plugins.databricks.sla_sensor import SLASensor
-from brickflow_plugins.databricks.tableau_refresh_operator import (
+from brickflow_plugins.operators.tableau_refresh_operator import (
     TableauRefreshDataSourceOperator,
     TableauRefreshWorkBookOperator,
 )
-from brickflow_plugins.databricks.uc_to_snowflake_operator import (
+from brickflow_plugins.operators.uc_to_snowflake_operator import (
     SnowflakeOperator,
     UcToSnowflakeOperator,
 )
-from brickflow_plugins.databricks.workflow_dependency_sensor import (
+from brickflow_plugins.sensors.airflow_task_dependency_sensor import (
+    AirflowTaskDependencySensor,
+)
+from brickflow_plugins.sensors.autosys_sensor import AutosysSensor
+from brickflow_plugins.sensors.sla_sensor import SLASensor
+from brickflow_plugins.sensors.workflow_dependency_sensor import (
     WorkflowDependencySensor,
     WorkflowTaskDependencySensor,
 )
