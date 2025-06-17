@@ -1,15 +1,15 @@
-from datetime import timedelta, datetime
-from yarl import URL
+import re
+from datetime import datetime, timedelta
 
 import pytest
-
 from databricks.sdk import WorkspaceClient
 from requests.exceptions import HTTPError
 from requests_mock.mocker import Mocker as RequestsMocker
+from yarl import URL
 
 from brickflow_plugins.databricks.airflow_task_dependency_sensor import (
-    AirflowTaskDependencySensor,
     AirflowCluster,
+    AirflowTaskDependencySensor,
     log,
 )
 
@@ -139,7 +139,7 @@ class TestAirflowTaskDependencySensor:
         # Databricks API Mock
         rm.register_uri(
             method="GET",
-            url=f"{DATABRICKS_BASE_URL}/api/2.2/jobs/runs/get?run_id=1",
+            url=re.compile(rf"{DATABRICKS_BASE_URL}/api/.*/jobs/runs/get\?run_id=1"),
             response_list=[
                 {
                     "json": {

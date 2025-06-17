@@ -1,15 +1,17 @@
-import unittest
-from unittest.mock import patch, MagicMock, Mock
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
+from unittest.mock import MagicMock, Mock, patch
+
 from boxsdk import Client, JWTAuth
+
 from brickflow_plugins.databricks.box_operator import (
+    BoxAuthenticator,
     BoxOperator,
+    BoxOperatorException,
     BoxToVolumesOperator,
     VolumesToBoxOperator,
-    BoxAuthenticator,
-    BoxOperatorException,
 )
 
 

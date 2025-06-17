@@ -1,17 +1,18 @@
+import re
 from datetime import timedelta
 
 import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
 
 from brickflow_plugins.databricks.workflow_dependency_sensor import (
-    WorkflowTaskDependencySensor,
     WorkflowDependencySensorTimeOutException,
+    WorkflowTaskDependencySensor,
 )
 
 
 class TestWorkflowTaskDependencySensor:
     workspace_url = "https://42.cloud.databricks.com"
-    endpoint_url = f"{workspace_url}/api/2.2/jobs/runs/list"
+    endpoint_url = f"{workspace_url}/api/.*/jobs/runs/list"
     response = {
         "runs": [
             {
@@ -64,7 +65,7 @@ class TestWorkflowTaskDependencySensor:
     @pytest.fixture(autouse=True, name="api")
     def mock_api(self):
         rm = RequestsMocker()
-        rm.get(self.endpoint_url, json=self.response, status_code=int(200))
+        rm.get(re.compile(self.endpoint_url), json=self.response, status_code=int(200))
         yield rm
 
     def test_sensor_success(self, caplog, api):

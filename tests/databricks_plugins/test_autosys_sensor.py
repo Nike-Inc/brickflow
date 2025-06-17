@@ -1,12 +1,12 @@
+import re
+
 import pytest
-from yarl import URL
+from databricks.sdk import WorkspaceClient
 from requests.exceptions import HTTPError
 from requests_mock.mocker import Mocker as RequestsMocker
-
-from databricks.sdk import WorkspaceClient
+from yarl import URL
 
 from brickflow_plugins.databricks.autosys_sensor import AutosysSensor
-
 
 AUTOSYS_BASE_URL = URL("https://42.autosys.my-org.com")
 DATABRICKS_BASE_URL = URL("https://42.cloud.databricks.com")
@@ -78,7 +78,7 @@ class TestAutosysSensor:
         # Databricks API Mock
         rm.register_uri(
             method="GET",
-            url=f"{DATABRICKS_BASE_URL}/api/2.2/jobs/runs/get?run_id=1",
+            url=re.compile(rf"{DATABRICKS_BASE_URL}/api/.*/jobs/runs/get\?run_id=1"),
             response_list=[
                 {
                     "json": {
