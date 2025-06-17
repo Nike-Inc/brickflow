@@ -67,6 +67,9 @@ class AirflowTaskDependencySensor:
         """
         Get Airflow-style execution timestamp based on the Quartz cron statement of the workflow
         and the start time of the current run.
+
+        Returns:
+            pendulum.DateTime: The execution timestamp aligned to the Quartz cron schedule.
         """
         run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
         if run_id is None:
@@ -93,7 +96,7 @@ class AirflowTaskDependencySensor:
 
     def get_execution_stats(
         self, execution_date: datetime, max_end_date: datetime = None
-    ):
+    ) -> str:
         """Function to get the execution stats for task_id within a execution start time and
         (optionally) allowed job end time.
 
@@ -182,7 +185,8 @@ class AirflowTaskDependencySensor:
         task_state = task_response.json()["state"]
         return task_state
 
-    def poke(self):
+    def poke(self) -> str:
+        """Function to poke the Airflow API for the task status"""
         log.info("executing poke... %s", self._poke_count)
         self._poke_count = self._poke_count + 1
         log.info("Poking... %s round", self._poke_count)
