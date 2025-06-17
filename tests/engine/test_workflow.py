@@ -45,6 +45,7 @@ class TestWorkflow:
         assert t.custom_execute_callback is None
 
     def test_create_workflow_no_compute(self, caplog):
+        caplog.set_level("INFO")
         try:
             # if cluster details are not provided, the job must be treated as serverless
             Workflow("test")
@@ -122,6 +123,7 @@ class TestWorkflow:
             assert field in new_cluster
 
     def test_default_cluster_isnt_empty(self, caplog):
+        caplog.set_level("INFO")
         try:
             compute = [
                 Cluster("name", "spark", "vmnode"),

@@ -46,6 +46,25 @@ from brickflow_plugins.sensors.workflow_dependency_sensor import (
 )
 
 
+def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
+    from brickflow.engine.task import get_plugin_manager
+
+    # TODO: takeout dependency installation and plugin flags (or discuss if needed)
+    # TODO: Determine if plugin for operators is actually needed
+    # TODO: Add error handling for dependency installation (eg, tableau or snowflake) with explicit insrtallation instructions
+    # from brickflow_plugins.airflow.brickflow_task_plugin import (
+    #     AirflowOperatorBrickflowTaskPluginImpl,
+    # )
+
+    # if cache_bust is not None:
+    #     cache_bust.register(
+    #         AirflowOperatorBrickflowTaskPluginImpl(), name="airflow-plugin"
+    #     )
+    #     return
+
+    # get_plugin_manager().register(AirflowOperatorBrickflowTaskPluginImpl())
+
+
 def ensure_installation():
     """Ensures that the brickflow_plugins package is installed in the current environment."""
     from brickflow_plugins.airflow.cronhelper import cron_helper  # noqa
