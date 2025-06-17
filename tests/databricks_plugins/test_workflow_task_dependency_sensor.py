@@ -11,7 +11,7 @@ from brickflow_plugins.databricks.workflow_dependency_sensor import (
 
 class TestWorkflowTaskDependencySensor:
     workspace_url = "https://42.cloud.databricks.com"
-    endpoint_url = f"{workspace_url}/api/2.1/jobs/runs/list"
+    endpoint_url = f"{workspace_url}/api/2.2/jobs/runs/list"
     response = {
         "runs": [
             {

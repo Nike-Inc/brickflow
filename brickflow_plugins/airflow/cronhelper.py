@@ -1,3 +1,11 @@
+"""
+Cron Helper
+
+This module provides a helper class for converting between Unix and Quartz cron expressions.
+It includes methods to convert cron expressions, handle every X units, and manage DOW conversions.
+
+"""
+
 import re
 import functools
 

@@ -1,5 +1,12 @@
 """
-Tableau refresh operator for Databricks
+Tableau Refresh Operator
+
+This module provides a set of operators for refreshing Tableau data sources and workbooks.
+It includes the `TableauWrapper` class for managing Tableau server interactions and the
+`TableauRefreshABCOperator` abstract class for defining the interface for Tableau refresh operations.
+It also includes concrete implementations for refreshing data sources and workbooks:
+- `TableauRefreshDataSourceOperator`: Refreshes specified Tableau data sources.
+- `TableauRefreshWorkBookOperator`: Refreshes specified Tableau workbooks.
 """
 
 import concurrent.futures
@@ -515,7 +522,7 @@ class TableauRefreshABCOperator:
             return True
 
     @abstractmethod
-    def execute(self, context):
+    def execute(self):
         raise NotImplementedError
 
 
@@ -540,7 +547,7 @@ class TableauRefreshDataSourceOperator(TableauRefreshABCOperator):
         self.data_sources = data_sources
         self.__skip = skip
 
-    def execute(self, context):
+    def execute(self):
         """
         Refresh data source in Tableau.
         """
@@ -575,7 +582,7 @@ class TableauRefreshWorkBookOperator(TableauRefreshABCOperator):
         self.workbooks = workbooks
         self.__skip = skip
 
-    def execute(self, context):
+    def execute(self):
         """
         Refresh workbooks in Tableau
         """

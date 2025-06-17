@@ -10,7 +10,7 @@ from brickflow_plugins.databricks.sla_sensor import SLASensor
 
 class TestSLASensor:
     workspace_url = "https://42.cloud.databricks.com"
-    endpoint_url = f"{workspace_url}/api/2.1/jobs/runs/get"
+    endpoint_url = f"{workspace_url}/api/2.2/jobs/runs/get"
     expected_sla_timestamp_utc_miss = datetime.now(timezone.utc).replace(
         hour=1, minute=0, second=0, microsecond=0
     )

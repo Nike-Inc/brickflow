@@ -1,5 +1,7 @@
 """
-AutosysSensor
+Aytosys Sensor
+
+This sensor checks the status of a specific Autosys job by sending an HTTP GET request to the Autosys API.
 """
 
 import time
