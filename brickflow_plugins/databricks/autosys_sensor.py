@@ -13,12 +13,15 @@ import pytz
 import requests
 from requests import HTTPError
 from dateutil.parser import parse  # type: ignore[import-untyped]
+from yarl import URL
+
+from brickflow_plugins.databricks import Sensor
 
 
-class AutosysSensor:
+class AutosysSensor(Sensor):
     def __init__(
         self,
-        url: str,
+        url: URL,
         job_name: str,
         poke_interval: int,
         time_delta: Union[timedelta, dict] = timedelta(days=0),
@@ -30,14 +33,15 @@ class AutosysSensor:
         If not, waits for the given poke interval, then pokes again and again until the conditions
         are met or times out.
         """
+        super().__init__()
         self.url = url
         self.job_name = job_name
         self.poke_interval = poke_interval
         self.time_delta = time_delta
-        self.url = self.url + self.job_name
 
-    def poke(self, context):
-        logging.info("Poking: %s", self.url)
+    def poke(self):
+        url = f"{self.url}/{self.job_name}"
+        logging.info("Poking: %s", url)
 
         headers = {
             "Accept": "application/json",
@@ -45,7 +49,7 @@ class AutosysSensor:
         }
 
         response = requests.get(
-            self.url,
+            url,
             headers=headers,
             verify=False,  # nosec
             timeout=10,
@@ -66,8 +70,7 @@ class AutosysSensor:
                 else timedelta(**self.time_delta)
             )
 
-            execution_timestamp = parse(context["execution_date"])
-            run_timestamp = execution_timestamp - time_delta
+            run_timestamp = self._execution_timestamp - time_delta
 
             if (
                 "SU" in status
@@ -85,4 +88,4 @@ class AutosysSensor:
                 )
                 time.sleep(self.poke_interval)
                 logging.info("Poking again")
-                AutosysSensor.poke(self, context)
+                AutosysSensor.poke(self)

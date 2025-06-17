@@ -11,13 +11,9 @@ from datetime import datetime, timedelta
 from yarl import URL
 
 import requests
-import pendulum
-from pendulum.tz.timezone import Timezone
-from databricks.sdk import WorkspaceClient
 
-from brickflow.context import ctx
 from brickflow_plugins import log
-from brickflow_plugins.airflow import execution_timestamp
+from brickflow_plugins.databricks import Sensor
 
 
 class AirflowCluster:
@@ -36,7 +32,7 @@ class AirflowCluster:
         self.token = token
 
 
-class AirflowTaskDependencySensor:
+class AirflowTaskDependencySensor(Sensor):
     def __init__(
         self,
         dag_id: str,
@@ -48,6 +44,7 @@ class AirflowTaskDependencySensor:
         timeout_seconds: int = 3600,  # 1 hour
         poke_interval=60,
     ):
+        super().__init__()
         self.dag_id = dag_id
         self.task_id = task_id
         self.cluster = cluster
@@ -59,40 +56,6 @@ class AirflowTaskDependencySensor:
 
         self._poke_count = 0
         self._start_time = time.time()
-
-        self._workspace_obj = WorkspaceClient()
-        self._execution_timestamp = None
-
-    def get_execution_timestamp(self) -> pendulum.DateTime:
-        """
-        Get Airflow-style execution timestamp based on the Quartz cron statement of the workflow
-        and the start time of the current run.
-
-        Returns:
-            pendulum.DateTime: The execution timestamp aligned to the Quartz cron schedule.
-        """
-        run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
-        if run_id is None:
-            raise ValueError(
-                "'brickflow_parent_run_id' parameter is not found or no value present, cannot get job run id!"
-            )
-
-        run = self._workspace_obj.jobs.get_run(run_id=run_id)
-        if run is None:
-            raise LookupError(f"Run with id {run_id} not found in the workspace.")
-
-        if run.schedule is None:
-            raise ValueError(
-                f"Run with id {run_id} does not have a schedule defined, cannot get execution timestamp."
-            )
-
-        return execution_timestamp(
-            quartz_cron_statement=run.schedule.quartz_cron_expression,
-            ts=pendulum.instance(
-                datetime.fromtimestamp(int(ctx.start_time(debug=None)) / 1000)
-            ),
-            tz=Timezone(run.schedule.timezone_id),
-        )
 
     def get_execution_stats(
         self, execution_date: datetime, max_end_date: datetime = None
@@ -204,7 +167,6 @@ class AirflowTaskDependencySensor:
         # Execution date is extracted from context and will be based on the task schedule, e.g.
         # 0 0 1 ? * MON-SAT * -> 2024-01-01T01:00:00.000000+00:00
         # This means that the relative delta between workflow execution and target Airflow DAG always stays the same.
-        self._execution_timestamp = self.get_execution_timestamp()
         log.info("Execution date derived from context: %s", self._execution_timestamp)
 
         execution_window_tz = self._execution_timestamp + self.execution_delta

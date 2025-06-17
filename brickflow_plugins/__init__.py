@@ -17,9 +17,6 @@ def setup_logger():
 
 log = setup_logger()
 
-from brickflow_plugins.databricks.external_tasks import (
-    AirflowProxyOktaClusterAuth,
-)
 from brickflow_plugins.databricks.tableau_refresh_operator import (
     TableauRefreshDataSourceOperator,
     TableauRefreshWorkBookOperator,

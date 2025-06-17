@@ -21,13 +21,13 @@ class TestAirflowTaskDependencySensor:
     log.propagate = True
 
     @pytest.fixture(autouse=True)
-    def mock_brickflow_parent_run_id(self, mocker):
+    def mock_brickflow_scaffolding(self, mocker):
         mocker.patch(
-            "brickflow_plugins.databricks.airflow_task_dependency_sensor.ctx.dbutils_widget_get_or_else",
+            "brickflow_plugins.databricks.ctx.dbutils_widget_get_or_else",
             return_value=1,
         )
         mocker.patch(
-            "brickflow_plugins.databricks.airflow_task_dependency_sensor.ctx.start_time",
+            "brickflow_plugins.databricks.ctx.start_time",
             return_value="1704078102000",
         )
 
