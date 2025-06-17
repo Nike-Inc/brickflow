@@ -7,7 +7,7 @@ Base sensor class for plugins
 
 from abc import abstractmethod
 from datetime import datetime
-from functools import cached_property
+from functools import lru_cache
 
 import pendulum
 from pendulum.tz.timezone import Timezone
@@ -26,7 +26,7 @@ class Sensor:
     def __init__(self):
         self._workspace_obj = WorkspaceClient()
 
-    @cached_property
+    @lru_cache
     def _execution_timestamp(self) -> pendulum.DateTime:
         """
         Get Airflow-style execution timestamp based on the Quartz cron statement of the workflow
