@@ -1,5 +1,4 @@
 import functools
-import logging
 import os
 import time
 from datetime import datetime, timedelta
@@ -7,12 +6,13 @@ from typing import Union
 from warnings import warn
 
 import requests
+from databricks.sdk import WorkspaceClient
 from pydantic import SecretStr
 from requests.adapters import HTTPAdapter
-from databricks.sdk import WorkspaceClient
 
 from brickflow.context import ctx
 from brickflow.engine.utils import get_job_id
+from brickflow_plugins import log
 
 
 class WorkflowDependencySensorException(Exception):
@@ -61,7 +61,7 @@ class WorkflowDependencySensor:
         self.poke_interval = poke_interval_seconds
         self.timeout = timeout_seconds
         self.delta = delta
-        self.log = logging
+        self.log = log
         self.start_time = time.time()
 
         if dependency_job_id:

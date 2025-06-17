@@ -5,16 +5,16 @@ This sensor checks the status of a specific Autosys job by sending an HTTP GET r
 """
 
 import time
-import logging
-from typing import Union
 from datetime import timedelta
+from typing import Union
 
 import pytz
 import requests
-from requests import HTTPError
 from dateutil.parser import parse  # type: ignore[import-untyped]
+from requests import HTTPError
 from yarl import URL
 
+from brickflow_plugins import log
 from brickflow_plugins.databricks import Sensor
 
 
@@ -41,7 +41,7 @@ class AutosysSensor(Sensor):
 
     def poke(self):
         url = f"{self.url}/{self.job_name}"
-        logging.info("Poking: %s", url)
+        log.info("Poking: %s", url)
 
         headers = {
             "Accept": "application/json",
@@ -77,15 +77,15 @@ class AutosysSensor(Sensor):
                 and last_end_timestamp
                 and last_end_timestamp >= run_timestamp
             ):
-                logging.info(
+                log.info(
                     "Last End: %s, Run Timestamp: %s", last_end_timestamp, run_timestamp
                 )
-                logging.info("Success criteria met. Exiting")
+                log.info("Success criteria met. Exiting")
                 return True
             else:
-                logging.info(
+                log.info(
                     "Last End: %s, Run Timestamp: %s", last_end_timestamp, run_timestamp
                 )
                 time.sleep(self.poke_interval)
-                logging.info("Poking again")
+                log.info("Poking again")
                 AutosysSensor.poke(self)

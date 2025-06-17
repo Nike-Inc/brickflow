@@ -8,13 +8,18 @@ Base sensor class for plugins
 from abc import abstractmethod
 from datetime import datetime
 from functools import cached_property
+from typing import Optional
 
 import pendulum
-from pendulum.tz.timezone import Timezone
 from databricks.sdk import WorkspaceClient
+from pendulum.tz.timezone import Timezone
 
 from brickflow.context import ctx
-from brickflow_plugins.airflow import execution_timestamp
+
+# from brickflow_plugins.airflow import execution_timestamp
+from brickflow_plugins.airflow.cronhelper import cron_helper
+from brickflow_plugins.airflow.vendor.timetable import create_timetable
+from brickflow_plugins.airflow.vendor.timezone import TIMEZONE
 
 
 class Sensor:
@@ -26,11 +31,29 @@ class Sensor:
     def __init__(self):
         self._workspace_obj = WorkspaceClient()
 
+    @staticmethod
+    def _get_airflow_execution_timestamp(
+        quartz_cron_statement: Optional[str] = None,
+        ts: Optional[pendulum.DateTime] = None,
+        tz=TIMEZONE,
+    ) -> pendulum.DateTime:
+        """
+        Returns Airflow-style execution timestamp based on the provided Quartz cron statement.
+        If no cron statement is provided, it defaults to the current UTC time.
+        """
+        if quartz_cron_statement is None:
+            return pendulum.DateTime.utcnow()
+        if ts is None:
+            ts = pendulum.DateTime.utcnow()
+        cron = cron_helper.quartz_to_unix(quartz_cron_statement)
+        tt = create_timetable(cron, tz)
+        return tt.align_to_prev(ts)
+
     @cached_property
     def _execution_timestamp(self) -> pendulum.DateTime:
         """
-        Get Airflow-style execution timestamp based on the Quartz cron statement of the workflow
-        and the start time of the current run.
+        Get current run details from Databricks workspace and calculate the Airflow-like
+        execution timestamp based on the Quartz cron statement and the start time of the current run.
 
         Returns:
             pendulum.DateTime: The execution timestamp aligned to the Quartz cron schedule.
@@ -50,7 +73,7 @@ class Sensor:
                 f"Run with id {run_id} does not have a schedule defined, cannot get execution timestamp."
             )
 
-        return execution_timestamp(
+        return self._get_airflow_execution_timestamp(
             quartz_cron_statement=run.schedule.quartz_cron_expression,
             ts=pendulum.instance(
                 datetime.fromtimestamp(int(ctx.start_time(debug=None)) / 1000)

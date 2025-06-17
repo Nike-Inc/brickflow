@@ -6,13 +6,18 @@ from requests.exceptions import HTTPError
 from requests_mock.mocker import Mocker as RequestsMocker
 from yarl import URL
 
-from brickflow_plugins.databricks.autosys_sensor import AutosysSensor
+from brickflow_plugins.databricks.autosys_sensor import (
+    AutosysSensor,
+    log,
+)
 
 AUTOSYS_BASE_URL = URL("https://42.autosys.my-org.com")
 DATABRICKS_BASE_URL = URL("https://42.cloud.databricks.com")
 
 
 class TestAutosysSensor:
+    log.propagate = True
+
     @pytest.fixture(autouse=True)
     def mock_brickflow_scaffolding(self, mocker):
         mocker.patch(

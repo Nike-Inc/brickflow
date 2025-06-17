@@ -7,10 +7,13 @@ from requests_mock.mocker import Mocker as RequestsMocker
 from brickflow_plugins.databricks.workflow_dependency_sensor import (
     WorkflowDependencySensorTimeOutException,
     WorkflowTaskDependencySensor,
+    log,
 )
 
 
 class TestWorkflowTaskDependencySensor:
+    log.propagate = True
+
     workspace_url = "https://42.cloud.databricks.com"
     endpoint_url = f"{workspace_url}/api/.*/jobs/runs/list"
     response = {
