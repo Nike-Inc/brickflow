@@ -94,13 +94,15 @@ class TestAutosysSensor:
         yield rm
 
     @pytest.fixture()
-    def sensor(self):
+    def sensor(self, mocker):
+        mocker.patch("brickflow_plugins.databricks.WorkspaceClient", autospec=True)
         sensor = AutosysSensor(
             url=AUTOSYS_BASE_URL,
             job_name="foo-x",
             poke_interval=1,
             time_delta={"hours": 1},
         )
+
         sensor._workspace_obj = WorkspaceClient(
             host=str(DATABRICKS_BASE_URL), token="foo"
         )

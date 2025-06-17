@@ -155,7 +155,8 @@ class TestAirflowTaskDependencySensor:
         yield rm
 
     @pytest.fixture()
-    def sensor(self):
+    def sensor(self, mocker):
+        mocker.patch("brickflow_plugins.databricks.WorkspaceClient", autospec=True)
         cluster = AirflowCluster(
             url=AIRFLOW_BASE_URL,
             version="2.0.2",
