@@ -199,7 +199,6 @@ class TestAirflowTaskDependencySensor:
         sensor.dag_id = "test-dag-2"
         with pytest.raises(HTTPError):
             with api:
-                # with rm:
                 sensor.execute()
 
     def test_timeout(self, sensor, api):
