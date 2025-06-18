@@ -50,6 +50,7 @@ def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
     from brickflow.engine.task import get_plugin_manager
 
     # TODO: takeout dependency installation and plugin flags (or discuss if needed)
+    # TODO: cleanup pyproject.toml
     # TODO: Determine if plugin for operators is actually needed
     # from brickflow_plugins.airflow.brickflow_task_plugin import (
     #     AirflowOperatorBrickflowTaskPluginImpl,
