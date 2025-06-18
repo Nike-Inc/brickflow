@@ -5,7 +5,7 @@ from unittest import mock
 import pluggy
 import pytest
 
-from brickflow.engine.task import get_plugin_manager, get_brickflow_tasks_hook
+from brickflow.engine.task import get_brickflow_tasks_hook, get_plugin_manager
 
 
 def assert_plugin_manager(
@@ -28,7 +28,7 @@ class TestBrickflowPlugins:
     def test_plugins_installed(self):
         pm = copy.deepcopy(get_plugin_manager())
         get_brickflow_tasks_hook(pm)
-        assert_plugin_manager(pm, ["airflow-plugin", "default"])
+        assert_plugin_manager(pm, ["default"])
 
     def test_plugins_load_plugins_import_error(self):
         with mock.patch("brickflow_plugins.load_plugins") as load_plugins_mock:

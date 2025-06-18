@@ -17,49 +17,52 @@ def setup_logger():
 
 log = setup_logger()
 
-from brickflow_plugins.airflow.operators.external_tasks import (
-    TaskDependencySensor,
-    AutosysSensor,
-    AirflowProxyOktaClusterAuth,
-)
-from brickflow_plugins.airflow.operators.external_tasks_tableau import (
-    TableauRefreshDataSourceOperator,
-    TableauRefreshWorkBookOperator,
-)
 from brickflow_plugins.airflow.operators.native_operators import (
-    BashOperator,
+    # BashOperator,
     BranchPythonOperator,
     ShortCircuitOperator,
 )
-from brickflow_plugins.databricks.workflow_dependency_sensor import (
-    WorkflowDependencySensor,
-    WorkflowTaskDependencySensor,
+from brickflow_plugins.operators.box_operator import (
+    BoxOperator,
+    BoxToVolumesOperator,
+    VolumesToBoxOperator,
 )
-from brickflow_plugins.databricks.uc_to_snowflake_operator import (
+from brickflow_plugins.operators.tableau_refresh_operator import (
+    TableauRefreshDataSourceOperator,
+    TableauRefreshWorkBookOperator,
+)
+from brickflow_plugins.operators.uc_to_snowflake_operator import (
     SnowflakeOperator,
     UcToSnowflakeOperator,
 )
-from brickflow_plugins.databricks.box_operator import (
-    BoxToVolumesOperator,
-    VolumesToBoxOperator,
-    BoxOperator,
+from brickflow_plugins.sensors.airflow_task_dependency_sensor import (
+    AirflowTaskDependencySensor,
 )
-from brickflow_plugins.databricks.sla_sensor import SLASensor
+from brickflow_plugins.sensors.autosys_sensor import AutosysSensor
+from brickflow_plugins.sensors.sla_sensor import SLASensor
+from brickflow_plugins.sensors.workflow_dependency_sensor import (
+    WorkflowDependencySensor,
+    WorkflowTaskDependencySensor,
+)
 
 
 def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
     from brickflow.engine.task import get_plugin_manager
-    from brickflow_plugins.airflow.brickflow_task_plugin import (
-        AirflowOperatorBrickflowTaskPluginImpl,
-    )
 
-    if cache_bust is not None:
-        cache_bust.register(
-            AirflowOperatorBrickflowTaskPluginImpl(), name="airflow-plugin"
-        )
-        return
+    # TODO: takeout dependency installation and plugin flags (or discuss if needed)
+    # TODO: cleanup pyproject.toml
+    # TODO: Determine if plugin for operators is actually needed
+    # from brickflow_plugins.airflow.brickflow_task_plugin import (
+    #     AirflowOperatorBrickflowTaskPluginImpl,
+    # )
 
-    get_plugin_manager().register(AirflowOperatorBrickflowTaskPluginImpl())
+    # if cache_bust is not None:
+    #     cache_bust.register(
+    #         AirflowOperatorBrickflowTaskPluginImpl(), name="airflow-plugin"
+    #     )
+    #     return
+
+    # get_plugin_manager().register(AirflowOperatorBrickflowTaskPluginImpl())
 
 
 def ensure_installation():
@@ -69,10 +72,9 @@ def ensure_installation():
 
 
 __all__: List[str] = [
-    "TaskDependencySensor",
+    "AirflowTaskDependencySensor",
     "AutosysSensor",
-    "AirflowProxyOktaClusterAuth",
-    "BashOperator",
+    # "BashOperator",
     "BranchPythonOperator",
     "ShortCircuitOperator",
     "WorkflowDependencySensor",
@@ -85,6 +87,6 @@ __all__: List[str] = [
     "VolumesToBoxOperator",
     "BoxOperator",
     "SLASensor",
-    "load_plugins",
+    # "load_plugins",
     "ensure_installation",
 ]

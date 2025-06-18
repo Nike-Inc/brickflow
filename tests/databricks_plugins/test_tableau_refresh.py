@@ -1,5 +1,6 @@
 from collections import namedtuple
 from datetime import datetime
+from typing import Optional
 
 import pytest
 
@@ -8,12 +9,12 @@ class TestTableauWrapper:
     @pytest.fixture(autouse=True, name="tableau_server")
     def tableau_server(self, mocker):
         _server = mocker.patch(
-            "brickflow_plugins.airflow.operators.external_tasks_tableau.TSC.Server"
+            "brickflow_plugins.operators.tableau_refresh_operator.TSC.Server"
         )
         # pylint: disable=attribute-defined-outside-init
         self.mock_server = _server.return_value
 
-        from brickflow_plugins.airflow.operators.external_tasks_tableau import (
+        from brickflow_plugins.operators.tableau_refresh_operator import (
             TableauWrapper,
         )
 
@@ -46,8 +47,8 @@ class TestTableauWrapper:
         def create_mock_project(
             name_prefix: str,
             project_id: int,
-            parent_id: int = None,
-            name_override: str = None,
+            parent_id: Optional[int] = None,
+            name_override: Optional[str] = None,
         ):
             mock_project = mocker.MagicMock()
             mock_project.name = (
@@ -116,7 +117,7 @@ class TestTableauWrapper:
 
     def test__get_working_project__id(self):
         r = self.tableau_wrapper._get_working_project(project_id="3")
-        assert r.id == "3" and r.name == "project-3"
+        assert r is not None and r.id == "3" and r.name == "project-3"
 
     def test___get_working_project__multiple_projects(self):
         with pytest.raises(self.tableau_wrapper.MultipleWorkingProjectsException):
@@ -127,12 +128,12 @@ class TestTableauWrapper:
         self.tableau_wrapper.project = "project-4"
         self.tableau_wrapper.parent_project = "parent-project-1"
         r = self.tableau_wrapper._get_working_project()
-        assert r.id == "4" and r.name == "project-4"
+        assert r is not None and r.id == "4" and r.name == "project-4"
 
     def test___get_working_project__project(self):
         self.tableau_wrapper.project = "project-5"
         r = self.tableau_wrapper._get_working_project()
-        assert r.id == "10" and r.name == "project-5"
+        assert r is not None and r.id == "10" and r.name == "project-5"
 
     def test___get_working_project__unknown_project(self):
         with pytest.raises(self.tableau_wrapper.UnidentifiedWorkingProjectException):
@@ -205,4 +206,4 @@ class TestTableauWrapper:
         self.tableau_wrapper.project = "project-foo"
         self.tableau_wrapper.parent_project = "/"
         r = self.tableau_wrapper._get_working_project()
-        assert r.id == "100" and r.name == "project-foo"
+        assert r is not None and r.id == "100" and r.name == "project-foo"
