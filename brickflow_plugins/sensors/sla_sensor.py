@@ -11,9 +11,7 @@ from warnings import warn
 import requests
 from pydantic import BaseModel, SecretStr, ValidationError
 
-from brickflow import ctx
 from brickflow_plugins.sensors.workflow_dependency_sensor import (
-    WorkflowDependencySensorException,
     WorkflowTaskDependencySensor,
 )
 

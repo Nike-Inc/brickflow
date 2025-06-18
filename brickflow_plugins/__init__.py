@@ -51,7 +51,6 @@ def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
 
     # TODO: takeout dependency installation and plugin flags (or discuss if needed)
     # TODO: Determine if plugin for operators is actually needed
-    # TODO: Add error handling for dependency installation (eg, tableau or snowflake) with explicit insrtallation instructions
     # from brickflow_plugins.airflow.brickflow_task_plugin import (
     #     AirflowOperatorBrickflowTaskPluginImpl,
     # )

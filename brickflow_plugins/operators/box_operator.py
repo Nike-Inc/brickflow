@@ -1,8 +1,8 @@
-import os
 import logging
+import os
 
 try:
-    from boxsdk import Client, JWTAuth, BoxAPIException
+    from boxsdk import BoxAPIException, Client, JWTAuth
 except ImportError:
     raise ImportError(
         """You must install boxsdk library to use run boxsdk plugins, please add - 'boxsdk' library either
@@ -20,13 +20,6 @@ except ImportError:
             def BoxOperator(*args):
                 ...
         """
-    )
-
-try:
-    from brickflow import ctx
-except ImportError:
-    raise ImportError(
-        "plugin requires brickflow context , please install library at cluster/workflow/task level"
     )
 
 # Set up logging

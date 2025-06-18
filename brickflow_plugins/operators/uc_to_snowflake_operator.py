@@ -1,5 +1,7 @@
 import logging as log
 from pathlib import Path
+
+from brickflow import ctx
 from brickflow.engine.utils import get_bf_project_root
 
 try:
@@ -21,13 +23,6 @@ except ImportError:
             def run_snowflake_queries(*args):
                 ...
         """
-    )
-
-try:
-    from brickflow import ctx
-except ImportError:
-    raise ImportError(
-        "plugin requires brickflow context , please install library at cluster/workflow/task level"
     )
 
 
