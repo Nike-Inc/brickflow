@@ -1283,13 +1283,15 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
             f"brickflows @ git+https://github.com/Nike-Inc/brickflow.git@{bf_version}"
         )
 
+    # IMPORTANT: Make sure that library versions in this function are aligned with the versions
+    # from poetry.lock / pyproject.toml
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
         return [
             bf_lib,
-            PypiTaskLibrary("apache-airflow==2.7.3"),
-            PypiTaskLibrary("snowflake==0.6.0"),
+            PypiTaskLibrary("apache-airflow==2.10.5"),
+            PypiTaskLibrary("snowflake==1.5.1"),
             PypiTaskLibrary("tableauserverclient==0.25"),
-            PypiTaskLibrary("boxsdk==3.9.2"),
+            PypiTaskLibrary("boxsdk==3.13.0"),
             PypiTaskLibrary("cerberus-python-client==2.5.4"),
         ]
     else:

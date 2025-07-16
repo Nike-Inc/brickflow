@@ -34,16 +34,16 @@ targets:
                     package: brickflows==0.1.0
                     repo: null
                 - pypi:
-                    package: apache-airflow==2.7.3
+                    package: apache-airflow==2.10.5
                     repo: null
                 - pypi:
-                    package: snowflake==0.6.0
+                    package: snowflake==1.5.1
                     repo: null
                 - pypi:
                     package: tableauserverclient==0.25
                     repo: null
                 - pypi:
-                    package: boxsdk==3.9.2
+                    package: boxsdk==3.13.0
                     repo: null
                 - pypi:
                     package: cerberus-python-client==2.5.4
