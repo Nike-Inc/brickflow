@@ -1284,7 +1284,7 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
         )
 
     # IMPORTANT: Make sure that library versions in this function are aligned with the versions
-    # from poetry.lock / pyproject.toml
+    # from poetry.lock / pyproject.toml. This set of libraries is also validated through tests/test_plugins.py
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
         return [
             bf_lib,
