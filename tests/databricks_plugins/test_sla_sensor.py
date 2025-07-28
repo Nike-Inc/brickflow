@@ -1,6 +1,6 @@
-from datetime import datetime, timezone
+import re
 from collections import namedtuple
-
+from datetime import datetime, timezone
 
 import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
@@ -10,7 +10,7 @@ from brickflow_plugins.databricks.sla_sensor import SLASensor
 
 class TestSLASensor:
     workspace_url = "https://42.cloud.databricks.com"
-    endpoint_url = f"{workspace_url}/api/2.1/jobs/runs/get"
+    endpoint_url = f"{workspace_url}/api/.*/jobs/runs/get"
     expected_sla_timestamp_utc_miss = datetime.now(timezone.utc).replace(
         hour=1, minute=0, second=0, microsecond=0
     )
@@ -98,7 +98,7 @@ class TestSLASensor:
     @pytest.fixture(autouse=True, name="api")
     def mock_api(self):
         rm = RequestsMocker()
-        rm.get(self.endpoint_url, json=self.response, status_code=int(200))
+        rm.get(re.compile(self.endpoint_url), json=self.response, status_code=int(200))
         yield rm
 
     def test_sensor_sla_miss(self, api):

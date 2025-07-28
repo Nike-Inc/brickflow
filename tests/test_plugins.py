@@ -1,11 +1,13 @@
 import copy
+from pathlib import Path
 from typing import List
 from unittest import mock
 
 import pluggy
 import pytest
+import toml
 
-from brickflow.engine.task import get_plugin_manager, get_brickflow_tasks_hook
+from brickflow.engine.task import get_brickflow_tasks_hook, get_plugin_manager
 
 
 def assert_plugin_manager(
@@ -89,3 +91,29 @@ class TestBrickflowPlugins:
 
         with pytest.raises(ValueError):
             cronhelper.cron_helper.quartz_to_unix(quartz_cron)
+
+    def test_plugins_dependency_versions(self):
+        from brickflow import BrickflowProjectDeploymentSettings
+        from brickflow.engine.task import get_brickflow_libraries
+
+        settings = BrickflowProjectDeploymentSettings()
+        settings.brickflow_project_runtime_version = "1.0.0"
+
+        # List of libraries resolved from (dev)dependencies
+        expected_libs = {}
+        with open(
+            str(Path(__file__).parent.parent / "poetry.lock"), "r", encoding="utf-8"
+        ) as f:
+            data = toml.load(f)
+        for lib in data.get("package", []):
+            expected_libs[lib.get("name")] = lib.get("version")
+
+        # Libraries used for plugins expected to be available in the dev environment
+        # and should match the versions in poetry.lock to ensure consistency
+        for lib in get_brickflow_libraries(enable_plugins=True):
+            name, version = lib.package.split("==")
+            if name != "brickflows":
+                assert name in expected_libs
+                assert (
+                    version == expected_libs[name]
+                ), f"Version mismatch for {name}: expected {expected_libs[name]}, got {version}"
