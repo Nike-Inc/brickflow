@@ -11,7 +11,7 @@ def setup_logger():
     _log.setLevel(logging.INFO)
     logger_handler = get_default_log_handler("brickflow-plugins")
     _log.addHandler(logger_handler)
-    _log.propagate = False
+    _log.propagate = True
     return _log
 
 
