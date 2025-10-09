@@ -1,6 +1,7 @@
 """
 Tests for pattern matching in task dependencies.
 """
+
 import pytest
 
 from brickflow import Workflow
