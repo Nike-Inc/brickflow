@@ -1,9 +1,6 @@
 """
 Tests for pattern matching in task dependencies.
-
-Following TDD - these tests will fail initially until we implement the feature.
 """
-
 import pytest
 
 from brickflow import Workflow
