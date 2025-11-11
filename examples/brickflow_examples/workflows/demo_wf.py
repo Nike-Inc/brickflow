@@ -211,6 +211,8 @@ def lending_data_il_transform():
         lending_data_ca_transform,
         lending_data_il_transform,
     ]
+    # Alternative using pattern matching:
+    # depends_on="lending_data_*_transform"
 )
 def lending_data_serve():
     ctx.spark.sql(

@@ -24,6 +24,7 @@ ignore-paths:
   - scripts
   - tests/test_brickflow.py
   - examples
+  - __research__
   - brickflow_plugins # will eventually need to remove once there are tests and linting logic is applied
 
 max-line-length: 120

@@ -1,4 +1,5 @@
 import abc
+import fnmatch
 import functools
 import logging
 import os
@@ -380,6 +381,60 @@ class Workflow:
             else:
                 self.graph.add_edge(t.__name__, task_id)
 
+    def _resolve_task_patterns(
+        self,
+        depends_on: Optional[Union[Callable, str, List[Union[Callable, str]]]],
+        current_task_id: Optional[str] = None,
+    ) -> List[Union[Callable, str]]:
+        """
+        Resolve glob patterns in depends_on to actual task names.
+
+        Patterns are auto-detected by the presence of glob wildcards: *, ?, [, ]
+        When detected, use Python's fnmatch module to match against existing task names.
+
+        Args:
+            depends_on: Task dependencies - can be Callable, str, or list of either
+            current_task_id: ID of current task (to prevent self-reference)
+
+        Returns:
+            List of resolved dependencies (patterns expanded to task names)
+
+        Raises:
+            ValueError: If a pattern matches zero tasks
+        """
+        if depends_on is None:
+            return []
+
+        # Normalize to list
+        depends_on_list = depends_on if isinstance(depends_on, list) else [depends_on]
+        resolved_dependencies: List[Union[Callable, str]] = []
+
+        for dep in depends_on_list:
+            # Check if this is a pattern (string with wildcards)
+            if isinstance(dep, str) and any(c in dep for c in ["*", "?", "[", "]"]):
+                # This is a pattern - resolve it to matching task names
+                matches = [
+                    task_name
+                    for task_name in self.tasks
+                    if fnmatch.fnmatch(task_name, dep) and task_name != current_task_id
+                ]
+
+                if not matches:
+                    raise ValueError(
+                        f"Pattern '{dep}' did not match any tasks. "
+                        f"Available tasks: {sorted(self.tasks.keys())}"
+                    )
+
+                logging.info(
+                    "Pattern '%s' resolved to %s tasks: %s", dep, len(matches), matches
+                )
+                resolved_dependencies.extend(matches)
+            else:
+                # Regular dependency (Callable or exact string)
+                resolved_dependencies.append(dep)
+
+        return resolved_dependencies
+
     def _add_task(
         self,
         f: Callable,
@@ -412,11 +467,10 @@ class Workflow:
             )
 
         _libraries = libraries or [] + self.libraries
-        _depends_on = (
-            [depends_on]
-            if isinstance(depends_on, str) or callable(depends_on)
-            else depends_on
-        )
+
+        # Resolve any glob patterns in dependencies
+        resolved_deps = self._resolve_task_patterns(depends_on, task_id)
+        _depends_on = resolved_deps if resolved_deps else None
 
         if self.enable_plugins is not None:
             ensure_plugins = self.enable_plugins
