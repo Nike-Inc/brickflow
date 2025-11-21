@@ -1,0 +1,58 @@
+{# Custom Logger Template - Example #}
+{# This demonstrates how to create a custom template for injected tasks #}
+
+import logging
+import datetime
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Task execution header
+logger.info("=" * 80)
+logger.info("CUSTOM INJECTED TASK: {{ task_name | default('custom_task') }}")
+logger.info("=" * 80)
+
+{% if custom_message %}
+# Custom message
+logger.info("")
+logger.info("{{ custom_message }}")
+logger.info("")
+{% endif %}
+
+# Execution timestamp
+execution_time = datetime.datetime.now().isoformat()
+logger.info(f"Execution Time: {execution_time}")
+
+{% if steps %}
+# Execute steps
+logger.info("")
+logger.info("Executing steps:")
+{% for step in steps %}
+logger.info(f"  [{{ loop.index }}] {{ step }}")
+{% endfor %}
+logger.info("")
+{% endif %}
+
+# Simulated work
+import time
+logger.info("Processing...")
+time.sleep(0.5)
+logger.info("Processing complete!")
+
+# Task completion footer
+logger.info("")
+logger.info("=" * 80)
+logger.info("TASK COMPLETED: {{ task_name | default('custom_task') }}")
+logger.info("=" * 80)
+
+# Return result
+result = {
+    "task": "{{ task_name | default('custom_task') }}",
+    "status": "success",
+    "execution_time": execution_time,
+    {% if steps %}
+    "steps_completed": {{ steps | length }},
+    {% endif %}
+}
+

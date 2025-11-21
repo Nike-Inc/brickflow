@@ -10,7 +10,7 @@ from dataclasses import field, dataclass
 from enum import Enum
 from pathlib import Path
 from types import ModuleType
-from typing import Dict, Optional, List, Any, Type
+from typing import Dict, Optional, List, Any, Type, Union, Callable, cast
 
 from decouple import config
 
@@ -23,12 +23,15 @@ from brickflow.cli import BrickflowDeployMode
 from brickflow.codegen import CodegenInterface
 from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
 from brickflow.context import ctx, BrickflowInternalVariables
-from brickflow.engine import get_current_commit
+from brickflow.engine import get_current_commit, ROOT_NODE
 from brickflow.engine.task import (
     TaskLibrary,
     filter_bf_related_libraries,
     get_brickflow_libraries,
+    TaskType,
+    PypiTaskLibrary,
 )
+from brickflow.engine.compute import Cluster
 from brickflow.engine.utils import wraps_keyerror
 from brickflow.engine.workflow import Workflow
 
@@ -108,6 +111,10 @@ class _Project:
             raise WorkflowAlreadyExistsError(
                 f"Workflow with name: {workflow.name} already exists!"
             )
+
+        # Inject tasks from YAML config if specified
+        self._inject_tasks_from_yaml(workflow)
+
         self.workflows[workflow.name] = workflow
 
     def workflow_exists(self, workflow: Workflow) -> bool:
@@ -116,6 +123,211 @@ class _Project:
     @wraps_keyerror(WorkflowNotFoundError, "Unable to find workflow: ")
     def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
         return self.workflows[workflow_id]
+
+    def _inject_tasks_from_yaml(self, workflow: Workflow) -> None:
+        """
+        Inject tasks into workflow based on YAML configuration.
+
+        This is called during add_workflow() to inject tasks before the workflow
+        is registered in the project.
+        """
+        # Check if task injection is enabled via environment variable
+        inject_config_path = os.getenv("BRICKFLOW_INJECT_TASKS_CONFIG")
+        if not inject_config_path:
+            return
+
+        try:
+            from brickflow.engine.task_injection_config import TaskInjectionConfig
+            from brickflow.engine.task_executor import GenericTaskExecutor
+
+            # Load configuration
+            config_obj = TaskInjectionConfig.from_yaml(inject_config_path)
+
+            if not config_obj.global_config.enabled:
+                _ilog.info("Task injection is globally disabled")
+                return
+
+            # Inject each enabled task
+            for task_def in config_obj.tasks:
+                if not task_def.enabled:
+                    _ilog.info(f"Skipping disabled task: {task_def.task_name}")
+                    continue
+
+                _ilog.info(
+                    f"Injecting task '{task_def.task_name}' into workflow '{workflow.name}'"
+                )
+
+                # For "all_tasks" strategy, capture existing root tasks before injection
+                existing_root_tasks = []
+                if task_def.depends_on_strategy == "all_tasks":
+                    existing_root_tasks = self._find_root_tasks(workflow)
+                    _ilog.info(
+                        f"Found {len(existing_root_tasks)} root tasks to update: {existing_root_tasks}"
+                    )
+
+                # Create task function using executor
+                executor = GenericTaskExecutor(task_def)
+                task_func = executor.create_task_function()
+
+                # Build libraries list
+                task_libraries = self._build_task_libraries(
+                    task_def.libraries,
+                    config_obj.global_config.default_libraries,
+                    task_def.artifact,
+                )
+
+                # Determine dependencies based on strategy
+                depends_on = self._get_injection_dependencies(
+                    workflow, task_def.depends_on_strategy
+                )
+
+                # Get cluster configuration
+                cluster = None
+                if task_def.cluster:
+                    cluster = Cluster.from_existing_cluster(task_def.cluster)
+
+                # Inject the task into workflow
+                workflow._add_task(
+                    f=task_func,
+                    task_id=task_def.task_name,
+                    depends_on=cast(
+                        Optional[Union[Callable, str, List[Union[Callable, str]]]],
+                        depends_on,
+                    ),
+                    task_type=TaskType[task_def.task_type],
+                    libraries=task_libraries,
+                    cluster=cluster,
+                )
+
+                # For "all_tasks" strategy, make all root tasks depend on injected task
+                if task_def.depends_on_strategy == "all_tasks":
+                    self._update_root_tasks_dependencies(
+                        workflow, existing_root_tasks, task_def.task_name
+                    )
+
+                _ilog.info(f"Successfully injected task: {task_def.task_name}")
+
+        except FileNotFoundError:
+            _ilog.warning(f"Task injection config file not found: {inject_config_path}")
+        except Exception as e:
+            _ilog.error(f"Failed to inject tasks from YAML: {e}", exc_info=True)
+            # Don't fail deployment on injection errors
+
+    def _build_task_libraries(
+        self,
+        task_libraries: List[str],
+        global_libraries: List[str],
+        artifact_config: Optional[Any],
+    ) -> List[TaskLibrary]:
+        """
+        Build the complete list of libraries for an injected task.
+
+        Combines:
+        - Global default libraries
+        - Task-specific libraries
+        - Artifact as library (if configured)
+        """
+        all_libraries: List[TaskLibrary] = []
+
+        # Add global default libraries
+        for lib in global_libraries:
+            all_libraries.append(PypiTaskLibrary(package=lib))
+
+        # Add task-specific libraries
+        for lib in task_libraries:
+            all_libraries.append(PypiTaskLibrary(package=lib))
+
+        # Note: If artifact should be installed as library, it's handled
+        # via artifact.install_as_library in the task execution phase
+
+        return all_libraries
+
+    def _get_injection_dependencies(
+        self, workflow: Workflow, strategy: str
+    ) -> Optional[List[str]]:
+        """
+        Determine task dependencies based on injection strategy.
+
+        Strategies:
+        - "leaf_nodes": Inject after all leaf nodes (tasks with no downstream deps)
+        - "all_tasks": All tasks depend on this (task runs first)
+        - "specific_tasks": Comma-separated list of task names
+        """
+        if strategy == "all_tasks":
+            # This task runs first, so no dependencies
+            return None
+
+        elif strategy == "leaf_nodes":
+            # Find all leaf nodes (tasks with no downstream dependencies)
+            leaf_nodes = self._find_leaf_nodes(workflow)
+            return leaf_nodes if leaf_nodes else None
+
+        elif strategy.startswith("specific_tasks:"):
+            # Parse specific task names
+            task_names = strategy.replace("specific_tasks:", "").split(",")
+            return [name.strip() for name in task_names if name.strip()]
+
+        else:
+            # Default to leaf_nodes
+            _ilog.warning(
+                f"Unknown injection strategy '{strategy}', defaulting to leaf_nodes"
+            )
+            return self._find_leaf_nodes(workflow)
+
+    def _find_leaf_nodes(self, workflow: Workflow) -> List[str]:
+        """
+        Find all leaf nodes in the workflow DAG.
+
+        Leaf nodes are tasks that have no downstream dependencies
+        (no other tasks depend on them).
+        """
+        leaf_nodes = []
+
+        for task_name in workflow.tasks.keys():
+            # Check if this task has any successors in the graph
+            successors = list(workflow.graph.successors(task_name))
+            if not successors:
+                leaf_nodes.append(task_name)
+
+        return leaf_nodes
+
+    def _find_root_tasks(self, workflow: Workflow) -> List[str]:
+        """
+        Find all root tasks in the workflow DAG.
+
+        Root tasks are tasks that have no upstream dependencies
+        (they don't depend on other tasks, only on the root node).
+        """
+        root_tasks = []
+
+        for task_name in workflow.tasks.keys():
+            # Get predecessors (dependencies) for this task
+            predecessors = list(workflow.graph.predecessors(task_name))
+            # Filter out the ROOT_NODE as it's just a marker
+            real_predecessors = [p for p in predecessors if p != ROOT_NODE]
+
+            # If no real predecessors, this is a root task
+            if not real_predecessors:
+                root_tasks.append(task_name)
+
+        return root_tasks
+
+    def _update_root_tasks_dependencies(
+        self, workflow: Workflow, root_tasks: List[str], injected_task_name: str
+    ) -> None:
+        """
+        Update root tasks to depend on the injected task.
+
+        This is used for the "all_tasks" strategy to ensure the injected
+        task runs first and all other tasks depend on it.
+        """
+        for root_task in root_tasks:
+            # Add edge from injected task to root task
+            # This makes root_task depend on injected_task_name
+            workflow.graph.add_edge(injected_task_name, root_task)
+            _ilog.info(
+                f"Updated task '{root_task}' to depend on '{injected_task_name}'"
+            )
 
 
 class Stage(Enum):

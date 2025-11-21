@@ -1,0 +1,80 @@
+# Task Injection Configuration for Demo Workflow
+# This file defines tasks that will be automatically injected into all workflows
+
+global:
+  enabled: true
+  default_libraries:
+    - "requests>=2.28.0"
+
+tasks:
+  # Task 1: Initialization (runs FIRST)
+  - task_name: "initialization_task"
+    enabled: true
+    depends_on_strategy: "all_tasks"
+    template_context:
+      imports:
+        - "import datetime"
+        - "import socket"
+      task_name: "initialization_task"
+      message: "Initializing workflow environment before execution"
+      params:
+        timestamp: "{{datetime.datetime.now().isoformat()}}"
+        hostname: "{{socket.gethostname()}}"
+        action: "setup"
+    task_type: "BRICKFLOW_TASK"
+
+  # Task 2: Monitoring (runs AFTER task_1 and task_2)
+  - task_name: "monitoring_task"
+    enabled: true
+    depends_on_strategy: "specific_tasks:task_1,task_2"
+    template_file: "templates/custom_logger.py.j2"
+    template_context:
+      task_name: "monitoring_task"
+      custom_message: "Monitoring workflow progress after initial tasks"
+      steps:
+        - "Check task_1 completion"
+        - "Check task_2 completion"
+        - "Validate data processing"
+        - "Log metrics"
+    task_type: "BRICKFLOW_TASK"
+
+  # Task 3: Completion Logger (runs LAST)
+  - task_name: "completion_logger"
+    enabled: true
+    depends_on_strategy: "leaf_nodes"  # Default - runs after all leaf nodes
+    template_context:
+      imports:
+        - "import datetime"
+      task_name: "completion_logger"
+      message: "Workflow execution completed successfully!"
+      params:
+        completion_time: "{{datetime.datetime.now().isoformat()}}"
+        status: "success"
+        final: true
+    task_type: "BRICKFLOW_TASK"
+
+# =================================================================
+# DEPLOYMENT INSTRUCTIONS
+# =================================================================
+#
+# To deploy with task injection:
+#   export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks.yaml"
+#   brickflow projects deploy --project brickflow-task-injection-demo -e local
+#
+# To deploy without task injection:
+#   brickflow projects deploy --project brickflow-task-injection-demo -e local
+#
+# =================================================================
+# DEPENDENCY STRATEGIES
+# =================================================================
+#
+# 1. all_tasks: Task runs first, all workflow tasks wait for it
+#    Use for: Initialization, setup, prerequisite checks
+#
+# 2. leaf_nodes: Task runs after all leaf nodes (tasks with no dependents)
+#    Use for: Cleanup, notifications, final logging
+#
+# 3. specific_tasks:task1,task2: Task runs after specified tasks
+#    Use for: Monitoring, validation, checkpoints
+#
+

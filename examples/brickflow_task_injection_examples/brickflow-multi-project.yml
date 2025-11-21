@@ -1,0 +1,5 @@
+project_roots:
+  brickflow-task-injection-demo:
+    root_yaml_rel_path: .
+version: v1
+

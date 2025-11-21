@@ -1,0 +1,65 @@
+# Brickflow Task Injection Configuration
+# Simple configuration for automatic task injection into all workflows
+
+global:
+  # Global enable/disable for task injection
+  enabled: true
+  
+  # Default libraries to attach to all injected tasks
+  default_libraries:
+    - "requests>=2.28.0"
+  
+  # Artifactory credentials (can use environment variables)
+  artifactory_username: ${ARTIFACTORY_USERNAME}
+  artifactory_api_key: ${ARTIFACTORY_API_KEY}
+
+# List of tasks to inject
+tasks:
+  # Example: Simple logging task
+  - task_name: "logging_task"
+    enabled: true
+    
+    # Task parameters
+    template_context:
+      imports:
+        - "import datetime"
+      task_name: "logging_task"
+      message: "This task was automatically injected into the workflow"
+      params:
+        execution_time: "{{datetime.datetime.now()}}"
+        workflow: "automated_workflow"
+    
+    # Run after all leaf nodes complete
+    depends_on_strategy: "leaf_nodes"
+    
+    task_type: "BRICKFLOW_TASK"
+
+# =================================================================
+# USAGE
+# =================================================================
+#
+# The default template prints simple log messages.
+# You can specify:
+#   - imports: Python import statements
+#   - task_name: Name of the task
+#   - message: Custom message to print
+#   - params: Key-value pairs to display
+#
+# Example:
+#   template_context:
+#     imports:
+#       - "import sys"
+#     task_name: "my_task"
+#     message: "Custom message here"
+#     params:
+#       environment: "production"
+#       version: "1.0.0"
+#
+# To use different values for different environments, create
+# separate YAML files:
+#   - config/injected_tasks_dev.yaml
+#   - config/injected_tasks_prod.yaml
+#
+# Then set the environment variable accordingly:
+#   export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks_dev.yaml"
+#
