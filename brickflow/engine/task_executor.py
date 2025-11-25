@@ -28,31 +28,33 @@ class ArtifactoryClient:
         Returns:
             Path to downloaded artifact
         """
-        log.info(f"Downloading artifact from: {url}")
+        log.info("Downloading artifact from: %s", url)
 
         try:
             headers = {}
             if self.username and self.api_key:
                 headers["X-JFrog-Art-Api"] = self.api_key
 
-            response = requests.get(url, headers=headers, stream=True)
+            response = requests.get(url, headers=headers, stream=True, timeout=300)
             response.raise_for_status()
 
             if destination is None:
                 # Create temp file with appropriate extension
                 suffix = Path(url).suffix or ".whl"
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-                destination = Path(temp_file.name)
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=suffix
+                ) as temp_file:
+                    destination = Path(temp_file.name)
 
             with open(destination, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
-            log.info(f"Downloaded artifact to: {destination}")
+            log.info("Downloaded artifact to: %s", destination)
             return destination
 
         except Exception as e:
-            log.error(f"Failed to download artifact from {url}: {e}")
+            log.error("Failed to download artifact from %s: %s", url, e)
             raise
 
 
@@ -95,15 +97,15 @@ class GenericTaskExecutor:
                     task_def.artifact.username,
                     task_def.artifact.api_key,
                 )
-                log.info(f"Artifact setup complete: {artifact_path}")
+                log.info("Artifact setup complete: %s", artifact_path)
 
             # Load and render template
             template_code = self._load_and_render_template(task_def)
 
             # Execute the rendered code
-            log.info(f"Executing task: {task_def.task_name}")
+            log.info("Executing task: %s", task_def.task_name)
             local_vars: Dict[str, Any] = {}
-            exec(template_code, globals(), local_vars)
+            exec(template_code, globals(), local_vars)  # pylint: disable=exec-used
 
             # Return result if present
             return local_vars.get("result")
@@ -132,23 +134,24 @@ class GenericTaskExecutor:
 
             if not template_path.exists():
                 log.warning(
-                    f"Custom template file not found: {template_path}. Using default."
+                    "Custom template file not found: %s. Using default.",
+                    template_path,
                 )
                 template_path = self.DEFAULT_TEMPLATE_PATH
         else:
             template_path = self.DEFAULT_TEMPLATE_PATH
 
-        log.info(f"Using template: {template_path}")
+        log.info("Using template: %s", template_path)
 
         # Load template
-        with open(template_path, "r") as f:
+        with open(template_path, "r", encoding="utf-8") as f:
             template_content = f.read()
 
         # Render template with context
         template = Template(template_content)
         rendered_code = template.render(**task_def.template_context)
 
-        log.debug(f"Rendered template for {task_def.task_name}:\n{rendered_code}")
+        log.debug("Rendered template for %s:\n%s", task_def.task_name, rendered_code)
 
         return rendered_code
 
@@ -167,6 +170,6 @@ class GenericTaskExecutor:
         # If it's a wheel or zip, add to sys.path
         if artifact_path.suffix in [".whl", ".zip"]:
             sys.path.insert(0, str(artifact_path))
-            log.info(f"Added {artifact_path} to sys.path")
+            log.info("Added %s to sys.path", artifact_path)
 
         return artifact_path

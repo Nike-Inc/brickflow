@@ -94,13 +94,13 @@ class TaskInjectionConfig:
         Returns:
             TaskInjectionConfig instance
         """
-        log.info(f"Loading task injection config from: {yaml_path}")
+        log.info("Loading task injection config from: %s", yaml_path)
 
-        with open(yaml_path, "r") as f:
+        with open(yaml_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         if not data:
-            log.warning(f"Empty YAML configuration file: {yaml_path}")
+            log.warning("Empty YAML configuration file: %s", yaml_path)
             return cls(global_config=GlobalConfig(), tasks=[])
 
         # Parse global config

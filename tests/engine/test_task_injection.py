@@ -10,7 +10,6 @@ import pytest
 from brickflow.engine.task_injection_config import (
     TaskInjectionConfig,
     TaskDefinition,
-    ArtifactConfig,
 )
 from brickflow.engine.task_executor import GenericTaskExecutor, ArtifactoryClient
 from brickflow.engine.workflow import Workflow

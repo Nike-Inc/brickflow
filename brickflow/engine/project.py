@@ -150,11 +150,13 @@ class _Project:
             # Inject each enabled task
             for task_def in config_obj.tasks:
                 if not task_def.enabled:
-                    _ilog.info(f"Skipping disabled task: {task_def.task_name}")
+                    _ilog.info("Skipping disabled task: %s", task_def.task_name)
                     continue
 
                 _ilog.info(
-                    f"Injecting task '{task_def.task_name}' into workflow '{workflow.name}'"
+                    "Injecting task '%s' into workflow '%s'",
+                    task_def.task_name,
+                    workflow.name,
                 )
 
                 # For "all_tasks" strategy, capture existing root tasks before injection
@@ -162,7 +164,9 @@ class _Project:
                 if task_def.depends_on_strategy == "all_tasks":
                     existing_root_tasks = self._find_root_tasks(workflow)
                     _ilog.info(
-                        f"Found {len(existing_root_tasks)} root tasks to update: {existing_root_tasks}"
+                        "Found %d root tasks to update: %s",
+                        len(existing_root_tasks),
+                        existing_root_tasks,
                     )
 
                 # Create task function using executor
@@ -173,7 +177,6 @@ class _Project:
                 task_libraries = self._build_task_libraries(
                     task_def.libraries,
                     config_obj.global_config.default_libraries,
-                    task_def.artifact,
                 )
 
                 # Determine dependencies based on strategy
@@ -205,19 +208,20 @@ class _Project:
                         workflow, existing_root_tasks, task_def.task_name
                     )
 
-                _ilog.info(f"Successfully injected task: {task_def.task_name}")
+                _ilog.info("Successfully injected task: %s", task_def.task_name)
 
         except FileNotFoundError:
-            _ilog.warning(f"Task injection config file not found: {inject_config_path}")
+            _ilog.warning(
+                "Task injection config file not found: %s", inject_config_path
+            )
         except Exception as e:
-            _ilog.error(f"Failed to inject tasks from YAML: {e}", exc_info=True)
+            _ilog.error("Failed to inject tasks from YAML: %s", e, exc_info=True)
             # Don't fail deployment on injection errors
 
     def _build_task_libraries(
         self,
         task_libraries: List[str],
         global_libraries: List[str],
-        artifact_config: Optional[Any],
     ) -> List[TaskLibrary]:
         """
         Build the complete list of libraries for an injected task.
@@ -225,7 +229,8 @@ class _Project:
         Combines:
         - Global default libraries
         - Task-specific libraries
-        - Artifact as library (if configured)
+
+        Note: Artifacts are handled separately in GenericTaskExecutor.create_task_function()
         """
         all_libraries: List[TaskLibrary] = []
 
@@ -270,7 +275,7 @@ class _Project:
         else:
             # Default to leaf_nodes
             _ilog.warning(
-                f"Unknown injection strategy '{strategy}', defaulting to leaf_nodes"
+                "Unknown injection strategy '%s', defaulting to leaf_nodes", strategy
             )
             return self._find_leaf_nodes(workflow)
 
@@ -326,7 +331,7 @@ class _Project:
             # This makes root_task depend on injected_task_name
             workflow.graph.add_edge(injected_task_name, root_task)
             _ilog.info(
-                f"Updated task '{root_task}' to depend on '{injected_task_name}'"
+                "Updated task '%s' to depend on '%s'", root_task, injected_task_name
             )
 
 
