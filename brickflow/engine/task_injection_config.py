@@ -2,7 +2,7 @@
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import Any, cast, Optional, List, Dict
 import yaml
 from brickflow import log
 
@@ -14,10 +14,10 @@ class ArtifactConfig:
     url: str
     """URL of the artifact to download"""
 
-    username: str | None = None
+    username: Optional[str] = None
     """Artifactory username (can use env var)"""
 
-    api_key: str | None = None
+    api_key: Optional[str] = None
     """Artifactory API key (can use env var)"""
 
     install_as_library: bool = False
@@ -34,19 +34,19 @@ class TaskDefinition:
     enabled: bool = True
     """Whether this task is enabled"""
 
-    artifact: ArtifactConfig | None = None
+    artifact: Optional[ArtifactConfig] = None
     """Artifact configuration for downloading from Artifactory"""
 
-    template_file: str | None = None
+    template_file: Optional[str] = None
     """Path to custom Python template file. If not provided, uses default template."""
 
-    template_context: dict[str, Any] = field(default_factory=dict)
+    template_context: Dict[str, Any] = field(default_factory=dict)
     """Context variables to pass to the template for rendering"""
 
-    libraries: list[str] = field(default_factory=list)
+    libraries: List[str] = field(default_factory=list)
     """List of PyPI packages to attach as libraries (e.g., ['requests>=2.28.0', 'pandas>=1.0.0'])"""
 
-    cluster: str | None = None
+    cluster: Optional[str] = None
     """Cluster ID for cluster override (optional)"""
 
     depends_on_strategy: str = "leaf_nodes"
@@ -63,16 +63,16 @@ class GlobalConfig:
     enabled: bool = True
     """Global enable/disable for all task injection"""
 
-    default_libraries: list[str] = field(default_factory=list)
+    default_libraries: List[str] = field(default_factory=list)
     """Default libraries to attach to all injected tasks"""
 
-    default_cluster: str | None = None
+    default_cluster: Optional[str] = None
     """Default cluster ID for all injected tasks"""
 
-    artifactory_username: str | None = None
+    artifactory_username: Optional[str] = None
     """Default Artifactory username"""
 
-    artifactory_api_key: str | None = None
+    artifactory_api_key: Optional[str] = None
     """Default Artifactory API key"""
 
 
@@ -81,7 +81,7 @@ class TaskInjectionConfig:
     """Complete task injection configuration."""
 
     global_config: GlobalConfig
-    tasks: list[TaskDefinition]
+    tasks: List[TaskDefinition]
 
     @classmethod
     def from_yaml(cls, yaml_path: str) -> "TaskInjectionConfig":
@@ -104,37 +104,37 @@ class TaskInjectionConfig:
             return cls(global_config=GlobalConfig(), tasks=[])
 
         # Parse global config
-        global_data = cast(dict[str, Any], data.get("global", {}))
+        global_data = cast(Dict[str, Any], data.get("global", {}))
         global_config = GlobalConfig(
             enabled=cast(bool, global_data.get("enabled", True)),
-            default_libraries=cast(list[str], global_data.get("default_libraries", [])),
+            default_libraries=cast(List[str], global_data.get("default_libraries", [])),
             default_cluster=(
                 cast(str, global_data["default_cluster"])
                 if "default_cluster" in global_data
                 else None
             ),
             artifactory_username=cls._resolve_env_var(
-                cast(str | None, global_data.get("artifactory_username"))
+                cast(Optional[str], global_data.get("artifactory_username"))
             ),
             artifactory_api_key=cls._resolve_env_var(
-                cast(str | None, global_data.get("artifactory_api_key"))
+                cast(Optional[str], global_data.get("artifactory_api_key"))
             ),
         )
 
         # Parse tasks
-        tasks_data = cast(list[dict[str, Any]], data.get("tasks", []))
-        tasks: list[TaskDefinition] = []
+        tasks_data = cast(List[Dict[str, Any]], data.get("tasks", []))
+        tasks: List[TaskDefinition] = []
 
         for task_data in tasks_data:
-            artifact_data = cast(dict[str, Any] | None, task_data.get("artifact"))
-            artifact: ArtifactConfig | None = None
+            artifact_data = cast(Optional[Dict[str, Any]], task_data.get("artifact"))
+            artifact: Optional[ArtifactConfig] = None
 
             if artifact_data:
                 artifact = ArtifactConfig(
                     url=cast(str, artifact_data["url"]),
                     username=cls._resolve_env_var(
                         cast(
-                            str | None,
+                            Optional[str],
                             artifact_data.get(
                                 "username", global_config.artifactory_username
                             ),
@@ -142,7 +142,7 @@ class TaskInjectionConfig:
                     ),
                     api_key=cls._resolve_env_var(
                         cast(
-                            str | None,
+                            Optional[str],
                             artifact_data.get(
                                 "api_key", global_config.artifactory_api_key
                             ),
@@ -181,7 +181,7 @@ class TaskInjectionConfig:
         return cls(global_config=global_config, tasks=tasks)
 
     @staticmethod
-    def _resolve_env_var(value: str | None) -> str | None:
+    def _resolve_env_var(value: Optional[str]) -> Optional[str]:
         """
         Resolve environment variable references.
 
