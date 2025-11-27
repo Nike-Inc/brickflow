@@ -132,7 +132,9 @@ class _Project:
         is registered in the project.
         """
         # Check if task injection is enabled via environment variable
-        inject_config_path = os.getenv("BRICKFLOW_INJECT_TASKS_CONFIG")
+        inject_config_path = os.environ.get(
+            BrickflowEnvVars.BRICKFLOW_INJECT_TASKS_CONFIG.value
+        )
         if not inject_config_path:
             return
 
