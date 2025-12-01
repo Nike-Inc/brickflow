@@ -622,5 +622,137 @@ tasks:
         assert setup_preds == []
 
 
+class TestTaskInjectionEdgeCases:
+    """Test edge cases and error handling for task injection."""
+
+    def test_empty_yaml_file(self, tmp_path):
+        """Test handling of empty YAML configuration file."""
+        yaml_file = tmp_path / "empty_config.yaml"
+        yaml_file.write_text("")
+
+        config = TaskInjectionConfig.from_yaml(str(yaml_file))
+
+        assert config.global_config.enabled is True
+        assert len(config.tasks) == 0
+
+    def test_global_config_disabled(self, tmp_path):
+        """Test that task injection is skipped when global config is disabled."""
+        yaml_content = """
+global:
+  enabled: false
+
+tasks:
+  - task_name: "test_task"
+    enabled: true
+"""
+        yaml_file = tmp_path / "config.yaml"
+        yaml_file.write_text(yaml_content)
+
+        workflow = Workflow("test_workflow")
+
+        @workflow.task()
+        def task1():
+            return "task1"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(yaml_file)}):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify no tasks were injected
+        assert "test_task" not in workflow.tasks
+        assert len(workflow.tasks) == 1  # Only the original task1
+
+    def test_task_with_artifact_download(self, tmp_path):
+        """Test task creation with artifact download."""
+        # Create a simple template
+        template_file = tmp_path / "test_template.py.j2"
+        template_file.write_text(
+            """
+import sys
+result = "artifact_test_result"
+"""
+        )
+
+        # Create a mock artifact file
+        artifact_file = tmp_path / "test_artifact.whl"
+        artifact_file.write_text("mock artifact content")
+
+        from brickflow.engine.task_injection_config import ArtifactConfig
+
+        task_def = TaskDefinition(
+            task_name="test_task_with_artifact",
+            enabled=True,
+            template_file=str(template_file),
+            template_context={"task_name": "test_task_with_artifact"},
+            libraries=["pytest>=7.0.0"],
+            depends_on_strategy="leaf_nodes",
+            artifact=ArtifactConfig(
+                url=f"file://{artifact_file}",
+                username=None,
+                api_key=None,
+                install_as_library=False,
+            ),
+        )
+
+        executor = GenericTaskExecutor(task_def)
+
+        # Mock the download to avoid actual HTTP calls
+        with patch.object(
+            ArtifactoryClient, "download_artifact", return_value=artifact_file
+        ):
+            task_func = executor.create_task_function()
+            result = task_func()
+
+        assert result == "artifact_test_result"
+
+    def test_disabled_task_workflow_integration(self, tmp_path):
+        """Test that disabled tasks are skipped during workflow injection."""
+        template_file = tmp_path / "test_template.py.j2"
+        template_file.write_text(
+            """
+result = "test_result"
+"""
+        )
+
+        yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "enabled_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+  
+  - task_name: "disabled_task"
+    enabled: false
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        yaml_file = tmp_path / "config.yaml"
+        yaml_file.write_text(yaml_content)
+
+        workflow = Workflow("test_workflow")
+
+        @workflow.task()
+        def task1():
+            return "task1"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(yaml_file)}):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify only enabled task was injected
+        assert "enabled_task" in workflow.tasks
+        assert "disabled_task" not in workflow.tasks
+        assert len(workflow.tasks) == 2  # task1 + enabled_task
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
