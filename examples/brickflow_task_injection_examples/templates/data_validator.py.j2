@@ -1,0 +1,64 @@
+{# Data Validator Template - Example #}
+{# This template demonstrates data validation in injected tasks #}
+
+import logging
+from pyspark.sql import SparkSession
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize Spark
+spark = SparkSession.builder.getOrCreate()
+
+logger.info("=" * 80)
+logger.info("DATA VALIDATION TASK: {{ task_name | default('validator') }}")
+logger.info("=" * 80)
+
+# Configuration
+catalog = "{{ catalog | default('hive_metastore') }}"
+schema = "{{ schema | default('default') }}"
+table = "{{ table | default('sample_table') }}"
+table_name = f"{catalog}.{schema}.{table}"
+
+logger.info(f"Validating table: {table_name}")
+
+{% if validation_checks %}
+# Run validation checks
+validation_results = {}
+
+{% for check in validation_checks %}
+logger.info("Running check: {{ check }}")
+# Add your validation logic here
+validation_results["{{ check }}"] = "passed"
+{% endfor %}
+
+logger.info(f"Validation results: {validation_results}")
+{% else %}
+# Default validation: Check table exists
+if spark.catalog.tableExists(table_name):
+    logger.info(f"✓ Table {table_name} exists")
+    
+    # Get row count
+    df = spark.table(table_name)
+    row_count = df.count()
+    logger.info(f"✓ Table has {row_count} rows")
+    
+    result = {
+        "status": "passed",
+        "table": table_name,
+        "row_count": row_count,
+    }
+else:
+    logger.error(f"✗ Table {table_name} does not exist!")
+    result = {
+        "status": "failed",
+        "table": table_name,
+        "error": "Table not found",
+    }
+{% endif %}
+
+logger.info("=" * 80)
+logger.info("VALIDATION COMPLETED")
+logger.info("=" * 80)
+
+

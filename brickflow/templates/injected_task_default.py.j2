@@ -1,0 +1,32 @@
+{# Default template for injected tasks #}
+{# This template can be used for simple tasks that just need to print or log information #}
+
+{% if imports %}
+{% for import_stmt in imports %}
+{{ import_stmt }}
+{% endfor %}
+
+{% endif %}
+# Injected task: {{ task_name | default('unknown_task') }}
+print("=" * 60)
+print("Executing injected task: {{ task_name | default('unknown_task') }}")
+print("=" * 60)
+
+{% if message %}
+print("{{ message }}")
+{% else %}
+print("This is a dynamically injected task.")
+{% endif %}
+
+{% if params %}
+# Task parameters:
+{% for key, value in params.items() %}
+print(f"  {{ key }}: {{ value }}")
+{% endfor %}
+{% endif %}
+
+print("=" * 60)
+print("Task completed successfully!")
+print("=" * 60)
+
+result = "success"
