@@ -32,7 +32,14 @@ jobs:
       - name: Install pip
         run: python -m pip install --upgrade pip
 
+      - name: Install and configure Poetry (py3.9)
+        if: matrix.python-version == '3.9'
+        uses: snok/install-poetry@v1
+        with:
+          version: '1.8.5'
+
       - name: Install and configure Poetry
+        if: matrix.python-version != '3.9'
         uses: snok/install-poetry@v1
 
       - name: Install poetry and build tools
@@ -66,7 +73,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version: [ '3.9' ]
+        python-version: [ '3.10' ]
         os: [ ubuntu-latest ]
     needs:
       - test-pipeline
