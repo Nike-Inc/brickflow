@@ -211,18 +211,29 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
 
     Example Usage in your brickflow task:
         service_principle_pat = ctx.dbutils.secrets.get("scope", "service_principle_id")
-        WorkflowDependencySensor(
+        WorkflowTaskDependencySensor(
             databricks_host=https://your_workspace_url.cloud.databricks.com,
             databricks_token=service_principle_pat,
-            dependency_job_id=job_id,
+            dependency_job_name="my_job",
             dependency_task_name="foo",
-            poke_interval=20,
-            timeout=60,
-            delta=timedelta(days=1)
+            poke_interval_seconds=20,
+            timeout_seconds=60,
+            delta=timedelta(days=1),
+            allow_skipped=True  # Optional: treat skipped (EXCLUDED) tasks as successful
         )
         In the above snippet Databricks secrets are used as a secure service to store the databricks token.
         If you get your token from another secret management service, like AWS Secrets Manager, GCP Secret Manager
         or Azure Key Vault, just pass it in the databricks_token argument.
+
+    Args:
+        dependency_job_name: Name of the job to monitor
+        dependency_task_name: Name of the task within the job to monitor
+        delta: Time delta to look back for runs
+        timeout_seconds: Maximum time to wait before timing out
+        databricks_host: Databricks workspace URL
+        databricks_token: Databricks authentication token
+        poke_interval_seconds: Interval between checks (default: 60)
+        allow_skipped: If True, treat skipped (EXCLUDED) tasks as successful (default: False)
     """
 
     def __init__(
@@ -234,6 +245,7 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
         databricks_host: str = None,
         databricks_token: Union[str, SecretStr] = None,
         poke_interval_seconds: int = 60,
+        allow_skipped: bool = False,
     ):
         super().__init__(
             databricks_host=databricks_host,
@@ -245,6 +257,7 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
         )
 
         self.dependency_task_name = dependency_task_name
+        self.allow_skipped = allow_skipped
 
     def execute(self):
         self.dependency_job_id = self._get_job_id
@@ -266,8 +279,16 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
                                 f"Found the run_id '{run.run_id}' and '{self.dependency_task_name}' "
                                 f"task with state: {task_state.value}"
                             )
-                            if task_state.value == "SUCCESS":
-                                self.log.info(f"Found a successful run: {run.run_id}")
+                            allowed_states = ["SUCCESS", "EXCLUDED"] if self.allow_skipped else ["SUCCESS"]
+                            if task_state.value in allowed_states:
+                                if task_state.value == "EXCLUDED":
+                                    self.log.info(
+                                        f"Found a skipped task in run: {run.run_id}"
+                                    )
+                                else:
+                                    self.log.info(
+                                        f"Found a successful run: {run.run_id}"
+                                    )
                                 return
                         else:
                             self.log.info(
