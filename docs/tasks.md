@@ -900,6 +900,7 @@ Wait for a specific task in a workflow to finish before kicking off the current 
 ```python title="workflow_dependency_sensor"
 from brickflow.context import ctx
 from brickflow_plugins import WorkflowTaskDependencySensor
+from datetime import timedelta
 
 wf = Workflow(...)
 
@@ -910,11 +911,12 @@ def wait_on_workflow(*args):
    sensor = WorkflowTaskDependencySensor(
       databricks_host="https://your_workspace_url.cloud.databricks.com",
       databricks_token=api_token_key,
-      dependency_job_id=job_id,
+      dependency_job_name="my_job",
       dependency_task_name="foo",
-      poke_interval=20,
-      timeout=60,
-      delta=timedelta(days=1)
+      poke_interval_seconds=20,
+      timeout_seconds=60,
+      delta=timedelta(days=1),
+      allow_skipped=True,  # Optional: treat skipped (EXCLUDED) tasks as successful (default: False)
    )
    sensor.execute()
 ```
