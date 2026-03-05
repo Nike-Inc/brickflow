@@ -63,6 +63,10 @@ def wait_on_workflow(*args):
 
 ## How do I wait for a specific task in a workflow to finish before kicking off my own workflow's tasks?
 
+Use the `WorkflowTaskDependencySensor` to monitor a specific task within a Databricks workflow. The sensor polls for the task's completion state within a configurable time window.
+
+If the upstream task may be conditionally skipped (reported as `EXCLUDED` by Databricks), set `allow_skipped=True` to treat skipped tasks as a valid completion state. By default, only `SUCCESS` is accepted.
+
 ```python
 from brickflow.context import ctx
 from brickflow_plugins import WorkflowTaskDependencySensor
