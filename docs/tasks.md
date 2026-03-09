@@ -875,29 +875,31 @@ Wait for a workflow to finish before kicking off the current workflow's tasks
 ```python title="workflow_dependency_sensor"
 from brickflow.context import ctx
 from brickflow_plugins import WorkflowDependencySensor
+from datetime import timedelta
 
 wf = Workflow(...)
 
 
 @wf.task
 def wait_on_workflow(*args):
-   api_token_key = ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "api_token_key")
+   api_token_key = ctx.dbutils.secrets.get("scope", "api_token_key")
    sensor = WorkflowDependencySensor(
       databricks_host="https://your_workspace_url.cloud.databricks.com",
       databricks_token=api_token_key,
-      dependency_job_id=job_id,
-      poke_interval=20,
-      timeout=60,
-      delta=timedelta(days=1)
+      dependency_job_name="upstream_job",
+      poke_interval_seconds=20,
+      timeout_seconds=60,
+      delta=timedelta(days=1),
    )
    sensor.execute()
 ```
 
 #### Workflow Task Dependency Sensor
 
-Wait for a specific task in a workflow to finish before kicking off the current workflow's tasks
+Wait for a specific task in a workflow to finish before kicking off the current workflow's tasks.
+Set `allow_skipped=True` if the upstream task may be conditionally skipped (`EXCLUDED`) and should be treated as successful.
 
-```python title="workflow_dependency_sensor"
+```python title="workflow_task_dependency_sensor"
 from brickflow.context import ctx
 from brickflow_plugins import WorkflowTaskDependencySensor
 from datetime import timedelta
@@ -916,7 +918,7 @@ def wait_on_workflow(*args):
       poke_interval_seconds=20,
       timeout_seconds=60,
       delta=timedelta(days=1),
-      allow_skipped=True,  # Optional: treat skipped (EXCLUDED) tasks as successful (default: False)
+      allow_skipped=True,  # Optional (default: False)
    )
    sensor.execute()
 ```
