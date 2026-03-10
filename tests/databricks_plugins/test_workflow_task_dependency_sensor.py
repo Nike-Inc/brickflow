@@ -173,8 +173,7 @@ class TestWorkflowTaskDependencySensor:
             sensor.execute()
 
             assert (
-                "Found the run_id '1' and 'foo' task with state: SUCCESS"
-                in caplog.text
+                "Found the run_id '1' and 'foo' task with state: SUCCESS" in caplog.text
             )
             assert "Found a successful run: 1" in caplog.text
 

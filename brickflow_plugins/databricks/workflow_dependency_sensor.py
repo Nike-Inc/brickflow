@@ -279,7 +279,11 @@ class WorkflowTaskDependencySensor(WorkflowDependencySensor):
                                 f"Found the run_id '{run.run_id}' and '{self.dependency_task_name}' "
                                 f"task with state: {task_state.value}"
                             )
-                            allowed_states = ["SUCCESS", "EXCLUDED"] if self.allow_skipped else ["SUCCESS"]
+                            allowed_states = (
+                                ["SUCCESS", "EXCLUDED"]
+                                if self.allow_skipped
+                                else ["SUCCESS"]
+                            )
                             if task_state.value in allowed_states:
                                 if task_state.value == "EXCLUDED":
                                     self.log.info(
