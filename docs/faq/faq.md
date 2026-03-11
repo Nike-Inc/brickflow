@@ -43,29 +43,35 @@ To provide this capability, brickflow offers a parameter to do this:
 ```python
 from brickflow.context import ctx
 from brickflow_plugins import WorkflowDependencySensor
+from datetime import timedelta
 
 wf = Workflow(...)
 
 
 @wf.task
 def wait_on_workflow(*args):
-    api_token_key = ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "api_token_key")
+    api_token_key = ctx.dbutils.secrets.get("scope", "api_token_key")
     sensor = WorkflowDependencySensor(
         databricks_host="https://your_workspace_url.cloud.databricks.com",
         databricks_token=api_token_key,
-        dependency_job_id=job_id,
-        poke_interval=20,
-        timeout=60,
-        delta=timedelta(days=1)
+        dependency_job_name="upstream_job",
+        poke_interval_seconds=20,
+        timeout_seconds=60,
+        delta=timedelta(days=1),
     )
     sensor.execute()
 ```
 
 ## How do I wait for a specific task in a workflow to finish before kicking off my own workflow's tasks?
 
+Use the `WorkflowTaskDependencySensor` to monitor a specific task within a Databricks workflow. The sensor polls for the task's completion state within a configurable time window.
+
+If the upstream task may be conditionally skipped (reported as `EXCLUDED` by Databricks), set `allow_skipped=True` to treat skipped tasks as a valid completion state. By default, only `SUCCESS` is accepted.
+
 ```python
 from brickflow.context import ctx
 from brickflow_plugins import WorkflowTaskDependencySensor
+from datetime import timedelta
 
 wf = Workflow(...)
 
@@ -76,11 +82,12 @@ def wait_on_workflow(*args):
     sensor = WorkflowTaskDependencySensor(
         databricks_host="https://your_workspace_url.cloud.databricks.com",
         databricks_token=api_token_key,
-        dependency_job_id=job_id,
+        dependency_job_name="my_job",
         dependency_task_name="foo",
-        poke_interval=20,
-        timeout=60,
-        delta=timedelta(days=1)
+        poke_interval_seconds=20,
+        timeout_seconds=60,
+        delta=timedelta(days=1),
+        allow_skipped=True,  # Optional (default: False)
     )
     sensor.execute()
 ```
