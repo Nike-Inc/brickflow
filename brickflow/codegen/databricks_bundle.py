@@ -1073,6 +1073,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             tasks = self.workflow_obj_to_tasks(workflow)
             job = Jobs(
                 name=workflow_name,
+                description=workflow.description,
                 tasks=tasks,
                 tags=workflow.tags,
                 health=JobsHealth(rules=workflow.health) if workflow.health else None,

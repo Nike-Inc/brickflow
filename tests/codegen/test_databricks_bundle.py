@@ -926,3 +926,56 @@ import {
                         jobs[f"test_workflow_{case['env']}"].schedule.pause_status
                         == case["expected_status"]
                     ), f"Schedule pause status for {case['env']} environment should be {case['expected_status']}"
+
+    def test_description_passed_to_jobs_model(self):
+        """Test that workflow description is properly passed to Jobs model during code generation."""
+        from brickflow import Workflow, Cluster
+
+        proj_name = "test-project"
+        env_name = "local"
+        workflow_description = "This is a test workflow description for code generation"
+
+        with (
+            patch.dict("os.environ", {"BRICKFLOW_ENV": env_name}),
+            patch("subprocess.check_output", return_value=b"main"),
+        ):
+            with Project(
+                proj_name,
+                entry_point_path="test_databricks_bundle.py",
+                codegen_kwargs={
+                    "mutators": [
+                        DatabricksBundleTagsAndNameMutator(
+                            databricks_client=MagicMock()
+                        )
+                    ]
+                },
+            ) as f:
+                wf_with_description = Workflow(
+                    "test_workflow_with_description",
+                    clusters=[Cluster("test-cluster", "spark", "vm-node")],
+                    description=workflow_description,
+                )
+                f.add_workflow(wf_with_description)
+
+                wf_without_description = Workflow(
+                    "test_workflow_without_description",
+                    clusters=[Cluster("test-cluster", "spark", "vm-node")],
+                )
+                f.add_workflow(wf_without_description)
+
+                bundle_codegen = DatabricksBundleCodegen(
+                    project=f, id_="test", env=env_name, mutators=[MagicMock()]
+                )
+                this_bundle = bundle_codegen.proj_to_bundle()
+                jobs = this_bundle.targets.get(f"{proj_name}-{env_name}").resources.jobs
+
+                # Verify workflow with description has correct description in Jobs model
+                assert (
+                    jobs["test_workflow_with_description"].description
+                    == workflow_description
+                ), "Description should be passed to Jobs model"
+
+                # Verify workflow without description has None
+                assert (
+                    jobs["test_workflow_without_description"].description is None
+                ), "Description should be None when not specified"

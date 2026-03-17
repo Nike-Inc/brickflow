@@ -37,6 +37,7 @@ from brickflow_plugins import (
 
 wf = Workflow(
     "brickflow-demo",
+    description="Demo workflow showcasing brickflow features including tasks, notifications, and integrations",
     # replace <all-purpose-cluster-id> with your cluster id
     default_cluster=Cluster.from_existing_cluster("<all-purpose-cluster-id>"),
     # Optional parameters below
