@@ -11,6 +11,7 @@ from brickflow.engine.workflow import WorkflowNotificationSettings
 
 wf = Workflow(  # (1)!
     "wf_test",  # (2)!
+    description="workflow description",  # (21)!
     default_cluster=Cluster.from_existing_cluster("your_existing_cluster_id"),  # (3)!
 
     # Optional parameters below
@@ -85,6 +86,7 @@ def task_function(*, test="var"):
 18. Define the parameters on workflow level [databricks docs](https://docs.databricks.com/en/jobs/settings.html#job-parameters)
 19. Define the notification settings for the workflow
 20. To prevent runs of a job from being skipped because of concurrency limits, you can enable queueing for the job
+21. Describe your workflow in a sentence
 
 ### Clusters
 
