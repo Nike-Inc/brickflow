@@ -124,29 +124,71 @@ class _Project:
     def get_workflow(self, workflow_id: str) -> Optional[Workflow]:
         return self.workflows[workflow_id]
 
+    def _get_workflow_specific_config_path(self, workflow_name: str) -> Optional[str]:
+        """
+        Find workflow-specific config file.
+        
+        Checks BRICKFLOW_INJECT_TASKS_DIR/<workflow_name>.yaml
+        
+        Returns: Path to workflow-specific config file, or None if not found
+        """
+        inject_dir = os.environ.get(BrickflowEnvVars.BRICKFLOW_INJECT_TASKS_DIR.value)
+        if not inject_dir:
+            return None
+        
+        specific_path = Path(inject_dir) / f"{workflow_name}.yaml"
+        if specific_path.exists():
+            return str(specific_path)
+        
+        return None
+
     def _inject_tasks_from_yaml(self, workflow: Workflow) -> None:
         """
         Inject tasks into workflow based on YAML configuration.
 
         This is called during add_workflow() to inject tasks before the workflow
         is registered in the project.
+        
+        Loads tasks from two sources:
+        1. Global config (BRICKFLOW_INJECT_TASKS_CONFIG) - applies to ALL workflows
+        2. Workflow-specific config (BRICKFLOW_INJECT_TASKS_DIR/<workflow_name>.yaml) - applies only to this workflow
         """
-        # Check if task injection is enabled via environment variable
-        inject_config_path = os.environ.get(
+        # Load global config first (applies to all workflows)
+        global_config_path = os.environ.get(
             BrickflowEnvVars.BRICKFLOW_INJECT_TASKS_CONFIG.value
         )
-        if not inject_config_path:
-            return
+        if global_config_path:
+            _ilog.info("Loading global task injection config: %s", global_config_path)
+            self._inject_tasks_from_config_file(workflow, global_config_path, is_global=True)
+        
+        # Load workflow-specific config (only for this workflow)
+        specific_config_path = self._get_workflow_specific_config_path(workflow.name)
+        if specific_config_path:
+            _ilog.info(
+                "Loading workflow-specific task injection config for '%s': %s",
+                workflow.name,
+                specific_config_path,
+            )
+            self._inject_tasks_from_config_file(workflow, specific_config_path, is_global=False)
 
+    def _inject_tasks_from_config_file(self, workflow: Workflow, config_path: str, is_global: bool) -> None:
+        """
+        Inject tasks from a single config file into the workflow.
+        
+        Args:
+            workflow: The workflow to inject tasks into
+            config_path: Path to the config file
+            is_global: True if this is a global config (applies to all workflows)
+        """
         try:
             from brickflow.engine.task_injection_config import TaskInjectionConfig
             from brickflow.engine.task_executor import GenericTaskExecutor
 
             # Load configuration
-            config_obj = TaskInjectionConfig.from_yaml(inject_config_path)
+            config_obj = TaskInjectionConfig.from_yaml(config_path)
 
             if not config_obj.global_config.enabled:
-                _ilog.info("Task injection is globally disabled")
+                _ilog.info("Task injection is disabled in config: %s", config_path)
                 return
 
             # Inject each enabled task
@@ -214,10 +256,10 @@ class _Project:
 
         except FileNotFoundError:
             _ilog.warning(
-                "Task injection config file not found: %s", inject_config_path
+                "Task injection config file not found: %s", config_path
             )
         except Exception as e:
-            _ilog.error("Failed to inject tasks from YAML: %s", e, exc_info=True)
+            _ilog.error("Failed to inject tasks from YAML config '%s': %s", config_path, e, exc_info=True)
             # Don't fail deployment on injection errors
 
     def _build_task_libraries(

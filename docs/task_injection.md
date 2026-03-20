@@ -1,6 +1,6 @@
 # Task Injection in Brickflow
 
-This feature allows you to automatically inject tasks into all Brickflow workflows at deployment time using a YAML configuration file. This is particularly useful for:
+This feature allows you to automatically inject tasks into Brickflow workflows at deployment time using YAML configuration files. This is particularly useful for:
 
 - Monitoring and logging tasks
 - Data quality checks
@@ -8,6 +8,23 @@ This feature allows you to automatically inject tasks into all Brickflow workflo
 - Notification tasks
 - Any cross-cutting concerns that should run with every workflow
 - Compliance related tasks
+
+## Two Approaches
+
+Brickflow supports two complementary approaches for task injection:
+
+1. **Global Task Injection** - Tasks are injected into **ALL workflows**
+   - Use `BRICKFLOW_INJECT_TASKS_CONFIG` environment variable
+   - Points to a single config file (e.g., `config/injected_tasks.yaml`)
+   - All tasks in this file are injected into every workflow
+
+2. **Workflow-Specific Task Injection** - Tasks are injected only into **matching workflows**
+   - Use `BRICKFLOW_INJECT_TASKS_DIR` environment variable
+   - Points to a directory containing workflow-specific config files
+   - Files are named `<workflow_name>.yaml` (e.g., `etl_daily.yaml`)
+   - Tasks only injected into the workflow with matching name
+
+**Both approaches can be used together** to combine global tasks with workflow-specific tasks.
 
 ## Quick Start
 
@@ -80,6 +97,38 @@ environment_overrides:
       task_name: {...}
 ```
 
+### Environment Variables
+
+Two environment variables control task injection:
+
+**`BRICKFLOW_INJECT_TASKS_CONFIG`**
+- Path to global config file
+- Tasks in this file are injected into **ALL workflows**
+- Example: `export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks_global.yaml"`
+
+**`BRICKFLOW_INJECT_TASKS_DIR`**
+- Path to directory containing workflow-specific config files
+- Files must be named `<workflow_name>.yaml`
+- Tasks only injected into workflows with matching names
+- Example: `export BRICKFLOW_INJECT_TASKS_DIR="config/injected_tasks/"`
+
+**Using Both Together:**
+```bash
+# Global tasks for all workflows
+export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks_global.yaml"
+
+# Workflow-specific tasks
+export BRICKFLOW_INJECT_TASKS_DIR="config/injected_tasks/"
+
+# Deploy
+bf projects deploy --project my_project --env dev
+```
+
+Result:
+- Workflow "etl_daily" gets: global tasks + tasks from `config/injected_tasks/etl_daily.yaml`
+- Workflow "ml_training" gets: global tasks + tasks from `config/injected_tasks/ml_training.yaml`
+- Workflow "api_service" gets: global tasks only (no specific config file)
+
 ### Dependency Strategies
 
 The `depends_on_strategy` field controls where the injected task runs in the workflow:
@@ -103,6 +152,105 @@ The `depends_on_strategy` field controls where the injected task runs in the wor
    task2 -^
    task3 (independent)
    ```
+
+## Usage Examples
+
+### Example 1: Global Tasks Only
+
+Inject the same tasks into all workflows:
+
+```bash
+export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks.yaml"
+bf projects deploy --project my_project --env dev
+```
+
+**File structure:**
+```
+config/
+  injected_tasks.yaml    # Tasks for ALL workflows
+```
+
+**Result:** All workflows get tasks defined in `injected_tasks.yaml`
+
+### Example 2: Workflow-Specific Tasks Only
+
+Inject different tasks into different workflows:
+
+```bash
+export BRICKFLOW_INJECT_TASKS_DIR="config/injected_tasks/"
+bf projects deploy --project my_project --env dev
+```
+
+**File structure:**
+```
+config/
+  injected_tasks/
+    etl_daily.yaml       # Tasks only for "etl_daily" workflow
+    ml_training.yaml     # Tasks only for "ml_training" workflow
+    api_service.yaml     # Tasks only for "api_service" workflow
+```
+
+**Result:**
+- Workflow "etl_daily" gets tasks from `etl_daily.yaml`
+- Workflow "ml_training" gets tasks from `ml_training.yaml`
+- Workflow "api_service" gets tasks from `api_service.yaml`
+- Other workflows get no injected tasks
+
+### Example 3: Global + Workflow-Specific Tasks
+
+Combine global tasks with workflow-specific tasks:
+
+```bash
+export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks_global.yaml"
+export BRICKFLOW_INJECT_TASKS_DIR="config/injected_tasks/"
+bf projects deploy --project my_project --env dev
+```
+
+**File structure:**
+```
+config/
+  injected_tasks_global.yaml    # Global tasks for ALL workflows
+  injected_tasks/
+    etl_daily.yaml              # Additional tasks for "etl_daily"
+    ml_training.yaml            # Additional tasks for "ml_training"
+```
+
+**Result:**
+- Workflow "etl_daily" gets: global tasks + `etl_daily.yaml` tasks
+- Workflow "ml_training" gets: global tasks + `ml_training.yaml` tasks
+- Workflow "api_service" gets: global tasks only
+
+**Example config files:**
+
+`config/injected_tasks_global.yaml`:
+```yaml
+global:
+  enabled: true
+
+tasks:
+  - task_name: "global_logger"
+    enabled: true
+    depends_on_strategy: "leaf_nodes"
+    template_context:
+      task_name: "global_logger"
+      message: "Logging workflow execution"
+```
+
+`config/injected_tasks/etl_daily.yaml`:
+```yaml
+global:
+  enabled: true
+
+tasks:
+  - task_name: "etl_data_quality"
+    enabled: true
+    depends_on_strategy: "leaf_nodes"
+    libraries:
+      - "great-expectations>=0.15.0"
+    template_context:
+      task_name: "etl_data_quality"
+      message: "Running ETL data quality checks"
+```
 
 ## Python Templates
 
