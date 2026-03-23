@@ -131,14 +131,12 @@ class TestGenericTaskExecutor:
         """Test creating a basic task function."""
         # Create a simple template
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 {{ imports[0] }}
 
 result = "test_result"
 return result
-"""
-        )
+""")
 
         task_def = TaskDefinition(
             task_name="test_task",
@@ -158,13 +156,11 @@ return result
     def test_load_and_render_template(self, tmp_path):
         """Test template loading and rendering."""
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 from {{ package }} import {{ class_name }}
 
 config = {{ class_name }}(value="{{ value }}")
-"""
-        )
+""")
 
         task_def = TaskDefinition(
             task_name="test_task",
@@ -492,14 +488,12 @@ class TestIntegration:
         """Test complete task injection flow."""
         # Create template
         template_file = tmp_path / "template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 {{ imports[0] }}
 
 result = "{{ task_name }}_result"
 return result
-"""
-        )
+""")
 
         # Create YAML config
         yaml_content = f"""
@@ -546,14 +540,12 @@ tasks:
         """Test complete task injection flow with all_tasks strategy."""
         # Create template
         template_file = tmp_path / "template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 {{ imports[0] }}
 
 result = "{{ task_name }}_result"
 return result
-"""
-        )
+""")
 
         # Create YAML config with all_tasks strategy
         yaml_content = f"""
@@ -669,12 +661,10 @@ tasks:
         """Test task creation with artifact download."""
         # Create a simple template
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 import sys
 result = "artifact_test_result"
-"""
-        )
+""")
 
         # Create a mock artifact file
         artifact_file = tmp_path / "test_artifact.whl"
@@ -711,11 +701,9 @@ result = "artifact_test_result"
     def test_disabled_task_workflow_integration(self, tmp_path):
         """Test that disabled tasks are skipped during workflow injection."""
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 result = "test_result"
-"""
-        )
+""")
 
         yaml_content = f"""
 global:
@@ -760,11 +748,9 @@ class TestWorkflowSpecificConfigFiles:
     def test_global_config_only(self, tmp_path):
         """Test that global config injects tasks into all workflows."""
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 result = "test_result"
-"""
-        )
+""")
 
         # Create global config
         global_yaml_content = f"""
@@ -807,11 +793,9 @@ tasks:
     def test_workflow_specific_config_only(self, tmp_path):
         """Test that workflow-specific config only injects into matching workflow."""
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 result = "test_result"
-"""
-        )
+""")
 
         # Create workflow-specific config directory
         config_dir = tmp_path / "injected_tasks"
@@ -845,9 +829,7 @@ tasks:
 
         project = _Project(name="test_project")
 
-        with patch.dict(
-            os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}
-        ):
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
             project._inject_tasks_from_yaml(workflow1)
             project._inject_tasks_from_yaml(workflow2)
 
@@ -860,11 +842,9 @@ tasks:
     def test_both_global_and_workflow_specific(self, tmp_path):
         """Test that both global and workflow-specific configs work together."""
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 result = "test_result"
-"""
-        )
+""")
 
         # Create global config
         global_yaml_content = f"""
@@ -950,9 +930,7 @@ tasks:
         project = _Project(name="test_project")
 
         # Should not raise error even though etl_daily.yaml doesn't exist
-        with patch.dict(
-            os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}
-        ):
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
             project._inject_tasks_from_yaml(workflow)
 
         # Verify no tasks were injected
@@ -961,11 +939,9 @@ tasks:
     def test_workflow_specific_wrong_workflow(self, tmp_path):
         """Test that workflow-specific config doesn't apply to wrong workflow."""
         template_file = tmp_path / "test_template.py.j2"
-        template_file.write_text(
-            """
+        template_file.write_text("""
 result = "test_result"
-"""
-        )
+""")
 
         # Create workflow-specific config directory
         config_dir = tmp_path / "injected_tasks"
@@ -996,9 +972,7 @@ tasks:
 
         project = _Project(name="test_project")
 
-        with patch.dict(
-            os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}
-        ):
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
             project._inject_tasks_from_yaml(workflow)
 
         # Verify etl_task was NOT injected into ml_training workflow
