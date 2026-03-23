@@ -194,7 +194,12 @@ class _Project:
             config_obj = TaskInjectionConfig.from_yaml(config_path)
 
             if not config_obj.global_config.enabled:
-                _ilog.info("Task injection is disabled in config: %s", config_path)
+                config_type = "global" if is_global else "workflow-specific"
+                _ilog.info(
+                    "Task injection is disabled in %s config: %s",
+                    config_type,
+                    config_path,
+                )
                 return
 
             # Inject each enabled task
