@@ -1,5 +1,15 @@
 # Brickflow Task Injection Configuration
 # Simple configuration for automatic task injection into all workflows
+#
+# TWO APPROACHES:
+# 1. Global Config (this file) - Tasks injected into ALL workflows
+#    Set: export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks.yaml"
+#
+# 2. Workflow-Specific Configs - Tasks injected only into matching workflows
+#    Set: export BRICKFLOW_INJECT_TASKS_DIR="config/injected_tasks/"
+#    Create files: config/injected_tasks/<workflow_name>.yaml
+#
+# Both can be used together for global + workflow-specific tasks
 
 global:
   # Global enable/disable for task injection

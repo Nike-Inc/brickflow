@@ -754,5 +754,257 @@ tasks:
         assert len(workflow.tasks) == 2  # task1 + enabled_task
 
 
+class TestWorkflowSpecificConfigFiles:
+    """Test suite for workflow-specific config files feature."""
+
+    def test_global_config_only(self, tmp_path):
+        """Test that global config injects tasks into all workflows."""
+        template_file = tmp_path / "test_template.py.j2"
+        template_file.write_text(
+            """
+result = "test_result"
+"""
+        )
+
+        # Create global config
+        global_yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "global_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        global_yaml_file = tmp_path / "global_config.yaml"
+        global_yaml_file.write_text(global_yaml_content)
+
+        # Create two workflows
+        workflow1 = Workflow("etl_daily")
+        workflow2 = Workflow("ml_training")
+
+        @workflow1.task()
+        def task1():
+            return "task1"
+
+        @workflow2.task()
+        def task1_w2():
+            return "task1"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(global_yaml_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow1)
+            project._inject_tasks_from_yaml(workflow2)
+
+        # Verify global task was injected into both workflows
+        assert "global_task" in workflow1.tasks
+        assert "global_task" in workflow2.tasks
+
+    def test_workflow_specific_config_only(self, tmp_path):
+        """Test that workflow-specific config only injects into matching workflow."""
+        template_file = tmp_path / "test_template.py.j2"
+        template_file.write_text(
+            """
+result = "test_result"
+"""
+        )
+
+        # Create workflow-specific config directory
+        config_dir = tmp_path / "injected_tasks"
+        config_dir.mkdir()
+
+        # Create config for etl_daily workflow
+        etl_yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "etl_specific_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        etl_yaml_file = config_dir / "etl_daily.yaml"
+        etl_yaml_file.write_text(etl_yaml_content)
+
+        # Create two workflows
+        workflow1 = Workflow("etl_daily")
+        workflow2 = Workflow("ml_training")
+
+        @workflow1.task()
+        def task1():
+            return "task1"
+
+        @workflow2.task()
+        def task1_w2():
+            return "task1"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
+            project._inject_tasks_from_yaml(workflow1)
+            project._inject_tasks_from_yaml(workflow2)
+
+        # Verify etl_specific_task was only injected into etl_daily
+        assert "etl_specific_task" in workflow1.tasks
+        assert "etl_specific_task" not in workflow2.tasks
+        assert len(workflow1.tasks) == 2  # task1 + etl_specific_task
+        assert len(workflow2.tasks) == 1  # task1 only
+
+    def test_both_global_and_workflow_specific(self, tmp_path):
+        """Test that both global and workflow-specific configs work together."""
+        template_file = tmp_path / "test_template.py.j2"
+        template_file.write_text(
+            """
+result = "test_result"
+"""
+        )
+
+        # Create global config
+        global_yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "global_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        global_yaml_file = tmp_path / "global_config.yaml"
+        global_yaml_file.write_text(global_yaml_content)
+
+        # Create workflow-specific config directory
+        config_dir = tmp_path / "injected_tasks"
+        config_dir.mkdir()
+
+        # Create config for etl_daily workflow
+        etl_yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "etl_specific_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        etl_yaml_file = config_dir / "etl_daily.yaml"
+        etl_yaml_file.write_text(etl_yaml_content)
+
+        # Create two workflows
+        workflow1 = Workflow("etl_daily")
+        workflow2 = Workflow("ml_training")
+
+        @workflow1.task()
+        def task1():
+            return "task1"
+
+        @workflow2.task()
+        def task1_w2():
+            return "task1"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ,
+            {
+                "BRICKFLOW_INJECT_TASKS_CONFIG": str(global_yaml_file),
+                "BRICKFLOW_INJECT_TASKS_DIR": str(config_dir),
+            },
+        ):
+            project._inject_tasks_from_yaml(workflow1)
+            project._inject_tasks_from_yaml(workflow2)
+
+        # Verify etl_daily gets both global and specific tasks
+        assert "global_task" in workflow1.tasks
+        assert "etl_specific_task" in workflow1.tasks
+        assert len(workflow1.tasks) == 3  # task1 + global_task + etl_specific_task
+
+        # Verify ml_training gets only global task
+        assert "global_task" in workflow2.tasks
+        assert "etl_specific_task" not in workflow2.tasks
+        assert len(workflow2.tasks) == 2  # task1 + global_task
+
+    def test_missing_workflow_specific_file_no_error(self, tmp_path):
+        """Test that missing workflow-specific file doesn't cause errors."""
+        # Create empty config directory
+        config_dir = tmp_path / "injected_tasks"
+        config_dir.mkdir()
+
+        # Create workflow
+        workflow = Workflow("etl_daily")
+
+        @workflow.task()
+        def task1():
+            return "task1"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        # Should not raise error even though etl_daily.yaml doesn't exist
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify no tasks were injected
+        assert len(workflow.tasks) == 1  # Only task1
+
+    def test_workflow_specific_wrong_workflow(self, tmp_path):
+        """Test that workflow-specific config doesn't apply to wrong workflow."""
+        template_file = tmp_path / "test_template.py.j2"
+        template_file.write_text(
+            """
+result = "test_result"
+"""
+        )
+
+        # Create workflow-specific config directory
+        config_dir = tmp_path / "injected_tasks"
+        config_dir.mkdir()
+
+        # Create config for etl_daily workflow
+        etl_yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "etl_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        etl_yaml_file = config_dir / "etl_daily.yaml"
+        etl_yaml_file.write_text(etl_yaml_content)
+
+        # Create a different workflow
+        workflow = Workflow("ml_training")
+
+        @workflow.task()
+        def task1():
+            return "task1"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify etl_task was NOT injected into ml_training workflow
+        assert "etl_task" not in workflow.tasks
+        assert len(workflow.tasks) == 1  # Only task1
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
