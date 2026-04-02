@@ -50,6 +50,7 @@ from brickflow.bundles.model import (
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
     Resources,
+    Sync,
     Targets,
     Workspace,
     JobsQueue,
@@ -1151,11 +1152,18 @@ class DatabricksBundleCodegen(CodegenInterface):
             resources=resources,
         )
 
+        # If injected task files were written, force DAB to sync them even
+        # when the directory is in .gitignore.
+        sync = None
+        if Path("_brickflow_injected").is_dir():
+            sync = Sync(include=["_brickflow_injected/**"])
+
         return DatabricksAssetBundles(
             targets={
                 get_bundles_project_env(): env_content,
             },
             bundle=Bundle(name=self.project.name),
+            sync=sync,
             workspace=Workspace(),  # empty required not optional
         )
 

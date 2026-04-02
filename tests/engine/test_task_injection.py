@@ -1006,5 +1006,261 @@ tasks:
         assert len(workflow.tasks) == 1  # Only task1
 
 
+class TestRuntimeInjectionReconstruction:
+    """Tests for file-based injection: serialize at deploy, reconstruct at runtime."""
+
+    def test_serialize_for_runtime_writes_file(self, tmp_path, monkeypatch):
+        """serialize_for_runtime writes a .py file and returns a JSON pointer."""
+        import json
+
+        monkeypatch.chdir(tmp_path)
+
+        template_file = tmp_path / "tmpl.py.j2"
+        template_file.write_text('result = "{{ greeting }}"')
+
+        task_def = TaskDefinition(
+            task_name="hello_task",
+            template_file=str(template_file),
+            template_context={"greeting": "hi_from_deploy"},
+        )
+
+        executor = GenericTaskExecutor(task_def)
+        config_json = executor.serialize_for_runtime()
+
+        config = json.loads(config_json)
+        assert config["task_name"] == "hello_task"
+        assert config["task_type"] == "BRICKFLOW_TASK"
+        assert config["file_ref"] == "_brickflow_injected/hello_task.py"
+        assert "rendered_code" not in config
+        assert "artifact" not in config
+
+        written = (tmp_path / "_brickflow_injected" / "hello_task.py").read_text()
+        assert 'result = "hi_from_deploy"' in written
+
+    def test_serialize_for_runtime_with_artifact(self, tmp_path, monkeypatch):
+        """Artifact metadata is preserved in the lightweight JSON pointer."""
+        import json
+        from brickflow.engine.task_injection_config import ArtifactConfig
+
+        monkeypatch.chdir(tmp_path)
+
+        template_file = tmp_path / "tmpl.py.j2"
+        template_file.write_text("result = 1")
+
+        task_def = TaskDefinition(
+            task_name="art_task",
+            template_file=str(template_file),
+            artifact=ArtifactConfig(
+                url="https://example.com/my.whl",
+                install_as_library=True,
+            ),
+        )
+
+        executor = GenericTaskExecutor(task_def)
+        config = json.loads(executor.serialize_for_runtime())
+
+        assert config["artifact"]["url"] == "https://example.com/my.whl"
+        assert config["artifact"]["install_as_library"] is True
+        assert config["file_ref"] == "_brickflow_injected/art_task.py"
+
+    def test_create_task_function_from_workspace_file(self, tmp_path):
+        """Runtime reads code from a workspace file when path is provided."""
+        import json
+
+        ws_file = tmp_path / "task_code.py"
+        ws_file.write_text('result = "from_workspace"')
+
+        config_json = json.dumps({
+            "task_name": "ws_task",
+            "task_type": "BRICKFLOW_TASK",
+            "file_ref": "_brickflow_injected/ws_task.py",
+        })
+
+        task_func = GenericTaskExecutor.create_task_function_from_config(
+            config_json, workspace_file_path=str(ws_file)
+        )
+
+        assert callable(task_func)
+        assert task_func.__name__ == "ws_task"
+        assert task_func() == "from_workspace"
+
+    def test_create_task_function_fallback_to_inline(self):
+        """Falls back to inline rendered_code for backward compat."""
+        import json
+
+        config_json = json.dumps({
+            "task_name": "legacy_task",
+            "task_type": "BRICKFLOW_TASK",
+            "rendered_code": 'result = "rebuilt"',
+        })
+
+        task_func = GenericTaskExecutor.create_task_function_from_config(config_json)
+
+        assert callable(task_func)
+        assert task_func.__name__ == "legacy_task"
+        assert task_func() == "rebuilt"
+
+    def test_create_task_function_file_missing_falls_back(self, tmp_path):
+        """When workspace file is missing, falls back to inline code."""
+        import json
+
+        config_json = json.dumps({
+            "task_name": "fallback_task",
+            "task_type": "BRICKFLOW_TASK",
+            "rendered_code": 'result = "inline_fallback"',
+        })
+
+        task_func = GenericTaskExecutor.create_task_function_from_config(
+            config_json, workspace_file_path=str(tmp_path / "does_not_exist.py")
+        )
+
+        assert task_func() == "inline_fallback"
+
+    def test_create_task_function_no_code_raises(self):
+        """Raises RuntimeError when neither file nor inline code is available."""
+        import json
+
+        config_json = json.dumps({
+            "task_name": "empty_task",
+            "task_type": "BRICKFLOW_TASK",
+        })
+
+        task_func = GenericTaskExecutor.create_task_function_from_config(config_json)
+
+        with pytest.raises(RuntimeError, match="No code available"):
+            task_func()
+
+    def test_injection_config_json_stored_on_task(self, tmp_path, monkeypatch):
+        """Injection config with file_ref is stored on the Task after injection."""
+        monkeypatch.chdir(tmp_path)
+
+        template_file = tmp_path / "tmpl.py.j2"
+        template_file.write_text("result = 42")
+
+        yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "injected_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        yaml_file = tmp_path / "config.yaml"
+        yaml_file.write_text(yaml_content)
+
+        workflow = Workflow("test_workflow")
+
+        @workflow.task()
+        def original_task():
+            return "original"
+
+        from brickflow.engine.project import _Project
+
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(yaml_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        assert "injected_task" in workflow.tasks
+        injected = workflow.tasks["injected_task"]
+        assert injected.injection_config_json is not None
+
+        import json
+
+        baked = json.loads(injected.injection_config_json)
+        assert baked["task_name"] == "injected_task"
+        assert baked["file_ref"] == "_brickflow_injected/injected_task.py"
+
+    def test_reconstruct_injected_task_from_workspace_file(self, tmp_path, monkeypatch):
+        """End-to-end: serialize at deploy, reconstruct from workspace file at runtime."""
+        import json
+
+        monkeypatch.chdir(tmp_path)
+
+        template_file = tmp_path / "tmpl.py.j2"
+        template_file.write_text('result = "runtime_ok"')
+
+        yaml_content = f"""
+global:
+  enabled: true
+
+tasks:
+  - task_name: "compliance_task"
+    enabled: true
+    template_file: "{template_file}"
+    depends_on_strategy: "leaf_nodes"
+"""
+        yaml_file = tmp_path / "config.yaml"
+        yaml_file.write_text(yaml_content)
+
+        workflow = Workflow("my_workflow")
+
+        @workflow.task()
+        def setup():
+            return "setup"
+
+        from brickflow.engine.project import _Project, Project
+        from brickflow.context import BrickflowInternalVariables
+
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(yaml_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        baked_json = workflow.tasks["compliance_task"].injection_config_json
+        assert baked_json is not None
+
+        ws_file = tmp_path / "_brickflow_injected" / "compliance_task.py"
+        assert ws_file.exists()
+
+        runtime_workflow = Workflow("my_workflow")
+
+        @runtime_workflow.task()
+        def setup_rt():  # noqa: F811
+            return "setup"
+
+        assert "compliance_task" not in runtime_workflow.tasks
+
+        def _mock_get_parameter(name, default=None):
+            if name == BrickflowInternalVariables.injection_config.value:
+                return baked_json
+            if name == BrickflowInternalVariables.injection_file_path.value:
+                return str(ws_file)
+            return default
+
+        with patch("brickflow.engine.project.ctx") as mock_ctx:
+            mock_ctx.get_parameter.side_effect = _mock_get_parameter
+            task = Project._reconstruct_injected_task(
+                runtime_workflow, "compliance_task"
+            )
+
+        assert task is not None
+        assert task.name == "compliance_task"
+        assert "compliance_task" in runtime_workflow.tasks
+
+    def test_reconstruct_raises_without_baked_config(self):
+        """Reconstruction must fail clearly when no baked config is available."""
+        from brickflow.engine.project import Project
+        from brickflow.engine.task import TaskNotFoundError
+
+        workflow = Workflow("my_workflow")
+
+        @workflow.task()
+        def task1():
+            return "task1"
+
+        with patch("brickflow.engine.project.ctx") as mock_ctx:
+            mock_ctx.get_parameter.return_value = None
+
+            with pytest.raises(TaskNotFoundError, match="compliance_task"):
+                Project._reconstruct_injected_task(workflow, "compliance_task")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
