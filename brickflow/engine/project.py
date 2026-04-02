@@ -25,7 +25,9 @@ from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
 from brickflow.context import ctx, BrickflowInternalVariables
 from brickflow.engine import get_current_commit, ROOT_NODE
 from brickflow.engine.task import (
+    Task,
     TaskLibrary,
+    TaskNotFoundError,
     filter_bf_related_libraries,
     get_brickflow_libraries,
     TaskType,
@@ -228,6 +230,18 @@ class _Project:
                 executor = GenericTaskExecutor(task_def)
                 task_func = executor.create_task_function()
 
+                # Pre-render template and serialize so the runtime can
+                # reconstruct this task without needing the YAML / env vars.
+                try:
+                    injection_config_json = executor.serialize_for_runtime()
+                except Exception as ser_err:
+                    _ilog.warning(
+                        "Could not serialize injection config for '%s': %s",
+                        task_def.task_name,
+                        ser_err,
+                    )
+                    injection_config_json = None
+
                 # Build libraries list
                 task_libraries = self._build_task_libraries(
                     task_def.libraries,
@@ -255,6 +269,7 @@ class _Project:
                     task_type=TaskType[task_def.task_type],
                     libraries=task_libraries,
                     cluster=cluster,
+                    injection_config_json=injection_config_json,
                 )
 
                 # For "all_tasks" strategy, make all root tasks depend on injected task
@@ -574,5 +589,69 @@ class Project:
                 return
 
             workflow = self._project.get_workflow(wf_id)
-            task = workflow.get_task(t_id)
+
+            try:
+                task = workflow.get_task(t_id)
+            except Exception:
+                # Task not found — this happens for injected tasks at runtime
+                # because the injection YAML / env vars are not on the cluster.
+                # Fall back to reconstructing the task from the baked config
+                # that was embedded in base_parameters at deploy time.
+                task = self._reconstruct_injected_task(workflow, t_id)
+
             task.execute()
+
+    @staticmethod
+    def _reconstruct_injected_task(workflow: Workflow, task_id: str) -> Task:
+        """
+        Reconstruct an injected task at runtime from its baked config.
+
+        At deploy time the rendered template code is written to a ``.py``
+        file that DAB syncs to the workspace.  A lightweight JSON pointer
+        (task name, type, relative file ref) is stored in
+        ``brickflow_internal_injection_config``, and the fully-resolved
+        workspace path is in ``brickflow_internal_injection_file_path``
+        (DAB substitutes ``${workspace.file_path}`` at deploy time).
+
+        When the entrypoint re-runs on the cluster and the task is not in
+        the workflow registry, this method reads those parameters and
+        re-creates the ``Task`` object so execution can proceed.
+        """
+        from brickflow.engine.task_executor import GenericTaskExecutor
+
+        injection_config = ctx.get_parameter(
+            BrickflowInternalVariables.injection_config.value, None
+        )
+
+        if not injection_config:
+            from brickflow.engine.utils import wraps_keyerror as _  # noqa: F401
+
+            raise TaskNotFoundError(
+                f"Unable to find task: '{task_id}'. "
+                "No baked injection config was found in base_parameters either. "
+                "Ensure the task was deployed with a Brickflow version that "
+                "supports runtime injection config (>= 1.8.0)."
+            )
+
+        workspace_file_path = ctx.get_parameter(
+            BrickflowInternalVariables.injection_file_path.value, None
+        )
+
+        _ilog.info(
+            "Task '%s' not in workflow registry — reconstructing from "
+            "baked injection config (file_path=%s)",
+            task_id,
+            workspace_file_path,
+        )
+
+        task_func = GenericTaskExecutor.create_task_function_from_config(
+            injection_config, workspace_file_path=workspace_file_path
+        )
+
+        workflow._add_task(
+            f=task_func,
+            task_id=task_id,
+            task_type=TaskType.BRICKFLOW_TASK,
+        )
+
+        return workflow.get_task(task_id)

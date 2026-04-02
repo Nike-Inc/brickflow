@@ -54,6 +54,8 @@ class BrickflowInternalVariables(Enum):
     workflow_prefix = "brickflow_internal_workflow_prefix"
     workflow_suffix = "brickflow_internal_workflow_suffix"
     env = BrickflowEnvVars.BRICKFLOW_ENV.value.lower()
+    injection_config = "brickflow_internal_injection_config"
+    injection_file_path = "brickflow_internal_injection_file_path"
 
 
 def bind_variable(builtin: BrickflowBuiltInTaskVariables) -> Callable:

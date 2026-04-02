@@ -933,6 +933,7 @@ class Task:
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
     for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None
+    injection_config_json: Optional[str] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()
@@ -983,7 +984,7 @@ class Task:
 
     @property
     def brickflow_default_params(self) -> Dict[str, str]:
-        return {
+        params = {
             BrickflowInternalVariables.workflow_id.value: self.workflow.name,
             # 2 braces to escape 1
             BrickflowInternalVariables.task_id.value: f"{{{{{BrickflowBuiltInTaskVariables.task_key.name}}}}}",
@@ -994,6 +995,22 @@ class Task:
             or "",
             BrickflowInternalVariables.env.value: ctx.env,
         }
+        if self.injection_config_json:
+            params[BrickflowInternalVariables.injection_config.value] = (
+                self.injection_config_json
+            )
+            try:
+                cfg = json.loads(self.injection_config_json)
+                file_ref = cfg.get("file_ref")
+                if file_ref:
+                    # ${workspace.file_path} already includes the /Workspace/
+                    # prefix after DAB resolution.
+                    params[BrickflowInternalVariables.injection_file_path.value] = (
+                        f"${{workspace.file_path}}/{file_ref}"
+                    )
+            except (json.JSONDecodeError, KeyError):
+                pass
+        return params
 
     @staticmethod
     def handle_notebook_path(entrypoint: str) -> str:
@@ -1276,7 +1293,11 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
     is_bf_version_semver = is_semver(bf_version)
     is_all_parts_numeric = all(v.isnumeric() for v in bf_version.split("."))
 
-    if is_bf_version_semver is True and is_all_parts_numeric is True:
+    # TEMPORARY: point at fork branch for e2e testing of injection fix
+    _override = os.environ.get("BRICKFLOW_RUNTIME_GIT_REF")
+    if _override:
+        bf_lib = PypiTaskLibrary(f"brickflows @ git+{_override}")
+    elif is_bf_version_semver is True and is_all_parts_numeric is True:
         bf_lib = PypiTaskLibrary(f"brickflows=={bf_version}")
     else:
         bf_lib = PypiTaskLibrary(

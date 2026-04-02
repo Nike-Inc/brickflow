@@ -1,5 +1,6 @@
 """Generic task executor for injected tasks."""
 
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -154,6 +155,100 @@ class GenericTaskExecutor:
         log.debug("Rendered template for %s:\n%s", task_def.task_name, rendered_code)
 
         return rendered_code
+
+    def render_template(self) -> str:
+        """Pre-render the template at deploy time so the code can be baked into the config."""
+        return self._load_and_render_template(self.task_def)
+
+    def serialize_for_runtime(self) -> str:
+        """
+        Render the template, write it to a local file that DAB will sync to the
+        workspace, and return a lightweight JSON pointer (no inline code).
+
+        The rendered ``.py`` file is placed under ``_brickflow_injected/`` in the
+        current working directory (the project root during ``bf projects deploy``).
+        DAB uploads everything in the project tree to
+        ``${workspace.file_path}/…`` so the file will be available on the cluster
+        at ``/Workspace/${workspace.file_path}/_brickflow_injected/<task>.py``.
+        """
+        rendered_code = self.render_template()
+
+        injected_dir = Path("_brickflow_injected")
+        injected_dir.mkdir(exist_ok=True)
+
+        file_name = f"{self.task_def.task_name}.py"
+        (injected_dir / file_name).write_text(rendered_code, encoding="utf-8")
+        log.info("Wrote injected task code to %s", injected_dir / file_name)
+
+        data: Dict[str, Any] = {
+            "task_name": self.task_def.task_name,
+            "task_type": self.task_def.task_type,
+            "file_ref": f"_brickflow_injected/{file_name}",
+        }
+        if self.task_def.artifact:
+            data["artifact"] = {
+                "url": self.task_def.artifact.url,
+                "install_as_library": self.task_def.artifact.install_as_library,
+            }
+        return json.dumps(data, separators=(",", ":"))
+
+    @staticmethod
+    def create_task_function_from_config(
+        config_json: str, workspace_file_path: Optional[str] = None
+    ) -> Callable:
+        """
+        Reconstruct a task function at runtime from baked injection config.
+
+        Prefers reading the rendered code from a workspace file that was synced
+        by DAB at deploy time.  Falls back to inline ``rendered_code`` in the
+        JSON for backward compatibility with older deployments.
+        """
+        config = json.loads(config_json)
+        task_name: str = config["task_name"]
+        artifact_cfg: Optional[Dict[str, Any]] = config.get("artifact")
+        inline_code: Optional[str] = config.get("rendered_code")
+
+        def injected_task_function() -> Any:
+            if artifact_cfg:
+                GenericTaskExecutor._download_and_setup_artifact(
+                    url=artifact_cfg["url"],
+                    username=None,
+                    api_key=None,
+                )
+
+            code: Optional[str] = None
+
+            if workspace_file_path:
+                try:
+                    with open(workspace_file_path, "r", encoding="utf-8") as fh:
+                        code = fh.read()
+                    log.info(
+                        "Loaded injected task code from workspace file: %s",
+                        workspace_file_path,
+                    )
+                except FileNotFoundError:
+                    log.warning(
+                        "Workspace file not found: %s — falling back to inline code",
+                        workspace_file_path,
+                    )
+
+            if code is None:
+                code = inline_code
+
+            if not code:
+                raise RuntimeError(
+                    f"No code available for injected task '{task_name}'. "
+                    "Neither workspace file nor inline rendered_code found in "
+                    "the injection config."
+                )
+
+            log.info("Executing injected task: %s", task_name)
+            local_vars: Dict[str, Any] = {}
+            exec(code, globals(), local_vars)  # pylint: disable=exec-used
+            return local_vars.get("result")
+
+        injected_task_function.__name__ = task_name
+        return injected_task_function
 
     @staticmethod
     def _download_and_setup_artifact(
