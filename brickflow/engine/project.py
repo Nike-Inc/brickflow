@@ -175,6 +175,91 @@ class _Project:
                 workflow, specific_config_path, is_global=False
             )
 
+    def _resolve_task_config_parameters(
+        self, task_config: Dict[str, Any], template_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Resolve Jinja2 template variables in task_config.
+
+        Works recursively through strings, lists, and dicts to resolve
+        template variables like {{catalog}}, {{schema}}, etc.
+
+        Args:
+            task_config: The task configuration dictionary
+            template_context: The template context with variable values
+
+        Returns:
+            Resolved task configuration
+        """
+        from jinja2 import Template
+
+        def resolve_value(value: Any) -> Any:
+            """Recursively resolve template variables in any value type."""
+            if isinstance(value, str) and "{{" in value:
+                return Template(value).render(**template_context)
+            elif isinstance(value, list):
+                return [resolve_value(item) for item in value]
+            elif isinstance(value, dict):
+                return {k: resolve_value(v) for k, v in value.items()}
+            else:
+                return value
+
+        return {key: resolve_value(value) for key, value in task_config.items()}
+
+    def _create_native_task_function(
+        self, task_type: TaskType, task_config: Dict[str, Any]
+    ) -> Callable:
+        """
+        Create a function that returns the appropriate native task object.
+
+        This is a factory pattern for native Databricks task types.
+        The function returned will be called during bundle generation to
+        produce the task object (PythonWheelTask, NotebookTask, etc.).
+
+        Args:
+            task_type: The Databricks task type (:class:`TaskType`)
+            task_config: The resolved task configuration
+
+        Returns:
+            A callable that returns the appropriate task object
+
+        Raises:
+            ValueError: If task_type is not supported
+        """
+        from brickflow.engine.task import (
+            NotebookTask,
+            PythonWheelTask,
+            SparkJarTask,
+            SparkPythonTask,
+            SqlTask,
+            RunJobTask,
+            IfElseConditionTask,
+        )
+
+        task_class_map: Dict[TaskType, Type[Any]] = {
+            TaskType.NOTEBOOK_TASK: NotebookTask,
+            TaskType.PYTHON_WHEEL_TASK: PythonWheelTask,
+            TaskType.SPARK_JAR_TASK: SparkJarTask,
+            TaskType.SPARK_PYTHON_TASK: SparkPythonTask,
+            TaskType.SQL: SqlTask,
+            TaskType.RUN_JOB_TASK: RunJobTask,
+            TaskType.IF_ELSE_CONDITION_TASK: IfElseConditionTask,
+        }
+
+        task_class = task_class_map.get(task_type)
+        if not task_class:
+            supported = [t.name for t in task_class_map]
+            raise ValueError(
+                f"Unsupported native task type: {task_type.name}. "
+                f"Supported types for injection: {supported} or use BRICKFLOW_TASK with template_file."
+            )
+
+        # Create function that returns task object
+        def native_task_func():
+            return task_class(**task_config)
+
+        return native_task_func
+
     def _inject_tasks_from_config_file(
         self, workflow: Workflow, config_path: str, is_global: bool
     ) -> None:
@@ -224,9 +309,76 @@ class _Project:
                         existing_root_tasks,
                     )
 
-                # Create task function using executor
-                executor = GenericTaskExecutor(task_def)
-                task_func = executor.create_task_function()
+                # Create task function based on task type and configuration
+                injected_notebook_path = None
+
+                if task_def.task_type == TaskType.BRICKFLOW_TASK:
+                    # APPROACH 1: Direct notebook generation
+                    _ilog.info(
+                        "Generating notebook for injected task '%s'",
+                        task_def.task_name,
+                    )
+
+                    executor = GenericTaskExecutor(task_def)
+                    
+                    # Render template directly to notebook file
+                    injected_notebook_path = executor.render_to_notebook()
+                    
+                    _ilog.info(
+                        "Generated injected notebook: %s",
+                        injected_notebook_path,
+                    )
+                    
+                    task_func = lambda: None  #noqa: E731
+
+                elif task_def.task_type != TaskType.BRICKFLOW_TASK and task_def.task_config:
+                    # APPROACH 2: Native task type (new)
+                    _ilog.info(
+                        "Creating native %s '%s'",
+                        task_def.task_type,
+                        task_def.task_name,
+                    )
+
+                    # Resolve template variables in task_config
+                    _ilog.debug(
+                        "Resolving task_config %s with context %s",
+                        task_def.task_config,
+                        task_def.template_context,
+                    )
+                    resolved_task_config = self._resolve_task_config_parameters(
+                        task_def.task_config,
+                        task_def.template_context,
+                    )
+                    _ilog.debug("Resolved task_config: %s", resolved_task_config)
+
+                    # Create function that returns native task object
+                    task_func = self._create_native_task_function(
+                        task_def.task_type,
+                        resolved_task_config,
+                    )
+
+                    _ilog.info(
+                        "Injected %s: %s with config %s",
+                        task_def.task_type,
+                        task_def.task_name,
+                        resolved_task_config,
+                    )
+
+                elif (
+                    task_def.task_type != TaskType.BRICKFLOW_TASK
+                    and not task_def.task_config
+                ):
+                    raise ValueError(
+                        f"Task '{task_def.task_name}' has task_type='{task_def.task_type.name}' "
+                        f"but no task_config provided. Native task types require task_config."
+                    )
+
+                else:
+                    raise ValueError(
+                        f"Invalid configuration for task '{task_def.task_name}'. "
+                        f"Either provide template_file (for BRICKFLOW_TASK) or "
+                        f"task_config (for native task types)."
+                    )
 
                 # Build libraries list
                 task_libraries = self._build_task_libraries(
@@ -245,17 +397,26 @@ class _Project:
                     cluster = Cluster.from_existing_cluster(task_def.cluster)
 
                 # Inject the task into workflow
-                workflow._add_task(
-                    f=task_func,
-                    task_id=task_def.task_name,
-                    depends_on=cast(
+                add_task_kwargs = {
+                    "f": task_func,
+                    "task_id": task_def.task_name,
+                    "depends_on": cast(
                         Optional[Union[Callable, str, List[Union[Callable, str]]]],
                         depends_on,
                     ),
-                    task_type=TaskType[task_def.task_type],
-                    libraries=task_libraries,
-                    cluster=cluster,
-                )
+                    "task_type": task_def.task_type,
+                    "libraries": task_libraries,
+                    "cluster": cluster,
+                }
+
+                # Add injected_notebook_path if present
+                import inspect
+
+                sig = inspect.signature(workflow._add_task)
+                if "injected_notebook_path" in sig.parameters and injected_notebook_path:
+                    add_task_kwargs["injected_notebook_path"] = injected_notebook_path
+
+                workflow._add_task(**add_task_kwargs)
 
                 # For "all_tasks" strategy, make all root tasks depend on injected task
                 if task_def.depends_on_strategy == "all_tasks":
@@ -274,6 +435,7 @@ class _Project:
                 e,
                 exc_info=True,
             )
+            raise
             # Don't fail deployment on injection errors
 
     def _build_task_libraries(

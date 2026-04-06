@@ -450,6 +450,7 @@ class Workflow:
         ensure_brickflow_plugins: bool = False,
         if_else_outcome: Optional[Dict[Union[str, str], str]] = None,
         for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None,
+        injected_notebook_path: Optional[str] = None,
     ) -> None:
         if self.task_exists(task_id):
             raise TaskAlreadyExistsError(
@@ -516,6 +517,7 @@ class Workflow:
             ensure_brickflow_plugins=ensure_plugins,
             if_else_outcome=if_else_outcome,
             for_each_task_conf=for_each_task_conf,
+            injected_notebook_path=injected_notebook_path,
         )
 
         # attempt to create task object before adding to graph

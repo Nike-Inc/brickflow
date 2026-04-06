@@ -78,23 +78,23 @@ global:
 tasks:
   - task_name: str                 # Unique name for the injected task
     enabled: bool                  # Enable/disable this specific task
+    task_type: str                 # TaskType enum name (default: BRICKFLOW_TASK)
+                                   # Options: BRICKFLOW_TASK, NOTEBOOK_TASK,
+                                   #   PYTHON_WHEEL_TASK, SPARK_JAR_TASK,
+                                   #   SPARK_PYTHON_TASK, SQL, RUN_JOB_TASK,
+                                   #   IF_ELSE_CONDITION_TASK
     artifact:                      # Optional: Download artifact from Artifactory
       url: str                     # Artifact URL
       username: str                # Optional: Override global username
       api_key: str                 # Optional: Override global API key
       install_as_library: bool     # Whether to install artifact as cluster library
-    template_file: str             # Optional: Path to custom Python template
+    template_file: str             # Path to Jinja2 template (BRICKFLOW_TASK only)
     template_context: dict         # Variables to pass to template
+    task_config: dict              # Task configuration (native task types only,
+                                   # mutually exclusive with template_file)
     libraries: [str]               # PyPI packages for this task
     cluster: str                   # Optional: Cluster override
     depends_on_strategy: str       # Dependency strategy (see below)
-    task_type: str                 # Task type (default: BRICKFLOW_TASK)
-
-environment_overrides:
-  dev:                             # Environment-specific overrides
-    global: {...}
-    tasks:
-      task_name: {...}
 ```
 
 ### Environment Variables
@@ -303,6 +303,94 @@ tasks:
       execute_function: "my_custom_function"
 ```
 
+## Native Databricks Task Types
+
+In addition to `BRICKFLOW_TASK` (which renders a Jinja2 template to a notebook), you can inject native Databricks task types using `task_type` and `task_config`. The `task_config` fields match the corresponding Brickflow task class constructor arguments.
+
+### PYTHON_WHEEL_TASK
+
+```yaml
+tasks:
+  - task_name: "compliance_check"
+    task_type: "PYTHON_WHEEL_TASK"
+    task_config:
+      package_name: "goodbyepii"
+      entry_point: "databricks_task_runner.run_compliance_check_cli"
+      parameters: ["{{catalog}}", "{{schema}}", "{{table}}"]
+    template_context:
+      catalog: "hive_metastore"
+      schema: "gold"
+      table: "customer_data"
+    libraries:
+      - "goodbyepii>=1.0.0"
+    depends_on_strategy: "leaf_nodes"
+```
+
+### NOTEBOOK_TASK
+
+```yaml
+tasks:
+  - task_name: "run_analysis"
+    task_type: "NOTEBOOK_TASK"
+    task_config:
+      notebook_path: "/Workspace/notebooks/{{notebook_name}}"
+      base_parameters:
+        env: "{{env}}"
+      source: "WORKSPACE"
+    template_context:
+      notebook_name: "data_processing"
+      env: "prod"
+```
+
+### SPARK_JAR_TASK
+
+```yaml
+tasks:
+  - task_name: "spark_jar_job"
+    task_type: "SPARK_JAR_TASK"
+    task_config:
+      main_class_name: "com.example.DataProcessor"
+      parameters: ["--input", "{{input_path}}", "--output", "{{output_path}}"]
+    template_context:
+      input_path: "s3://bucket/input"
+      output_path: "s3://bucket/output"
+```
+
+### SPARK_PYTHON_TASK
+
+```yaml
+tasks:
+  - task_name: "spark_python_job"
+    task_type: "SPARK_PYTHON_TASK"
+    task_config:
+      python_file: "scripts/{{script_name}}.py"
+      source: "GIT"
+      parameters: ["--env", "{{env}}"]
+    template_context:
+      script_name: "process_data"
+      env: "prod"
+```
+
+### SQL
+
+```yaml
+tasks:
+  - task_name: "sql_query"
+    task_type: "SQL"
+    task_config:
+      warehouse_id: "abc123"
+      query_id: "query_{{env}}"
+      parameters:
+        catalog: "{{catalog}}"
+        schema: "{{schema}}"
+    template_context:
+      env: "dev"
+      catalog: "production"
+      schema: "analytics"
+```
+
+> **Note:** Native task types require `task_config`. `template_file` and `template_context` are only used by `BRICKFLOW_TASK`.
+
 ## Example Use Cases
 
 ### 1. Simple Logging Task
@@ -396,45 +484,19 @@ tasks:
 
 ## Environment-Specific Configuration
 
-Use `environment_overrides` to customize behavior per environment:
-
-```yaml
-global:
-  enabled: true
-
-tasks:
-  - task_name: "environment_logger"
-    enabled: true
-    template_context:
-      task_name: "environment_logger"
-      params:
-        environment: "dev"
-        log_level: "DEBUG"
-
-environment_overrides:
-  prod:
-    global:
-      enabled: true
-    tasks:
-      environment_logger:
-        template_context:
-          params:
-            environment: "prod"
-            log_level: "INFO"
-  
-  dev:
-    tasks:
-      environment_logger:
-        enabled: true  # Enabled in dev
-```
-
-Deploy with environment:
+To vary behaviour per environment, maintain separate YAML config files per environment and point `BRICKFLOW_INJECT_TASKS_CONFIG` (or `BRICKFLOW_INJECT_TASKS_DIR`) at the appropriate one during deployment:
 
 ```bash
-export BRICKFLOW_ENV=prod
-export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks.yaml"
+# Dev deployment
+export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks_dev.yaml"
+bf projects deploy --project my_project --env dev
+
+# Prod deployment
+export BRICKFLOW_INJECT_TASKS_CONFIG="config/injected_tasks_prod.yaml"
 bf projects deploy --project my_project --env prod
 ```
+
+Alternatively, use `enabled: false` in tasks that should be skipped in certain environments and swap the config file.
 
 ## Best Practices
 
@@ -495,10 +557,7 @@ Injected tasks appear in Databricks job runs like any other task. Monitor their 
    python -c "import yaml; yaml.safe_load(open('config/injected_tasks.yaml'))"
    ```
 
-3. Check logs during deployment for warnings:
-   ```
-   INFO:brickflow:Injecting task 'logging_task' into workflow 'my_workflow'
-   ```
+3. Check logs during deployment for errors — injection logs at `ERROR` level only by default.
 
 ### Template Rendering Errors
 
@@ -539,34 +598,23 @@ template_context:
     environment: "${BRICKFLOW_ENV}"
 ```
 
-### Multiple Templates per Environment
+### Generated Notebooks Directory
 
-```yaml
-tasks:
-  - task_name: "logger"
-    template_file: "templates/logging_dev.py.j2"
+When `BRICKFLOW_TASK` is used, brickflow renders the Jinja2 template to a `.py` notebook file in `_brickflow_injected_notebooks/` at deploy time. This directory is:
 
-environment_overrides:
-  prod:
-    tasks:
-      logger:
-        template_file: "templates/logging_prod.py.j2"
+- Auto-created during `bf projects deploy`
+- Synced to Databricks Workspace by DAB as part of the bundle
+- Listed in `.gitignore` — **do not commit it**
+
 ```
-
-### Conditional Task Injection
-
-Use the `enabled` flag with environment-specific overrides:
-
-```yaml
-tasks:
-  - task_name: "debug_task"
-    enabled: true
-
-environment_overrides:
-  prod:
-    tasks:
-      debug_task:
-        enabled: false  # Disable in production
+project/
+├── workflows/
+├── config/
+│   └── injected_tasks.yaml
+├── templates/
+│   └── my_template.py.j2
+├── _brickflow_injected_notebooks/   # auto-generated, gitignored
+└── README.md
 ```
 
 ## API Reference

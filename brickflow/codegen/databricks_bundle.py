@@ -50,6 +50,7 @@ from brickflow.bundles.model import (
     PipelinesLibraries,
     PipelinesLibrariesNotebook,
     Resources,
+    Sync,
     Targets,
     Workspace,
     JobsQueue,
@@ -543,20 +544,40 @@ class DatabricksBundleCodegen(CodegenInterface):
         depends_on: List[JobsTasksDependsOn],
         **_kwargs: Any,
     ) -> JobsTasks:
-        notebook_task: JobsTasksNotebookTask = task.task_func()
+        notebook_task: JobsTasksNotebookTask
 
-        try:
-            assert isinstance(notebook_task, JobsTasksNotebookTask)
-        except AssertionError as e:
-            raise ValueError(
-                f"Error while building notebook task {task_name}. "
-                f"Make sure {task_name} returns a NotebookTask object."
-            ) from e
+        # Handle injected notebooks (generated from templates)
+        if hasattr(task, 'injected_notebook_path') and task.injected_notebook_path:
+            _ilog.info(
+                "Building injected notebook task '%s' from path: %s",
+                task_name,
+                task.injected_notebook_path,
+            )
 
-        # Setting common task parameters if present
+            # Remove .py extension for notebook path - Databricks stores notebooks without extension
+            notebook_path = task.injected_notebook_path
+            if notebook_path.endswith('.py'):
+                notebook_path = notebook_path[:-3]
+
+            # Create notebook task using DAB workspace.file_path variable
+            notebook_task = JobsTasksNotebookTask(
+                notebook_path=f"${{workspace.file_path}}/{notebook_path}",
+                source="WORKSPACE",
+            )
+        else:
+            # Handle user-defined notebook tasks (existing behavior)
+            notebook_task = task.task_func()
+
+            try:
+                assert isinstance(notebook_task, JobsTasksNotebookTask)
+            except AssertionError as e:
+                raise ValueError(
+                    f"Error while building notebook task {task_name}. "
+                    f"Make sure {task_name} returns a NotebookTask object."
+                ) from e
+
         workflow: Optional[Workflow] = _kwargs.get("workflow")
         common_task_parameters = workflow.common_task_parameters if workflow else None
-
         if common_task_parameters:
             notebook_task.base_parameters = notebook_task.base_parameters or {}
             for k, v in common_task_parameters.items():
@@ -979,7 +1000,11 @@ class DatabricksBundleCodegen(CodegenInterface):
         tasks = []
 
         for task_name, task in workflow.tasks.items():
-            build_func = self._get_task_builder(task_type=task.task_type)
+            # Route injected notebooks to notebook builder
+            if hasattr(task, 'injected_notebook_path') and task.injected_notebook_path:
+                build_func = self._get_task_builder(task_type=TaskType.NOTEBOOK_TASK)
+            else:
+                build_func = self._get_task_builder(task_type=task.task_type)
             tasks.append(
                 self._build_task(
                     build_func=build_func,
@@ -1148,6 +1173,9 @@ class DatabricksBundleCodegen(CodegenInterface):
                 state_path=str((bundle_root_path / "state").as_posix()),
             ),
             resources=resources,
+            sync=Sync(
+                include=["_brickflow_injected_notebooks/**"]
+            ),
         )
 
         return DatabricksAssetBundles(

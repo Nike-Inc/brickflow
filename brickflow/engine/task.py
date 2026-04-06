@@ -933,6 +933,7 @@ class Task:
     health: Optional[List[JobsTasksHealthRules]] = None
     if_else_outcome: Optional[Dict[Union[str, str], str]] = None
     for_each_task_conf: Optional[JobsTasksForEachTaskConfigs] = None
+    injected_notebook_path: Optional[str] = None
 
     def __post_init__(self) -> None:
         self.is_valid_task_signature()

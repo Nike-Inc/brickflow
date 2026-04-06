@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 import requests
 from jinja2 import Template
-from brickflow import log
+from brickflow import _ilog as log
 from brickflow.engine.task_injection_config import TaskDefinition
 
 
@@ -173,3 +173,36 @@ class GenericTaskExecutor:
             log.info("Added %s to sys.path", artifact_path)
 
         return artifact_path
+
+    def render_to_notebook(self) -> str:
+        """
+        Render template directly to a Databricks Python notebook file.
+        
+        Single pass: template rendered once, written as notebook, executed natively.
+        No exec() needed - Databricks runs this as a standard notebook.
+        
+        Returns:
+            Relative path to generated notebook for NOTEBOOK_TASK reference
+        """
+        from pathlib import Path
+
+        # Render template once
+        rendered_code = self._load_and_render_template(self.task_def)
+
+        # Create notebooks directory
+        notebooks_dir = Path("_brickflow_injected_notebooks")
+        notebooks_dir.mkdir(parents=True, exist_ok=True)
+
+        # Add Databricks notebook header
+        # This magic comment is required for Databricks to recognize .py files as notebooks
+        notebook_content = f"# Databricks notebook source\n\n{rendered_code}"
+
+        # Write as Python notebook (.py format)
+        # Databricks recognizes .py files as notebooks when source=WORKSPACE
+        notebook_file = notebooks_dir / f"{self.task_def.task_name}.py"
+        notebook_file.write_text(notebook_content, encoding="utf-8")
+
+        log.info("Generated notebook: %s", notebook_file)
+
+        # Return workspace-relative path for NOTEBOOK_TASK reference
+        return f"_brickflow_injected_notebooks/{self.task_def.task_name}.py"
