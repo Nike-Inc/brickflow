@@ -396,3 +396,19 @@ class TestWorkflow:
                     PypiTaskLibrary(package="bar", repo="https://pypi.org/simple"),
                 ],
             )
+
+    def test_workflow_with_description(self):
+        description = "This is a test workflow description"
+        this_wf = Workflow(
+            "test_with_description",
+            clusters=[Cluster("name", "spark", "vm-node")],
+            description=description,
+        )
+        assert this_wf.description == description
+
+    def test_workflow_without_description(self):
+        this_wf = Workflow(
+            "test_without_description",
+            clusters=[Cluster("name", "spark", "vm-node")],
+        )
+        assert this_wf.description is None

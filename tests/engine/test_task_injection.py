@@ -1816,3 +1816,6 @@ tasks:
             # Verify both files exist
             assert (tmp_path / "_brickflow_injected_notebooks" / "task_one.py").exists()
             assert (tmp_path / "_brickflow_injected_notebooks" / "task_two.py").exists()
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -121,6 +121,7 @@ class Trigger(JobsTrigger):
 class Workflow:
     # name should be immutable and not modified after being set
     _name: str
+    description: Optional[str] = None
     schedule_quartz_expression: Optional[str] = None
     schedule_continuous: Optional[JobsContinuous] = None
     timezone: str = "UTC"
