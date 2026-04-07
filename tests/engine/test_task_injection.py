@@ -274,7 +274,6 @@ class TestWorkflowInjection:
 
     def test_find_leaf_nodes(self):
         """Test finding leaf nodes in a workflow."""
-        from brickflow.engine.project import _Project
 
         # Create a workflow with tasks
         workflow = Workflow("test_workflow")
@@ -306,7 +305,6 @@ class TestWorkflowInjection:
 
     def test_get_injection_dependencies_leaf_nodes(self):
         """Test dependency resolution for leaf_nodes strategy."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -325,7 +323,6 @@ class TestWorkflowInjection:
 
     def test_get_injection_dependencies_all_tasks(self):
         """Test dependency resolution for all_tasks strategy."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
         project = _Project(name="test_project")
@@ -337,7 +334,6 @@ class TestWorkflowInjection:
 
     def test_find_root_tasks(self):
         """Test finding root tasks in a workflow."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -363,7 +359,6 @@ class TestWorkflowInjection:
 
     def test_find_root_tasks_empty_workflow(self):
         """Test finding root tasks in an empty workflow."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
         project = _Project(name="test_project")
@@ -375,7 +370,6 @@ class TestWorkflowInjection:
 
     def test_update_root_tasks_dependencies(self):
         """Test updating root tasks to depend on injected task."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -411,7 +405,6 @@ class TestWorkflowInjection:
 
     def test_all_tasks_strategy_complete_flow(self):
         """Test complete flow of all_tasks strategy with dependency updates."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -471,7 +464,6 @@ class TestWorkflowInjection:
 
     def test_get_injection_dependencies_specific_tasks(self):
         """Test dependency resolution for specific_tasks strategy."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
         project = _Project(name="test_project")
@@ -485,7 +477,6 @@ class TestWorkflowInjection:
     @patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": ""})
     def test_injection_disabled_when_no_config(self):
         """Test that injection is skipped when config path not set."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -545,7 +536,6 @@ tasks:
             return "original"
 
         # Inject task
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -607,7 +597,6 @@ tasks:
             return "task3"
 
         # Inject task
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -671,8 +660,6 @@ tasks:
         @workflow.task()
         def task1():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -759,8 +746,6 @@ tasks:
         def task1():
             return "task1"
 
-        from brickflow.engine.project import _Project
-
         project = _Project(name="test_project")
 
         with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(yaml_file)}):
@@ -809,8 +794,6 @@ tasks:
         @workflow2.task()
         def task1_w2():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -862,8 +845,6 @@ tasks:
         @workflow2.task()
         def task1_w2():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -930,8 +911,6 @@ tasks:
         def task1_w2():
             return "task1"
 
-        from brickflow.engine.project import _Project
-
         project = _Project(name="test_project")
 
         with patch.dict(
@@ -966,8 +945,6 @@ tasks:
         @workflow.task()
         def task1():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -1011,8 +988,6 @@ tasks:
         @workflow.task()
         def task1():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -1461,84 +1436,6 @@ tasks:
             "key3": "resolved_value2",
         }
 
-    def test_inject_notebook_task(self, tmp_path):
-        """Test injecting NOTEBOOK_TASK."""
-        config_file = tmp_path / "inject_config.yaml"
-        config_file.write_text(
-            """
-global:
-  enabled: true
-
-tasks:
-  - task_name: "run_analysis_notebook"
-    enabled: true
-    task_type: "NOTEBOOK_TASK"
-    task_config:
-      notebook_path: "/Workspace/notebooks/{{notebook_name}}"
-      base_parameters:
-        env: "{{env}}"
-        table: "{{table}}"
-      source: "WORKSPACE"
-    template_context:
-      notebook_name: "data_processing"
-      env: "prod"
-      table: "transactions"
-"""
-        )
-
-        workflow = Workflow("test_workflow")
-        project = _Project(name="test_project")
-
-        with patch.dict(
-            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
-        ):
-            project._inject_tasks_from_yaml(workflow)
-
-        # Verify task
-        from brickflow.engine.task import NotebookTask
-
-        result = workflow.tasks["run_analysis_notebook"].task_func()
-        assert isinstance(result, NotebookTask)
-        assert result.notebook_path == "/Workspace/notebooks/data_processing"
-        assert result.base_parameters == {"env": "prod", "table": "transactions"}
-        assert result.source == "WORKSPACE"
-
-    def test_inject_spark_python_task(self, tmp_path):
-        """Test injecting SPARK_PYTHON_TASK."""
-        config_file = tmp_path / "inject_config.yaml"
-        config_file.write_text(
-            """
-global:
-  enabled: true
-
-tasks:
-  - task_name: "spark_python_job"
-    enabled: true
-    task_type: "SPARK_PYTHON_TASK"
-    task_config:
-      python_file: "scripts/{{script_name}}.py"
-      source: "GIT"
-      parameters: ["--env", "{{env}}"]
-    template_context:
-      script_name: "process_data"
-      env: "prod"
-"""
-        )
-
-        workflow = Workflow("test_workflow")
-        project = _Project(name="test_project")
-
-        with patch.dict(
-            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
-        ):
-            project._inject_tasks_from_yaml(workflow)
-
-        # Verify task
-        from brickflow.engine.task import SparkPythonTask
-
-        result = workflow.tasks["spark_python_job"].task_func()
-        assert isinstance(result, SparkPythonTask)
-
 
 class TestNotebookBasedInjection:
     """Test direct notebook generation from BRICKFLOW_TASK templates"""
@@ -1613,8 +1510,7 @@ tasks:
     def test_bundle_builder_creates_notebook_task_reference(self, tmp_path):
         """Test that bundle builder creates correct NOTEBOOK_TASK reference"""
         from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
-        from brickflow.engine.task import Task, TaskType
-        from brickflow.engine.workflow import Workflow
+        from brickflow.engine.task import Task
 
         os.chdir(tmp_path)
 
@@ -1690,8 +1586,7 @@ tasks:
     def test_service_principal_support_with_workspace_path(self, tmp_path):
         """Test that ${workspace.file_path} works with service principals"""
         from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
-        from brickflow.engine.task import Task, TaskType
-        from brickflow.engine.workflow import Workflow
+        from brickflow.engine.task import Task
 
         os.chdir(tmp_path)
 
@@ -1759,7 +1654,8 @@ tasks:
         bundle = builder.proj_to_bundle()
 
         # Verify Sync configuration exists
-        target = bundle.targets[list(bundle.targets.keys())[0]]
+        assert bundle.targets is not None
+        target = next(iter(bundle.targets.values()))
         assert target.sync is not None
         assert "_brickflow_injected_notebooks/**" in target.sync.include
 

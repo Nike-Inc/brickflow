@@ -184,8 +184,6 @@ class GenericTaskExecutor:
         Returns:
             Relative path to generated notebook for NOTEBOOK_TASK reference
         """
-        from pathlib import Path
-
         # Render template once
         rendered_code = self._load_and_render_template(self.task_def)
 

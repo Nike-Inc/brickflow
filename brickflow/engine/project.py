@@ -329,7 +329,8 @@ class _Project:
                         injected_notebook_path,
                     )
 
-                    task_func = lambda: None  # noqa: E731
+                    def task_func() -> None:
+                        pass
 
                 elif (
                     task_def.task_type != TaskType.BRICKFLOW_TASK
