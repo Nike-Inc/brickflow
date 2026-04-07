@@ -1167,6 +1167,17 @@ class DatabricksBundleCodegen(CodegenInterface):
         if bundle_suffix is not None:
             bundle_root_path = bundle_root_path / bundle_suffix
 
+        has_injected_notebooks = any(
+            getattr(task, "injected_notebook_path", None)
+            for workflow in self.project.workflows.values()
+            for task in workflow.tasks.values()
+        )
+        sync = (
+            Sync(include=["_brickflow_injected_notebooks/**"])
+            if has_injected_notebooks
+            else None
+        )
+
         env_content = Targets(
             workspace=Workspace(
                 root_path=str(bundle_root_path.as_posix()),
@@ -1174,7 +1185,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 state_path=str((bundle_root_path / "state").as_posix()),
             ),
             resources=resources,
-            sync=Sync(include=["_brickflow_injected_notebooks/**"]),
+            sync=sync,
         )
 
         return DatabricksAssetBundles(

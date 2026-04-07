@@ -1538,11 +1538,12 @@ tasks:
         )
         project.workflows["test_wf"] = wf
 
-        # Build the bundle
+        # Build the bundle (mutators=[] avoids Databricks auth in unit tests)
         builder = DatabricksBundleCodegen(
             project=project,
             id_="test",
             env="local",
+            mutators=[],
         )
 
         tasks = builder.workflow_obj_to_tasks(wf)
@@ -1617,6 +1618,7 @@ tasks:
             project=project,
             id_="test",
             env="prod",  # Non-local environment (service principal scenario)
+            mutators=[],
         )
 
         tasks = builder.workflow_obj_to_tasks(wf)
@@ -1628,7 +1630,53 @@ tasks:
         # user principals and service principals
 
     def test_sync_config_includes_notebooks_directory(self, tmp_path):
-        """Test that bundle includes Sync config for notebooks directory"""
+        """Test that bundle includes Sync config when injected notebooks are present"""
+        from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
+        from brickflow.engine.task import Task
+
+        os.chdir(tmp_path)
+
+        project = _Project(
+            name="test_project",
+            git_repo="https://github.com/test/repo.git",
+            provider="github",
+            git_reference="branch/main",
+            bundle_base_path=str(tmp_path),
+            bundle_obj_name="bundles",
+        )
+
+        wf = Workflow("test_wf", schedule_quartz_expression="0 0 * * *")
+
+        def dummy_func():
+            pass
+
+        task = Task(
+            task_id="injected_task",
+            task_func=dummy_func,
+            workflow=wf,
+            task_type=TaskType.BRICKFLOW_TASK,
+            injected_notebook_path="_brickflow_injected_notebooks/injected_task.py",
+        )
+        wf.tasks["injected_task"] = task
+        project.add_workflow(wf)
+
+        builder = DatabricksBundleCodegen(
+            project=project,
+            id_="test",
+            env="dev",
+            mutators=[],
+        )
+
+        bundle = builder.proj_to_bundle()
+
+        # Verify Sync configuration exists only because of the injected notebook
+        assert bundle.targets is not None
+        target = next(iter(bundle.targets.values()))
+        assert target.sync is not None
+        assert "_brickflow_injected_notebooks/**" in target.sync.include
+
+    def test_sync_config_absent_without_injected_notebooks(self, tmp_path):
+        """Test that bundle omits Sync config when there are no injected notebooks"""
         from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
 
         os.chdir(tmp_path)
@@ -1649,15 +1697,15 @@ tasks:
             project=project,
             id_="test",
             env="dev",
+            mutators=[],
         )
 
         bundle = builder.proj_to_bundle()
 
-        # Verify Sync configuration exists
+        # No injected notebooks → no sync config
         assert bundle.targets is not None
         target = next(iter(bundle.targets.values()))
-        assert target.sync is not None
-        assert "_brickflow_injected_notebooks/**" in target.sync.include
+        assert target.sync is None
 
     def test_multiple_injected_notebooks(self, tmp_path):
         """Test multiple BRICKFLOW_TASK injections create separate notebooks"""
