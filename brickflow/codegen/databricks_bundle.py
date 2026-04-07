@@ -547,7 +547,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         notebook_task: JobsTasksNotebookTask
 
         # Handle injected notebooks (generated from templates)
-        if hasattr(task, 'injected_notebook_path') and task.injected_notebook_path:
+        if hasattr(task, "injected_notebook_path") and task.injected_notebook_path:
             _ilog.info(
                 "Building injected notebook task '%s' from path: %s",
                 task_name,
@@ -556,7 +556,7 @@ class DatabricksBundleCodegen(CodegenInterface):
 
             # Remove .py extension for notebook path - Databricks stores notebooks without extension
             notebook_path = task.injected_notebook_path
-            if notebook_path.endswith('.py'):
+            if notebook_path.endswith(".py"):
                 notebook_path = notebook_path[:-3]
 
             # Create notebook task using DAB workspace.file_path variable
@@ -1001,7 +1001,7 @@ class DatabricksBundleCodegen(CodegenInterface):
 
         for task_name, task in workflow.tasks.items():
             # Route injected notebooks to notebook builder
-            if hasattr(task, 'injected_notebook_path') and task.injected_notebook_path:
+            if hasattr(task, "injected_notebook_path") and task.injected_notebook_path:
                 build_func = self._get_task_builder(task_type=TaskType.NOTEBOOK_TASK)
             else:
                 build_func = self._get_task_builder(task_type=task.task_type)
@@ -1174,9 +1174,7 @@ class DatabricksBundleCodegen(CodegenInterface):
                 state_path=str((bundle_root_path / "state").as_posix()),
             ),
             resources=resources,
-            sync=Sync(
-                include=["_brickflow_injected_notebooks/**"]
-            ),
+            sync=Sync(include=["_brickflow_injected_notebooks/**"]),
         )
 
         return DatabricksAssetBundles(

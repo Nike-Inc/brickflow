@@ -255,7 +255,7 @@ class _Project:
             )
 
         # Create function that returns task object
-        def native_task_func():
+        def native_task_func() -> Any:
             return task_class(**task_config)
 
         return native_task_func
@@ -320,18 +320,21 @@ class _Project:
                     )
 
                     executor = GenericTaskExecutor(task_def)
-                    
+
                     # Render template directly to notebook file
                     injected_notebook_path = executor.render_to_notebook()
-                    
+
                     _ilog.info(
                         "Generated injected notebook: %s",
                         injected_notebook_path,
                     )
-                    
-                    task_func = lambda: None  #noqa: E731
 
-                elif task_def.task_type != TaskType.BRICKFLOW_TASK and task_def.task_config:
+                    task_func = lambda: None  # noqa: E731
+
+                elif (
+                    task_def.task_type != TaskType.BRICKFLOW_TASK
+                    and task_def.task_config
+                ):
                     # APPROACH 2: Native task type (new)
                     _ilog.info(
                         "Creating native %s '%s'",
@@ -397,26 +400,18 @@ class _Project:
                     cluster = Cluster.from_existing_cluster(task_def.cluster)
 
                 # Inject the task into workflow
-                add_task_kwargs = {
-                    "f": task_func,
-                    "task_id": task_def.task_name,
-                    "depends_on": cast(
+                workflow._add_task(
+                    f=task_func,
+                    task_id=task_def.task_name,
+                    depends_on=cast(
                         Optional[Union[Callable, str, List[Union[Callable, str]]]],
                         depends_on,
                     ),
-                    "task_type": task_def.task_type,
-                    "libraries": task_libraries,
-                    "cluster": cluster,
-                }
-
-                # Add injected_notebook_path if present
-                import inspect
-
-                sig = inspect.signature(workflow._add_task)
-                if "injected_notebook_path" in sig.parameters and injected_notebook_path:
-                    add_task_kwargs["injected_notebook_path"] = injected_notebook_path
-
-                workflow._add_task(**add_task_kwargs)
+                    task_type=task_def.task_type,
+                    libraries=task_libraries,
+                    cluster=cluster,
+                    injected_notebook_path=injected_notebook_path,
+                )
 
                 # For "all_tasks" strategy, make all root tasks depend on injected task
                 if task_def.depends_on_strategy == "all_tasks":

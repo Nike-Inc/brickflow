@@ -1563,7 +1563,7 @@ class TestNotebookBasedInjection:
         assert notebook_path == "_brickflow_injected_notebooks/test_notebook_task.py"
         notebook_file = tmp_path / notebook_path
         assert notebook_file.exists()
-        
+
         # Verify Databricks notebook header is present
         content = notebook_file.read_text()
         assert content.startswith("# Databricks notebook source\n")
@@ -1816,6 +1816,7 @@ tasks:
             # Verify both files exist
             assert (tmp_path / "_brickflow_injected_notebooks" / "task_one.py").exists()
             assert (tmp_path / "_brickflow_injected_notebooks" / "task_two.py").exists()
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

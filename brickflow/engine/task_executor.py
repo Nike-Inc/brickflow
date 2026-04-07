@@ -177,10 +177,10 @@ class GenericTaskExecutor:
     def render_to_notebook(self) -> str:
         """
         Render template directly to a Databricks Python notebook file.
-        
+
         Single pass: template rendered once, written as notebook, executed natively.
         No exec() needed - Databricks runs this as a standard notebook.
-        
+
         Returns:
             Relative path to generated notebook for NOTEBOOK_TASK reference
         """
