@@ -123,4 +123,3 @@ class TestBundles:
                 assert f"Unsupported architecture: {input_arch}" in str(exc_info.value)
             else:
                 assert get_arch() == expected_arch
-
