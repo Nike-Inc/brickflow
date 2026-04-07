@@ -1501,7 +1501,6 @@ tasks:
             # Verify task was injected with notebook path
             assert "compliance_check" in wf.tasks
             task = wf.tasks["compliance_check"]
-            assert hasattr(task, "injected_notebook_path")
             assert (
                 task.injected_notebook_path
                 == "_brickflow_injected_notebooks/compliance_check.py"

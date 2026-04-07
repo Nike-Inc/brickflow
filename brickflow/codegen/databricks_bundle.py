@@ -551,7 +551,7 @@ class DatabricksBundleCodegen(CodegenInterface):
         notebook_task: JobsTasksNotebookTask
 
         # Handle injected notebooks (generated from templates)
-        if hasattr(task, "injected_notebook_path") and task.injected_notebook_path:
+        if task.injected_notebook_path:
             _ilog.info(
                 "Building injected notebook task '%s' from path: %s",
                 task_name,
@@ -1005,7 +1005,7 @@ class DatabricksBundleCodegen(CodegenInterface):
 
         for task_name, task in workflow.tasks.items():
             # Route injected notebooks to notebook builder
-            if hasattr(task, "injected_notebook_path") and task.injected_notebook_path:
+            if task.injected_notebook_path:
                 build_func = self._get_task_builder(task_type=TaskType.NOTEBOOK_TASK)
             else:
                 build_func = self._get_task_builder(task_type=task.task_type)
@@ -1172,7 +1172,7 @@ class DatabricksBundleCodegen(CodegenInterface):
             bundle_root_path = bundle_root_path / bundle_suffix
 
         has_injected_notebooks = any(
-            getattr(task, "injected_notebook_path", None)
+            task.injected_notebook_path
             for workflow in self.project.workflows.values()
             for task in workflow.tasks.values()
         )
