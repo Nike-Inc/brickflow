@@ -428,10 +428,14 @@ class DatabricksBundleCodegen(CodegenInterface):
     ) -> None:
         super().__init__(project, id_, env, **_kwargs)
         self.imports: List[ImportBlock] = []
-        self.mutators = mutators or [
-            DatabricksBundleTagsAndNameMutator(),
-            DatabricksBundleImportMutator(),
-        ]
+        self.mutators = (
+            mutators
+            if mutators is not None
+            else [
+                DatabricksBundleTagsAndNameMutator(),
+                DatabricksBundleImportMutator(),
+            ]
+        )
 
     def add_import(self, import_: ImportBlock) -> None:
         self.imports.append(import_)
