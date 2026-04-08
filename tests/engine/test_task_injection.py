@@ -13,6 +13,8 @@ from brickflow.engine.task_injection_config import (
 )
 from brickflow.engine.task_executor import GenericTaskExecutor, ArtifactoryClient
 from brickflow.engine.workflow import Workflow
+from brickflow.engine.project import _Project
+from brickflow.engine.task import TaskType
 
 
 class TestTaskInjectionConfig:
@@ -51,6 +53,7 @@ tasks:
         assert len(config.tasks) == 1
         assert config.tasks[0].task_name == "test_task"
         assert config.tasks[0].enabled is True
+        assert config.tasks[0].task_type == TaskType.BRICKFLOW_TASK
 
     def test_disabled_task(self, tmp_path):
         """Test that disabled tasks are not loaded."""
@@ -122,6 +125,21 @@ tasks:
         assert config.tasks[0].artifact.install_as_library is True
         assert config.tasks[0].artifact.username == "user"
         assert config.tasks[0].artifact.api_key == "key"
+
+    def test_from_yaml_task_type_by_databricks_value(self, tmp_path):
+        """task_type may use TaskType enum value strings (e.g. python_wheel_task)."""
+        yaml_content = """
+global:
+  enabled: true
+tasks:
+  - task_name: "wheel_task"
+    task_type: python_wheel_task"""
+        yaml_file = tmp_path / "config.yaml"
+        yaml_file.write_text(yaml_content)
+
+        config = TaskInjectionConfig.from_yaml(str(yaml_file))
+
+        assert config.tasks[0].task_type == TaskType.PYTHON_WHEEL_TASK
 
 
 class TestGenericTaskExecutor:
@@ -256,7 +274,6 @@ class TestWorkflowInjection:
 
     def test_find_leaf_nodes(self):
         """Test finding leaf nodes in a workflow."""
-        from brickflow.engine.project import _Project
 
         # Create a workflow with tasks
         workflow = Workflow("test_workflow")
@@ -288,7 +305,6 @@ class TestWorkflowInjection:
 
     def test_get_injection_dependencies_leaf_nodes(self):
         """Test dependency resolution for leaf_nodes strategy."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -307,7 +323,6 @@ class TestWorkflowInjection:
 
     def test_get_injection_dependencies_all_tasks(self):
         """Test dependency resolution for all_tasks strategy."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
         project = _Project(name="test_project")
@@ -319,7 +334,6 @@ class TestWorkflowInjection:
 
     def test_find_root_tasks(self):
         """Test finding root tasks in a workflow."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -345,7 +359,6 @@ class TestWorkflowInjection:
 
     def test_find_root_tasks_empty_workflow(self):
         """Test finding root tasks in an empty workflow."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
         project = _Project(name="test_project")
@@ -357,7 +370,6 @@ class TestWorkflowInjection:
 
     def test_update_root_tasks_dependencies(self):
         """Test updating root tasks to depend on injected task."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -393,7 +405,6 @@ class TestWorkflowInjection:
 
     def test_all_tasks_strategy_complete_flow(self):
         """Test complete flow of all_tasks strategy with dependency updates."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -453,7 +464,6 @@ class TestWorkflowInjection:
 
     def test_get_injection_dependencies_specific_tasks(self):
         """Test dependency resolution for specific_tasks strategy."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
         project = _Project(name="test_project")
@@ -467,7 +477,6 @@ class TestWorkflowInjection:
     @patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": ""})
     def test_injection_disabled_when_no_config(self):
         """Test that injection is skipped when config path not set."""
-        from brickflow.engine.project import _Project
 
         workflow = Workflow("test_workflow")
 
@@ -527,7 +536,6 @@ tasks:
             return "original"
 
         # Inject task
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -589,7 +597,6 @@ tasks:
             return "task3"
 
         # Inject task
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -653,8 +660,6 @@ tasks:
         @workflow.task()
         def task1():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -741,8 +746,6 @@ tasks:
         def task1():
             return "task1"
 
-        from brickflow.engine.project import _Project
-
         project = _Project(name="test_project")
 
         with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(yaml_file)}):
@@ -791,8 +794,6 @@ tasks:
         @workflow2.task()
         def task1_w2():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -844,8 +845,6 @@ tasks:
         @workflow2.task()
         def task1_w2():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -912,8 +911,6 @@ tasks:
         def task1_w2():
             return "task1"
 
-        from brickflow.engine.project import _Project
-
         project = _Project(name="test_project")
 
         with patch.dict(
@@ -948,8 +945,6 @@ tasks:
         @workflow.task()
         def task1():
             return "task1"
-
-        from brickflow.engine.project import _Project
 
         project = _Project(name="test_project")
 
@@ -994,8 +989,6 @@ tasks:
         def task1():
             return "task1"
 
-        from brickflow.engine.project import _Project
-
         project = _Project(name="test_project")
 
         with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
@@ -1004,6 +997,768 @@ tasks:
         # Verify etl_task was NOT injected into ml_training workflow
         assert "etl_task" not in workflow.tasks
         assert len(workflow.tasks) == 1  # Only task1
+
+
+class TestNativeTaskInjection:
+    """Tests for native Databricks task injection (unified approach)."""
+
+    def test_inject_python_wheel_task_with_parameters(self, tmp_path):
+        """Test injecting PYTHON_WHEEL_TASK with template variable resolution."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+  default_libraries:
+    - "goodbyepii>=1.0.0"
+
+tasks:
+  - task_name: "compliance_check_customers"
+    enabled: true
+    task_type: "PYTHON_WHEEL_TASK"
+    task_config:
+      package_name: "goodbyepii"
+      entry_point: "databricks_task_runner.run_compliance_check_cli"
+      parameters: ["{{catalog}}", "{{schema}}", "{{table}}"]
+    template_context:
+      catalog: "hive_metastore"
+      schema: "gold"
+      table: "customer_data"
+    depends_on_strategy: "leaf_nodes"
+    libraries:
+      - "goodbyepii>=1.0.0"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+
+        @workflow.task()
+        def root_task():
+            return "root"
+
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify task was injected
+        assert "compliance_check_customers" in workflow.tasks
+        injected_task = workflow.tasks["compliance_check_customers"]
+        assert injected_task.task_type == TaskType.PYTHON_WHEEL_TASK
+
+        # Verify task function returns correct object with resolved parameters
+        from brickflow.engine.task import PythonWheelTask
+
+        result = injected_task.task_func()
+        assert isinstance(result, PythonWheelTask)
+        assert result.package_name == "goodbyepii"
+        assert result.entry_point == "databricks_task_runner.run_compliance_check_cli"
+        assert result.parameters == ["hive_metastore", "gold", "customer_data"]
+
+    def test_inject_spark_jar_task(self, tmp_path):
+        """Test injecting SPARK_JAR_TASK with parameter resolution."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "spark_jar_job"
+    enabled: true
+    task_type: "SPARK_JAR_TASK"
+    task_config:
+      main_class_name: "com.example.DataProcessor"
+      parameters: ["--input", "{{input_path}}", "--output", "{{output_path}}"]
+    template_context:
+      input_path: "s3://bucket/input"
+      output_path: "s3://bucket/output"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify task
+        from brickflow.engine.task import SparkJarTask
+
+        result = workflow.tasks["spark_jar_job"].task_func()
+        assert isinstance(result, SparkJarTask)
+        assert result.main_class_name == "com.example.DataProcessor"
+        assert result.parameters == [
+            "--input",
+            "s3://bucket/input",
+            "--output",
+            "s3://bucket/output",
+        ]
+
+    def test_inject_sql_task_with_named_parameters(self, tmp_path):
+        """Test injecting SQL task with dict parameter resolution."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "sql_query"
+    enabled: true
+    task_type: "SQL"
+    task_config:
+      warehouse_id: "abc123"
+      query_id: "query_{{env}}"
+      parameters:
+        catalog: "{{catalog}}"
+        schema: "{{schema}}"
+    template_context:
+      env: "dev"
+      catalog: "production"
+      schema: "analytics"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify task
+        from brickflow.engine.task import SqlTask
+
+        result = workflow.tasks["sql_query"].task_func()
+        assert isinstance(result, SqlTask)
+        assert result.warehouse_id == "abc123"
+        assert result.query_id == "query_dev"
+        assert result.parameters == {"catalog": "production", "schema": "analytics"}
+
+    def test_inject_notebook_task(self, tmp_path):
+        """Test injecting NOTEBOOK_TASK with base_parameters."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "run_analysis_notebook"
+    enabled: true
+    task_type: "NOTEBOOK_TASK"
+    task_config:
+      notebook_path: "/Workspace/notebooks/{{notebook_name}}"
+      base_parameters:
+        env: "{{env}}"
+        table: "{{table}}"
+      source: "WORKSPACE"
+    template_context:
+      notebook_name: "data_processing"
+      env: "prod"
+      table: "transactions"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify task
+        from brickflow.engine.task import NotebookTask
+
+        result = workflow.tasks["run_analysis_notebook"].task_func()
+        assert isinstance(result, NotebookTask)
+        assert result.notebook_path == "/Workspace/notebooks/data_processing"
+        assert result.base_parameters == {"env": "prod", "table": "transactions"}
+        assert result.source == "WORKSPACE"
+
+    def test_inject_spark_python_task(self, tmp_path):
+        """Test injecting SPARK_PYTHON_TASK."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "spark_python_job"
+    enabled: true
+    task_type: "SPARK_PYTHON_TASK"
+    task_config:
+      python_file: "scripts/{{script_name}}.py"
+      source: "GIT"
+      parameters: ["--env", "{{env}}"]
+    template_context:
+      script_name: "process_data"
+      env: "prod"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify task
+        from brickflow.engine.task import SparkPythonTask
+
+        result = workflow.tasks["spark_python_job"].task_func()
+        assert isinstance(result, SparkPythonTask)
+        assert result.python_file == "scripts/process_data.py"
+        assert result.source == "GIT"
+        assert result.parameters == ["--env", "prod"]
+
+    def test_mixed_task_types_in_one_config(self, tmp_path, monkeypatch):
+        """Test injecting both BRICKFLOW_TASK and native tasks in one config."""
+        monkeypatch.chdir(tmp_path)
+
+        template_file = tmp_path / "template.py.j2"
+        template_file.write_text('result = "{{ message }}"')
+
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            f"""
+global:
+  enabled: true
+  default_libraries:
+    - "goodbyepii>=1.0.0"
+
+tasks:
+  # File-based BRICKFLOW_TASK
+  - task_name: "custom_validation"
+    task_type: "BRICKFLOW_TASK"
+    template_file: "{template_file}"
+    template_context:
+      message: "Validation logic"
+    depends_on_strategy: "leaf_nodes"
+  
+  # Native PYTHON_WHEEL_TASK
+  - task_name: "compliance_check"
+    task_type: "PYTHON_WHEEL_TASK"
+    task_config:
+      package_name: "goodbyepii"
+      entry_point: "run_cli"
+      parameters: ["{{{{catalog}}}}"]
+    template_context:
+      catalog: "main"
+  
+  # Native SQL task
+  - task_name: "sql_query"
+    task_type: "SQL"
+    task_config:
+      warehouse_id: "warehouse_123"
+      query_id: "query_{{{{env}}}}"
+    template_context:
+      env: "dev"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+
+        @workflow.task()
+        def root_task():
+            return "root"
+
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify all tasks were injected
+        assert "custom_validation" in workflow.tasks
+        assert "compliance_check" in workflow.tasks
+        assert "sql_query" in workflow.tasks
+
+        # Verify BRICKFLOW_TASK
+        custom_task = workflow.tasks["custom_validation"]
+        assert custom_task.task_type == TaskType.BRICKFLOW_TASK
+
+        # Verify native tasks return correct objects
+        from brickflow.engine.task import PythonWheelTask, SqlTask
+
+        compliance_result = workflow.tasks["compliance_check"].task_func()
+        assert isinstance(compliance_result, PythonWheelTask)
+        assert compliance_result.package_name == "goodbyepii"
+        # Note: PythonWheelTask doesn't store parameters - it's passed in config only
+        # assert compliance_result.parameters == ["main"]
+
+        sql_result = workflow.tasks["sql_query"].task_func()
+        assert isinstance(sql_result, SqlTask)
+        assert sql_result.warehouse_id == "warehouse_123"
+        assert sql_result.query_id == "query_dev"
+
+    def test_native_task_with_workflow_specific_config(self, tmp_path):
+        """Test native tasks work with BRICKFLOW_INJECT_TASKS_DIR."""
+        config_dir = tmp_path / "inject_tasks"
+        config_dir.mkdir()
+
+        workflow_config = config_dir / "my_workflow.yaml"
+        workflow_config.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "workflow_specific_wheel_task"
+    enabled: true
+    task_type: "PYTHON_WHEEL_TASK"
+    task_config:
+      package_name: "mypackage"
+      entry_point: "run_task"
+      parameters: ["param1", "param2"]
+"""
+        )
+
+        workflow = Workflow("my_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(os.environ, {"BRICKFLOW_INJECT_TASKS_DIR": str(config_dir)}):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify injection worked
+        assert "workflow_specific_wheel_task" in workflow.tasks
+        from brickflow.engine.task import PythonWheelTask
+
+        result = workflow.tasks["workflow_specific_wheel_task"].task_func()
+        assert isinstance(result, PythonWheelTask)
+        assert result.package_name == "mypackage"
+        assert result.parameters == ["param1", "param2"]
+
+    def test_error_on_native_task_without_config(self, tmp_path):
+        """Test that native task types require task_config."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "bad_task"
+    task_type: "PYTHON_WHEEL_TASK"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            with pytest.raises(ValueError, match="task_config"):
+                project._inject_tasks_from_yaml(workflow)
+
+    def test_error_on_unsupported_native_task_type(self, tmp_path):
+        """Test that unsupported native task types raise error."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "bad_task"
+    task_type: "INVALID_TASK_TYPE"
+    task_config:
+      some_config: "value"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            with pytest.raises(ValueError, match="Unknown task_type"):
+                project._inject_tasks_from_yaml(workflow)
+
+    def test_nested_parameter_resolution(self, tmp_path):
+        """Test that template variables work in nested dicts and lists."""
+        config_file = tmp_path / "inject_config.yaml"
+        config_file.write_text(
+            """
+global:
+  enabled: true
+
+tasks:
+  - task_name: "complex_params"
+    enabled: true
+    task_type: "PYTHON_WHEEL_TASK"
+    task_config:
+      package_name: "mypackage"
+      entry_point: "main"
+      parameters: ["{{arg1}}", "literal", "{{arg2}}"]
+      named_parameters:
+        key1: "{{value1}}"
+        key2: "literal_value"
+        key3: "{{value2}}"
+    template_context:
+      arg1: "resolved_arg1"
+      arg2: "resolved_arg2"
+      value1: "resolved_value1"
+      value2: "resolved_value2"
+"""
+        )
+
+        workflow = Workflow("test_workflow")
+        project = _Project(name="test_project")
+
+        with patch.dict(
+            os.environ, {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)}
+        ):
+            project._inject_tasks_from_yaml(workflow)
+
+        # Verify nested parameter resolution
+        from brickflow.engine.task import PythonWheelTask
+
+        result = workflow.tasks["complex_params"].task_func()
+        assert isinstance(result, PythonWheelTask)
+        assert result.parameters == ["resolved_arg1", "literal", "resolved_arg2"]
+        assert result.named_parameters == {
+            "key1": "resolved_value1",
+            "key2": "literal_value",
+            "key3": "resolved_value2",
+        }
+
+
+class TestNotebookBasedInjection:
+    """Test direct notebook generation from BRICKFLOW_TASK templates"""
+
+    def test_render_to_notebook_creates_file(self, tmp_path):
+        """Test that render_to_notebook creates a .py file with Databricks header"""
+        os.chdir(tmp_path)
+
+        template_file = tmp_path / "test_template.py.j2"
+        template_file.write_text("print('Hello from {{name}}')")
+
+        task_def = TaskDefinition(
+            task_name="test_notebook_task",
+            task_type=TaskType.BRICKFLOW_TASK,
+            template_file=str(template_file),
+        )
+
+        executor = GenericTaskExecutor(task_def)
+        notebook_path = executor.render_to_notebook()
+
+        # Verify file was created
+        assert notebook_path == "_brickflow_injected_notebooks/test_notebook_task.py"
+        notebook_file = tmp_path / notebook_path
+        assert notebook_file.exists()
+
+        # Verify Databricks notebook header is present
+        content = notebook_file.read_text()
+        assert content.startswith("# Databricks notebook source\n")
+        assert "print('Hello from" in content
+
+    def test_injected_task_has_notebook_path(self, tmp_path):
+        """Test that injected BRICKFLOW_TASK has injected_notebook_path set"""
+        os.chdir(tmp_path)
+
+        template_file = tmp_path / "compliance_template.py.j2"
+        template_file.write_text("print('Compliance check for {{catalog}}')")
+
+        config_file = tmp_path / "injection_config.yaml"
+        config_content = f"""
+tasks:
+  - task_name: compliance_check
+    task_type: BRICKFLOW_TASK
+    template_file: {template_file}
+    template_context:
+      catalog: main_catalog
+"""
+        config_file.write_text(config_content)
+
+        with patch.dict(
+            os.environ,
+            {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)},
+        ):
+            project = _Project(
+                name="test_project",
+                git_repo="https://github.com/test/repo.git",
+                provider="github",
+                git_reference="main",
+            )
+
+            wf = Workflow("test_wf", schedule_quartz_expression="0 0 * * *")
+            project.add_workflow(wf)
+
+            # Verify task was injected with notebook path
+            assert "compliance_check" in wf.tasks
+            task = wf.tasks["compliance_check"]
+            assert (
+                task.injected_notebook_path
+                == "_brickflow_injected_notebooks/compliance_check.py"
+            )
+
+    def test_bundle_builder_creates_notebook_task_reference(self, tmp_path):
+        """Test that bundle builder creates correct NOTEBOOK_TASK reference"""
+        from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
+        from brickflow.engine.task import Task
+
+        os.chdir(tmp_path)
+
+        # Create a workflow with an injected notebook task
+        wf = Workflow("test_wf", schedule_quartz_expression="0 0 * * *")
+
+        def dummy_func():
+            pass
+
+        task = Task(
+            task_id="injected_task",
+            task_func=dummy_func,
+            workflow=wf,
+            task_type=TaskType.BRICKFLOW_TASK,
+            injected_notebook_path="_brickflow_injected_notebooks/injected_task.py",
+        )
+
+        wf.tasks["injected_task"] = task
+
+        project = _Project(
+            name="test_project",
+            git_repo="https://github.com/test/repo.git",
+            provider="github",
+            git_reference="main",
+        )
+        project.workflows["test_wf"] = wf
+
+        # Build the bundle (mutators=[] avoids Databricks auth in unit tests)
+        builder = DatabricksBundleCodegen(
+            project=project,
+            id_="test",
+            env="local",
+            mutators=[],
+        )
+
+        tasks = builder.workflow_obj_to_tasks(wf)
+
+        # Verify task is built as NOTEBOOK_TASK
+        assert len(tasks) == 1
+        job_task = tasks[0]
+        assert job_task.notebook_task is not None
+        assert (
+            "${workspace.file_path}/_brickflow_injected_notebooks/injected_task"
+            in job_task.notebook_task.notebook_path
+        )
+        assert job_task.notebook_task.source == "WORKSPACE"
+
+    def test_template_variables_resolved_in_notebook(self, tmp_path):
+        """Test that Jinja2 variables are resolved in generated notebook"""
+        os.chdir(tmp_path)
+
+        template_file = tmp_path / "param_template.py.j2"
+        template_file.write_text("catalog = '{{catalog}}'\nschema = '{{schema}}'")
+
+        task_def = TaskDefinition(
+            task_name="param_task",
+            task_type=TaskType.BRICKFLOW_TASK,
+            template_file=str(template_file),
+            template_context={"catalog": "prod_catalog", "schema": "prod_schema"},
+        )
+
+        executor = GenericTaskExecutor(task_def)
+        notebook_path = executor.render_to_notebook()
+
+        notebook_file = tmp_path / notebook_path
+        content = notebook_file.read_text()
+
+        # Verify variables were resolved
+        assert "catalog = 'prod_catalog'" in content
+        assert "schema = 'prod_schema'" in content
+        assert "{{catalog}}" not in content
+        assert "{{schema}}" not in content
+
+    def test_service_principal_support_with_workspace_path(self, tmp_path):
+        """Test that ${workspace.file_path} works with service principals"""
+        from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
+        from brickflow.engine.task import Task
+
+        os.chdir(tmp_path)
+
+        wf = Workflow("test_wf", schedule_quartz_expression="0 0 * * *")
+
+        def dummy_func():
+            pass
+
+        task = Task(
+            task_id="sp_task",
+            task_func=dummy_func,
+            workflow=wf,
+            task_type=TaskType.BRICKFLOW_TASK,
+            injected_notebook_path="_brickflow_injected_notebooks/sp_task.py",
+        )
+
+        wf.tasks["sp_task"] = task
+
+        project = _Project(
+            name="test_project",
+            git_repo="https://github.com/test/repo.git",
+            provider="github",
+            git_reference="main",
+        )
+        project.workflows["test_wf"] = wf
+
+        builder = DatabricksBundleCodegen(
+            project=project,
+            id_="test",
+            env="prod",  # Non-local environment (service principal scenario)
+            mutators=[],
+        )
+
+        tasks = builder.workflow_obj_to_tasks(wf)
+
+        # Verify ${workspace.file_path} is used (works with service principals)
+        job_task = tasks[0]
+        assert "${workspace.file_path}" in job_task.notebook_task.notebook_path
+        # This variable is resolved by DAB at runtime, working with both
+        # user principals and service principals
+
+    def test_sync_config_includes_notebooks_directory(self, tmp_path):
+        """Test that bundle includes Sync config when injected notebooks are present"""
+        from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
+        from brickflow.engine.task import Task
+
+        os.chdir(tmp_path)
+
+        project = _Project(
+            name="test_project",
+            git_repo="https://github.com/test/repo.git",
+            provider="github",
+            git_reference="branch/main",
+            bundle_base_path=str(tmp_path),
+            bundle_obj_name="bundles",
+        )
+
+        wf = Workflow("test_wf", schedule_quartz_expression="0 0 * * *")
+
+        def dummy_func():
+            pass
+
+        task = Task(
+            task_id="injected_task",
+            task_func=dummy_func,
+            workflow=wf,
+            task_type=TaskType.BRICKFLOW_TASK,
+            injected_notebook_path="_brickflow_injected_notebooks/injected_task.py",
+        )
+        wf.tasks["injected_task"] = task
+        project.add_workflow(wf)
+
+        builder = DatabricksBundleCodegen(
+            project=project,
+            id_="test",
+            env="dev",
+            mutators=[],
+        )
+
+        bundle = builder.proj_to_bundle()
+
+        # Verify Sync configuration exists only because of the injected notebook
+        assert bundle.targets is not None
+        target = next(iter(bundle.targets.values()))
+        assert target.sync is not None
+        assert "_brickflow_injected_notebooks/**" in target.sync.include
+
+    def test_sync_config_absent_without_injected_notebooks(self, tmp_path):
+        """Test that bundle omits Sync config when there are no injected notebooks"""
+        from brickflow.codegen.databricks_bundle import DatabricksBundleCodegen
+
+        os.chdir(tmp_path)
+
+        project = _Project(
+            name="test_project",
+            git_repo="https://github.com/test/repo.git",
+            provider="github",
+            git_reference="branch/main",
+            bundle_base_path=str(tmp_path),
+            bundle_obj_name="bundles",
+        )
+
+        wf = Workflow("test_wf", schedule_quartz_expression="0 0 * * *")
+        project.add_workflow(wf)
+
+        builder = DatabricksBundleCodegen(
+            project=project,
+            id_="test",
+            env="dev",
+            mutators=[],
+        )
+
+        bundle = builder.proj_to_bundle()
+
+        # No injected notebooks → no sync config
+        assert bundle.targets is not None
+        target = next(iter(bundle.targets.values()))
+        assert target.sync is None
+
+    def test_multiple_injected_notebooks(self, tmp_path):
+        """Test multiple BRICKFLOW_TASK injections create separate notebooks"""
+        os.chdir(tmp_path)
+
+        template1 = tmp_path / "template1.py.j2"
+        template1.write_text("print('Task 1')")
+
+        template2 = tmp_path / "template2.py.j2"
+        template2.write_text("print('Task 2')")
+
+        config_file = tmp_path / "multi_injection.yaml"
+        config_content = f"""
+tasks:
+  - task_name: task_one
+    task_type: BRICKFLOW_TASK
+    template_file: {template1}
+  - task_name: task_two
+    task_type: BRICKFLOW_TASK
+    template_file: {template2}
+"""
+        config_file.write_text(config_content)
+
+        with patch.dict(
+            os.environ,
+            {"BRICKFLOW_INJECT_TASKS_CONFIG": str(config_file)},
+        ):
+            project = _Project(
+                name="test_project",
+                git_repo="https://github.com/test/repo.git",
+                provider="github",
+                git_reference="main",
+            )
+
+            wf = Workflow("test_wf", schedule_quartz_expression="0 0 * * *")
+            project.add_workflow(wf)
+
+            # Verify both tasks were injected
+            assert "task_one" in wf.tasks
+            assert "task_two" in wf.tasks
+
+            # Verify separate notebook paths
+            assert (
+                wf.tasks["task_one"].injected_notebook_path
+                == "_brickflow_injected_notebooks/task_one.py"
+            )
+            assert (
+                wf.tasks["task_two"].injected_notebook_path
+                == "_brickflow_injected_notebooks/task_two.py"
+            )
+
+            # Verify both files exist
+            assert (tmp_path / "_brickflow_injected_notebooks" / "task_one.py").exists()
+            assert (tmp_path / "_brickflow_injected_notebooks" / "task_two.py").exists()
 
 
 if __name__ == "__main__":
