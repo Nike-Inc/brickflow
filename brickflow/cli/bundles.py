@@ -255,7 +255,7 @@ def bundle_synth(**kwargs: Any) -> None:
 
 
 def get_bundle_cli_version() -> str:
-    return config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.236.0")
+    return config(BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value, "0.236.1")
 
 
 def bundle_cli_setup() -> None:

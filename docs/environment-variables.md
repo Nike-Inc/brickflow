@@ -21,7 +21,7 @@ hide:
 | BRICKFLOW_BUNDLE_OBJ_NAME              | .brickflow_bundles                             | The name of the folder post appended to your base path                                                           |
 | BRICKFLOW_BUNDLE_CLI_EXEC              | databricks                                     | The executable command for bundle execution. By default it will be downloaded on the fly.                        |
 | BRICKFLOW_BUNDLE_NO_DOWNLOAD           | False                                          | Flag indicating whether to skip downloading the databricks bundle cli. Useful if you are in locked down network. |
-| BRICKFLOW_BUNDLE_CLI_VERSION           | 0.200.0                                        | The version of the bundle CLI tool                                                                               |
+| BRICKFLOW_BUNDLE_CLI_VERSION           | 0.236.1                                        | The version of the bundle CLI tool                                                                               |
 | BRICKFLOW_MONOREPO_PATH_TO_BUNDLE_ROOT | N/A                                            | The path to the bundle root directory in a monorepo. Default assumes you are not using a monorepo                |
 | BRICKFLOW_PROJECT_PARAMS               | N/A                                            | Runtime/Deployment time parameters seperated by "," (e.g. k1=v1,k2=v2) to pass to workflow tasks                 |
 
