@@ -4,4 +4,3 @@ product_type = "Open Source Software Product"
 product_documentation = "Brickflow - deploy scalable workflows to Databricks using Python"
 product_owners = [ "Brickflow Team",]
 tags = [ "brickflows", "python",]
-tech_solution_id = "TBD"
