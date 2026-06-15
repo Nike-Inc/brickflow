@@ -1,0 +1,13 @@
+---
+description: Testing requirements for brickflow
+globs: "tests/**/*.py"
+alwaysApply: false
+---
+
+# Testing
+
+- Use pytest
+- Run `make cov` before reporting task complete
+- Place tests in `tests/` mirroring source structure where practical
+- Mock external integrations (Databricks, Airflow) in unit tests
+- Do not skip or weaken tests to pass CI
