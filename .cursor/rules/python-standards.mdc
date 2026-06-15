@@ -1,0 +1,14 @@
+---
+description: Python coding standards for brickflow
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python standards
+
+- Use Black formatting (line length 88 per pyproject.toml)
+- Run mypy on typed modules under brickflow/context, cli, hints, engine, resolver, codegen
+- Run prospector via `make check` before finishing
+- Use Poetry for dependencies; do not use pip/conda for project deps
+- Match existing import style and module layout
+- Prefer extending existing functions over duplicating logic
