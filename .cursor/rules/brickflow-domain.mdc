@@ -1,0 +1,14 @@
+---
+description: Brickflow domain conventions
+globs: "brickflow/**/*.py"
+alwaysApply: false
+---
+
+# Brickflow conventions
+
+- Core workflow logic lives in `brickflow/engine/`
+- CLI commands in `brickflow/cli/`
+- Databricks bundle codegen in `brickflow/codegen/`
+- Plugins in `brickflow_plugins/` — separate from core library
+- Follow existing workflow/task/project patterns in examples/
+- Do not change public CLI surface without explicit request
