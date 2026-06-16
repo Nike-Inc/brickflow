@@ -4,6 +4,7 @@ product_type = "Open Source Software Product"
 product_documentation = "Brickflow - deploy scalable workflows to Databricks using Python"
 product_owners = [ "Brickflow Team",]
 tags = [ "brickflows", "python",]
+programming_languages = ["python"]
 
 [maturity]
 exclude_criteria = [
@@ -11,4 +12,7 @@ exclude_criteria = [
   "code_quality",
   "secret_management",
   "python_tooling",
+  "product_sla",
+  "monitoring_alerting",
+  "security_scanning",
 ]
