@@ -10,4 +10,5 @@ exclude_criteria = [
   "ai_tooling",
   "code_quality",
   "secret_management",
+  "python_tooling",
 ]
