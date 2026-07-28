@@ -12,37 +12,70 @@ from __future__ import annotations
 import concurrent.futures
 import time
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import urllib3
 
 from brickflow_plugins import log
 
+if TYPE_CHECKING:
+    import tableauserverclient as TSC  # noqa: F401 -- only for type hints
+
+# Optional third-party tableauserverclient is loaded lazily on first operator
+# instantiation. ``TSC`` is bound at module scope so existing references like
+# ``TSC.TableauAuth(...)`` and ``TSC.Server(...)`` continue to work unchanged
+# once ``_ensure_tableau()`` has been called.
+TSC = None  # type: ignore[assignment]
+
+
+_TABLEAU_INSTALL_HINT = """You must install tableauserverclient library to use Tableau plugins, please add - 'tableauserverclient' 
+    library either at project level in entrypoint or at workflow level or at task level.
+    
+    Entrypoint:
+        with Project(
+            ... 
+            libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+            ...
+        )
+    Workflow:
+        wf=Workflow(
+            ...
+            libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+            ...
+        )
+    Task:
+        @wf.task(Library=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+        def run_snowflake_queries(*args):
+            ...
+    """
+
+
+def _ensure_tableau() -> None:
+    """Lazily import tableauserverclient on first use; raise a helpful error
+    if missing. Rebinds the module-level ``TSC`` name so all subsequent
+    ``TSC.X`` references resolve to the real package. Safe to call multiple
+    times -- subsequent calls are a no-op.
+    """
+    global TSC
+    if TSC is not None:
+        return
+    try:
+        import tableauserverclient as _tsc
+    except (ImportError, ModuleNotFoundError) as exc:
+        raise ModuleNotFoundError(_TABLEAU_INSTALL_HINT) from exc
+    TSC = _tsc
+
+
+# Try the import eagerly so that (a) callers who patch ``TSC.Server`` (etc.)
+# by fully-qualified module path continue to work when the extra is installed,
+# and (b) users who already have the extra installed see identical behaviour
+# to the pre-refactor version. If the extra is missing, the placeholder value
+# remains and ``_ensure_tableau()`` will retry (and raise the helpful
+# ModuleNotFoundError) at construction time.
 try:
-    import tableauserverclient as TSC
-except (ImportError, ModuleNotFoundError):
-    raise ModuleNotFoundError(
-        """You must install tableauserverclient library to use Tableau plugins, please add - 'tableauserverclient' 
-        library either at project level in entrypoint or at workflow level or at task level.
-        
-        Entrypoint:
-            with Project(
-                ... 
-                libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
-                ...
-            )
-        Workflow:
-            wf=Workflow(
-                ...
-                libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
-                ...
-            )
-        Task:
-            @wf.task(Library=[PypiTaskLibrary(package="tableauserverclient==0.25")]
-            def run_snowflake_queries(*args):
-                ...
-        """
-    )
+    _ensure_tableau()
+except ModuleNotFoundError:
+    pass
 
 
 class TableauRefreshException(Exception):
@@ -107,6 +140,7 @@ class TableauWrapper:
             Stop polling if the job was not completed within the specified
             interval (seconds).
         """
+        _ensure_tableau()
         self.server = server
         self.version = version
         self.username = username
@@ -361,6 +395,7 @@ class TableauRefreshABCOperator(ABC):
         polling_timeout: int = 600,
         fail_operator: bool = True,
     ) -> None:
+        _ensure_tableau()
         self._logger = log
 
         self.wrapper_options = {

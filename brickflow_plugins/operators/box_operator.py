@@ -1,26 +1,13 @@
-import os
-import logging
+from __future__ import annotations
 
-try:
-    from boxsdk import Client, JWTAuth, BoxAPIException
-except ImportError:
-    raise ImportError(
-        """You must install boxsdk library to use run boxsdk plugins, please add - 'boxsdk' library either
-         at project level in entrypoint or at workflow level or at task level. Examples shown below 
-        entrypoint:
-            with Project( ... 
-                          libraries=[PypiTaskLibrary(package="boxsdk==3.9.2")]
-                          ...)
-        workflow:
-            wf=Workflow( ...
-                         libraries=[PypiTaskLibrary(package="boxsdk==3.9.2")]
-                         ...)
-        Task:
-            @wf.task(Library=[PypiTaskLibrary(package="boxsdk==3.9.2")]
-            def BoxOperator(*args):
-                ...
-        """
-    )
+import logging
+import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from boxsdk import BoxAPIException as _BoxAPIExceptionT
+    from boxsdk import Client as _ClientT
+    from boxsdk import JWTAuth as _JWTAuthT
 
 try:
     from brickflow import ctx
@@ -28,6 +15,64 @@ except ImportError:
     raise ImportError(
         "plugin requires brickflow context , please install library at cluster/workflow/task level"
     )
+
+# Optional third-party boxsdk is loaded lazily on first operator instantiation.
+# These module-level names are placeholders until _ensure_boxsdk() rebinds them
+# to the real boxsdk classes. Method bodies below reference these names via
+# LOAD_GLOBAL at call time, so they resolve to the real classes once loaded.
+Client: type | None = None
+JWTAuth: type | None = None
+BoxAPIException: type = Exception
+
+
+_BOXSDK_INSTALL_HINT = """You must install boxsdk library to use Box plugins, please add - 'boxsdk' library either
+     at project level in entrypoint or at workflow level or at task level. Examples shown below 
+    entrypoint:
+        with Project( ... 
+                      libraries=[PypiTaskLibrary(package="boxsdk==3.9.2")]
+                      ...)
+    workflow:
+        wf=Workflow( ...
+                     libraries=[PypiTaskLibrary(package="boxsdk==3.9.2")]
+                     ...)
+    Task:
+        @wf.task(Library=[PypiTaskLibrary(package="boxsdk==3.9.2")]
+        def BoxOperator(*args):
+            ...
+    """
+
+
+def _ensure_boxsdk() -> None:
+    """Lazily import boxsdk on first use; raise a helpful error if missing.
+
+    Rebinds ``Client``, ``JWTAuth``, and ``BoxAPIException`` at module scope so
+    all subsequent references in method bodies resolve to the real classes.
+    Safe to call multiple times -- subsequent calls are a no-op.
+    """
+    global Client, JWTAuth, BoxAPIException
+    if Client is not None:
+        return
+    try:
+        from boxsdk import BoxAPIException as _BoxAPIException
+        from boxsdk import Client as _Client
+        from boxsdk import JWTAuth as _JWTAuth
+    except ImportError as exc:
+        raise ImportError(_BOXSDK_INSTALL_HINT) from exc
+    Client = _Client
+    JWTAuth = _JWTAuth
+    BoxAPIException = _BoxAPIException
+
+
+# Try the import eagerly so that (a) callers who patch ``Client`` / ``JWTAuth``
+# / ``BoxAPIException`` by fully-qualified module path continue to work when
+# ``boxsdk`` is installed, and (b) users who already have the extra installed
+# see identical behaviour to the pre-refactor version. If the extra is
+# missing, the placeholder values remain and ``_ensure_boxsdk()`` will retry
+# (and raise the helpful ImportError) at construction time.
+try:
+    _ensure_boxsdk()
+except ImportError:
+    pass
 
 # Set up logging
 logger = logging.getLogger("Box Operator")
@@ -64,6 +109,7 @@ class BoxAuthenticator:
             secret_scope (str): The scope for secret management.
             cerberus_client_url (str): The URL for Cerberus client.
         """
+        _ensure_boxsdk()
         self.logger = logger
         self.secret_scope = kwargs.get("secret_scope")
         self.cerberus_client_url = kwargs.get("cerberus_client_url")

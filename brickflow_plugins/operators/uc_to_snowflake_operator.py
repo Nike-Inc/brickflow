@@ -1,27 +1,13 @@
+from __future__ import annotations
+
 import logging as log
 from pathlib import Path
+from typing import TYPE_CHECKING
+
 from brickflow.engine.utils import get_bf_project_root
 
-try:
-    import snowflake.connector
-except ImportError:
-    raise ImportError(
-        """You must install snowflake library to use run snowflake plugins, please add - 'snowflake' library either
-         at project level in entrypoint or at workflow level or at task level. Examples shown below 
-        entrypoint:
-            with Project( ... 
-                          libraries=[PypiTaskLibrary(package="snowflake==0.6.0")]
-                          ...)
-        workflow:
-            wf=Workflow( ...
-                         libraries=[PypiTaskLibrary(package="snowflake==0.6.0")]
-                         ...)
-        Task:
-            @wf.task(Library=[PypiTaskLibrary(package="snowflake==0.6.0")]
-            def run_snowflake_queries(*args):
-                ...
-        """
-    )
+if TYPE_CHECKING:
+    import snowflake as _snowflake_pkg  # noqa: F401
 
 try:
     from brickflow import ctx
@@ -29,6 +15,59 @@ except ImportError:
     raise ImportError(
         "plugin requires brickflow context , please install library at cluster/workflow/task level"
     )
+
+# Optional third-party snowflake.connector is loaded lazily on first operator
+# instantiation. ``snowflake`` is bound at module scope so existing references
+# like ``snowflake.connector.connect(...)`` and
+# ``snowflake.connector.errors.ProgrammingError`` continue to work unchanged
+# once ``_ensure_snowflake()`` has been called.
+snowflake = None  # type: ignore[assignment]
+
+
+_SNOWFLAKE_INSTALL_HINT = """You must install snowflake library to use run snowflake plugins, please add - 'snowflake' library either
+     at project level in entrypoint or at workflow level or at task level. Examples shown below 
+    entrypoint:
+        with Project( ... 
+                      libraries=[PypiTaskLibrary(package="snowflake==0.6.0")]
+                      ...)
+    workflow:
+        wf=Workflow( ...
+                     libraries=[PypiTaskLibrary(package="snowflake==0.6.0")]
+                     ...)
+    Task:
+        @wf.task(Library=[PypiTaskLibrary(package="snowflake==0.6.0")]
+        def run_snowflake_queries(*args):
+            ...
+    """
+
+
+def _ensure_snowflake() -> None:
+    """Lazily import snowflake.connector on first use; raise a helpful error
+    if missing. Rebinds the module-level ``snowflake`` name so all subsequent
+    ``snowflake.connector.X`` references resolve to the real package.
+    Safe to call multiple times -- subsequent calls are a no-op.
+    """
+    global snowflake
+    if snowflake is not None:
+        return
+    try:
+        import snowflake as _sf_pkg
+        import snowflake.connector  # noqa: F401  -- side-effect: registers submodule
+    except ImportError as exc:
+        raise ImportError(_SNOWFLAKE_INSTALL_HINT) from exc
+    snowflake = _sf_pkg
+
+
+# Try the import eagerly so that (a) callers who patch ``snowflake.connector``
+# by fully-qualified module path continue to work when the extra is installed,
+# and (b) users who already have the extra installed see identical behaviour
+# to the pre-refactor version. If the extra is missing, the placeholder value
+# remains and ``_ensure_snowflake()`` will retry (and raise the helpful
+# ImportError) at construction time.
+try:
+    _ensure_snowflake()
+except ImportError:
+    pass
 
 
 class SnowflakeOperatorException(Exception):
@@ -78,6 +117,7 @@ class SnowflakeOperator:
         *args,
         **kwargs,
     ):
+        _ensure_snowflake()
         self.conn = None
         self.cur = None
         self.query = None
