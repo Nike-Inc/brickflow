@@ -21,10 +21,10 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Set up JDK # used for py4j for cronutils
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v6
         with:
           java-version: '8'
           distribution: 'adopt'
@@ -59,7 +59,7 @@ jobs:
           make cov
 
       - name: Publish test coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
@@ -79,10 +79,10 @@ jobs:
       - test-pipeline
     if: github.event_name == 'release'
     steps:
-      - uses: actions/checkout@v3 # use latest version of the checkout action
+      - uses: actions/checkout@v7 # use latest version of the checkout action
 
       - name: Set up JDK # used for py4j for cronutils
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v6
         with:
           java-version: '8'
           distribution: 'adopt'
