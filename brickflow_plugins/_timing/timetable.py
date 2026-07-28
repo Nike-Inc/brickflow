@@ -15,7 +15,7 @@ from croniter import CroniterBadCronError, CroniterBadDateError, croniter
 from pendulum import DateTime
 from pendulum.tz.timezone import Timezone
 
-from brickflow_plugins.airflow.vendor.timezone import (
+from brickflow_plugins._timing.timezone import (
     make_naive,
     convert_to_utc,
     make_aware,
@@ -152,108 +152,48 @@ class Timetable(Protocol):
     """Protocol that all Timetable classes are expected to implement."""
 
     description: str = ""
-    """Human-readable description of the timetable.
-
-    For example, this can produce something like ``'At 21:30, only on Friday'``
-    from the cron expression ``'30 21 * * 5'``. This is used in the webserver UI.
-    """
+    """Human-readable description of the timetable."""
 
     periodic: bool = True
-    """Whether this timetable runs periodically.
-
-    This defaults to and should generally be *True*, but some special setups
-    like ``schedule=None`` and ``"@once"`` set it to *False*.
-    """
+    """Whether this timetable runs periodically."""
 
     can_run: bool = True
-    """Whether this timetable can actually schedule runs.
-
-    This defaults to and should generally be *True*, but ``NullTimetable`` sets
-    this to *False*.
-    """
+    """Whether this timetable can actually schedule runs."""
 
     run_ordering: Sequence[str] = ("data_interval_end", "execution_date")
-    """How runs triggered from this timetable should be ordered in UI.
-
-    This should be a list of field names on the DAG run object.
-    """
+    """How runs triggered from this timetable should be ordered in UI."""
 
     @classmethod
     def deserialize(cls, data: dict[str, Any]) -> Timetable:
-        """Deserialize a timetable from data.
-
-        This is called when a serialized DAG is deserialized. ``data`` will be
-        whatever was returned by ``serialize`` during DAG serialization. The
-        default implementation constructs the timetable without any arguments.
-        """
+        """Deserialize a timetable from data."""
         return cls()
 
     def serialize(self) -> dict[str, Any]:
-        """Serialize the timetable for JSON encoding.
-
-        This is called during DAG serialization to store timetable information
-        in the database. This should return a JSON-serializable dict that will
-        be fed into ``deserialize`` when the DAG is deserialized. The default
-        implementation returns an empty dict.
-        """
+        """Serialize the timetable for JSON encoding."""
         return {}
 
     def validate(self) -> None:
-        """Validate the timetable is correctly specified.
-
-        Override this method to provide run-time validation raised when a DAG
-        is put into a dagbag. The default implementation does nothing.
-
-        :raises: AirflowTimetableInvalid on validation failure.
-        """
+        """Validate the timetable is correctly specified."""
 
     @property
     def summary(self) -> str:
-        """A short summary for the timetable.
-
-        This is used to display the timetable in the web UI. A cron expression
-        timetable, for example, can use this to display the expression. The
-        default implementation returns the timetable's type name.
-        """
+        """A short summary for the timetable."""
         return type(self).__name__
 
 
 class _DataIntervalTimetable(Timetable):
-    """Basis for timetable implementations that schedule data intervals.
-
-    This kind of timetable classes create periodic data intervals from an
-    underlying schedule representation (e.g. a cron expression, or a timedelta
-    instance), and schedule a DagRun at the end of each interval.
-    """
+    """Basis for timetable implementations that schedule data intervals."""
 
     def _skip_to_latest(self, earliest: DateTime | None) -> DateTime:
-        """Bound the earliest time a run can be scheduled.
-
-        This is called when ``catchup=False``. See docstring of subclasses for
-        exact skipping behaviour of a schedule.
-        """
+        """Bound the earliest time a run can be scheduled."""
         raise NotImplementedError()
 
     def align_to_next(self, current: DateTime) -> DateTime:
-        """Align given time to the next scheduled time.
-
-        For fixed schedules (e.g. every midnight); this finds the next time that
-        aligns to the declared time, if the given time does not align. If the
-        schedule is not fixed (e.g. every hour), the given time is returned.
-        """
+        """Align given time to the next scheduled time."""
         raise NotImplementedError()
 
     def align_to_prev(self, current: DateTime) -> DateTime:
-        """Align given time to the previous scheduled time.
-
-        For fixed schedules (e.g. every midnight); this finds the prev time that
-        aligns to the declared time, if the given time does not align. If the
-        schedule is not fixed (e.g. every hour), the given time is returned.
-
-        It is not enough to use ``_get_prev(_align_to_next())``, since when a
-        DAG's schedule changes, this alternative would make the first scheduling
-        after the schedule change remain the same.
-        """
+        """Align given time to the previous scheduled time."""
         raise NotImplementedError()
 
     def get_next(self, current: DateTime) -> DateTime:
@@ -270,38 +210,10 @@ class CronDataIntervalTimetable(CronMixin, _DataIntervalTimetable):
 
     This corresponds to ``schedule=<cron>``, where ``<cron>`` is either
     a five/six-segment representation, or one of ``cron_presets``.
-
-    The implementation extends on croniter to add timezone awareness. This is
-    because croniter works only with naive timestamps, and cannot consider DST
-    when determining the next/previous time.
-
-    Don't pass ``@once`` in here; use ``OnceTimetable`` instead.
     """
 
-    @classmethod
-    def deserialize(cls, data: dict[str, Any]) -> Timetable:
-        from airflow.serialization.serialized_objects import decode_timezone
-
-        return cls(data["expression"], decode_timezone(data["timezone"]))
-
-    def serialize(self) -> dict[str, Any]:
-        from airflow.serialization.serialized_objects import encode_timezone
-
-        return {
-            "expression": self._expression,
-            "timezone": encode_timezone(self._timezone),
-        }
-
     def _skip_to_latest(self, earliest: DateTime | None) -> DateTime:
-        """Bound the earliest time a run can be scheduled.
-
-        The logic is that we move start_date up until one period before, so the
-        current time is AFTER the period end, and the job can be created...
-
-        This is slightly different from the delta version at terminal values.
-        If the next schedule should start *right now*, we want the data interval
-        that start now, not the one that ends now.
-        """
+        """Bound the earliest time a run can be scheduled."""
         current_time = DateTime.utcnow()
         last_start = self.get_prev(current_time)
         next_start = self.get_next(last_start)

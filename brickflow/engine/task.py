@@ -868,8 +868,8 @@ def get_brickflow_tasks_hook(
         load_plugins(cache_bust)
     except ImportError as e:
         _ilog.info(
-            "If you need airflow support: brickflow extras not installed "
-            "please pip install brickflow[airflow] and py4j! Error: %s",
+            "brickflow_plugins could not be loaded: %s. This is only a problem if "
+            "you use any of the plugin operators/sensors from `brickflow_plugins`.",
             str(e.msg),
         )
     return get_plugin_manager().hook
@@ -1024,8 +1024,9 @@ class Task:
         except ImportError as e:
             raise ImportError(
                 f"Brickflow Plugins not available for task: {self.name}. "
-                "If you need airflow support: brickflow extras not installed "
-                "please pip install brickflow[airflow] and py4j! Error: %s",
+                "Install the plugin's underlying dependency (e.g. "
+                "`snowflake`, `boxsdk`, `tableauserverclient`, `cerberus-python-client`) "
+                "at the cluster/workflow/task level. Error: %s",
                 str(e.msg),
             )
 
@@ -1289,7 +1290,6 @@ def get_brickflow_libraries(enable_plugins: bool = False) -> List[TaskLibrary]:
     if settings.brickflow_enable_plugins is True or enable_plugins is True:
         return [
             bf_lib,
-            PypiTaskLibrary("apache-airflow==2.10.5"),
             PypiTaskLibrary("snowflake==1.5.1"),
             PypiTaskLibrary("tableauserverclient==0.25"),
             PypiTaskLibrary("boxsdk==3.13.0"),

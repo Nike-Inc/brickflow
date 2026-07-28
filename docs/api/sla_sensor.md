@@ -3,7 +3,7 @@ search:
   exclude: true
 ---
 
-::: brickflow_plugins.databricks.sla_sensor
+::: brickflow_plugins.sensors.sla_sensor
     handler: python
     options:
         members:

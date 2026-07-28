@@ -34,13 +34,14 @@ cd brickflow/examples/brickflow_examples
 - Create a new file hello_world_workflow.py in the workflows directory
 - Add the following code to the file
 ```python
+import subprocess
+
 from brickflow import (
     Cluster,
     Workflow,
     NotebookTask,
 )
 from brickflow.context import ctx
-from airflow.operators.bash import BashOperator
 
 
 cluster = Cluster(
@@ -80,11 +81,15 @@ def example_notebook():
 
 
 @wf.task(depends_on=[start, example_notebook])
-# this task runs a bash command
+# The previous BashOperator lived on top of apache-airflow. Since brickflow
+# no longer depends on Airflow, shell out directly (or run a `%sh` notebook
+# cell via NotebookTask).
 def list_lending_club_data_files():
-    return BashOperator(
-        task_id=list_lending_club_data_files.__name__,
-        bash_command="ls -lrt /dbfs/databricks-datasets/samples/lending_club/parquet/",
+    print(
+        subprocess.check_output(
+            ["ls", "-lrt", "/dbfs/databricks-datasets/samples/lending_club/parquet/"],
+            text=True,
+        )
     )
 
 @wf.task(depends_on=list_lending_club_data_files)

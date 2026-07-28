@@ -1,7 +1,8 @@
+import logging
 from unittest.mock import patch
 import pytest
 
-import brickflow_plugins.databricks.run_job
+import brickflow_plugins.operators.run_job
 from brickflow.bundles.model import JobsContinuous
 from brickflow.engine.compute import Cluster, DuplicateClustersDefinitionError
 from brickflow.engine.task import (
@@ -31,6 +32,14 @@ with patch("brickflow.engine.task.get_job_id", return_value=12345678901234):
 
 
 class TestWorkflow:
+    @pytest.fixture(autouse=True)
+    def _caplog_info(self, caplog):
+        # Some workflow-init messages go through the root logger at INFO.
+        # Prior to removal of the apache-airflow dependency, importing airflow
+        # configured the root logger to INFO as a side effect. Now the tests
+        # opt in explicitly.
+        caplog.set_level(logging.INFO)
+
     def test_add_task(self):
         t = wf.get_task(task_function.__name__)
         assert t.name == task_function.__name__
@@ -355,9 +364,9 @@ class TestWorkflow:
         )
 
     def test_add_task_for_run_job_task(self, mocker):
-        with mocker.patch("brickflow_plugins.databricks.run_job.WorkspaceClient"):
+        with mocker.patch("brickflow_plugins.operators.run_job.WorkspaceClient"):
             with mocker.patch.object(
-                brickflow_plugins.databricks.run_job.RunJobInRemoteWorkspace,
+                brickflow_plugins.operators.run_job.RunJobInRemoteWorkspace,
                 "execute",
                 return_value="success",
             ):

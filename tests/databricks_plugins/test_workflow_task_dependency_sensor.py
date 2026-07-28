@@ -1,16 +1,25 @@
+import logging
 import re
 from datetime import timedelta
 
 import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
 
-from brickflow_plugins.databricks.workflow_dependency_sensor import (
+from brickflow_plugins.sensors.workflow_dependency_sensor import (
     WorkflowDependencySensorTimeOutException,
     WorkflowTaskDependencySensor,
 )
 
 
 class TestWorkflowTaskDependencySensor:
+    @pytest.fixture(autouse=True)
+    def _caplog_info(self, caplog):
+        # The sensor logs progress via the root logger at INFO. Prior to
+        # the removal of the apache-airflow dependency, importing airflow
+        # would configure the root logger to INFO as a side effect, which
+        # made these assertions pass without any explicit level setting.
+        caplog.set_level(logging.INFO)
+
     workspace_url = "https://42.cloud.databricks.com"
     endpoint_url = f"{workspace_url}/api/.*/jobs/runs/list"
     response = {
@@ -65,7 +74,7 @@ class TestWorkflowTaskDependencySensor:
     @pytest.fixture(autouse=True)
     def mock_get_job_id(self, mocker):
         mocker.patch(
-            "brickflow_plugins.databricks.workflow_dependency_sensor.get_job_id",
+            "brickflow_plugins.sensors.workflow_dependency_sensor.get_job_id",
             return_value=1,
         )
 

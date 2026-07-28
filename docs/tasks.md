@@ -774,98 +774,86 @@ This option is determining whether the task is run once its dependencies have be
 5. `AT_LEAST_ONE_FAILED`: At least one dependency failed
 6. `ALL_FAILED`: ALl dependencies have failed
 
-### Airflow Operators
+### External System Sensors
 
-We have adopted/extended certain airflow operators that might be needed to run as a task in databricks workflows.
-Typically for airflow operators we return the operator and brickflow will execute the operator based on task return
-type.
+brickflow ships a set of sensors that let a Databricks workflow wait on
+external systems (a remote Airflow cluster, Autosys, or other Databricks
+workflows). These sensors are plain Python -- **they no longer depend on
+`apache-airflow`**.
 
-#### Bash Operator
+!!! warning "Breaking change"
 
-You will be able to use bash operator as below
+    `BashOperator`, `BranchPythonOperator`, `ShortCircuitOperator`,
+    `TaskDependencySensor`, `AirflowProxyOktaClusterAuth`, and
+    `BrickflowSecretsBackend` have been removed along with the
+    `apache-airflow` dependency. The class names still exist as import
+    stubs that raise `RuntimeError` on instantiation with a pointer to
+    the recommended replacement.
 
-```python title="bash_operator"
-from brickflow import Workflow
-from brickflow_plugins import BashOperator
-wf = Workflow(...)
+    * Replace `BashOperator` with a Databricks notebook cell that shells
+      out (`%sh`).
+    * Replace `BranchPythonOperator` / `ShortCircuitOperator` with
+      `IfElseConditionTask`.
+    * Replace `TaskDependencySensor` with `AirflowTaskDependencySensor`
+      shown below.
 
-@wf.task
-def bash_task():
-    return BashOperator(task_id=bash_task.__name__, 
-                        bash_command="ls -ltr")  # (1)!
-```
+#### Airflow Task Dependency Sensor
 
-1. Use Bashoperator like how we use in airflow but it has to be returned from task function
+Poll a remote Airflow cluster's REST API to wait for a specific DAG task
+to reach an allowed state. Compute the bearer token yourself (from Okta
+or another IdP) and pass it into the `AirflowCluster` dataclass.
 
-#### Task Dependency Sensor
+```python title="airflow_task_dependency_sensor"
+from datetime import timedelta
 
-Even if you migrate to databricks workflows, brickflow gives you the flexibility to have a dependency on the airflow job
-
-```python title="task_dependency_sensor"
 from brickflow import Workflow, ctx
-from brickflow_plugins import TaskDependencySensor, AirflowProxyOktaClusterAuth
+from brickflow_plugins import AirflowCluster, AirflowTaskDependencySensor
 
 wf = Workflow(...)
 
 
 @wf.task
 def airflow_external_task_dependency_sensor():
-   import base64
-   from datetime import timedelta
-   data = base64.b64encode(
-      ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
-         "utf-8"
-      )
-   ).decode("utf-8")
-   return TaskDependencySensor(
-      task_id="sensor",
-      timeout=180,
-      airflow_cluster_auth=AirflowProxyOktaClusterAuth(
-         oauth2_conn_id=f"b64://{data}",
-         airflow_cluster_url="https://proxy.../.../cluster_id/",
-         airflow_version="2.0.2", # if you are using airflow 1.x please make sure this is the right value, the apis are different between them!
-      ),
-      external_dag_id="external_airlfow_dag",
-      external_task_id="hello",
-      allowed_states=["success"],
-      execution_delta=timedelta(hours=-2),
-      execution_delta_json=None,
-      poke_interval= 60,
-   )
+    token = ctx.dbutils.secrets.get("scope", "airflow_bearer_token")
+    sensor = AirflowTaskDependencySensor(
+        dag_id="external_airflow_dag",
+        task_id="hello",
+        cluster=AirflowCluster(
+            url="https://proxy.../.../cluster_id/",
+            version="2.0.2",  # use "1.x" for Airflow 1.x -- API shape differs
+            token=token,
+        ),
+        allowed_states=["success"],
+        execution_delta=timedelta(hours=-2),
+        timeout_seconds=180,
+        poke_interval=60,
+    )
+    sensor.execute()
 ```
 
 #### Autosys Sensor
 
-This operator calls an Autosys API and is used to place a dependency on Autosys jobs, when necessary.
+Poll an Autosys REST endpoint and wait for a job to report success recent
+enough to satisfy `time_delta`.
 
 ```python title="autosys_sensor"
-from brickflow import Workflow, ctx
-from brickflow_plugins import AutosysSensor, AirflowProxyOktaClusterAuth
+from datetime import timedelta
+
+from brickflow import Workflow
+from brickflow_plugins import AutosysSensor
 
 wf = Workflow(...)
 
 
 @wf.task
-def airflow_autosys_sensor():
-   import base64
-
-   data = base64.b64encode(
-      ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
-         "utf-8"
-      )
-   ).decode("utf-8")
-   return AutosysSensor(
-      task_id="sensor",
-      url="https://autosys.../.../api/",
-      airflow_cluster_auth=AirflowProxyOktaClusterAuth(
-         oauth2_conn_id=f"b64://{data}",
-         airflow_cluster_url="https://autosys.../.../api/",
-         airflow_version="2.0.2", 
-      ),
-      poke_interval=200,
-      job_name="hello",
-      time_delta={"days": 0},
-   )
+def autosys_sensor():
+    sensor = AutosysSensor(
+        url="https://autosys.example.com/api/jobs",
+        job_name="my_upstream_job",
+        poke_interval=60,
+        time_delta=timedelta(hours=1),
+    )
+    sensor.poke()
 ```
 
 #### Workflow Dependency Sensor

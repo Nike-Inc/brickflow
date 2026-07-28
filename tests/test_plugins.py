@@ -21,16 +21,20 @@ def assert_plugin_manager(
         assert pm.has_plugin(plugin), f"plugin manager should have {plugin} plugin"
 
     all_plugins = set([pm.get_name(plugin_impl) for plugin_impl in pm.get_plugins()])
-    assert all_plugins == set(expected_plugins), (
-        f"plugin manager should have {expected_plugins} " f"plugins and nothing more"
-    )
+    assert all_plugins == set(
+        expected_plugins
+    ), f"plugin manager should have {expected_plugins} plugins and nothing more"
 
 
 class TestBrickflowPlugins:
     def test_plugins_installed(self):
         pm = copy.deepcopy(get_plugin_manager())
         get_brickflow_tasks_hook(pm)
-        assert_plugin_manager(pm, ["airflow-plugin", "default"])
+        # After removing the Airflow dependency, only the default plugin is
+        # registered by ``brickflow.engine.task.get_plugin_manager``. The
+        # previous "airflow-plugin" impl (which unwrapped Airflow BaseOperator
+        # return values) has been removed.
+        assert_plugin_manager(pm, ["default"])
 
     def test_plugins_load_plugins_import_error(self):
         with mock.patch("brickflow_plugins.load_plugins") as load_plugins_mock:
@@ -62,7 +66,7 @@ class TestBrickflowPlugins:
         ],
     )
     def test_cron_conversion(self, quartz_cron, expected_unix_cron):
-        import brickflow_plugins.airflow.cronhelper as cronhelper  # noqa
+        import brickflow_plugins._timing.cronhelper as cronhelper  # noqa
 
         converted_unix_cron = cronhelper.cron_helper.quartz_to_unix(quartz_cron)
         converted_quartz_cron = cronhelper.cron_helper.unix_to_quartz(
@@ -87,7 +91,7 @@ class TestBrickflowPlugins:
         ],
     )
     def test_unsupported_cron_expressions(self, quartz_cron):
-        import brickflow_plugins.airflow.cronhelper as cronhelper  # noqa
+        import brickflow_plugins._timing.cronhelper as cronhelper  # noqa
 
         with pytest.raises(ValueError):
             cronhelper.cron_helper.quartz_to_unix(quartz_cron)
@@ -109,7 +113,9 @@ class TestBrickflowPlugins:
             expected_libs[lib.get("name")] = lib.get("version")
 
         # Libraries used for plugins expected to be available in the dev environment
-        # and should match the versions in poetry.lock to ensure consistency
+        # and should match the versions in poetry.lock to ensure consistency.
+        # NOTE: ``apache-airflow`` was previously included here; it has been
+        # removed along with the Airflow dependency.
         for lib in get_brickflow_libraries(enable_plugins=True):
             name, version = lib.package.split("==")
             if name != "brickflows":

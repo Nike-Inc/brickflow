@@ -34,7 +34,7 @@ When `allow_skipped=False` (the default), only `SUCCESS` is accepted. When `allo
 
 ## API Reference
 
-::: brickflow_plugins.databricks.workflow_dependency_sensor
+::: brickflow_plugins.sensors.workflow_dependency_sensor
     handler: python
     options:
         members:

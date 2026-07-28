@@ -17,74 +17,85 @@ def setup_logger():
 
 log = setup_logger()
 
-from brickflow_plugins.airflow.operators.external_tasks import (
-    TaskDependencySensor,
-    AutosysSensor,
-    AirflowProxyOktaClusterAuth,
+# Native (Airflow-free) sensors and operators. These imports are the public API
+# and drive `from brickflow_plugins import <Foo>` for downstream users.
+from brickflow_plugins.sensors.airflow_task_dependency_sensor import (
+    AirflowCluster,
+    AirflowTaskDependencySensor,
 )
-from brickflow_plugins.airflow.operators.external_tasks_tableau import (
-    TableauRefreshDataSourceOperator,
-    TableauRefreshWorkBookOperator,
-)
-from brickflow_plugins.airflow.operators.native_operators import (
-    BashOperator,
-    BranchPythonOperator,
-    ShortCircuitOperator,
-)
-from brickflow_plugins.databricks.workflow_dependency_sensor import (
+from brickflow_plugins.sensors.autosys_sensor import AutosysSensor
+from brickflow_plugins.sensors.sla_sensor import SLASensor
+from brickflow_plugins.sensors.workflow_dependency_sensor import (
     WorkflowDependencySensor,
     WorkflowTaskDependencySensor,
 )
-from brickflow_plugins.databricks.uc_to_snowflake_operator import (
+from brickflow_plugins.operators.box_operator import (
+    BoxOperator,
+    BoxToVolumesOperator,
+    VolumesToBoxOperator,
+)
+from brickflow_plugins.operators.tableau_refresh_operator import (
+    TableauRefreshDataSourceOperator,
+    TableauRefreshWorkBookOperator,
+)
+from brickflow_plugins.operators.uc_to_snowflake_operator import (
     SnowflakeOperator,
     UcToSnowflakeOperator,
 )
-from brickflow_plugins.databricks.box_operator import (
-    BoxToVolumesOperator,
-    VolumesToBoxOperator,
-    BoxOperator,
+
+# Deprecation stubs. These raise `RuntimeError` on instantiation with a pointer
+# to the native replacement. Kept re-exported so `from brickflow_plugins import
+# BashOperator` fails loudly at usage rather than silently at import time.
+from brickflow_plugins.operators.deprecated_airflow_operators import (
+    AirflowProxyOktaClusterAuth,
+    BashOperator,
+    BranchPythonOperator,
+    ShortCircuitOperator,
+    TaskDependencySensor,
 )
-from brickflow_plugins.databricks.sla_sensor import SLASensor
 
 
 def load_plugins(cache_bust: Optional[pluggy.PluginManager] = None) -> None:
-    from brickflow.engine.task import get_plugin_manager
-    from brickflow_plugins.airflow.brickflow_task_plugin import (
-        AirflowOperatorBrickflowTaskPluginImpl,
-    )
-
-    if cache_bust is not None:
-        cache_bust.register(
-            AirflowOperatorBrickflowTaskPluginImpl(), name="airflow-plugin"
-        )
-        return
-
-    get_plugin_manager().register(AirflowOperatorBrickflowTaskPluginImpl())
+    """
+    No-op. Retained so `brickflow.engine.task.get_brickflow_tasks_hook` can
+    keep calling it. There is no longer an Airflow-operator handler plugin
+    to register, so this is intentionally empty.
+    """
+    return None
 
 
-def ensure_installation():
-    """Ensures that the brickflow_plugins package is installed in the current environment."""
-    from brickflow_plugins.airflow.cronhelper import cron_helper  # noqa
-    import airflow  # noqa
+def ensure_installation() -> None:
+    """
+    No-op. Previously imported ``airflow`` to eagerly fail if the extra
+    wasn't installed. Airflow is no longer a dependency of brickflow, so
+    this is intentionally empty.
+    """
+    return None
 
 
 __all__: List[str] = [
-    "TaskDependencySensor",
+    # Sensors (native)
+    "AirflowCluster",
+    "AirflowTaskDependencySensor",
     "AutosysSensor",
-    "AirflowProxyOktaClusterAuth",
-    "BashOperator",
-    "BranchPythonOperator",
-    "ShortCircuitOperator",
+    "SLASensor",
     "WorkflowDependencySensor",
     "WorkflowTaskDependencySensor",
+    # Operators
+    "BoxOperator",
+    "BoxToVolumesOperator",
+    "VolumesToBoxOperator",
     "SnowflakeOperator",
     "UcToSnowflakeOperator",
     "TableauRefreshDataSourceOperator",
     "TableauRefreshWorkBookOperator",
-    "BoxToVolumesOperator",
-    "VolumesToBoxOperator",
-    "BoxOperator",
-    "SLASensor",
+    # Deprecation stubs (raise RuntimeError on instantiation)
+    "AirflowProxyOktaClusterAuth",
+    "BashOperator",
+    "BranchPythonOperator",
+    "ShortCircuitOperator",
+    "TaskDependencySensor",
+    # Plugin machinery (retained for backwards compat)
     "load_plugins",
     "ensure_installation",
 ]

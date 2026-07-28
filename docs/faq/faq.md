@@ -3,31 +3,46 @@ search:
   boost: 3
 ---
 
-## How do I enable airflow features?
+## Which external-system integrations does brickflow ship out of the box?
 
-!!! warning
+brickflow provides a small set of first-party plugins for common external
+systems. They are all pure Python -- **`apache-airflow` is no longer a
+runtime dependency**.
 
-    Only certain operators are supported so please make sure you read the documentation before using them. If your operator is not supported 
-    please raise a new [issue](https://github.com/Nike-Inc/brickflow/issues/new/choose) in github.
+* `AirflowTaskDependencySensor` -- wait for a task in a remote Airflow DAG.
+* `AutosysSensor` -- wait for an Autosys job to succeed.
+* `WorkflowDependencySensor` / `WorkflowTaskDependencySensor` -- wait for
+  another Databricks workflow or a specific task in it.
+* `SLASensor` -- monitor an SLA for a workflow.
+* `SnowflakeOperator` / `UcToSnowflakeOperator` -- run SQL against Snowflake
+  or copy Unity Catalog tables into Snowflake.
+* `BoxOperator` / `BoxToVolumesOperator` / `VolumesToBoxOperator` -- move
+  files between Box and Databricks Volumes.
+* `TableauRefreshDataSourceOperator` / `TableauRefreshWorkBookOperator` --
+  trigger Tableau data source or workbook refreshes.
 
-Supported Operators:
+!!! warning "Deprecated (raise `RuntimeError` on instantiation)"
 
-* BranchPythonOperator
-* PythonOperator
-* BashOperator
-* ShortCircuitOperator
-* TaskDependencySensor
-* BoxOperator
+    * `BashOperator` -- use a Databricks notebook cell that shells out
+      (`%sh`), or run a helper notebook via `RunJobTask`.
+    * `BranchPythonOperator` / `ShortCircuitOperator` -- use
+      `IfElseConditionTask`.
+    * `TaskDependencySensor` -- use `AirflowTaskDependencySensor`.
+    * `AirflowProxyOktaClusterAuth` -- compute the bearer token yourself
+      and pass it into the plain `AirflowCluster` dataclass.
+    * `BrickflowSecretsBackend` -- removed. Use
+      `brickflow_plugins.secrets.resolve_secret(url)` directly, or call
+      the Cerberus / Base64 helpers.
 
-To enable the usage of airflow operators, you need to set the `enable_plugins` flag to `True` in the `Project`
-constructor.
+To enable auto-installation of the plugin dependencies onto a Databricks
+cluster, set the `enable_plugins` flag to `True` in the `Project` constructor.
+Individual plugin dependencies (Snowflake, Tableau, Box, Cerberus) will be
+attached to the cluster; **`apache-airflow` is no longer installed**.
 
 ## How do I run only one task in a workflow?
 
-Databricks and Airflow use different task scheduling mechanisms. Due to the way airflow manages state in a database, it
-is possible to run only one task in a workflow.
-Though this works very differently at Databricks as our job scheduler is very different and needs to scale to much large
-volume of tasks and workflows.
+Databricks uses its own job scheduler, distinct from Airflow's. Running a
+single task on demand works differently than Airflow-style backfills.
 
 To provide this capability, brickflow offers a parameter to do this:
 

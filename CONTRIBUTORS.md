@@ -19,6 +19,7 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Iris Meerman](https://www.linkedin.com/in/iris-meerman-92694675/)
 * [Michael Espiritu](https://www.linkedin.com/in/michaelespiritu92/)
 * [Riccardo Iacomini](https://www.linkedin.com/in/riccardo-iacomini-b757b6118/)
+* [Sasa Mirkovic](https://www.linkedin.com/in/societysling)
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project
