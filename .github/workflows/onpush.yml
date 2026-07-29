@@ -24,10 +24,10 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up JDK # used for py4j for cronutils
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@v5
         with:
           java-version: '8'
-          distribution: 'adopt'
+          distribution: 'temurin'
 
       - name: Install pip
         run: python -m pip install --upgrade pip
@@ -82,10 +82,10 @@ jobs:
       - uses: actions/checkout@v7 # use latest version of the checkout action
 
       - name: Set up JDK # used for py4j for cronutils
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@v5
         with:
           java-version: '8'
-          distribution: 'adopt'
+          distribution: 'temurin'
 
       - name: Install pip
         run: python -m pip install --upgrade pip
