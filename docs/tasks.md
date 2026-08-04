@@ -831,6 +831,13 @@ def airflow_external_task_dependency_sensor():
     sensor.execute()
 ```
 
+If you previously passed ``b64://`` or ``cerberus://`` URLs to
+``AirflowProxyOktaClusterAuth(oauth2_conn_id=...)``, resolve them explicitly
+with ``brickflow_plugins.secrets.resolve_secret`` before constructing
+``AirflowCluster`` (see the
+[upgrade guide](upgrades/upgrade-airflow-free.md#migrating-url-based-secrets-b64--cerberus)
+for a full before/after example).
+
 #### Autosys Sensor
 
 Poll an Autosys REST endpoint and wait for a job to report success recent

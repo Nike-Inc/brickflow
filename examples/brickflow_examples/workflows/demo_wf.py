@@ -115,7 +115,24 @@ def print_sample_lending_club_data():
 def airflow_external_task_dependency_sensor():
     # Wait for a task in a remote Airflow cluster. Compute the bearer token
     # yourself (e.g. via Okta) and pass it straight into ``AirflowCluster``.
+    #
+    # Option 1 (recommended): read the bearer token directly from Databricks
+    # secrets.
     token = ctx.dbutils.secrets.get("brickflow-demo", "airflow_bearer_token")
+
+    # Option 2 (URL-based secrets): if you still store connection material as
+    # ``b64://`` or ``cerberus://`` URLs — the pattern ``AirflowProxyOktaClusterAuth``
+    # used via ``oauth2_conn_id`` — resolve explicitly with ``resolve_secret``
+    # instead of the removed ``BrickflowSecretsBackend`` Airflow hook:
+    #
+    # import base64
+    # from brickflow_plugins.secrets import resolve_secret
+    #
+    # encoded = base64.b64encode(
+    #     ctx.dbutils.secrets.get("brickflow-demo", "okta_conn_id").encode("utf-8")
+    # ).decode("utf-8")
+    # token = resolve_secret(f"b64://{encoded}")
+    # # token = resolve_secret("cerberus://cerberus-host/path/to/secret_key")
     sensor = AirflowTaskDependencySensor(
         dag_id="dag_id",
         task_id="task_id",

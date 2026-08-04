@@ -27,7 +27,7 @@ rather than silently at *import*, but instantiating any of them now raises
 | `ShortCircuitOperator` | Use `IfElseConditionTask` to skip downstream tasks. |
 | `TaskDependencySensor` | Use `AirflowTaskDependencySensor` from `brickflow_plugins`. |
 | `AirflowProxyOktaClusterAuth` | Compute the bearer token yourself and pass it into the plain `AirflowCluster` dataclass. |
-| `BrickflowSecretsBackend` | Removed. Use `brickflow_plugins.secrets.resolve_secret(url)` directly or call the Cerberus/Base64 helpers. |
+| `BrickflowSecretsBackend` | Use `brickflow_plugins.secrets.resolve_secret(url)` directly or call the Cerberus/Base64 helpers. |
 
 ## API Reference
 

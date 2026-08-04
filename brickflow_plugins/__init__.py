@@ -26,6 +26,7 @@ from brickflow_plugins.operators.deprecated_airflow_operators import (
     AirflowProxyOktaClusterAuth,
     BashOperator,
     BranchPythonOperator,
+    BrickflowSecretsBackend,
     ShortCircuitOperator,
     TaskDependencySensor,
 )
@@ -146,6 +147,7 @@ __all__: List[str] = [
     "AirflowProxyOktaClusterAuth",
     "BashOperator",
     "BranchPythonOperator",
+    "BrickflowSecretsBackend",
     "ShortCircuitOperator",
     "TaskDependencySensor",
     # Plugin machinery (retained for backwards compat)

@@ -72,3 +72,18 @@ class TaskDependencySensor(_RemovedAirflowOperator):
 
     _replacement = "brickflow_plugins.sensors.airflow_task_dependency_sensor.AirflowTaskDependencySensor"
     _docs_url = "https://engineering.nike.com/brickflow/main/tasks/"
+
+
+class BrickflowSecretsBackend(_RemovedAirflowOperator):
+    """
+    Deprecated: replaced by ``brickflow_plugins.secrets.resolve_secret(url)`` or
+    the Cerberus / Base64 helper classes.
+    """
+
+    _replacement = (
+        "brickflow_plugins.secrets.resolve_secret(url), CerberusSecretsHelper, "
+        "or B64SecretsHelper"
+    )
+    _docs_url = (
+        "https://engineering.nike.com/brickflow/main/upgrades/upgrade-airflow-free/"
+    )

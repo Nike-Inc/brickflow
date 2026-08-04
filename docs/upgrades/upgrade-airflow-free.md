@@ -90,6 +90,52 @@ sensor = AirflowTaskDependencySensor(
 sensor.execute()
 ```
 
+### Migrating URL-based secrets (`b64://` / `cerberus://`)
+
+Before the Airflow-free release, ``AirflowProxyOktaClusterAuth`` accepted
+``oauth2_conn_id`` values like ``b64://...`` or ``cerberus://...``. Airflow
+resolved those URLs through ``BrickflowSecretsBackend`` at connection lookup
+time. That backend is removed — call ``resolve_secret`` yourself and pass the
+decoded value into ``AirflowCluster.token``:
+
+```python
+import base64
+from datetime import timedelta
+
+from brickflow import Workflow, ctx
+from brickflow_plugins import AirflowCluster, AirflowTaskDependencySensor
+from brickflow_plugins.secrets import resolve_secret
+
+wf = Workflow(...)
+
+
+@wf.task
+def airflow_external_task_dependency_sensor():
+    # b64:// — same encoding pattern as the old oauth2_conn_id argument
+    encoded = base64.b64encode(
+        ctx.dbutils.secrets.get("scope", "okta_conn_id").encode("utf-8")
+    ).decode("utf-8")
+    token = resolve_secret(f"b64://{encoded}")
+
+    # cerberus:// — requires brickflows[cerberus] on the cluster
+    # token = resolve_secret("cerberus://cerberus-host/path/to/secret_key")
+
+    sensor = AirflowTaskDependencySensor(
+        dag_id="external_airflow_dag",
+        task_id="hello",
+        cluster=AirflowCluster(
+            url="https://proxy.../.../cluster_id/",
+            version="2.0.2",
+            token=token,
+        ),
+        allowed_states=["success"],
+        execution_delta=timedelta(hours=-2),
+        timeout_seconds=180,
+        poke_interval=60,
+    )
+    sensor.execute()
+```
+
 ## Import-path updates
 
 If you had imported directly from the removed subpackages, update the

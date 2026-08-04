@@ -9,6 +9,9 @@ from urllib.parse import ParseResult, urlparse
 import pluggy
 
 from brickflow_plugins import log
+from brickflow_plugins.operators.deprecated_airflow_operators import (
+    BrickflowSecretsBackend,
+)
 
 BRICKFLOW_SECRETS_BACKEND = "brickflow_secrets_backend"
 

@@ -30,7 +30,7 @@ runtime dependency**.
     * `TaskDependencySensor` -- use `AirflowTaskDependencySensor`.
     * `AirflowProxyOktaClusterAuth` -- compute the bearer token yourself
       and pass it into the plain `AirflowCluster` dataclass.
-    * `BrickflowSecretsBackend` -- removed. Use
+    * `BrickflowSecretsBackend` -- use
       `brickflow_plugins.secrets.resolve_secret(url)` directly, or call
       the Cerberus / Base64 helpers.
 
