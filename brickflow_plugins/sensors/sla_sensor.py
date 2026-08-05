@@ -10,7 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 from brickflow import ctx
-from brickflow_plugins.databricks.workflow_dependency_sensor import (
+from brickflow_plugins.sensors.workflow_dependency_sensor import (
     WorkflowTaskDependencySensor,
     WorkflowDependencySensorException,
 )

@@ -3,21 +3,15 @@ from __future__ import annotations
 import abc
 import base64
 import functools
-import os
 from typing import Optional, Tuple, Union, List
-from urllib.parse import urlparse, ParseResult
+from urllib.parse import ParseResult, urlparse
 
 import pluggy
 
-try:
-    from airflow.secrets import BaseSecretsBackend
-except ImportError:
-    raise ImportError(
-        "You must install airflow to use airflow plugins, "
-        "please try pip install brickflow[apache-airflow]"
-    )
-
 from brickflow_plugins import log
+from brickflow_plugins.operators.deprecated_airflow_operators import (
+    BrickflowSecretsBackend,
+)
 
 BRICKFLOW_SECRETS_BACKEND = "brickflow_secrets_backend"
 
@@ -134,28 +128,11 @@ class DatabricksSecretsBrickflowSecretPluginImpl(BrickflowSecretPluginSpec):
         return None
 
 
-class BrickflowSecretsBackend(BaseSecretsBackend):  # noqa
-    def __enter__(self):
-        self.set_backend_env()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.unset_backend_env()
-
-    def get_conn_value(self, conn_id: str) -> str | None:
-        parsed_url = urlparse(conn_id)
-        return get_brickflow_tasks_hook().get_secret_value(url_parsed_result=parsed_url)
-
-    def _get_secrets_backend_env(self):
-        return {
-            "AIRFLOW__SECRETS__BACKEND": f"{self.__class__.__module__}.{self.__class__.__name__}",
-            "AIRFLOW__SECRETS__BACKEND_KWARGS": "",
-        }
-
-    def set_backend_env(self):
-        for k, v in self._get_secrets_backend_env().items():
-            os.environ[k] = v
-
-    def unset_backend_env(self):
-        for k in self._get_secrets_backend_env().keys():
-            os.environ.pop(k, None)
+def resolve_secret(secret_url: str) -> Optional[str]:
+    """
+    Resolve a secret from a URL like ``cerberus://.../path/key`` or
+    ``base64://<b64-encoded-value>``. Returns ``None`` if no registered
+    handler recognizes the scheme.
+    """
+    parsed_url = urlparse(secret_url)
+    return get_brickflow_tasks_hook().get_secret_value(url_parsed_result=parsed_url)

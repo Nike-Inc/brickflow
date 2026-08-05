@@ -1,7 +1,5 @@
 from datetime import timedelta
 
-from airflow.operators.bash import BashOperator
-
 from brickflow import (
     BrickflowTriggerRule,
     Cluster,
@@ -23,14 +21,14 @@ from brickflow import (
 )
 from brickflow.engine.task import PypiTaskLibrary
 from brickflow_plugins import (
-    AirflowProxyOktaClusterAuth,
+    AirflowCluster,
+    AirflowTaskDependencySensor,
     AutosysSensor,
     BoxOperator,
     BoxToVolumesOperator,
     SnowflakeOperator,
     TableauRefreshDataSourceOperator,
     TableauRefreshWorkBookOperator,
-    TaskDependencySensor,
     UcToSnowflakeOperator,
     VolumesToBoxOperator,
 )
@@ -91,10 +89,17 @@ def example_notebook():
 
 @wf.task(depends_on=start)
 def list_lending_club_data_files():
-    return BashOperator(
-        task_id=list_lending_club_data_files.__name__,
-        bash_command="ls -lrt /dbfs/databricks-datasets/samples/lending_club/parquet/",
+    # ``BashOperator`` was removed along with the apache-airflow dependency.
+    # Use a Databricks notebook cell that shells out via ``%sh``, or
+    # ``dbutils.notebook.run`` a helper notebook, or call subprocess here
+    # directly if the cluster is not restricted.
+    import subprocess
+
+    output = subprocess.check_output(
+        ["ls", "-lrt", "/dbfs/databricks-datasets/samples/lending_club/parquet/"],
+        text=True,
     )
+    print(output)
 
 
 @wf.task(depends_on=start)
@@ -108,25 +113,40 @@ def print_sample_lending_club_data():
 
 @wf.task(depends_on=print_sample_lending_club_data)
 def airflow_external_task_dependency_sensor():
-    import base64
+    # Wait for a task in a remote Airflow cluster. Compute the bearer token
+    # yourself (e.g. via Okta) and pass it straight into ``AirflowCluster``.
+    #
+    # Option 1 (recommended): read the bearer token directly from Databricks
+    # secrets.
+    token = ctx.dbutils.secrets.get("brickflow-demo", "airflow_bearer_token")
 
-    data = base64.b64encode(
-        ctx.dbutils.secrets.get("brickflow-demo", "okta_conn_id").encode("utf-8")
-    ).decode("utf-8")
-    return TaskDependencySensor(
-        task_id="sensor",
-        timeout=180,
-        airflow_cluster_auth=AirflowProxyOktaClusterAuth(
-            oauth2_conn_id=f"b64://{data}",
-            airflow_cluster_url="https://proxy.airflow/cluster_name",
-            airflow_version="2.0.2",  # if you are using airflow 1.x please make sure this is the right value, the apis are different between them!
+    # Option 2 (URL-based secrets): if you still store connection material as
+    # ``b64://`` or ``cerberus://`` URLs — the pattern ``AirflowProxyOktaClusterAuth``
+    # used via ``oauth2_conn_id`` — resolve explicitly with ``resolve_secret``
+    # instead of the removed ``BrickflowSecretsBackend`` Airflow hook:
+    #
+    # import base64
+    # from brickflow_plugins.secrets import resolve_secret
+    #
+    # encoded = base64.b64encode(
+    #     ctx.dbutils.secrets.get("brickflow-demo", "okta_conn_id").encode("utf-8")
+    # ).decode("utf-8")
+    # token = resolve_secret(f"b64://{encoded}")
+    # # token = resolve_secret("cerberus://cerberus-host/path/to/secret_key")
+    sensor = AirflowTaskDependencySensor(
+        dag_id="dag_id",
+        task_id="task_id",
+        cluster=AirflowCluster(
+            url="https://proxy.airflow/cluster_name",
+            version="2.0.2",  # use "1.x" for Airflow 1.x; the API shape differs
+            token=token,
         ),
-        external_dag_id="dag_id",
-        external_task_id="task_id",
         allowed_states=["success"],
         execution_delta=timedelta(days=-1),
-        execution_delta_json=None,
+        timeout_seconds=180,
+        poke_interval=60,
     )
+    sensor.execute()
 
 
 @wf.task(depends_on=airflow_external_task_dependency_sensor)
@@ -266,27 +286,21 @@ def lending_data_csv_extract():
 
 @wf.task(depends_on=lending_data_csv_extract)
 def list_file():
-    return BashOperator(task_id=list_file.__name__, bash_command="ls -ltr")
+    # ``BashOperator`` was removed with the apache-airflow dependency.
+    import subprocess
+
+    print(subprocess.check_output(["ls", "-ltr"], text=True))
 
 
 @wf.task(depends_on=list_file)
-def airflow_autosys_sensor():
-    import base64
-
-    data = base64.b64encode(
-        ctx.dbutils.secrets.get("brickflow-demo-tobedeleted", "okta_conn_id").encode(
-            "utf-8"
-        )
-    ).decode("utf-8")
-    return AutosysSensor(
-        task_id="sensor",
+def autosys_sensor():
+    sensor = AutosysSensor(
         url="https://autosys.../.../api/",
-        # 'https://username:password@databricks.com:90909/?hello=world' - okta_conn_id sample
-        okta_conn_id=f"b64://{data}",
-        poke_interval=200,
         job_name="hello",
+        poke_interval=200,
         time_delta={"days": 0},
     )
+    sensor.poke()
 
 
 @wf.task

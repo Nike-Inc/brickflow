@@ -4,7 +4,7 @@ import pytest
 from requests_mock.mocker import Mocker as RequestsMocker
 
 from brickflow.engine.utils import ctx
-from brickflow_plugins.databricks.run_job import RunJobInRemoteWorkspace
+from brickflow_plugins.operators.run_job import RunJobInRemoteWorkspace
 
 
 class TestRunJob:
@@ -17,7 +17,7 @@ class TestRunJob:
     @pytest.fixture(autouse=True)
     def mock_get_job_id(self, mocker):
         mocker.patch(
-            "brickflow_plugins.databricks.run_job.get_job_id",
+            "brickflow_plugins.operators.run_job.get_job_id",
             return_value=1,
         )
 

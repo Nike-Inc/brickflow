@@ -1,50 +1,101 @@
+"""
+Tableau Refresh Operators.
+
+Native brickflow operators that refresh Tableau data sources or workbooks
+by triggering async refresh jobs and polling the Tableau server until they
+complete. No Airflow dependency -- plain Python classes with an
+``execute()`` method.
+"""
+
+from __future__ import annotations
+
 import concurrent.futures
 import time
-from abc import abstractmethod
-from typing import Union
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Optional, Union
 
 import urllib3
-from airflow.operators.python import BaseOperator
 
 from brickflow_plugins import log
 
+if TYPE_CHECKING:
+    import tableauserverclient as TSC  # noqa: F401 -- only for type hints
+
+# Optional third-party tableauserverclient is loaded lazily on first operator
+# instantiation. ``TSC`` is bound at module scope so existing references like
+# ``TSC.TableauAuth(...)`` and ``TSC.Server(...)`` continue to work unchanged
+# once ``_ensure_tableau()`` has been called.
+TSC = None  # type: ignore[assignment]
+
+
+_TABLEAU_INSTALL_HINT = """You must install tableauserverclient library to use Tableau plugins, please add - 'tableauserverclient' 
+    library either at project level in entrypoint or at workflow level or at task level.
+    
+    Entrypoint:
+        with Project(
+            ... 
+            libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+            ...
+        )
+    Workflow:
+        wf=Workflow(
+            ...
+            libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+            ...
+        )
+    Task:
+        @wf.task(Library=[PypiTaskLibrary(package="tableauserverclient==0.25")]
+        def run_snowflake_queries(*args):
+            ...
+    """
+
+
+def _ensure_tableau() -> None:
+    """Lazily import tableauserverclient on first use; raise a helpful error
+    if missing. Rebinds the module-level ``TSC`` name so all subsequent
+    ``TSC.X`` references resolve to the real package. Safe to call multiple
+    times -- subsequent calls are a no-op.
+    """
+    global TSC
+    if TSC is not None:
+        return
+    try:
+        import tableauserverclient as _tsc
+    except (ImportError, ModuleNotFoundError) as exc:
+        raise ModuleNotFoundError(_TABLEAU_INSTALL_HINT) from exc
+    TSC = _tsc
+
+
+# Try the import eagerly so that (a) callers who patch ``TSC.Server`` (etc.)
+# by fully-qualified module path continue to work when the extra is installed,
+# and (b) users who already have the extra installed see identical behaviour
+# to the pre-refactor version. If the extra is missing, the placeholder value
+# remains and ``_ensure_tableau()`` will retry (and raise the helpful
+# ModuleNotFoundError) at construction time.
 try:
-    import tableauserverclient as TSC
-except (ImportError, ModuleNotFoundError):
-    raise ModuleNotFoundError(
-        """You must install tableauserverclient library to use Tableau plugins, please add - 'tableauserverclient' 
-        library either at project level in entrypoint or at workflow level or at task level.
-        
-        Entrypoint:
-            with Project(
-                ... 
-                libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
-                ...
-            )
-        Workflow:
-            wf=Workflow(
-                ...
-                libraries=[PypiTaskLibrary(package="tableauserverclient==0.25")]
-                ...
-            )
-        Task:
-            @wf.task(Library=[PypiTaskLibrary(package="tableauserverclient==0.25")]
-            def run_snowflake_queries(*args):
-                ...
-        """
-    )
+    _ensure_tableau()
+except ModuleNotFoundError:
+    pass
+
+
+class TableauRefreshException(Exception):
+    pass
+
+
+class TableauRefreshEmptyException(Exception):
+    pass
 
 
 class TableauWrapper:
     """
-    Class facilitates interaction with Tableau server for the purpose of refreshing
-    data sources or work books.
-    Refresh is triggered asynchronously, and Tableau server is polled for results for each job,
-    until the job is finished or timeout is reached (default: 10 minutes).
+    Facilitates interaction with a Tableau server for the purpose of
+    refreshing data sources or workbooks. Refresh is triggered
+    asynchronously, and the Tableau server is polled until every job is
+    finished or the ``polling_timeout`` is reached.
     """
 
-    _server: TSC.Server
-    _authenticator: TSC.TableauAuth
+    _server: "TSC.Server"
+    _authenticator: "TSC.TableauAuth"
 
     def __init__(
         self,
@@ -52,42 +103,44 @@ class TableauWrapper:
         username: str,
         password: str,
         site: str,
-        project: str = None,
-        parent_project: str = None,
+        project: Optional[str] = None,
+        parent_project: Optional[str] = None,
         version: str = "3.14",
         max_async_workers: int = 5,
         polling_required: bool = True,
         polling_interval: int = 30,
         polling_timeout: int = 600,
-    ):
+    ) -> None:
         """
-        Initialize TableauWrapper object with the specified parameters.
-
         Parameters
         ----------
         server : str
-            Tableau server address, e.g. https://tableau-server.com
+            Tableau server address, e.g. ``https://tableau-server.com``.
         username : str
-            Log in username
+            Log in username.
         password : str
-            Log in password
+            Log in password.
         site : str
-            Tableau site
+            Tableau site.
         project : str
-            Tableau project
+            Tableau project.
         parent_project : str
-            Name of the parent Tableau project, use "/" if the project is at the root level
+            Name of the parent Tableau project. Use ``"/"`` for the site root.
         version : str
-            Tableau server API version
+            Tableau server API version.
         max_async_workers : int
-            Maximum number of asynchronous tasks that will trigger jobs and wait for completion
+            Maximum number of asynchronous tasks that will trigger jobs and
+            wait for completion.
         polling_required : bool
-            Wait for job completion to proceed, otherwise just trigger the job and proceed
+            Wait for job completion to proceed, otherwise trigger the job and
+            proceed without waiting.
         polling_interval : int
-            Polling interval for the job status updates (seconds)
+            Polling interval for the job status updates (seconds).
         polling_timeout : int
-            Stop polling if the job was not completed within the specified interval (seconds)
+            Stop polling if the job was not completed within the specified
+            interval (seconds).
         """
+        _ensure_tableau()
         self.server = server
         self.version = version
         self.username = username
@@ -106,7 +159,10 @@ class TableauWrapper:
 
     class MultipleWorkingProjectsException(Exception):
         def __init__(self):
-            self.message = "Multiple projects with the same name exist on the server! Set 'parent_project' parameter!"
+            self.message = (
+                "Multiple projects with the same name exist on the server! Set "
+                "'parent_project' parameter!"
+            )
             super().__init__(self.message)
 
     class UnidentifiedWorkingProjectException(Exception):
@@ -115,9 +171,7 @@ class TableauWrapper:
             super().__init__(self.message)
 
     def _authenticate(self):
-        """
-        Authenticate on the Tableau server.
-        """
+        """Authenticate on the Tableau server."""
         # Suppress 'InsecureRequestWarning'
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -130,24 +184,11 @@ class TableauWrapper:
 
     def _get_job_status(self, job_id: str) -> dict:
         """
-        Retrieve initial job status from ID and periodically poll the server for update until status changes or
-        timeout is reached.
+        Retrieve initial job status from ID and periodically poll the server
+        for updates until the status changes or the timeout is reached.
 
-        Below status codes are used:
-            -1: Unknown / Not yet started;
-            0: Success;
-            1: Error;
-            2: Cancelled
-
-        Parameters
-        ----------
-        job_id : str
-            ID of the Tableau job
-
-        Returns
-        -------
-        dict
-            Job status dictionary
+        Finish codes: -1 unknown / not yet started, 0 success, 1 error,
+        2 cancelled, -2 timeout.
         """
         finish_code, status = -1, "Unknown"
         response = None
@@ -164,7 +205,8 @@ class TableauWrapper:
 
             if total_polling_time == self.polling_timeout:
                 self._logger.warning(
-                    f"The job '{job_id}' did not complete within expected time, exiting... "
+                    f"The job '{job_id}' did not complete within expected time, "
+                    "exiting... "
                 )
                 finish_code, status = -2, "Timeout"
                 break
@@ -199,40 +241,16 @@ class TableauWrapper:
             ),
         }
 
-    def _refresh_datasource(self, ds: TSC.DatasourceItem) -> dict:
-        """
-        Trigger refresh of the specific data source object and poll for refresh status until completed or timeout.
-
-        Parameters
-        ----------
-        ds : TSC.DatasourceItem
-            Tableau data source object
-
-        Returns
-        -------
-        dict
-            Dictionary with data source name and refresh result
-        """
+    def _refresh_datasource(self, ds: "TSC.DatasourceItem") -> dict:
+        """Trigger refresh of the specific data source and poll for completion."""
         self._logger.info(f"Triggering refresh of '{ds.name}' datasource...")
         response = self._server.datasources.refresh(datasource_item=ds)
         job_status = self._get_job_status(job_id=response.id)
         self._logger.info(f"Data source '{ds.name}' refresh status: {job_status}!")
         return {"data_source": ds.name, **job_status}
 
-    def _refresh_workbook(self, wb: TSC.WorkbookItem) -> dict:
-        """
-        Trigger refresh of the specific workbook object and poll for refresh status until completed or timeout.
-
-        Parameters
-        ----------
-        wb : TSC.WorkbookItem
-            Tableau workbook object
-
-        Returns
-        -------
-        dict
-            Dictionary with workbook name and refresh result
-        """
+    def _refresh_workbook(self, wb: "TSC.WorkbookItem") -> dict:
+        """Trigger refresh of the specific workbook and poll for completion."""
         self._logger.info(f"Triggering refresh of '{wb.name}' workbook...")
         response = self._server.workbooks.refresh(workbook_id=wb)
         job_status = self._get_job_status(job_id=response.id)
@@ -240,9 +258,7 @@ class TableauWrapper:
         return {"work_book": wb.name, **job_status}
 
     def _filter_datasources(self, data_sources: list) -> list:
-        """
-        Filter data sources by name and project.
-        """
+        """Filter data sources by name and project."""
         all_ds = TSC.Pager(self._server.datasources)
 
         # Only interact with selected data sources
@@ -254,9 +270,7 @@ class TableauWrapper:
         return lim_ds
 
     def _filter_workbooks(self, work_books: list) -> list:
-        """
-        Filter workbooks by name and project.
-        """
+        """Filter workbooks by name and project."""
         all_wb = TSC.Pager(self._server.workbooks)
 
         # Only interact with selected work books
@@ -268,37 +282,16 @@ class TableauWrapper:
         return lim_wb
 
     def _get_working_project(
-        self, project_id: str = None
-    ) -> Union[TSC.ProjectItem, None]:
+        self, project_id: Optional[str] = None
+    ) -> Union["TSC.ProjectItem", None]:
         """
-        Identify working project by using `project` and `parent_project` (if necessary) class properties.
-        The goal is to uniquely identify specific project on the server, if multiple projects have the same
-        name, the `parent_project` attribute of the TableauWrapper is required.
-
-        If `id` of the project is known, it can be used in the method call and `project` and `parent_project`
-        attributes of the TableauWrapper will be ignored.
-
-        Parameters
-        ----------
-        project_id : str
-            Project identifier on the Tableau server
-
-        Returns
-        -------
-        ProjectItem
-            ProjectItem, that represents unique project that was identified by using `project` and `parent_project`
-            parameters of the TableauWrapper class.
-
-        Raises
-        ------
-        MultipleWorkingProjectsException
-            If multiple projects with the same name exist on the server
-        UnidentifiedWorkingProjectException
-            If working project could not be identified
+        Identify the working project by using ``project`` and (optionally)
+        ``parent_project``. If ``project_id`` is provided, it takes precedence.
         """
         if not self.project and not project_id:
             self._logger.warning(
-                "Skip working project identification because 'project' parameter of TableauWrapper was not provided."
+                "Skip working project identification because 'project' parameter of "
+                "TableauWrapper was not provided."
             )
             return None
 
@@ -309,7 +302,8 @@ class TableauWrapper:
             if project.id == project_id:
                 lim_p = [project]
                 self._logger.info(
-                    f"\nProject ID provided directly:\n\tName: {lim_p[0].name}\n\tID: {lim_p[0].id}"
+                    f"\nProject ID provided directly:\n\tName: {lim_p[0].name}"
+                    f"\n\tID: {lim_p[0].id}"
                 )
                 break
 
@@ -317,7 +311,8 @@ class TableauWrapper:
             if project.name.strip() == self.parent_project and not project_id:
                 parent = project
                 self._logger.info(
-                    f"\nParent project identified:\n\tName: {parent.name}\n\tID: {parent.id}"
+                    f"\nParent project identified:\n\tName: {parent.name}"
+                    f"\n\tID: {parent.id}"
                 )
 
             # Identify project(s)
@@ -339,28 +334,15 @@ class TableauWrapper:
 
         if len(lim_p) > 1:
             raise self.MultipleWorkingProjectsException()
-        elif len(lim_p) == 0:
+        if len(lim_p) == 0:
             raise self.UnidentifiedWorkingProjectException()
-        else:
-            self._logger.info(
-                f"\nWorking project identified:\n\tName: {lim_p[0].name}\n\tID: {lim_p[0].id}"
-            )
-            return lim_p[0]
+        self._logger.info(
+            f"\nWorking project identified:\n\tName: {lim_p[0].name}\n\tID: {lim_p[0].id}"
+        )
+        return lim_p[0]
 
     def refresh_datasources(self, data_sources: list) -> list:
-        """
-        Asynchronously refresh specified list of Tableau data sources.
-
-        Parameters
-        ----------
-        data_sources : list
-            List of data sources
-
-        Returns
-        -------
-        list
-            List of dictionaries with data sources and their respective refresh statuses
-        """
+        """Asynchronously refresh a list of Tableau data sources."""
         with self._authenticate():
             # Only refresh selected data sources
             lim_ds = self._filter_datasources(data_sources=data_sources)
@@ -376,19 +358,7 @@ class TableauWrapper:
             return results
 
     def refresh_workbooks(self, work_books: list) -> list:
-        """
-        Asynchronously refresh specified list of Tableau workbooks.
-
-        Parameters
-        ----------
-        work_books : list
-            List of work books
-
-        Returns
-        -------
-        list
-            List of dictionaries with work books and their respective refresh statuses
-        """
+        """Asynchronously refresh a list of Tableau workbooks."""
         with self._authenticate():
             # Only refresh selected workbooks
             lim_wb = self._filter_workbooks(work_books=work_books)
@@ -404,57 +374,29 @@ class TableauWrapper:
             return results
 
 
-class TableauRefreshABCOperator(BaseOperator):
+class TableauRefreshABCOperator(ABC):
+    """
+    Abstract base class that implements generic functionality for Tableau
+    refresh operators. No Airflow inheritance -- plain Python.
+    """
+
     def __init__(
         self,
         server: str,
         username: str,
         password: str,
         site: str,
-        project: str = None,
-        parent_project: str = None,
+        project: Optional[str] = None,
+        parent_project: Optional[str] = None,
         version: str = "3.14",
         max_async_workers: int = 5,
         polling_required: bool = True,
         polling_interval: int = 30,
         polling_timeout: int = 600,
         fail_operator: bool = True,
-        *args,
-        **kwargs,
-    ):
-        """
-        Abstract class that implements generic functionality for TableauRefresh operators.
-
-        Parameters
-        ----------
-        server : str
-            Tableau server address, e.g. https://tableau-server.com
-        username : str
-            Log in username
-        password : str
-            Log in password
-        site : str
-            Tableau site
-        project : str
-            Tableau project
-        parent_project : str
-            Name of the parent Tableau project
-        version : str
-            Tableau server API version
-        max_async_workers : int
-            Maximum number of asynchronous tasks that will trigger jobs and wait for completion
-        polling_required : bool
-            Wait for job completion to proceed, otherwise just trigger the job and proceed
-        polling_interval : int
-            Polling interval for the job status updates (seconds)
-        polling_timeout : int
-            Stop polling if the job was not completed within the specified interval (seconds)
-        fail_operator : bool
-            Check Tableau refresh status and fail operator if any status is 'Failure' or 'Cancelled'
-        """
-        self.__logger = log
-
-        super().__init__(*args, **kwargs)
+    ) -> None:
+        _ensure_tableau()
+        self._logger = log
 
         self.wrapper_options = {
             "server": server,
@@ -470,129 +412,107 @@ class TableauRefreshABCOperator(BaseOperator):
             "polling_timeout": polling_timeout,
         }
 
-        self.__logger.info(f"Tableau wrapper options:{self.wrapper_options}")
+        self._logger.info(f"Tableau wrapper options:{self.wrapper_options}")
 
-        self.tableau_wrapper = None
+        self.tableau_wrapper: Optional[TableauWrapper] = None
         self.fail_operator = fail_operator
 
     def _analyze_refresh_result(self, results: list) -> bool:
         """
-        Analyze refresh results returned by the TableauWrapper and raise exception if necessary.
-
-        Parameters
-        ----------
-        results : list
-            List of dictionaries with Tableau refresh results
-
-        Returns
-        -------
-        bool
-            True if result is successful
-
-        Raises
-        ------
-        TableauRefreshEmptyException
-            If nothing was refreshed
-        TableauRefreshException
-            If there was an error during refresh
+        Analyze refresh results returned by the TableauWrapper and raise an
+        exception if the operator is configured to fail on error.
         """
         results_bool = [False if r["finish_code"] > 0 else True for r in results]
 
         if len(results_bool) == 0 and self.fail_operator:
             raise TableauRefreshEmptyException(
-                "Nothing was refreshed, check that refreshable object names are set correctly!"
+                "Nothing was refreshed, check that refreshable object names are "
+                "set correctly!"
             )
-        elif len(results_bool) > 0 and not all(results_bool) and self.fail_operator:
+        if len(results_bool) > 0 and not all(results_bool) and self.fail_operator:
             raise TableauRefreshException(
                 f"There was an error during the refresh of Tableau objects:\n{results}"
             )
-        else:
-            return True
+        return True
 
     @abstractmethod
-    def execute(self, context):
+    def execute(self):
         raise NotImplementedError
 
 
 class TableauRefreshDataSourceOperator(TableauRefreshABCOperator):
+    """
+    Refresh a list of Tableau data sources.
+
+    Example
+    -------
+    ::
+
+        TableauRefreshDataSourceOperator(
+            server="https://tableau.example.com",
+            username="me",
+            password="pw",
+            site="my_site",
+            project="my_project",
+            data_sources=["ds_a", "ds_b"],
+        ).execute()
+    """
+
     def __init__(
         self,
         data_sources: list,
         skip: bool = False,
-        task_id: str = "tableau_refresh_datasource",
-        *args,
         **kwargs,
-    ):
-        """
-        Airflow operator that handles refresh of Tableau data sources.
-
-        Parameters
-        ----------
-        data_sources : list
-            List of data source names that will be refreshed
-        skip : bool
-            Skip execution
-        task_id : str
-            ID for Airflow task
-        """
-        super().__init__(task_id=task_id, *args, **kwargs)
+    ) -> None:
+        super().__init__(**kwargs)
         self.data_sources = data_sources
-        self.__skip = skip
+        self._skip = skip
 
-    def execute(self, context):
-        """
-        Refresh data source in Tableau.
-        """
-        if not self.__skip:
+    def execute(self):
+        """Refresh data sources in Tableau."""
+        if not self._skip:
             self.tableau_wrapper = TableauWrapper(**self.wrapper_options)
             results = self.tableau_wrapper.refresh_datasources(
                 data_sources=self.data_sources
             )
             self._analyze_refresh_result(results)
         else:
-            self.__logger.info("Skipping task execution...")
+            self._logger.info("Skipping task execution...")
 
 
 class TableauRefreshWorkBookOperator(TableauRefreshABCOperator):
+    """
+    Refresh a list of Tableau workbooks.
+
+    Example
+    -------
+    ::
+
+        TableauRefreshWorkBookOperator(
+            server="https://tableau.example.com",
+            username="me",
+            password="pw",
+            site="my_site",
+            project="my_project",
+            workbooks=["wb_a", "wb_b"],
+        ).execute()
+    """
+
     def __init__(
         self,
         workbooks: list,
         skip: bool = False,
-        task_id: str = "tableau_refresh_workbooks",
-        *args,
         **kwargs,
-    ):
-        """
-        Airflow operator that handles refresh of Tableau workbooks.
-
-        Parameters
-        ----------
-        workbooks : list
-            List of workbook names that will be refreshed
-        skip : bool
-            Skip execution
-        task_id : str
-            ID for Airflow task
-        """
-        super().__init__(task_id=task_id, *args, **kwargs)
+    ) -> None:
+        super().__init__(**kwargs)
         self.workbooks = workbooks
-        self.__skip = skip
+        self._skip = skip
 
-    def execute(self, context):
-        """
-        Refresh workbooks in Tableau
-        """
-        if not self.__skip:
+    def execute(self):
+        """Refresh workbooks in Tableau."""
+        if not self._skip:
             self.tableau_wrapper = TableauWrapper(**self.wrapper_options)
             results = self.tableau_wrapper.refresh_workbooks(work_books=self.workbooks)
             self._analyze_refresh_result(results)
         else:
-            self.__logger.info("Skipping task execution...")
-
-
-class TableauRefreshException(Exception):
-    pass
-
-
-class TableauRefreshEmptyException(Exception):
-    pass
+            self._logger.info("Skipping task execution...")

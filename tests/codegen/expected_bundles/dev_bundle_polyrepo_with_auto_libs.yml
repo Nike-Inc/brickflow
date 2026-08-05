@@ -34,9 +34,6 @@ targets:
                     package: brickflows==0.1.0
                     repo: null
                 - pypi:
-                    package: apache-airflow==2.10.5
-                    repo: null
-                - pypi:
                     package: snowflake==1.5.1
                     repo: null
                 - pypi:

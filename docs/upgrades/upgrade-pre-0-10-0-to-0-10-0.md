@@ -71,7 +71,9 @@ if __name__ == "__main__":
    imported correctly.
 2. Import your modules after brickflow has been imported! Make sure your optimize imports doesnt reorder your imports!
 3. Make sure you remove brickflow and brickflow plugins and cron utils from this list.
-4. Make sure you have enable_plugins=True. This will enable the plugins to be loaded to support airflow operators, etc.
-   Disable this if you dont want to install airflow.
+4. Set `enable_plugins=True` to have the plugin backend libraries (Snowflake, Tableau, Box,
+   Cerberus) auto-attached to your Databricks cluster. Note: `apache-airflow` is no longer part
+   of this bundle. See the [Airflow-free release upgrade notes](upgrade-airflow-free.md) for
+   the full breaking-change list if you are upgrading past 0.10.x.
 
 
