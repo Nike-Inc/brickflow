@@ -33,7 +33,11 @@ never used the Airflow-based plugins can now install `brickflows`
 * `AirflowTaskDependencySensor` is a **new** native replacement for
   `TaskDependencySensor`. It shares the same wire behavior (polling the
   same Airflow REST endpoints) but requires only `requests` and no
-  `apache-airflow`.
+  `apache-airflow`. It routes to `/api/experimental` (Airflow 1.x),
+  `/api/v1` (Airflow 2.x), or `/api/v2` (Airflow 3.x) based on the
+  `AirflowCluster.version` string — set `version="3.0.0"` to target
+  Airflow 3.x, which uses `logical_date` filters in place of
+  `execution_date` filters.
 
 ## Migration table
 

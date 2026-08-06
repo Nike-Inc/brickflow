@@ -2,9 +2,10 @@
 Airflow Task Dependency Sensor.
 
 Native brickflow sensor that polls an external Airflow API to check the
-status of a specific task in an Airflow DAG. Supports both Airflow 1.x
-and 2.x API shapes. Requires only ``requests`` -- no ``apache-airflow``
-package needs to be installed on the Databricks cluster.
+status of a specific task in an Airflow DAG. Supports Airflow 1.x
+(``/api/experimental``), 2.x (``/api/v1``), and 3.x (``/api/v2``) API
+shapes. Requires only ``requests`` -- no ``apache-airflow`` package
+needs to be installed on the Databricks cluster.
 """
 
 from __future__ import annotations
@@ -17,6 +18,22 @@ import requests
 
 from brickflow_plugins import log
 from brickflow_plugins.sensors import Sensor
+
+
+def _api_variant(version: str) -> str:
+    """Map an Airflow version string to the REST API dialect used by the sensor.
+
+    Returns one of:
+
+    - ``"experimental"`` for Airflow 1.x (``/api/experimental``)
+    - ``"v2"`` for Airflow 3.x (``/api/v2``, FastAPI, ``logical_date``)
+    - ``"v1"`` for Airflow 2.x and anything else (``/api/v1``, default)
+    """
+    if version.startswith("1."):
+        return "experimental"
+    if version.startswith("3."):
+        return "v2"
+    return "v1"
 
 
 class AirflowClusterAuthError(Exception):
@@ -32,11 +49,14 @@ class AirflowCluster:
     url : str
         Base URL of the Airflow API (e.g. ``https://airflow.example.com``).
     version : str
-        Airflow major version string, e.g. ``"1.10"`` or ``"2.0.2"``. Used
-        to select between the ``/api/experimental`` and ``/api/v1``
-        endpoint shapes.
+        Airflow major version string, e.g. ``"1.10"``, ``"2.0.2"``, or
+        ``"3.0.0"``. Used to select between the ``/api/experimental``
+        (Airflow 1.x), ``/api/v1`` (Airflow 2.x), and ``/api/v2``
+        (Airflow 3.x) endpoint shapes.
     token : str
         Bearer token that will be sent in the ``Authorization`` header.
+        For Airflow 3.x, this is typically a short-lived JWT obtained
+        out-of-band (e.g. via Okta, MAP, or ``POST /auth/token``).
     """
 
     def __init__(self, url: str, version: str, token: str) -> None:
@@ -50,6 +70,12 @@ class AirflowTaskDependencySensor(Sensor):
     Sensor that polls an external Airflow cluster's API to wait until a
     given task in a given DAG reaches an allowed state.
 
+    The API dialect used is selected from ``cluster.version``:
+
+    - ``"1.x"`` -> ``/api/experimental``
+    - ``"2.x"`` (default) -> ``/api/v1``
+    - ``"3.x"`` -> ``/api/v2`` (FastAPI, ``logical_date`` filters)
+
     Example
     -------
     ::
@@ -59,7 +85,7 @@ class AirflowTaskDependencySensor(Sensor):
             task_id="final_task",
             cluster=AirflowCluster(
                 url="https://airflow.example.com",
-                version="2.0.2",
+                version="2.0.2",   # use "3.0.0" for Airflow 3.x (/api/v2)
                 token=my_token,
             ),
             execution_delta=timedelta(hours=0),
@@ -104,6 +130,7 @@ class AirflowTaskDependencySensor(Sensor):
 
         Returns "none" when no matching DAG run is found.
         """
+        variant = _api_variant(self.cluster.version)
         execution_window_tz = (execution_date + self.execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
@@ -117,11 +144,18 @@ class AirflowTaskDependencySensor(Sensor):
             "cache-control": "no-cache",
             "Authorization": f"Bearer {self.cluster.token}",
         }
-        if self.cluster.version.startswith("1."):
+        if variant == "experimental":
             log.info("this is 1.x cluster")
             url = f"{self.cluster.url}/api/experimental/dags/{self.dag_id}/dag_runs/"
+        elif variant == "v2":
+            # Airflow 3.x FastAPI: /api/v2 replaces /api/v1, and the
+            # execution_date_* filters were replaced by logical_date_*.
+            url = (
+                f"{self.cluster.url}/api/v2/dags/{self.dag_id}"
+                f"/dagRuns?logical_date_gte={execution_window_tz}{max_end_date_filter}"
+            )
         else:
-            # Airflow API for 2.X version limits 100 records, so only picking runs
+            # Airflow 2.x API limits 100 records, so only picking runs
             # within the execution window provided.
             url = (
                 f"{self.cluster.url}/api/v1/dags/{self.dag_id}"
@@ -133,8 +167,21 @@ class AirflowTaskDependencySensor(Sensor):
         response.raise_for_status()
 
         list_of_dictionaries = response.json()["dag_runs"]
+        # Airflow 3.x drops `execution_date` from DagRun payloads in favor of
+        # `logical_date`; older APIs still expose `execution_date`.
+        sort_key = "logical_date" if variant == "v2" else "execution_date"
+        if variant == "v2":
+            # In Airflow 3.x `logical_date` is nullable for asset-triggered runs.
+            # This sensor is fundamentally a date-window check, so runs without
+            # a logical_date are not eligible dependency targets -- drop them
+            # before sorting so they can't be selected by `[-1]` / `[0]`.
+            list_of_dictionaries = [
+                r for r in list_of_dictionaries if r.get(sort_key) is not None
+            ]
         list_of_dictionaries = sorted(
-            list_of_dictionaries, key=lambda k: k["execution_date"], reverse=True
+            list_of_dictionaries,
+            key=lambda k: k[sort_key],
+            reverse=True,
         )
 
         if len(list_of_dictionaries) == 0:
@@ -147,11 +194,11 @@ class AirflowTaskDependencySensor(Sensor):
             )
             return "none"
 
-        if self.cluster.version.startswith("1."):
-            # For airflow 1.X the execution date is needed to check the status.
+        if variant == "experimental":
+            # For Airflow 1.x the execution date is needed to check the status.
             dag_run_id = list_of_dictionaries[0]["execution_date"]
         else:
-            # For airflow 2.X or higher the dag_run_id is needed to check the status.
+            # For Airflow 2.x/3.x the dag_run_id is needed to check the status.
             dag_run_id = (
                 list_of_dictionaries[-1]["dag_run_id"]
                 if not self.latest
@@ -166,7 +213,7 @@ class AirflowTaskDependencySensor(Sensor):
             self.latest,
         )
 
-        if self.cluster.version.startswith("1."):
+        if variant == "experimental":
             if dag_run_id >= execution_window_tz:
                 task_url = f"{url}/{dag_run_id}/tasks/{self.task_id}"
             else:
@@ -177,9 +224,10 @@ class AirflowTaskDependencySensor(Sensor):
                 )
                 return "none"
         else:
+            api_prefix = "/api/v2" if variant == "v2" else "/api/v1"
             task_url = (
-                url[: url.rfind("/")]
-                + f"/dagRuns/{dag_run_id}/taskInstances/{self.task_id}"
+                f"{self.cluster.url}{api_prefix}/dags/{self.dag_id}"
+                f"/dagRuns/{dag_run_id}/taskInstances/{self.task_id}"
             )
         log.info("Pinging airflow API %s for task status ", task_url)
         task_response = requests.get(
