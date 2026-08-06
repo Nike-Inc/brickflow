@@ -820,7 +820,7 @@ def airflow_external_task_dependency_sensor():
         task_id="hello",
         cluster=AirflowCluster(
             url="https://proxy.../.../cluster_id/",
-            version="2.0.2",  # use "1.x" for Airflow 1.x -- API shape differs
+            version="2.0.2",  # "1.x" -> /api/experimental, "3.x" -> /api/v2
             token=token,
         ),
         allowed_states=["success"],
