@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from boxsdk import BoxAPIException as _BoxAPIExceptionT
@@ -20,8 +20,13 @@ except ImportError:
 # These module-level names are placeholders until _ensure_boxsdk() rebinds them
 # to the real boxsdk classes. Method bodies below reference these names via
 # LOAD_GLOBAL at call time, so they resolve to the real classes once loaded.
-Client: type | None = None
-JWTAuth: type | None = None
+#
+# Use ``Optional[type]`` (not ``type | None``) so these annotations remain valid
+# on Python 3.9 even if ``from __future__ import annotations`` is ever removed
+# or ``typing.get_type_hints()`` is called on this module. PEP 604 union syntax
+# only evaluates at runtime on Python 3.10+; ``Optional`` works unconditionally.
+Client: Optional[type] = None
+JWTAuth: Optional[type] = None
 BoxAPIException: type = Exception
 
 
