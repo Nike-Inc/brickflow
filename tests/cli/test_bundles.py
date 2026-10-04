@@ -5,11 +5,52 @@ from unittest.mock import patch, Mock
 from pytest import LogCaptureFixture
 import pytest
 
+from requests.adapters import HTTPAdapter
+
 from brickflow import BrickflowEnvVars, _ilog
-from brickflow.cli.bundles import bundle_deploy, bundle_destroy
+from brickflow.cli.bundles import (
+    _bundle_cli_download_retry,
+    bundle_deploy,
+    bundle_destroy,
+    download_url,
+)
 
 
 class TestBundles:
+    def test_bundle_cli_download_retry_defaults(self):
+        retry = _bundle_cli_download_retry()
+        assert retry.total == 5
+        assert retry.backoff_factor == 1.0
+        assert retry.status_forcelist == [429, 500, 502, 503, 504]
+
+    @patch.dict(
+        os.environ,
+        {
+            BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_DOWNLOAD_RETRIES.value: "3",
+            BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_DOWNLOAD_BACKOFF.value: "0.5",
+        },
+    )
+    def test_bundle_cli_download_retry_from_env(self):
+        retry = _bundle_cli_download_retry()
+        assert retry.total == 3
+        assert retry.backoff_factor == 0.5
+
+    @patch("brickflow.cli.bundles.requests.Session")
+    def test_download_url_uses_retry_adapter(self, mock_session_class: Mock):
+        mock_session = Mock()
+        mock_session_class.return_value = mock_session
+        mock_session.get.return_value = Mock(status_code=200, content=b"")
+
+        download_url("https://example.com/databricks_cli.zip")
+
+        https_adapter = mock_session.mount.call_args_list[0][0][1]
+        assert mock_session.mount.call_args_list[0][0][0] == "https://"
+        assert isinstance(https_adapter, HTTPAdapter)
+        assert https_adapter.max_retries.total == 5
+        mock_session.get.assert_called_once_with(
+            "https://example.com/databricks_cli.zip", timeout=60
+        )
+
     @patch("brickflow.cli.bundles.should_deploy", return_value=True)
     @patch("brickflow.cli.bundles.exec_command")
     @patch.dict(

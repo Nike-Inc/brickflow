@@ -10,6 +10,8 @@ from typing import Any, Callable, Optional
 import requests
 from click import ClickException
 from decouple import config
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from brickflow import (
     BrickflowEnvVars,
@@ -182,11 +184,36 @@ def bundle_download_path(version: str) -> str:
     )
 
 
+def _bundle_cli_download_retry() -> Retry:
+    total = config(
+        BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_DOWNLOAD_RETRIES.value,
+        default=5,
+        cast=int,
+    )
+    backoff_factor = config(
+        BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_DOWNLOAD_BACKOFF.value,
+        default=1.0,
+        cast=float,
+    )
+    return Retry(
+        total=total,
+        backoff_factor=backoff_factor,
+        status_forcelist=[429, 500, 502, 503, 504],
+        raise_on_status=False,
+    )
+
+
+def _download_session() -> requests.Session:
+    session = requests.Session()
+    adapter = HTTPAdapter(max_retries=_bundle_cli_download_retry())
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+
 def download_url(url: str) -> requests.Response:
     try:
-        return requests.get(
-            url, timeout=60
-        )  # Set a suitable timeout value (e.g., 10 seconds)
+        return _download_session().get(url, timeout=60)
     except requests.exceptions.Timeout:
         _ilog.error("Request timed out. Failed to download the file.")
         raise

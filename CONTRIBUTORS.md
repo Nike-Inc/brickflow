@@ -20,6 +20,9 @@ Thanks to the contributors who helped on this project apart from the authors
 * [Michael Espiritu](https://www.linkedin.com/in/michaelespiritu92/)
 * [Riccardo Iacomini](https://www.linkedin.com/in/riccardo-iacomini-b757b6118/)
 * [Sasa Mirkovic](https://www.linkedin.com/in/societysling)
+* [Sagar Deshmukh](https://www.linkedin.com/in/sagar-deshmukh-6a55a56)
+
+  
 
 # Honorary Mentions
 Thanks to the team below for invaluable insights and support throughout the initial release of this project
