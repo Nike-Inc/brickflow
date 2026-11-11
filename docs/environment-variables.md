@@ -46,6 +46,10 @@ Provide the runtime key-value parameters, each key-value separated by space when
 bf projects deploy -p DEFAULT -e local -kv key1=value1 -kv key2=value2
 ```
 
+Only the first `=` separates the key from its value, so a value may itself
+contain `=`: with `-kv 'predicate=status=active'`,
+`ctx.get_project_parameter("predicate")` returns `"status=active"`.
+
 ### Accessing the parameters in the workflow tasks
 
 The parameters can be accessed in the workflow tasks using the brickflow context object.

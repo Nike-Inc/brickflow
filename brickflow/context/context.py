@@ -427,7 +427,7 @@ class Context:
             return debug
         try:
             pairs = project_params.split(",")
-            kv_dict = {pair.split("=")[0]: pair.split("=")[1] for pair in pairs}
+            kv_dict = {pair.split("=", 1)[0]: pair.split("=", 1)[1] for pair in pairs}
             value = kv_dict.get(key)
             if value is None:
                 _ilog.debug(
