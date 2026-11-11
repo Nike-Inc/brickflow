@@ -273,6 +273,22 @@ class TestContext:
         assert result is None
 
     @pytest.mark.parametrize(
+        "parameters,key,expected",
+        [
+            ("k1=v1,k2=v2", "k2", "v2"),
+            ("predicate=status=active", "predicate", "status=active"),
+            ("k1=v1,expression=a=b=c", "expression", "a=b=c"),
+        ],
+    )
+    @patch("brickflow.context.ctx._dbutils")
+    def test_get_project_parameter_value_with_equals_sign(
+        self, dbutils: Mock, parameters: str, key: str, expected: str
+    ):
+        dbutils.widgets.get.return_value = parameters
+
+        assert ctx.get_project_parameter(key) == expected
+
+    @pytest.mark.parametrize(
         "value,expected_value,string_serialization",
         [
             (
