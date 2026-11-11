@@ -5,7 +5,7 @@ import io
 import os
 import platform
 import zipfile
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 import requests
 from click import ClickException
@@ -60,7 +60,7 @@ def bundle_sync(
     bundle_cli: Optional[str] = None,
     watch: bool = False,
     debug: bool = False,
-    interval_duration: Optional[int] = None,
+    interval_duration: Optional[Union[str, int]] = None,
     full: bool = False,
     **_: Any,
 ) -> None:
@@ -71,7 +71,7 @@ def bundle_sync(
     if watch is True:
         additional_args.append("--watch")
     if interval_duration is not None:
-        additional_args.append(f"--interval-duration {interval_duration}")
+        additional_args.extend(["--interval-duration", str(interval_duration)])
     if debug is True:
         additional_args.append("--debug")
 

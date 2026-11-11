@@ -6,7 +6,7 @@ from pytest import LogCaptureFixture
 import pytest
 
 from brickflow import BrickflowEnvVars, _ilog
-from brickflow.cli.bundles import bundle_deploy, bundle_destroy
+from brickflow.cli.bundles import bundle_deploy, bundle_destroy, bundle_sync
 
 
 class TestBundles:
@@ -72,6 +72,20 @@ class TestBundles:
             bundle_cli,
             "bundle",
             ["destroy", "-t", "local", "--force"],
+        )
+
+    @patch("brickflow.cli.bundles.exec_command")
+    @patch.dict(
+        os.environ, {BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_VERSION.value: "0.203.0"}
+    )
+    def test_bundle_sync_interval_duration(self, mock_exec_command: Mock):
+        mock_exec_command.side_effect = lambda *args, **kwargs: None
+        bundle_sync(workflows_dir="somedir", watch=True, interval_duration="5s")
+        bundle_cli = os.environ[BrickflowEnvVars.BRICKFLOW_BUNDLE_CLI_EXEC.value]
+        mock_exec_command.assert_called_with(
+            bundle_cli,
+            "bundle",
+            ["sync", "-t", "local", "--watch", "--interval-duration", "5s"],
         )
 
     @patch("brickflow.cli.bundles.exec_command")
