@@ -138,7 +138,7 @@ class Workflow:
     libraries: List[TaskLibrary] = field(default_factory=lambda: [])
     tags: Optional[Dict[str, str]] = None
     max_concurrent_runs: int = 1
-    permissions: WorkflowPermissions = WorkflowPermissions()
+    permissions: WorkflowPermissions = field(default_factory=WorkflowPermissions)
     active_task: Optional[str] = None
     graph: nx.DiGraph = field(default_factory=nx.DiGraph)
     tasks: Dict[str, Task] = field(default_factory=lambda: {})
@@ -468,7 +468,7 @@ class Workflow:
                 "Task timeout_seconds should not exceed workflow timeout_seconds",
             )
 
-        _libraries = libraries or [] + self.libraries
+        _libraries = (libraries or []) + self.libraries
 
         # Resolve any glob patterns in dependencies
         resolved_deps = self._resolve_task_patterns(depends_on, task_id)
