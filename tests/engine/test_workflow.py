@@ -421,3 +421,58 @@ class TestWorkflow:
             clusters=[Cluster("name", "spark", "vm-node")],
         )
         assert this_wf.description is None
+
+    def test_task_libraries_merge_with_workflow_libraries(self):
+        wf_lib = PypiTaskLibrary(package="workflow-lib")
+        task_lib = PypiTaskLibrary(package="task-lib")
+        wf_libs = [wf_lib]
+        task_libs = [task_lib]
+
+        this_wf = Workflow(
+            "test_libraries_merge",
+            clusters=[Cluster("name", "spark", "vm-node")],
+            libraries=wf_libs,
+        )
+
+        @this_wf.task(libraries=task_libs)
+        def task_with_own_libraries():
+            return "ok"
+
+        @this_wf.task()
+        def task_with_default_libraries():
+            return "ok"
+
+        @this_wf.task(libraries=[])
+        def task_with_empty_libraries():
+            return "ok"
+
+        own_task = this_wf.get_task("task_with_own_libraries")
+        default_task = this_wf.get_task("task_with_default_libraries")
+        empty_task = this_wf.get_task("task_with_empty_libraries")
+
+        assert own_task.libraries == [task_lib, wf_lib]
+        assert default_task.libraries == [wf_lib]
+        assert empty_task.libraries == [wf_lib]
+        assert task_libs == [task_lib]
+        assert wf_libs == [wf_lib]
+        assert own_task.libraries is not task_libs
+        assert own_task.libraries is not wf_libs
+
+    def test_default_permissions_not_shared_across_workflows(self):
+        cluster = Cluster("name", "spark", "vm-node")
+        wf_a = Workflow("wf_a", clusters=[cluster])
+        wf_b = Workflow("wf_b", clusters=[cluster])
+
+        assert wf_a.permissions is not wf_b.permissions
+
+        wf_a.permissions.can_view.append(User("viewer@example.com"))
+        wf_a.permissions.can_manage.append(Group("admins"))
+        wf_a.permissions.can_manage_run.append(ServicePrincipal("sp-123"))
+
+        wf_c = Workflow("wf_c", clusters=[cluster])
+
+        assert not wf_b.permissions.can_view
+        assert not wf_b.permissions.can_manage
+        assert not wf_b.permissions.can_manage_run
+        assert not wf_b.permissions.to_access_controls()
+        assert not wf_c.permissions.to_access_controls()
